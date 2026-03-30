@@ -1,8 +1,6 @@
 import {useState, useCallback, useMemo, useEffect} from 'react';
-import {GetTransactionsUseCase} from '../../domain/usecases/GetTransactionsUseCase';
-import {TransactionRepositoryImpl} from '../../data/repositories/TransactionRepositoryImpl';
-import {MockTransactionDataSource} from '../../data/datasources/MockTransactionDataSource';
 import {Transaction} from '../../domain/entities/Transaction';
+import {useDI} from '../../di';
 
 interface TransactionsState {
   transactions: Transaction[];
@@ -17,11 +15,7 @@ export function useTransactionsViewModel() {
     error: null,
   });
 
-  const getTransactionsUseCase = useMemo(() => {
-    const dataSource = new MockTransactionDataSource();
-    const repository = new TransactionRepositoryImpl(dataSource);
-    return new GetTransactionsUseCase(repository);
-  }, []);
+  const {getTransactionsUseCase} = useDI();
 
   const loadTransactions = useCallback(async () => {
     setState(prev => ({...prev, isLoading: true, error: null}));

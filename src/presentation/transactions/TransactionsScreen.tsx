@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,11 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RouteProp} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {RootStackParamList} from '../../navigation/AppNavigator';
 import {useTransactionsViewModel} from './useTransactionsViewModel';
+import {useAuth} from '../../providers';
 import {Transaction, TransactionCategory} from '../../domain/entities/Transaction';
-
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Transactions'>;
-  route: RouteProp<RootStackParamList, 'Transactions'>;
-};
+import {useTheme, type ThemeColors} from '../../providers/theme';
 
 const CATEGORY_CONFIG: Record<TransactionCategory, {icon: string; label: string}> = {
   salary: {icon: '💰', label: 'Salario'},
@@ -45,25 +39,26 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString('es-MX', {day: 'numeric', month: 'short'});
 }
 
-function TransactionItem({item}: {item: Transaction}) {
+function TransactionItem({item, colors}: {item: Transaction; colors: ThemeColors}) {
   const category = CATEGORY_CONFIG[item.category];
   const status = STATUS_CONFIG[item.status];
   const isIncome = item.type === 'income';
+  const iStyles = useItemStyles(colors);
 
   return (
-    <View style={itemStyles.container}>
-      <View style={itemStyles.iconContainer}>
-        <Text style={itemStyles.icon}>{category.icon}</Text>
+    <View style={iStyles.container}>
+      <View style={iStyles.iconContainer}>
+        <Text style={iStyles.icon}>{category.icon}</Text>
       </View>
 
-      <View style={itemStyles.content}>
-        <Text style={itemStyles.description} numberOfLines={1}>
+      <View style={iStyles.content}>
+        <Text style={iStyles.description} numberOfLines={1}>
           {item.description}
         </Text>
-        <View style={itemStyles.meta}>
-          <Text style={itemStyles.date}>{formatDate(item.date)}</Text>
-          <View style={[itemStyles.badge, {backgroundColor: status.bg}]}>
-            <Text style={[itemStyles.badgeText, {color: status.color}]}>
+        <View style={iStyles.meta}>
+          <Text style={iStyles.date}>{formatDate(item.date)}</Text>
+          <View style={[iStyles.badge, {backgroundColor: status.bg}]}>
+            <Text style={[iStyles.badgeText, {color: status.color}]}>
               {status.label}
             </Text>
           </View>
@@ -72,8 +67,8 @@ function TransactionItem({item}: {item: Transaction}) {
 
       <Text
         style={[
-          itemStyles.amount,
-          {color: isIncome ? '#059669' : '#DC2626'},
+          iStyles.amount,
+          {color: isIncome ? colors.success : colors.error},
         ]}>
         {isIncome ? '+' : '-'}{formatCurrency(item.amount)}
       </Text>
@@ -81,14 +76,17 @@ function TransactionItem({item}: {item: Transaction}) {
   );
 }
 
-export function TransactionsScreen({navigation, route}: Props) {
-  const {userName, userEmail} = route.params;
+export function TransactionsScreen() {
+  const {user, logout} = useAuth();
+  const {colors} = useTheme();
   const insets = useSafeAreaInsets();
+  const styles = useStyles(colors);
+
   const {transactions, isLoading, error, balance, income, expenses, retry} =
     useTransactionsViewModel();
 
-  const handleLogout = () => {
-    navigation.replace('Login');
+  const handleLogout = async () => {
+    await logout();
   };
 
   const renderHeader = () => (
@@ -99,14 +97,14 @@ export function TransactionsScreen({navigation, route}: Props) {
         <View style={styles.balanceRow}>
           <View style={styles.balanceStat}>
             <Text style={styles.balanceStatLabel}>Ingresos</Text>
-            <Text style={[styles.balanceStatValue, {color: '#059669'}]}>
+            <Text style={[styles.balanceStatValue, {color: colors.success}]}>
               +{formatCurrency(income)}
             </Text>
           </View>
           <View style={styles.balanceDivider} />
           <View style={styles.balanceStat}>
             <Text style={styles.balanceStatLabel}>Gastos</Text>
-            <Text style={[styles.balanceStatValue, {color: '#DC2626'}]}>
+            <Text style={[styles.balanceStatValue, {color: colors.error}]}>
               -{formatCurrency(expenses)}
             </Text>
           </View>
@@ -121,7 +119,7 @@ export function TransactionsScreen({navigation, route}: Props) {
     if (isLoading) {
       return (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Cargando transacciones...</Text>
         </View>
       );
@@ -149,8 +147,8 @@ export function TransactionsScreen({navigation, route}: Props) {
     <View style={[styles.root, {paddingTop: insets.top}]}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Hola, {userName}</Text>
-          <Text style={styles.email}>{userEmail}</Text>
+          <Text style={styles.greeting}>Hola, {user?.name}</Text>
+          <Text style={styles.email}>{user?.email}</Text>
         </View>
         <TouchableOpacity
           style={styles.logoutButton}
@@ -163,7 +161,7 @@ export function TransactionsScreen({navigation, route}: Props) {
       <FlatList
         data={transactions}
         keyExtractor={item => item.id}
-        renderItem={({item}) => <TransactionItem item={item} />}
+        renderItem={({item}) => <TransactionItem item={item} colors={colors} />}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={styles.listContent}
@@ -173,175 +171,187 @@ export function TransactionsScreen({navigation, route}: Props) {
   );
 }
 
-const itemStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  icon: {
-    fontSize: 20,
-  },
-  content: {
-    flex: 1,
-    marginRight: 8,
-  },
-  description: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  date: {
-    fontSize: 13,
-    color: '#9CA3AF',
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  amount: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-});
+function useItemStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.surface,
+          borderRadius: 14,
+          padding: 14,
+          marginBottom: 10,
+          borderWidth: 1,
+          borderColor: colors.borderSubtle,
+        },
+        iconContainer: {
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          backgroundColor: colors.borderSubtle,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: 12,
+        },
+        icon: {
+          fontSize: 20,
+        },
+        content: {
+          flex: 1,
+          marginRight: 8,
+        },
+        description: {
+          fontSize: 15,
+          fontWeight: '600',
+          color: colors.textPrimary,
+          marginBottom: 4,
+        },
+        meta: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        },
+        date: {
+          fontSize: 13,
+          color: colors.textTertiary,
+        },
+        badge: {
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: 6,
+        },
+        badgeText: {
+          fontSize: 11,
+          fontWeight: '600',
+        },
+        amount: {
+          fontSize: 15,
+          fontWeight: '700',
+        },
+      }),
+    [colors],
+  );
+}
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  greeting: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  email: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
-  logoutButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  logoutText: {
-    color: '#EF4444',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-  },
-  balanceCard: {
-    backgroundColor: '#4F46E5',
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 24,
-  },
-  balanceLabel: {
-    fontSize: 14,
-    color: '#C7D2FE',
-    marginBottom: 4,
-  },
-  balanceAmount: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 20,
-  },
-  balanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  balanceStat: {
-    flex: 1,
-  },
-  balanceStatLabel: {
-    fontSize: 12,
-    color: '#C7D2FE',
-    marginBottom: 2,
-  },
-  balanceStatValue: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  balanceDivider: {
-    width: 1,
-    height: 32,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    marginHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 14,
-  },
-  centered: {
-    alignItems: 'center',
-    paddingVertical: 48,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 12,
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#DC2626',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#4F46E5',
-    borderRadius: 10,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  retryText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-});
+function useStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        header: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+        },
+        greeting: {
+          fontSize: 20,
+          fontWeight: '700',
+          color: colors.textPrimary,
+        },
+        email: {
+          fontSize: 13,
+          color: colors.textTertiary,
+          marginTop: 2,
+        },
+        logoutButton: {
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.borderLight,
+          borderRadius: 10,
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+        },
+        logoutText: {
+          color: colors.error,
+          fontSize: 14,
+          fontWeight: '600',
+        },
+        listContent: {
+          paddingHorizontal: 20,
+          paddingBottom: 32,
+        },
+        balanceCard: {
+          backgroundColor: colors.primary,
+          borderRadius: 20,
+          padding: 24,
+          marginBottom: 24,
+        },
+        balanceLabel: {
+          fontSize: 14,
+          color: colors.primaryLight,
+          marginBottom: 4,
+        },
+        balanceAmount: {
+          fontSize: 34,
+          fontWeight: '800',
+          color: colors.white,
+          marginBottom: 20,
+        },
+        balanceRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        balanceStat: {
+          flex: 1,
+        },
+        balanceStatLabel: {
+          fontSize: 12,
+          color: colors.primaryLight,
+          marginBottom: 2,
+        },
+        balanceStatValue: {
+          fontSize: 16,
+          fontWeight: '700',
+        },
+        balanceDivider: {
+          width: 1,
+          height: 32,
+          backgroundColor: colors.balanceDivider,
+          marginHorizontal: 16,
+        },
+        sectionTitle: {
+          fontSize: 17,
+          fontWeight: '700',
+          color: colors.textPrimary,
+          marginBottom: 14,
+        },
+        centered: {
+          alignItems: 'center',
+          paddingVertical: 48,
+        },
+        loadingText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginTop: 12,
+        },
+        errorText: {
+          fontSize: 14,
+          color: colors.error,
+          marginBottom: 12,
+          textAlign: 'center',
+        },
+        retryButton: {
+          backgroundColor: colors.primary,
+          borderRadius: 10,
+          paddingHorizontal: 24,
+          paddingVertical: 10,
+        },
+        retryText: {
+          color: colors.white,
+          fontSize: 14,
+          fontWeight: '600',
+        },
+        emptyText: {
+          fontSize: 14,
+          color: colors.textTertiary,
+        },
+      }),
+    [colors],
+  );
+}

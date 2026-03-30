@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,18 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginViewModel} from './useLoginViewModel';
-import {RootStackParamList} from '../../navigation/AppNavigator';
+import {useAuth} from '../../providers';
+import {useTheme, type ThemeColors} from '../../providers/theme';
 
-type LoginScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;
-};
+export function LoginScreen() {
+  const {login} = useAuth();
+  const {colors} = useTheme();
+  const styles = useStyles(colors);
 
-export function LoginScreen({navigation}: LoginScreenProps) {
   const {email, password, isLoading, error, setEmail, setPassword, handleLogin} =
-    useLoginViewModel(user => {
-      navigation.replace('Transactions', {userName: user.name, userEmail: user.email});
+    useLoginViewModel(async user => {
+      await login(user);
     });
 
   return (
@@ -45,7 +45,7 @@ export function LoginScreen({navigation}: LoginScreenProps) {
             <TextInput
               style={[styles.input, error && !email && styles.inputError]}
               placeholder="correo@ejemplo.com"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.placeholder}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -60,7 +60,7 @@ export function LoginScreen({navigation}: LoginScreenProps) {
             <TextInput
               style={[styles.input, error && !password && styles.inputError]}
               placeholder="Tu contraseña"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.placeholder}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -80,7 +80,7 @@ export function LoginScreen({navigation}: LoginScreenProps) {
             disabled={isLoading}
             activeOpacity={0.8}>
             {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
+              <ActivityIndicator color={colors.white} size="small" />
             ) : (
               <Text style={styles.buttonText}>Iniciar Sesión</Text>
             )}
@@ -98,111 +98,117 @@ export function LoginScreen({navigation}: LoginScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 48,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: '#4F46E5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  logoText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-  },
-  form: {
-    gap: 16,
-  },
-  inputGroup: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginLeft: 4,
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#111827',
-  },
-  inputError: {
-    borderColor: '#EF4444',
-  },
-  errorContainer: {
-    backgroundColor: '#FEF2F2',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#FECACA',
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#4F46E5',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  hintContainer: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  hintText: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  hintBold: {
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-});
+function useStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        scrollContent: {
+          flexGrow: 1,
+          justifyContent: 'center',
+          paddingHorizontal: 24,
+          paddingVertical: 48,
+        },
+        header: {
+          alignItems: 'center',
+          marginBottom: 40,
+        },
+        logoContainer: {
+          width: 72,
+          height: 72,
+          borderRadius: 20,
+          backgroundColor: colors.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 20,
+        },
+        logoText: {
+          fontSize: 28,
+          fontWeight: '700',
+          color: colors.white,
+        },
+        title: {
+          fontSize: 28,
+          fontWeight: '700',
+          color: colors.textPrimary,
+          marginBottom: 8,
+        },
+        subtitle: {
+          fontSize: 16,
+          color: colors.textSecondary,
+        },
+        form: {
+          gap: 16,
+        },
+        inputGroup: {
+          gap: 6,
+        },
+        label: {
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.textLabel,
+          marginLeft: 4,
+        },
+        input: {
+          backgroundColor: colors.inputBg,
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          fontSize: 16,
+          color: colors.textPrimary,
+        },
+        inputError: {
+          borderColor: colors.error,
+        },
+        errorContainer: {
+          backgroundColor: colors.errorBg,
+          borderRadius: 10,
+          paddingHorizontal: 14,
+          paddingVertical: 12,
+          borderWidth: 1,
+          borderColor: colors.errorBorder,
+        },
+        errorText: {
+          color: colors.error,
+          fontSize: 14,
+          textAlign: 'center',
+        },
+        button: {
+          backgroundColor: colors.primary,
+          borderRadius: 12,
+          paddingVertical: 16,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: 8,
+        },
+        buttonDisabled: {
+          opacity: 0.7,
+        },
+        buttonText: {
+          color: colors.white,
+          fontSize: 16,
+          fontWeight: '600',
+        },
+        hintContainer: {
+          marginTop: 16,
+          alignItems: 'center',
+        },
+        hintText: {
+          fontSize: 13,
+          color: colors.textTertiary,
+          textAlign: 'center',
+          lineHeight: 20,
+        },
+        hintBold: {
+          fontWeight: '600',
+          color: colors.textSecondary,
+        },
+      }),
+    [colors],
+  );
+}

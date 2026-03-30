@@ -1,8 +1,6 @@
-import {useState, useCallback, useMemo} from 'react';
-import {LoginUseCase} from '../../domain/usecases/LoginUseCase';
-import {AuthRepositoryImpl} from '../../data/repositories/AuthRepositoryImpl';
-import {MockAuthDataSource} from '../../data/datasources/MockAuthDataSource';
+import {useState, useCallback} from 'react';
 import {User} from '../../domain/entities/User';
+import {useDI} from '../../di';
 
 interface LoginState {
   email: string;
@@ -19,11 +17,7 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
     error: null,
   });
 
-  const loginUseCase = useMemo(() => {
-    const dataSource = new MockAuthDataSource();
-    const repository = new AuthRepositoryImpl(dataSource);
-    return new LoginUseCase(repository);
-  }, []);
+  const {loginUseCase} = useDI();
 
   const setEmail = useCallback((email: string) => {
     setState(prev => ({...prev, email, error: null}));
