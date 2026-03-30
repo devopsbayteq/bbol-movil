@@ -1,97 +1,89 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# BBApp
 
-# Getting Started
+Aplicacion movil de gestion financiera personal desarrollada con **React Native**. Permite a los usuarios autenticarse y visualizar sus transacciones (ingresos y gastos) con un resumen de balance en tiempo real.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Stack tecnologico
 
-## Step 1: Start Metro
+- **React Native** 0.84.1 (New Architecture)
+- **React** 19.2.3
+- **TypeScript** 5.8+
+- **React Navigation** 7 (Native Stack)
+- **Zustand** 5 (estado del tema)
+- **react-native-encrypted-storage** (almacenamiento seguro)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Prerequisitos
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+| Herramienta | Version minima | Notas |
+|---|---|---|
+| Node.js | >= 22.11.0 | Verificar con `node -v` |
+| npm | Incluido con Node | Verificar con `npm -v` |
+| Ruby | >= 2.6.10 | Necesario para CocoaPods (iOS) |
+| CocoaPods | >= 1.13 | Se instala via `bundle install` |
+| Xcode | Ultima version estable | Solo macOS, necesario para iOS |
+| Android Studio | Ultima version estable | Incluye Android SDK y emulador |
+| JDK | 17 | Requerido por Android Gradle |
 
-```sh
-# Using npm
-npm start
+Guia completa de configuracion del entorno: [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment)
 
-# OR using Yarn
-yarn start
-```
+## Instalacion
 
-## Step 2: Build and run your app
+```bash
+# 1. Clonar el repositorio
+git clone <url-del-repositorio>
+cd BBApp
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+# 2. Instalar dependencias de JavaScript
+npm install
 
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
+# 3. Instalar dependencias nativas de iOS (solo macOS)
 bundle install
+bundle exec pod install --project-directory=ios
 ```
 
-Then, and every time you update your native dependencies, run:
+## Ejecutar en Android
 
-```sh
-bundle exec pod install
+**1. Iniciar el servidor Metro** en una terminal:
+
+```bash
+npm start
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+**2. En otra terminal**, compilar y ejecutar la app:
 
-```sh
-# Using npm
+```bash
+npm run android
+```
+
+Esto compila la app e instala el APK en el emulador o dispositivo conectado via USB (verificar con `adb devices`).
+
+Tambien se puede abrir la carpeta `android/` directamente en **Android Studio** y ejecutar desde ahi.
+
+## Ejecutar en iOS
+
+> Requiere macOS con Xcode instalado.
+
+**1. Iniciar el servidor Metro** en una terminal:
+
+```bash
+npm start
+```
+
+**2. En otra terminal**, compilar y ejecutar la app:
+
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Esto compila la app y la abre en el simulador de iOS por defecto.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+Tambien se puede abrir `ios/BBApp.xcworkspace` en **Xcode** y ejecutar desde ahi. Siempre usar el archivo `.xcworkspace`, no `.xcodeproj`.
 
-## Step 3: Modify your app
+## Scripts disponibles
 
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+| Script | Comando | Descripcion |
+|---|---|---|
+| Metro | `npm start` | Inicia el bundler de desarrollo |
+| Android | `npm run android` | Compila y ejecuta en Android |
+| iOS | `npm run ios` | Compila y ejecuta en iOS |
+| Tests | `npm test` | Ejecuta los tests con Jest |
+| Lint | `npm run lint` | Ejecuta ESLint sobre el proyecto |
