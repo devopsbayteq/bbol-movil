@@ -4,6 +4,7 @@ import {
   Text,
   Image,
   StyleSheet,
+  ActivityIndicator,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -15,6 +16,7 @@ interface SecondaryIconButtonProps {
   iconUri: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -23,22 +25,29 @@ export function SecondaryIconButton({
   iconUri,
   onPress,
   disabled = false,
+  loading = false,
   style,
 }: SecondaryIconButtonProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
+  const isDisabled = disabled || loading;
+
   return (
     <TouchableOpacity
-      style={[styles.root, disabled && styles.disabled, style]}
+      style={[styles.root, isDisabled && styles.disabled, style]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
       activeOpacity={0.85}>
-      <Image
-        source={{uri: iconUri}}
-        style={styles.icon}
-        resizeMode="contain"
-      />
+      {loading ? (
+        <ActivityIndicator color={colors.iconPrimary} size="small" />
+      ) : (
+        <Image
+          source={{uri: iconUri}}
+          style={styles.icon}
+          resizeMode="contain"
+        />
+      )}
       <Text style={styles.label}>{title}</Text>
     </TouchableOpacity>
   );

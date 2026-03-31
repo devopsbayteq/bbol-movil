@@ -30,23 +30,26 @@ export function LoginScreen() {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const {email, password, isLoading, error, setEmail, setPassword, handleLogin} =
-    useLoginViewModel(async user => {
-      await login(user);
-    });
+  const {
+    email,
+    password,
+    isLoadingLogin,
+    isLoadingBiometric,
+    isBusy,
+    error,
+    setEmail,
+    setPassword,
+    handleLogin,
+    handleBiometricLogin,
+  } = useLoginViewModel(async user => {
+    await login(user);
+  });
 
   const hasFieldError = (fieldEmpty: boolean) =>
     !!error && fieldEmpty;
 
   const onHelp = () => {
     Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
-  };
-
-  const onBiometric = () => {
-    Alert.alert(
-      'Huella / Face ID',
-      'La autenticación biométrica estará disponible próximamente.',
-    );
   };
 
   return (
@@ -82,7 +85,7 @@ export function LoginScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              editable={!isLoading}
+              editable={!isBusy}
               autoComplete="username"
             />
 
@@ -92,7 +95,7 @@ export function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               hasError={hasFieldError(!password)}
-              editable={!isLoading}
+              editable={!isBusy}
               eyeIconUri={FIGMA_LOGIN_ASSETS.eye}
               autoComplete="password"
             />
@@ -106,15 +109,17 @@ export function LoginScreen() {
             <Button
               title="Ingresar"
               onPress={handleLogin}
-              loading={isLoading}
+              loading={isLoadingLogin}
+              disabled={isBusy}
               variant="loginPrimary"
             />
             <OrSeparator />
             <SecondaryIconButton
               title="Huella/FaceID"
               iconUri={FIGMA_LOGIN_ASSETS.fingerprint}
-              onPress={onBiometric}
-              disabled={isLoading}
+              onPress={handleBiometricLogin}
+              disabled={isBusy}
+              loading={isLoadingBiometric}
             />
           </View>
 
