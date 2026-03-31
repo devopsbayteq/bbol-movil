@@ -1,10 +1,9 @@
-import React from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {LoginScreen} from '../presentation/auth/LoginScreen';
 import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
+import {SplashScreen} from '../presentation/splash';
 import {useAuth} from '../providers';
-import {useTheme} from '../providers/theme';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -15,14 +14,20 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
   const {isAuthenticated, isLoading} = useAuth();
-  const {colors} = useTheme();
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
 
-  if (isLoading) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background}}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  if (isSplashVisible || isLoading) {
+    return <SplashScreen />;
   }
 
   return (
