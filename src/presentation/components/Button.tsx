@@ -8,8 +8,9 @@ import {
   type ViewStyle,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
+import {Lexend} from '../../theme/lexend';
 
-type ButtonVariant = 'primary' | 'outline';
+type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
 
 interface ButtonProps {
   title: string;
@@ -37,7 +38,9 @@ export function Button({
     <TouchableOpacity
       style={[
         styles.base,
-        variant === 'primary' ? styles.primary : styles.outline,
+        variant === 'primary' && styles.primary,
+        variant === 'outline' && styles.outline,
+        variant === 'loginPrimary' && styles.loginPrimary,
         isDisabled && styles.disabled,
         style,
       ]}
@@ -46,7 +49,9 @@ export function Button({
       activeOpacity={0.8}>
       {loading ? (
         <ActivityIndicator
-          color={variant === 'primary' ? colors.white : colors.primary}
+          color={
+            variant === 'outline' ? colors.primary : colors.white
+          }
           size="small"
         />
       ) : (
@@ -54,6 +59,7 @@ export function Button({
           style={[
             styles.text,
             variant === 'outline' && styles.outlineText,
+            variant === 'loginPrimary' && styles.loginPrimaryText,
           ]}>
           {title}
         </Text>
@@ -81,6 +87,13 @@ function useStyles(colors: ThemeColors) {
           borderWidth: 1,
           borderColor: colors.borderLight,
         },
+        loginPrimary: {
+          borderRadius: 8,
+          paddingVertical: 16,
+          paddingHorizontal: 16,
+          backgroundColor: colors.primary,
+          width: '100%',
+        },
         disabled: {
           opacity: 0.7,
         },
@@ -91,6 +104,12 @@ function useStyles(colors: ThemeColors) {
         },
         outlineText: {
           color: colors.primary,
+        },
+        loginPrimaryText: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
+          lineHeight: 22,
+          color: colors.white,
         },
       }),
     [colors],

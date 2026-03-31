@@ -12,6 +12,9 @@ export interface ThemeColors {
   borderSubtle: string;
   inputBg: string;
   placeholder: string;
+  buttonSecondaryBg: string;
+  iconPrimary: string;
+  linkPrimary: string;
   error: string;
   errorBg: string;
   errorBorder: string;
@@ -24,19 +27,22 @@ export interface ThemeColors {
 }
 
 export const LightColors: ThemeColors = {
-  background: '#F9FAFB',
+  background: '#F2F2F2',
   surface: '#FFFFFF',
-  primary: '#4F46E5',
-  primaryLight: '#C7D2FE',
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
-  textLabel: '#374151',
-  border: '#D1D5DB',
-  borderLight: '#E5E7EB',
-  borderSubtle: '#F3F4F6',
+  primary: '#008292',
+  primaryLight: '#B3E5EC',
+  textPrimary: '#1A1A1A',
+  textSecondary: '#474747',
+  textTertiary: '#757575',
+  textLabel: '#1A1A1A',
+  border: '#E0E0E0',
+  borderLight: '#EEEEEE',
+  borderSubtle: '#F2F2F2',
   inputBg: '#FFFFFF',
-  placeholder: '#9CA3AF',
+  placeholder: '#757575',
+  buttonSecondaryBg: '#E2E2E2',
+  iconPrimary: '#000000',
+  linkPrimary: '#008292',
   error: '#DC2626',
   errorBg: '#FEF2F2',
   errorBorder: '#FECACA',
@@ -51,17 +57,20 @@ export const LightColors: ThemeColors = {
 export const DarkColors: ThemeColors = {
   background: '#111827',
   surface: '#1F2937',
-  primary: '#818CF8',
-  primaryLight: '#312E81',
+  primary: '#22D3EE',
+  primaryLight: '#164E63',
   textPrimary: '#F9FAFB',
   textSecondary: '#D1D5DB',
   textTertiary: '#9CA3AF',
   textLabel: '#E5E7EB',
   border: '#374151',
-  borderLight: '#374151',
+  borderLight: '#4B5563',
   borderSubtle: '#1F2937',
   inputBg: '#1F2937',
   placeholder: '#6B7280',
+  buttonSecondaryBg: '#374151',
+  iconPrimary: '#F9FAFB',
+  linkPrimary: '#22D3EE',
   error: '#F87171',
   errorBg: '#451A1A',
   errorBorder: '#7F1D1D',
