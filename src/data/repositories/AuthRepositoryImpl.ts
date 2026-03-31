@@ -7,7 +7,7 @@ export class AuthRepositoryImpl implements AuthRepository {
   constructor(private readonly dataSource: AuthDataSource) {}
 
   async login(email: string, password: string): Promise<User> {
-    const response = await this.dataSource.login({email, password});
-    return mapLoginResponseToUser(response);
+    const response = await this.dataSource.login({username: email, password});
+    return mapLoginResponseToUser(response, email);
   }
 }

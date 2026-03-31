@@ -22,8 +22,7 @@ export interface AppContainer {
 
 export function createContainer(): AppContainer {
   const httpClient = new AxiosHttpClient(
-    'https://dev4.bayteq.com:50110/api/v1',
-    {'X-Platform': 'VALOR_A_DEFINIR'},
+    'https://dev4.bayteq.com:50112/'
   );
   const secureStorageService = new SecureStorageServiceImpl();
   const biometricAuthService = new BiometricAuthServiceImpl();
