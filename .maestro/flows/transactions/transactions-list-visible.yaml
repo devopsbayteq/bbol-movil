@@ -1,0 +1,30 @@
+appId: com.bbapp
+name: Lista de transacciones y estados visibles
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 20000
+
+- assertVisible: "Saldo disponible"
+- assertVisible: "Ingresos"
+- assertVisible: "Gastos"
+- assertVisible: "Movimientos recientes"
+
+- assertVisible: "Depósito de nómina"
+- assertVisible: "Completada"
+
+- scrollUntilVisible:
+    element:
+      text: "Amazon - Audífonos"
+    direction: DOWN
+    timeout: 15000
+
+- assertVisible: "Amazon - Audífonos"
+- assertVisible: "Pendiente"

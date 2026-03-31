@@ -1,0 +1,20 @@
+appId: com.bbapp
+---
+# Inicia sesión solo si la pantalla de login está visible (sesión no restaurada).
+- runFlow:
+    when:
+      visible: "Bienvenido"
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "login-email-input"
+          timeout: 15000
+      - tapOn:
+          id: "login-email-input"
+      - inputText: "test@gmail.com"
+      - tapOn:
+          id: "login-password-input"
+      - inputText: "123456"
+      - hideKeyboard
+      - tapOn:
+          id: "login-submit"

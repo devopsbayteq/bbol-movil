@@ -1,0 +1,13 @@
+appId: com.bbapp
+---
+# Garantiza estar en login: si hay sesión activa, cierra sesión primero.
+- runFlow:
+    when:
+      visible:
+        id: "transactions-screen"
+    commands:
+      - tapOn:
+          id: "logout-button"
+      - extendedWaitUntil:
+          visible: "Bienvenido"
+          timeout: 15000

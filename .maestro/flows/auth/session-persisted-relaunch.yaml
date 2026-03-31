@@ -1,0 +1,29 @@
+appId: com.bbapp
+name: Sesión persistida — al reabrir la app no pide credenciales
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 20000
+
+- assertVisible: "Hola, Test User"
+
+- stopApp
+
+- launchApp
+
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 20000
+
+- assertVisible: "Movimientos recientes"
+- assertNotVisible: "Iniciar Sesión"
+- assertNotVisible:
+    id: "login-email-input"

@@ -1,0 +1,24 @@
+appId: com.bbapp
+name: Logout y retorno a pantalla de login
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 20000
+
+- tapOn:
+    id: "logout-button"
+
+- extendedWaitUntil:
+    visible: "Bienvenido"
+    timeout: 15000
+
+- assertVisible: "Inicia sesión para continuar"
+- assertVisible:
+    id: "login-submit"
