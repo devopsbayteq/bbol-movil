@@ -2,11 +2,14 @@ import React, {useEffect, useRef} from 'react';
 import {
   Animated,
   Easing,
+  Image,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+
+const FIGMA_LOGO_URI =
+  'https://www.figma.com/api/mcp/asset/d202396e-2cbe-4dff-b7eb-77b2627080b8';
 
 export function SplashScreen() {
   const opacity = useRef(new Animated.Value(0)).current;
@@ -38,14 +41,14 @@ export function SplashScreen() {
 
       <Animated.View
         style={[
-          styles.centerOuterCircle,
+          styles.centerWrapper,
           {
             opacity,
             transform: [{scale}],
           },
         ]}>
-        <View style={styles.centerInnerCard}>
-          <Text style={styles.icon}>@</Text>
+        <View style={styles.decorativeRing}>
+          <Image source={{uri: FIGMA_LOGO_URI}} style={styles.logo} />
         </View>
       </Animated.View>
     </SafeAreaView>
@@ -55,57 +58,51 @@ export function SplashScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0F8E9E',
+    backgroundColor: '#008292',
     justifyContent: 'center',
     alignItems: 'center',
   },
   backgroundLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0E8A9A',
+    backgroundColor: '#008292',
   },
   glow: {
     position: 'absolute',
     borderRadius: 999,
-    backgroundColor: '#63D6DD',
-    opacity: 0.24,
+    opacity: 0.2,
   },
   glowTopRight: {
-    width: 300,
-    height: 300,
-    top: 40,
-    right: -80,
+    width: 234,
+    height: 353.59,
+    top: -88.39,
+    right: -39,
+    backgroundColor: '#EEEEEE',
   },
   glowBottomLeft: {
-    width: 280,
-    height: 280,
-    bottom: 20,
-    left: -90,
+    width: 195,
+    height: 265.19,
+    bottom: -44.19,
+    left: -19.5,
+    backgroundColor: '#E2E2E2',
   },
-  centerOuterCircle: {
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.75)',
+  centerWrapper: {
+    width: 172.8,
+    height: 172.8,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  centerInnerCard: {
+  decorativeRing: {
+    width: 172.8,
+    height: 172.8,
+    borderRadius: 86.4,
+    borderWidth: 1,
+    borderColor: '#EFF6F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
     width: 96,
     height: 96,
-    borderRadius: 20,
-    backgroundColor: '#1DB5B8',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#063D46',
-    shadowOffset: {width: 0, height: 5},
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  icon: {
-    fontSize: 42,
-    color: '#FFFFFF',
-    fontWeight: '700',
+    borderRadius: 11,
   },
 });
