@@ -4,6 +4,24 @@
 
 BBApp sigue una arquitectura **Clean Architecture** con el patron **MVVM** y organizacion **Feature-First** en la capa de presentacion. La inyeccion de dependencias se realiza de forma manual mediante React Context.
 
+## Estado actual del repositorio
+
+Actualmente el proyecto es una unica aplicacion **React Native** con estas decisiones activas:
+
+- `App.tsx` compone la jerarquia `DIProvider -> AuthProvider -> ThemeProvider -> SafeAreaProvider -> NavigationContainer -> AppNavigator`.
+- `src/di/container.ts` funciona como composition root y registra los casos de uso principales.
+- La autenticacion combina un datasource remoto disponible (`AuthRemoteDataSource`) con un repositorio conectado hoy a un datasource mock para el flujo principal.
+- Las transacciones se sirven actualmente desde `MockTransactionDataSource`.
+- La navegacion depende del estado de sesion expuesto por `AuthProvider`.
+- El estado visual transversal se resuelve con `ThemeProvider` y Zustand.
+
+## Documentos relacionados
+
+- `docs/README.md`: indice de documentacion tecnica.
+- `docs/STANDARDS.md`: estandares de arquitectura, codigo y documentacion.
+- `docs/TESTING.md`: estrategia de testing del proyecto, con `Maestro` como estandar E2E.
+- `docs/AI_DEVELOPMENT.md`: guia para usar IA en el desarrollo sin romper la arquitectura.
+
 ```
 src/
 ├── di/                  # Inyeccion de dependencias (composition root)
