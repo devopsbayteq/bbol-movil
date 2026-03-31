@@ -1,80 +1,11 @@
 import React, {useMemo} from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTransactionsViewModel} from './useTransactionsViewModel';
 import {useAuth} from '../../providers';
-import {Transaction, TransactionCategory} from '../../domain/entities/Transaction';
 import {useTheme, type ThemeColors} from '../../providers/theme';
-
-const CATEGORY_CONFIG: Record<TransactionCategory, {icon: string; label: string}> = {
-  salary: {icon: '💰', label: 'Salario'},
-  food: {icon: '🍔', label: 'Comida'},
-  transport: {icon: '🚗', label: 'Transporte'},
-  entertainment: {icon: '🎬', label: 'Entretenimiento'},
-  shopping: {icon: '🛒', label: 'Compras'},
-  transfer: {icon: '🔄', label: 'Transferencia'},
-  services: {icon: '⚡', label: 'Servicios'},
-  health: {icon: '🏥', label: 'Salud'},
-};
-
-const STATUS_CONFIG: Record<string, {label: string; color: string; bg: string}> = {
-  completed: {label: 'Completada', color: '#059669', bg: '#ECFDF5'},
-  pending: {label: 'Pendiente', color: '#D97706', bg: '#FFFBEB'},
-  cancelled: {label: 'Cancelada', color: '#DC2626', bg: '#FEF2F2'},
-};
-
-function formatCurrency(amount: number): string {
-  return `$${amount.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  return date.toLocaleDateString('es-MX', {day: 'numeric', month: 'short'});
-}
-
-function TransactionItem({item, colors}: {item: Transaction; colors: ThemeColors}) {
-  const category = CATEGORY_CONFIG[item.category];
-  const status = STATUS_CONFIG[item.status];
-  const isIncome = item.type === 'income';
-  const iStyles = useItemStyles(colors);
-
-  return (
-    <View style={iStyles.container}>
-      <View style={iStyles.iconContainer}>
-        <Text style={iStyles.icon}>{category.icon}</Text>
-      </View>
-
-      <View style={iStyles.content}>
-        <Text style={iStyles.description} numberOfLines={1}>
-          {item.description}
-        </Text>
-        <View style={iStyles.meta}>
-          <Text style={iStyles.date}>{formatDate(item.date)}</Text>
-          <View style={[iStyles.badge, {backgroundColor: status.bg}]}>
-            <Text style={[iStyles.badgeText, {color: status.color}]}>
-              {status.label}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <Text
-        style={[
-          iStyles.amount,
-          {color: isIncome ? colors.success : colors.error},
-        ]}>
-        {isIncome ? '+' : '-'}{formatCurrency(item.amount)}
-      </Text>
-    </View>
-  );
-}
+import {TransactionItem, formatCurrency} from './TransactionItem';
+import {Button, LoadingState, EmptyState, ErrorMessage} from '../components';
 
 export function TransactionsScreen() {
   const {user, logout} = useAuth();
@@ -117,30 +48,19 @@ export function TransactionsScreen() {
 
   const renderEmpty = () => {
     if (isLoading) {
-      return (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Cargando transacciones...</Text>
-        </View>
-      );
+      return <LoadingState message="Cargando transacciones..." />;
     }
 
     if (error) {
       return (
-        <View style={styles.centered}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={retry}>
-            <Text style={styles.retryText}>Reintentar</Text>
-          </TouchableOpacity>
+        <View style={styles.errorBlock}>
+          <ErrorMessage message={error} />
+          <Button title="Reintentar" onPress={retry} style={styles.retryButton} />
         </View>
       );
     }
 
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.emptyText}>No hay transacciones</Text>
-      </View>
-    );
+    return <EmptyState message="No hay transacciones" />;
   };
 
   return (
@@ -161,76 +81,13 @@ export function TransactionsScreen() {
       <FlatList
         data={transactions}
         keyExtractor={item => item.id}
-        renderItem={({item}) => <TransactionItem item={item} colors={colors} />}
+        renderItem={({item}) => <TransactionItem item={item} />}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
     </View>
-  );
-}
-
-function useItemStyles(colors: ThemeColors) {
-  return useMemo(
-    () =>
-      StyleSheet.create({
-        container: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: colors.surface,
-          borderRadius: 14,
-          padding: 14,
-          marginBottom: 10,
-          borderWidth: 1,
-          borderColor: colors.borderSubtle,
-        },
-        iconContainer: {
-          width: 44,
-          height: 44,
-          borderRadius: 12,
-          backgroundColor: colors.borderSubtle,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: 12,
-        },
-        icon: {
-          fontSize: 20,
-        },
-        content: {
-          flex: 1,
-          marginRight: 8,
-        },
-        description: {
-          fontSize: 15,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          marginBottom: 4,
-        },
-        meta: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-        },
-        date: {
-          fontSize: 13,
-          color: colors.textTertiary,
-        },
-        badge: {
-          paddingHorizontal: 8,
-          paddingVertical: 2,
-          borderRadius: 6,
-        },
-        badgeText: {
-          fontSize: 11,
-          fontWeight: '600',
-        },
-        amount: {
-          fontSize: 15,
-          fontWeight: '700',
-        },
-      }),
-    [colors],
   );
 }
 
@@ -321,35 +178,13 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
           marginBottom: 14,
         },
-        centered: {
+        errorBlock: {
           alignItems: 'center',
           paddingVertical: 48,
-        },
-        loadingText: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          marginTop: 12,
-        },
-        errorText: {
-          fontSize: 14,
-          color: colors.error,
-          marginBottom: 12,
-          textAlign: 'center',
+          gap: 12,
         },
         retryButton: {
-          backgroundColor: colors.primary,
-          borderRadius: 10,
-          paddingHorizontal: 24,
-          paddingVertical: 10,
-        },
-        retryText: {
-          color: colors.white,
-          fontSize: 14,
-          fontWeight: '600',
-        },
-        emptyText: {
-          fontSize: 14,
-          color: colors.textTertiary,
+          marginTop: 4,
         },
       }),
     [colors],

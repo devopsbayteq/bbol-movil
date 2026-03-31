@@ -2,10 +2,7 @@ import React, {useMemo} from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,6 +10,7 @@ import {
 import {useLoginViewModel} from './useLoginViewModel';
 import {useAuth} from '../../providers';
 import {useTheme, type ThemeColors} from '../../providers/theme';
+import {Button, LabeledInput, ErrorMessage} from '../components';
 
 export function LoginScreen() {
   const {login} = useAuth();
@@ -40,51 +38,36 @@ export function LoginScreen() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.input, error && !email && styles.inputError]}
-              placeholder="correo@ejemplo.com"
-              placeholderTextColor={colors.placeholder}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-            />
-          </View>
+          <LabeledInput
+            label="Email"
+            placeholder="correo@ejemplo.com"
+            value={email}
+            onChangeText={setEmail}
+            hasError={!!error && !email}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Contraseña</Text>
-            <TextInput
-              style={[styles.input, error && !password && styles.inputError]}
-              placeholder="Tu contraseña"
-              placeholderTextColor={colors.placeholder}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!isLoading}
-            />
-          </View>
+          <LabeledInput
+            label="Contraseña"
+            placeholder="Tu contraseña"
+            value={password}
+            onChangeText={setPassword}
+            hasError={!!error && !password}
+            secureTextEntry
+            editable={!isLoading}
+          />
 
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
+          {error && <ErrorMessage message={error} />}
 
-          <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
+          <Button
+            title="Iniciar Sesión"
             onPress={handleLogin}
-            disabled={isLoading}
-            activeOpacity={0.8}>
-            {isLoading ? (
-              <ActivityIndicator color={colors.white} size="small" />
-            ) : (
-              <Text style={styles.buttonText}>Iniciar Sesión</Text>
-            )}
-          </TouchableOpacity>
+            loading={isLoading}
+            style={styles.loginButton}
+          />
 
           <View style={styles.hintContainer}>
             <Text style={styles.hintText}>
@@ -120,7 +103,7 @@ function useStyles(colors: ThemeColors) {
           width: 72,
           height: 72,
           borderRadius: 20,
-          backgroundColor: colors.primary,
+          backgroundColor: colors.error,
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 20,
@@ -143,56 +126,8 @@ function useStyles(colors: ThemeColors) {
         form: {
           gap: 16,
         },
-        inputGroup: {
-          gap: 6,
-        },
-        label: {
-          fontSize: 14,
-          fontWeight: '600',
-          color: colors.textLabel,
-          marginLeft: 4,
-        },
-        input: {
-          backgroundColor: colors.inputBg,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 12,
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          fontSize: 16,
-          color: colors.textPrimary,
-        },
-        inputError: {
-          borderColor: colors.error,
-        },
-        errorContainer: {
-          backgroundColor: colors.errorBg,
-          borderRadius: 10,
-          paddingHorizontal: 14,
-          paddingVertical: 12,
-          borderWidth: 1,
-          borderColor: colors.errorBorder,
-        },
-        errorText: {
-          color: colors.error,
-          fontSize: 14,
-          textAlign: 'center',
-        },
-        button: {
-          backgroundColor: colors.primary,
-          borderRadius: 12,
-          paddingVertical: 16,
-          alignItems: 'center',
-          justifyContent: 'center',
+        loginButton: {
           marginTop: 8,
-        },
-        buttonDisabled: {
-          opacity: 0.7,
-        },
-        buttonText: {
-          color: colors.white,
-          fontSize: 16,
-          fontWeight: '600',
         },
         hintContainer: {
           marginTop: 16,

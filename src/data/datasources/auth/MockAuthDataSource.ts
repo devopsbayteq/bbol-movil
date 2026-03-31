@@ -1,5 +1,6 @@
-import {LoginRequestModel} from '../models/LoginRequestModel';
-import {LoginResponseModel} from '../models/LoginResponseModel';
+import {LoginRequestModel} from '../../models/LoginRequestModel';
+import {LoginResponseModel} from '../../models/LoginResponseModel';
+import {AuthDataSource} from './AuthDataSource';
 
 const MOCK_CREDENTIALS = {
   email: 'test@gmail.com',
@@ -20,7 +21,7 @@ const MOCK_USER_RESPONSE: LoginResponseModel = {
 
 const SIMULATED_DELAY_MS = 1500;
 
-export class MockAuthDataSource {
+export class MockAuthDataSource implements AuthDataSource {
   async login(request: LoginRequestModel): Promise<LoginResponseModel> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {

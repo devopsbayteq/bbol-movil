@@ -1,4 +1,5 @@
-import {TransactionModel} from '../models/TransactionModel';
+import {TransactionModel} from '../../models/TransactionModel';
+import {TransactionDataSource} from './TransactionDataSource';
 
 const MOCK_TRANSACTIONS: TransactionModel[] = [
   {
@@ -117,7 +118,7 @@ const MOCK_TRANSACTIONS: TransactionModel[] = [
 
 const SIMULATED_DELAY_MS = 1000;
 
-export class MockTransactionDataSource {
+export class MockTransactionDataSource implements TransactionDataSource {
   async getTransactions(): Promise<TransactionModel[]> {
     return new Promise(resolve => {
       setTimeout(() => {

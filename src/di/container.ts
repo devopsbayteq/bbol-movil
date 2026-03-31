@@ -4,20 +4,23 @@ import {SecureStorageService} from '../domain/services/SecureStorageService';
 
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
-import {MockAuthDataSource} from '../data/datasources/MockAuthDataSource';
-import {MockTransactionDataSource} from '../data/datasources/MockTransactionDataSource';
+import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
+import {AuthRemoteDataSource} from '../data/datasources/auth/AuthRemoteDataSource';
+import {MockTransactionDataSource} from '../data/datasources/transaction/MockTransactionDataSource';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 
 export interface AppContainer {
   loginUseCase: LoginUseCase;
   getTransactionsUseCase: GetTransactionsUseCase;
   secureStorageService: SecureStorageService;
+  authRemoteDataSource: AuthRemoteDataSource;
 }
 
 export function createContainer(): AppContainer {
   const secureStorageService = new SecureStorageServiceImpl();
 
   const authDataSource = new MockAuthDataSource();
+  const authRemoteDataSource = new AuthRemoteDataSource();
   const transactionDataSource = new MockTransactionDataSource();
 
   const authRepository = new AuthRepositoryImpl(authDataSource);
@@ -34,5 +37,6 @@ export function createContainer(): AppContainer {
     loginUseCase,
     getTransactionsUseCase,
     secureStorageService,
+    authRemoteDataSource,
   };
 }

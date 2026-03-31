@@ -7,7 +7,7 @@ import React, {
   useMemo,
 } from 'react';
 import {User} from '../domain/entities/User';
-import {SecureStorageKeys} from '../data/datasources/SecureStorageKeys';
+import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
 import {useDI} from '../di';
 
 interface AuthState {
