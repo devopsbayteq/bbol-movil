@@ -8,3 +8,6 @@ export {LoginPasswordField} from './LoginPasswordField';
 export {SecondaryIconButton} from './SecondaryIconButton';
 export {TertiaryLinkButton} from './TertiaryLinkButton';
 export {OrSeparator} from './OrSeparator';
+export {OtpCodeInput} from './OtpCodeInput';
+export {OtpNumericKeypad} from './OtpNumericKeypad';
+export type {OtpKeypadKey} from './OtpNumericKeypad';

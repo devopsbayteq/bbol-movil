@@ -10,8 +10,9 @@ import {
   Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginViewModel} from './useLoginViewModel';
-import {useAuth} from '../../providers';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {
   Button,
@@ -24,9 +25,10 @@ import {
 } from '../components';
 import {FIGMA_LOGIN_ASSETS} from './figmaLoginAssets';
 import {Lexend} from '../../theme/lexend';
+import {RootStackParamList} from '../../navigation/AppNavigator';
 
 export function LoginScreen() {
-  const {login} = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
@@ -42,7 +44,10 @@ export function LoginScreen() {
     handleLogin,
     handleBiometricLogin,
   } = useLoginViewModel(async user => {
-    await login(user);
+    navigation.navigate('OtpValidation', {
+      user,
+      email: user.email,
+    });
   });
 
   const hasFieldError = (fieldEmpty: boolean) =>
