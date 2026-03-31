@@ -13,6 +13,7 @@ src/
 │   ├── services/        # Interfaces de servicios de dominio
 │   └── usecases/        # Casos de uso
 ├── data/                # Implementaciones y acceso a datos
+│   ├── api/             # HttpClient (interfaz) + AxiosHttpClient (impl)
 │   ├── datasources/     # Fuentes de datos (mock, API, local)
 │   ├── models/          # DTOs (modelos de transferencia de datos)
 │   ├── mappers/         # Transformadores DTO <-> Entidad
@@ -46,6 +47,8 @@ flowchart TB
         Mapper[Mapper]
         DataSource[DataSource]
         DTO[Model / DTO]
+        HttpClientInterface["HttpClient (interface)"]
+        HttpClientImpl[AxiosHttpClient]
     end
 
     Screen --> ViewModel
@@ -54,6 +57,8 @@ flowchart TB
     RepoInterface -.->|implementa| RepoImpl
     RepoImpl --> DataSource
     RepoImpl --> Mapper
+    DataSource --> HttpClientInterface
+    HttpClientInterface -.->|implementa| HttpClientImpl
     DataSource --> DTO
     Mapper --> Entity
     Mapper --> DTO
@@ -121,6 +126,7 @@ export interface SecureStorageService {
 
 Implementa los contratos de `domain` y gestiona el acceso a datos.
 
+- **API (`api/`)**: infraestructura HTTP. Define la interfaz `HttpClient` y su implementacion `AxiosHttpClient`. Los datasources remotos reciben un `HttpClient` por constructor en lugar de importar un singleton, lo que permite inyectar fakes en tests.
 - **DataSources**: fuentes de datos concretas (actualmente mocks, en el futuro APIs REST, GraphQL, bases de datos locales).
 - **Models (DTOs)**: representan la forma de los datos tal como vienen de la fuente (API response, DB row). Pueden tener mas campos que la entidad de dominio.
 - **Mappers**: funciones puras que transforman DTOs a entidades de dominio y viceversa.

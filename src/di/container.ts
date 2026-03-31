@@ -2,6 +2,7 @@ import {LoginUseCase} from '../domain/usecases/LoginUseCase';
 import {GetTransactionsUseCase} from '../domain/usecases/GetTransactionsUseCase';
 import {SecureStorageService} from '../domain/services/SecureStorageService';
 
+import {AxiosHttpClient} from '../data/api/apiClient';
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
 import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
@@ -17,10 +18,14 @@ export interface AppContainer {
 }
 
 export function createContainer(): AppContainer {
+  const httpClient = new AxiosHttpClient(
+    'https://dev4.bayteq.com:50110/api/v1',
+    {'X-Platform': 'VALOR_A_DEFINIR'},
+  );
   const secureStorageService = new SecureStorageServiceImpl();
 
   const authDataSource = new MockAuthDataSource();
-  const authRemoteDataSource = new AuthRemoteDataSource();
+  const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
   const transactionDataSource = new MockTransactionDataSource();
 
   const authRepository = new AuthRepositoryImpl(authDataSource);
