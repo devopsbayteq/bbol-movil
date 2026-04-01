@@ -9,16 +9,16 @@ import {
   Platform,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useTheme, type ThemeColors} from '../../providers/theme';
-import {Lexend} from '../../theme/lexend';
-import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
+import {useTheme, type ThemeColors} from '../../../providers/theme';
+import {Lexend} from '../../../theme/lexend';
+import {DevelopmentNoticeModal} from '../../components/DevelopmentNoticeModal';
 import {
   TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowRightWhite,
   TransferIconUser,
   TransferIconWallet,
-} from './transferIcons';
+} from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 
 const HERO_ICON = '#0B515C';

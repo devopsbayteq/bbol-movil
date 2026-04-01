@@ -5,7 +5,7 @@ import {
   type RouteProp,
 } from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
+import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 
 function formatReviewDate(date: Date): string {
   const day = date.getDate();

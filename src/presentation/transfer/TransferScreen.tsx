@@ -25,7 +25,7 @@ import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import {TransferWatermark} from './TransferWatermark';
+import {TransferWatermark} from './components/TransferWatermark';
 import {
   TransferIconArrowLeft,
   TransferIconArrowRight,

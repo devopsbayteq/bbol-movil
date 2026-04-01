@@ -4,7 +4,7 @@ import {useAuth} from '../../providers';
 import {formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
-import type {TransferReviewRouteParams} from './transferReviewTypes';
+import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
 import type {BeneficiaryOption} from './transferTypes';
 
 const MAX_CENTS = 999_999_999_999;

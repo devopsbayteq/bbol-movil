@@ -3,8 +3,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {TransferScreen} from '../presentation/transfer/TransferScreen';
 import {BeneficiarySelectScreen} from '../presentation/beneficiary/BeneficiarySelectScreen';
 import type {BeneficiaryOption} from '../presentation/transfer/transferTypes';
-import type {TransferReviewRouteParams} from '../presentation/transfer/transferReviewTypes';
-import { TransferReviewScreen } from '../presentation/transfer/TransferReviewScreen';
+import type {TransferReviewRouteParams} from '../presentation/transfer/TransferReview/transferReviewTypes';
+import {TransferReviewScreen} from '../presentation/transfer/TransferReview/TransferReviewScreen';
 
 export type TransferStackParamList = {
   TransferMain:
