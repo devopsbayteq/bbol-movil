@@ -30,12 +30,13 @@ import {
   TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowUp,
+  TransferIconClose,
   TransferIconUser,
   TransferIconWallet,
   TransferIconArrowRightWhite,
 } from './transferIcons';
 import {useTransferViewModel} from './useTransferViewModel';
-import {formatAccountKindLine} from '../../utils/accountDisplay';
+import {accountTypeModalLabel, formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 
 const ZERO_DISPLAY = formatMoneyEc(0);
@@ -220,26 +221,80 @@ export function TransferPlaceholderScreen() {
         transparent
         animationType="fade"
         onRequestClose={() => vm.setAccountModalVisible(false)}>
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => vm.setAccountModalVisible(false)}>
-          <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
-            <Text style={styles.modalTitle}>Cuenta de origen</Text>
+        <View style={styles.modalRoot}>
+          <Pressable
+            style={StyleSheet.absoluteFillObject}
+            onPress={() => vm.setAccountModalVisible(false)}
+            accessibilityLabel="Cerrar"
+          />
+          <View
+            style={[
+              styles.modalSheet,
+              {paddingBottom: Math.max(insets.bottom, 12)},
+            ]}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalHeaderSide} />
+              <Text style={styles.modalHeaderTitle}>CUENTAS</Text>
+              <TouchableOpacity
+                style={styles.modalCloseBtn}
+                onPress={() => vm.setAccountModalVisible(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar selección de cuentas">
+                <TransferIconClose color={colors.iconPrimary} size={20} />
+              </TouchableOpacity>
+            </View>
             <FlatList
               data={vm.accounts}
               keyExtractor={item => item.accountGuid}
-              renderItem={({item, index}) => (
-                <TouchableOpacity
-                  style={styles.modalRow}
-                  onPress={() => vm.selectAccount(index)}>
-                  <Text style={styles.modalRowText}>
-                    {formatAccountKindLine(item)}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              scrollEnabled={vm.accounts.length > 4}
+              contentContainerStyle={styles.modalListContent}
+              renderItem={({item, index}) => {
+                const isSelected = index === vm.accountIndex;
+                const isDisabled = item.balance <= 0;
+                return (
+                  <TouchableOpacity
+                    style={[
+                      styles.accountPickCard,
+                      isSelected &&
+                        !isDisabled &&
+                        styles.accountPickCardSelected,
+                      isDisabled && styles.accountPickCardDisabled,
+                    ]}
+                    onPress={() => vm.selectAccount(index)}
+                    activeOpacity={isDisabled ? 1 : 0.88}
+                    disabled={isDisabled}
+                    accessibilityState={{
+                      selected: isSelected && !isDisabled,
+                      disabled: isDisabled,
+                    }}>
+                    <View
+                      style={[
+                        styles.accountPickRow,
+                        isDisabled && styles.accountPickRowDisabled,
+                      ]}>
+                      <View style={styles.accountPickLeft}>
+                        <Text style={styles.accountPickType}>
+                          {accountTypeModalLabel(item)}
+                        </Text>
+                        <Text style={styles.accountPickNumber}>
+                          {item.maskedAccountNumber}
+                        </Text>
+                      </View>
+                      <View style={styles.accountPickRight}>
+                        <Text style={styles.accountPickBalance}>
+                          {formatMoneyEc(item.balance)}
+                        </Text>
+                        <Text style={styles.accountPickSaldoLabel}>
+                          Saldo disponible
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
             />
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </Modal>
 
     </View>
@@ -449,35 +504,111 @@ function useStyles(colors: ThemeColors) {
           lineHeight: 22,
           color: colors.white,
         },
-        modalBackdrop: {
+        modalRoot: {
           flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.45)',
           justifyContent: 'flex-end',
+          backgroundColor: 'rgba(0,0,0,0.45)',
         },
         modalSheet: {
-          backgroundColor: colors.white,
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-          paddingHorizontal: 20,
-          paddingTop: 16,
-          paddingBottom: 24,
-          maxHeight: '55%',
+          backgroundColor: colors.background,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          maxHeight: '78%',
+          width: '100%',
+          zIndex: 1,
+          ...Platform.select({
+            android: {elevation: 24},
+            default: {},
+          }),
         },
-        modalTitle: {
+        modalHeader: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          minHeight: 64,
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          paddingHorizontal: 8,
+        },
+        modalHeaderSide: {
+          width: 44,
+          height: 44,
+        },
+        modalHeaderTitle: {
+          flex: 1,
           fontFamily: Lexend.semiBold,
-          fontSize: 16,
+          fontSize: 14,
+          lineHeight: 22,
+          color: colors.iconPrimary,
+          textAlign: 'center',
+        },
+        modalCloseBtn: {
+          width: 44,
+          height: 44,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        modalListContent: {
+          paddingHorizontal: 24,
+          paddingTop: 24,
+          paddingBottom: 12,
+          gap: 12,
+        },
+        accountPickCard: {
+          backgroundColor: colors.surface,
+          borderRadius: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+        },
+        accountPickCardSelected: {
+          backgroundColor: ICON_CHIP_BG,
+          borderWidth: 1,
+          borderColor: colors.primary,
+        },
+        accountPickCardDisabled: {
+          backgroundColor: colors.buttonSecondaryBg,
+        },
+        accountPickRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        accountPickRowDisabled: {
+          opacity: 0.4,
+        },
+        accountPickLeft: {
+          flex: 1,
+          minWidth: 0,
+          marginRight: 12,
+        },
+        accountPickType: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 12,
+          lineHeight: 20,
           color: colors.textPrimary,
-          marginBottom: 12,
         },
-        modalRow: {
-          paddingVertical: 14,
-          borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: colors.borderLight,
-        },
-        modalRowText: {
+        accountPickNumber: {
           fontFamily: Lexend.regular,
-          fontSize: 15,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textTertiary,
+        },
+        accountPickRight: {
+          alignItems: 'flex-end',
+        },
+        accountPickBalance: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
           color: colors.textPrimary,
+          textAlign: 'right',
+        },
+        accountPickSaldoLabel: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textTertiary,
+          textAlign: 'right',
         },
       }),
     [colors],

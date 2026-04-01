@@ -11,6 +11,17 @@ export function accountProductTitle(account: AccountBalance): string {
   return 'Cuenta';
 }
 
+/** Account type for origin modal (Figma 125:1585). */
+export function accountTypeModalLabel(account: AccountBalance): string {
+  if (account.accountKind === 'savings') {
+    return 'Cuenta de ahorros';
+  }
+  if (account.accountKind === 'checking') {
+    return 'Cuenta corriente';
+  }
+  return 'Cuenta';
+}
+
 export function formatAccountKindLine(account: AccountBalance): string {
   const kind =
     account.accountKind === 'savings'

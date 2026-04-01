@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -36,6 +35,7 @@ import {
   TransferIconUserPlus,
   TransferIconWallet,
 } from './transferIcons';
+import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
 
 const HERO_BG = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -60,6 +60,10 @@ export function BeneficiarySelectScreen() {
     retry: retryContacts,
   } = useBeneficiaryContactsViewModel();
   const [query, setQuery] = useState('');
+  const [devNotice, setDevNotice] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
 
@@ -235,10 +239,10 @@ export function BeneficiarySelectScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            Alert.alert(
-              'Próximamente',
-              'Las opciones de contacto no están disponibles aún.',
-            )
+            setDevNotice({
+              title: 'Próximamente',
+              message: 'Las opciones de contacto no están disponibles aún.',
+            })
           }
           hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
           <TransferIconEllipsisVertical color={colors.iconPrimary} size={16} />
@@ -315,15 +319,22 @@ export function BeneficiarySelectScreen() {
           {bottom: Math.max(insets.bottom, 16) + 8},
         ]}
         onPress={() =>
-          Alert.alert(
-            'Próximamente',
-            'Agregar contacto no está disponible aún.',
-          )
+          setDevNotice({
+            title: 'Próximamente',
+            message: 'Agregar contacto no está disponible aún.',
+          })
         }
         accessibilityRole="button"
         accessibilityLabel="Agregar contacto">
         <TransferIconUserPlus color={colors.white} size={22} />
       </TouchableOpacity>
+
+      <DevelopmentNoticeModal
+        visible={devNotice !== null}
+        onClose={() => setDevNotice(null)}
+        title={devNotice?.title}
+        message={devNotice?.message}
+      />
     </View>
   );
 }
