@@ -1,19 +1,27 @@
 import axios, {AxiosInstance} from 'axios';
+import {
+  attachApiHeadersInterceptor,
+  type ApiHeadersInterceptorDeps,
+} from './apiHeadersInterceptor';
 import {HttpClient, HttpResponse, RequestConfig} from './HttpClient';
+
+export type {ApiHeadersInterceptorDeps};
+
+export type AxiosHttpClientConfig = ApiHeadersInterceptorDeps & {
+  timeout?: number;
+};
 
 export class AxiosHttpClient implements HttpClient {
   private readonly client: AxiosInstance;
 
-  constructor(
-    baseURL: string,
-    defaultHeaders?: Record<string, string>,
-    timeout = 15000,
-  ) {
+  constructor(config: AxiosHttpClientConfig) {
+    const {timeout = 15000, ...interceptorDeps} = config;
     this.client = axios.create({
-      baseURL,
-      headers: {'Content-Type': 'application/json', ...defaultHeaders},
+      baseURL: interceptorDeps.baseURL,
+      headers: {'Content-Type': 'application/json'},
       timeout,
     });
+    attachApiHeadersInterceptor(this.client, interceptorDeps);
   }
 
   async get<T>(

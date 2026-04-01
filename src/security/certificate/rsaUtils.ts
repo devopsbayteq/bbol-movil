@@ -1,23 +1,13 @@
 import {Buffer} from 'buffer';
 import {devLog} from '../../data/api/devLog';
-import crypto, {createPublicKey} from 'react-native-quick-crypto';
-import {
-  base64ToBinaryLatin1,
-  base64ToBuffer,
-  bufferToBase64,
-  bufferToHex,
-} from './encoding';
-import { generateKeyToPEM } from './certificatesValidation';
+import crypto from 'react-native-quick-crypto';
+import {base64ToBinaryLatin1, base64ToBuffer, bufferToHex} from './encoding';
 
 const LOG_RSA = 'Security/rsa';
 
 type RsaPublicKey = ReturnType<typeof crypto.createPublicKey>;
 type RsaPrivateKey = ReturnType<typeof crypto.createPrivateKey>;
 
-/**
- * RSA-OAEP con SHA-1 (MGF1 con SHA-1).
- * Paridad con .NET `RSAEncryptionPadding.OaepSHA1`.
- */
 export const RSA_OAEP_OPTIONS = {
   padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
   oaepHash: 'sha1',
@@ -31,23 +21,23 @@ export function pemFromBase64PemBlock(base64Pem: string): string {
 }
 
 export function createPublicKeyFromPemBase64(base64Pem: string): RsaPublicKey {
-  return crypto.createPublicKey(pemFromBase64PemBlock(base64Pem));
+  return crypto.createPublicKey({
+    key: base64ToBinaryLatin1(base64Pem),
+    format: 'pem',
+  });
 }
 
 export function createPrivateKeyFromPemBase64(
   base64Pem: string,
 ): RsaPrivateKey {
-  return crypto.createPrivateKey(pemFromBase64PemBlock(base64Pem));
+  return crypto.createPrivateKey(base64ToBinaryLatin1(base64Pem));
 }
 
 function rsaOaepEncryptWithPublicKey(
   publicKey: RsaPublicKey,
   plaintext: Buffer,
 ): Buffer {
-  devLog(LOG_RSA, 'rsaOaepEncrypt: entrada', {
-    plaintextBytes: plaintext.length,
-  });
-  const encrypted = Buffer.from(
+  return Buffer.from(
     crypto.publicEncrypt(
       {
         key: publicKey,
@@ -56,10 +46,6 @@ function rsaOaepEncryptWithPublicKey(
       plaintext,
     ),
   );
-  devLog(LOG_RSA, 'rsaOaepEncrypt: salida', {
-    ciphertextBytes: encrypted.length,
-  });
-  return encrypted;
 }
 
 function rsaOaepDecryptWithPrivateKey(
@@ -86,17 +72,66 @@ function rsaSignSha256WithPrivateKey(
   );
 }
 
+/**
+ * Convención heredada del backend móvil:
+ * 1) bytes binarios -> Base64
+ * 2) ese Base64 como texto UTF-8 -> Base64
+ */
+export function toDoubleBase64FromBuffer(value: Buffer): string {
+  const firstBase64 = value.toString('base64');
+  return Buffer.from(firstBase64, 'utf8').toString('base64');
+}
+
 function rsaVerifySha256WithPublicKey(
   publicKey: RsaPublicKey,
   message: Buffer,
   signature: Buffer,
 ): boolean {
-  return crypto.verify(
+  devLog(LOG_RSA, 'rsaVerifySha256: entrada', {
+    messageBytes: message.length,
+    signatureBytes: signature.length,
+    scheme: SERVER_SIGNATURE_VERIFY_SCHEME,
+  });
+  const ok = crypto.verify(
     SERVER_SIGNATURE_VERIFY_SCHEME,
     message,
     publicKey,
     signature,
   );
+  devLog(LOG_RSA, 'rsaVerifySha256: salida', {ok});
+  return ok;
+}
+
+export function base64ToCipherBuffer(cipherBase64: string): Buffer {
+  return Buffer.from(cipherBase64, 'base64');
+}
+
+function looksLikeBase64Ascii(raw: Buffer): boolean {
+  const text = raw.toString('utf8').trim();
+  if (!text || text.length % 4 !== 0) {
+    return false;
+  }
+  return /^[A-Za-z0-9+/=]+$/.test(text);
+}
+
+/**
+ * Backend puede devolver Base64 simple o doble Base64 (Base64 de un string Base64).
+ * Esta función normaliza a bytes binarios reales del ciphertext/firma.
+ */
+export function decodeApiBase64ToBinary(inputBase64: string): Buffer {
+  const first = Buffer.from(inputBase64, 'base64');
+  if (!looksLikeBase64Ascii(first)) {
+    return first;
+  }
+  try {
+    const second = Buffer.from(first.toString('utf8'), 'base64');
+    if (second.length > 0) {
+      return second;
+    }
+  } catch {
+    // fallback a decodificación simple si no aplica doble.
+  }
+  return first;
 }
 
 export function rsaVerifySha256PublicKeyPemBase64OnBase64(
@@ -104,12 +139,83 @@ export function rsaVerifySha256PublicKeyPemBase64OnBase64(
   messageBase64: string,
   signatureBase64: string,
 ): boolean {
+  devLog(LOG_RSA, 'rsaVerifySha256PublicKeyPemBase64OnBase64: entrada', {
+    publicKeyChars: serverPublicPemBase64?.length ?? 0,
+    messageBase64Chars: messageBase64?.length ?? 0,
+    signatureBase64Chars: signatureBase64?.length ?? 0,
+    messageBase64Preview: messageBase64?.slice(0, 12),
+    signatureBase64Preview: signatureBase64?.slice(0, 12),
+  });
   const serverPub = createPublicKeyFromPemBase64(serverPublicPemBase64);
-  return rsaVerifySha256WithPublicKey(
+  const messageBuffer = decodeApiBase64ToBinary(messageBase64);
+  const signatureBuffer = decodeApiBase64ToBinary(signatureBase64);
+  devLog(LOG_RSA, 'rsaVerifySha256PublicKeyPemBase64OnBase64: decode OK', {
+    messageBytes: messageBuffer.length,
+    signatureBytes: signatureBuffer.length,
+  });
+  const verifyOnCipherBytes = rsaVerifySha256WithPublicKey(
     serverPub,
-    base64ToBuffer(messageBase64),
-    base64ToBuffer(signatureBase64),
+    messageBuffer,
+    signatureBuffer,
   );
+  if (verifyOnCipherBytes) {
+    devLog(LOG_RSA, 'rsaVerifySha256PublicKeyPemBase64OnBase64: OK sobre bytes ciphertext');
+    return true;
+  }
+
+  // Algunos backends firman el string Base64 (UTF-8), no los bytes del ciphertext.
+  const messageBase64Utf8Buffer = Buffer.from(messageBase64, 'utf8');
+  devLog(LOG_RSA, 'rsaVerifySha256PublicKeyPemBase64OnBase64: fallback verify sobre UTF-8(base64)', {
+    messageBase64Utf8Bytes: messageBase64Utf8Buffer.length,
+  });
+  const verifyOnBase64Utf8 = rsaVerifySha256WithPublicKey(
+    serverPub,
+    messageBase64Utf8Buffer,
+    signatureBuffer,
+  );
+  if (verifyOnBase64Utf8) {
+    devLog(LOG_RSA, 'rsaVerifySha256PublicKeyPemBase64OnBase64: OK sobre UTF-8(base64)');
+    return true;
+  }
+
+  // Caso adicional: response doble-Base64 y firma calculada sobre el Base64 interno (string UTF-8).
+  const firstDecode = Buffer.from(messageBase64, 'base64');
+  if (looksLikeBase64Ascii(firstDecode)) {
+    const innerBase64Utf8Buffer = Buffer.from(firstDecode.toString('utf8'), 'utf8');
+    devLog(
+      LOG_RSA,
+      'rsaVerifySha256PublicKeyPemBase64OnBase64: fallback verify sobre UTF-8(base64 interno)',
+      {
+        innerBase64Utf8Bytes: innerBase64Utf8Buffer.length,
+      },
+    );
+    const verifyOnInnerBase64Utf8 = rsaVerifySha256WithPublicKey(
+      serverPub,
+      innerBase64Utf8Buffer,
+      signatureBuffer,
+    );
+    if (verifyOnInnerBase64Utf8) {
+      devLog(
+        LOG_RSA,
+        'rsaVerifySha256PublicKeyPemBase64OnBase64: OK sobre UTF-8(base64 interno)',
+      );
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToUtf8(
+  clientPrivatePemBase64: string,
+  cipherBase64: string,
+): string {
+  const clientPriv = createPrivateKeyFromPemBase64(clientPrivatePemBase64);
+  const plain = rsaOaepDecryptWithPrivateKey(
+    clientPriv,
+    decodeApiBase64ToBinary(cipherBase64),
+  );
+  return plain.toString('utf8');
 }
 
 export function rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToHex(
@@ -119,47 +225,53 @@ export function rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToHex(
   const clientPriv = createPrivateKeyFromPemBase64(clientPrivatePemBase64);
   const plain = rsaOaepDecryptWithPrivateKey(
     clientPriv,
-    base64ToBuffer(cipherBase64),
+    decodeApiBase64ToBinary(cipherBase64),
   );
   return bufferToHex(plain);
 }
 
-export function rsaOaepEncryptHex16MaterialPemBase64ToBase64(
-  publicKeyPem: string,
-  hex16: string,
+export function rsaEncryptPublicKeyPemBase64Utf8ToBase64(
+  publicKeyPemBase64: string,
+  plainText: string,
 ): string {
-  devLog(LOG_RSA, 'rsaOaepEncryptHex16: entrada', {
-    materialHexChars: hex16?.length ?? 0,
-    hasPublicKeyPem: (publicKeyPem?.trim()),
-  });
-  if (!/^[0-9a-fA-F]{16}$/.test(hex16)) {
-    devLog(LOG_RSA, 'rsaOaepEncryptHex16: salida (error validación material)');
-    throw new Error(
-      'El material debe ser exactamente 16 caracteres hexadecimales (8 bytes).',
-    );
+  if (!plainText) {
+    throw new Error('No hay texto para encriptar');
   }
-  if (!publicKeyPem?.trim()) {
-    devLog(LOG_RSA, 'rsaOaepEncryptHex16: salida (error sin clave)');
+  if (!publicKeyPemBase64?.trim()) {
     throw new Error('La llave pública es requerida');
   }
-  const keyPem = base64ToBinaryLatin1(publicKeyPem);
-  const pub = createPublicKey({key: keyPem, format: 'pem'});
-  const plain = Buffer.from(hex16, 'hex');
-  const encrypted = crypto.publicEncrypt(
-    {
-      key: pub,
-      padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-      oaepHash: 'sha1',
-    },
-    plain,
+  const pub = createPublicKeyFromPemBase64(publicKeyPemBase64);
+  const encrypted = rsaOaepEncryptWithPublicKey(pub, Buffer.from(plainText, 'utf8'));
+  return encrypted.toString('base64');
+}
+
+/**
+ * Convención heredada para headers: Base64(RSA) y luego Base64(UTF8(Base64(RSA))).
+ */
+export function rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
+  publicKeyPemBase64: string,
+  utf8Plain: string,
+): string {
+  const firstBase64 = rsaEncryptPublicKeyPemBase64Utf8ToBase64(
+    publicKeyPemBase64,
+    utf8Plain,
   );
-  const firstBase64 = encrypted.toString('base64');
-  const encryptValue = Buffer.from(firstBase64, 'utf8').toString('base64');
-  devLog(LOG_RSA, 'rsaOaepEncryptHex16: salida OK', {
-    encrypted: encrypted,
-    encryptedBase64: encryptValue,
-  });
-  return encryptValue;
+  return Buffer.from(firstBase64, 'utf8').toString('base64');
+}
+
+/**
+ * Compatibilidad: el nombre histórico incluía "Hex16", pero el backend cifra UTF-8 y devuelve Base64 simple.
+ */
+export function rsaOaepEncryptHex16MaterialPemBase64ToBase64(
+  publicKeyPemBase64: string,
+  plainText: string,
+): string {
+  if (!plainText) {
+    throw new Error('No hay texto para encriptar');
+  }
+  const pub = createPublicKeyFromPemBase64(publicKeyPemBase64);
+  const encrypted = rsaOaepEncryptWithPublicKey(pub, Buffer.from(plainText, 'utf8'));
+  return encrypted.toString('base64');
 }
 
 export function rsaSignSha256PrivateKeyPemBase64OnCipherBase64(
@@ -169,44 +281,8 @@ export function rsaSignSha256PrivateKeyPemBase64OnCipherBase64(
   if (!clientPrivatePemBase64?.trim()) {
     throw new Error('La llave privada del cliente es requerida');
   }
-  const clientPriv = createPrivateKeyFromPemBase64(clientPrivatePemBase64);
-  const cipherBuf = base64ToBuffer(cipherBase64);
-  const sig = rsaSignSha256WithPrivateKey(clientPriv, cipherBuf);
-  return bufferToBase64(sig);
-}
-
-export function rsaEncryptPublicKeyPemBase64Utf8ToBase64(
-  publicKeyBase64: string,
-  plainText: string,
-): string {
-  devLog(LOG_RSA, 'rsaEncryptUtf8: entrada', {
-    plainTextUtf8Bytes: plainText?.length ?? 0,
-    hasPublicKey: Boolean(publicKeyBase64?.trim()),
-  });
-  if (plainText == null || plainText === '') {
-    devLog(LOG_RSA, 'rsaEncryptUtf8: salida (error texto vacío)');
-    throw new Error('No hay texto para encriptar');
-  }
-  if (!publicKeyBase64?.trim()) {
-    devLog(LOG_RSA, 'rsaEncryptUtf8: salida (error sin clave)');
-    throw new Error('La llave Pública es requerida');
-  }
-  try {
-    const pub = createPublicKeyFromPemBase64(publicKeyBase64);
-    const dataToEncrypt = Buffer.from(plainText, 'utf8');
-    const encrypted = rsaOaepEncryptWithPublicKey(pub, dataToEncrypt);
-    const out = bufferToBase64(encrypted);
-    devLog(LOG_RSA, 'rsaEncryptUtf8: salida OK', {
-      ciphertextBase64Chars: out.length,
-    });
-    return out;
-  } catch (ex) {
-    devLog(LOG_RSA, 'rsaEncryptUtf8: salida (error)', {
-      message: ex instanceof Error ? ex.message : String(ex),
-    });
-    const inner = ex instanceof Error ? ex.message : String(ex);
-    throw new Error(
-      `Error mientras se intentaba encriptar texto: ${plainText}. ${inner}`,
-    );
-  }
+  const privateKey = createPrivateKeyFromPemBase64(clientPrivatePemBase64);
+  const message = Buffer.from(cipherBase64, 'utf8');
+  const signature = rsaSignSha256WithPrivateKey(privateKey, message);
+  return toDoubleBase64FromBuffer(signature);
 }

@@ -2,11 +2,16 @@ import {Buffer} from 'buffer';
 import {
   aes256CbcDecrypt,
   aes256CbcEncrypt,
+  AES_MODE,
   AES_IV_LENGTH_BYTES,
   AES_KEY_LENGTH_BYTES,
 } from '../aesHelper';
 
 describe('aesHelper', () => {
+  it('uses aes-256-cbc mode', () => {
+    expect(AES_MODE).toBe('aes-256-cbc');
+  });
+
   it('round-trips AES-256-CBC with PKCS#7', () => {
     const key = Buffer.alloc(AES_KEY_LENGTH_BYTES, 7);
     const iv = Buffer.alloc(AES_IV_LENGTH_BYTES, 3);

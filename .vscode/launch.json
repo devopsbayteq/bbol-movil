@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run iOS Hermes",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "enableDebug": false,
+      "platform": "ios"
+    },
+    {
       "name": "Debug Android (Hermes)",
       "type": "reactnativedirect",
       "request": "launch",
@@ -16,7 +24,17 @@
       "type": "reactnativedirect",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "platform": "ios"
+      "platform": "ios",
+      "preLaunchTask": "RN: Abrir Simulador iOS",
+      "runArguments": ["--simulator", "iPhone 16"]
+    },
+    {
+      "name": "Debug iOS (Hermes, simulador ya abierto)",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "platform": "ios",
+      "runArguments": ["--simulator", "iPhone 16"]
     },
     {
       "name": "Attach to Hermes",

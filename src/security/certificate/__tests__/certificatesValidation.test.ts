@@ -1,5 +1,7 @@
 import type {CertificateEnvelopeResponse} from '../../../data/models/CertificateModels';
+import {Buffer} from 'buffer';
 import {
+  buildCertificateRequest,
   materialHex16FromUuidV4,
   validateCertificateResponse,
   type CertificateSession,
@@ -13,8 +15,8 @@ function sessionFixture(): CertificateSession {
 }
 
 describe('materialHex16FromUuidV4', () => {
-  it('produce 16 caracteres hex (primeros del UUID sin guiones)', () => {
-    expect(materialHex16FromUuidV4()).toMatch(/^[0-9a-f]{16}$/i);
+  it('produce base64 no vacío', () => {
+    expect(materialHex16FromUuidV4()).toMatch(/^[A-Za-z0-9\-_]+$/);
   });
 });
 
@@ -39,5 +41,20 @@ describe('validateCertificateResponse', () => {
     expect(() =>
       validateCertificateResponse(envelope, sessionFixture()),
     ).toThrow();
+  });
+
+  it('buildCertificateRequest codifica los 3 campos en doble Base64', () => {
+    const request = buildCertificateRequest(sessionFixture());
+    const fields = [
+      request.secretEncryptBase64,
+      request.secretIvEncryptBase64,
+      request.secretEncryptSignBase64,
+    ];
+
+    for (const value of fields) {
+      // 2do nivel Base64 -> texto UTF-8 que debe ser el 1er nivel Base64.
+      const innerBase64 = Buffer.from(value, 'base64').toString('utf8');
+      expect(innerBase64).toMatch(/^[A-Za-z0-9+/=]+$/);
+    }
   });
 });

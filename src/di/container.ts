@@ -1,8 +1,10 @@
+import {v4 as uuidv4} from 'uuid';
 import {LoginUseCase} from '../domain/usecases/LoginUseCase';
 import {GetTransactionsUseCase} from '../domain/usecases/GetTransactionsUseCase';
 import {RunCertificateHandshakeUseCase} from '../domain/usecases/RunCertificateHandshakeUseCase';
 import {SecureStorageService} from '../domain/services/SecureStorageService';
 
+import {API_BASE_URL, getApiSwitchImplementation} from '../config/apiEnvironment';
 import {AxiosHttpClient} from '../data/api/apiClient';
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
@@ -11,6 +13,8 @@ import {AuthRemoteDataSource} from '../data/datasources/auth/AuthRemoteDataSourc
 import {MockTransactionDataSource} from '../data/datasources/transaction/MockTransactionDataSource';
 import {SecurityRemoteDataSource} from '../data/datasources/security/SecurityRemoteDataSource';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
+import {createApiSecretKey} from '../security/http/apiSecretKey';
+import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../security/certificate/keys.constants';
 
 export interface AppContainer {
   loginUseCase: LoginUseCase;
@@ -22,11 +26,19 @@ export interface AppContainer {
 }
 
 export function createContainer(): AppContainer {
-  const httpClient = new AxiosHttpClient(
-    'https://dev4.bayteq.com:50110/api/v1',
-    {'X-Platform': 'IOS'},
-  );
   const secureStorageService = new SecureStorageServiceImpl();
+  const secretKey = createApiSecretKey();
+  const requestId = uuidv4();
+
+  const httpClient = new AxiosHttpClient({
+    baseURL: API_BASE_URL,
+    secretKey,
+    requestId,
+    secureStorage: secureStorageService,
+    serverPublicPemBase64: SERVER_PUBLIC_KEY_PEM_BASE64,
+    getApiSwitchImplementation,
+    getDeviceState: () => 'unknown',
+  });
 
   const authDataSource = new MockAuthDataSource();
   const authRemoteDataSource = new AuthRemoteDataSource(httpClient);

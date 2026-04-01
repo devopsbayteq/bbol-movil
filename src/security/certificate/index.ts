@@ -40,6 +40,7 @@ export {
   rsaEncryptPublicKeyPemBase64Utf8ToBase64,
   rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToHex,
   rsaOaepEncryptHex16MaterialPemBase64ToBase64,
+  rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64,
   rsaSignSha256PrivateKeyPemBase64OnCipherBase64,
   rsaVerifySha256PublicKeyPemBase64OnBase64,
   RSA_OAEP_OPTIONS,

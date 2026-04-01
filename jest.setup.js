@@ -23,3 +23,11 @@ jest.mock('react-native-encrypted-storage', () => ({
   removeItem: jest.fn(() => Promise.resolve()),
   clear: jest.fn(() => Promise.resolve()),
 }));
+
+jest.mock('react-native-device-info', () => ({
+  getVersion: jest.fn(() => Promise.resolve('0.0.1')),
+  getModel: jest.fn(() => Promise.resolve('TestModel')),
+  getBrand: jest.fn(() => Promise.resolve('TestBrand')),
+  getSystemVersion: jest.fn(() => Promise.resolve('17.0')),
+  isEmulator: jest.fn(() => Promise.resolve(false)),
+}));

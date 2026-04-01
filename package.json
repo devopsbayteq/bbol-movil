@@ -5,6 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ios:boot-sim": "open -a Simulator",
     "lint": "eslint .",
     "postinstall": "node scripts/ios-cli-findXcodeProject-shim.js",
     "start": "react-native start",
@@ -19,6 +20,7 @@
     "react": "19.2.3",
     "react-native": "0.84.1",
     "react-native-base64": "^0.2.2",
+    "react-native-device-info": "^15.0.2",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-nitro-modules": "^0.35.2",
     "react-native-quick-base64": "^2.2.2",

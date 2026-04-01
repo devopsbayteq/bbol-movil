@@ -40,9 +40,9 @@ export function aes256CbcDecryptHex(
   ivHex: string,
 ): string {
   const plain = aes256CbcDecrypt(
-    hexToBuffer(ciphertextHex),
-    hexToBuffer(keyHex),
-    hexToBuffer(ivHex),
+    Buffer.from(ciphertextHex),
+    Buffer.from(keyHex),
+    Buffer.from(ivHex),
   );
   return bufferToHex(plain);
 }
