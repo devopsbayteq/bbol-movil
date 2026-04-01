@@ -69,6 +69,7 @@ export function TransactionsScreen() {
         <View>
           <Text style={styles.greeting}>Hola, {user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
+        
         </View>
         <TouchableOpacity
           style={styles.logoutButton}

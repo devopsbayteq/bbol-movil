@@ -15,6 +15,7 @@ import {MockTransactionDataSource} from '../data/datasources/transaction/MockTra
 import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
+import { GetUserLoggedUseCase } from '../domain/usecases/GetUserLoggedUseCase';
 
 export interface AppContainer {
   loginUseCase: LoginUseCase;
@@ -23,6 +24,7 @@ export interface AppContainer {
   secureStorageService: SecureStorageService;
   biometricAuthService: BiometricAuthService;
   authRemoteDataSource: AuthRemoteDataSource;
+  getUserLoggedUseCase: GetUserLoggedUseCase;
 }
 
 export function createContainer(): AppContainer {
@@ -43,7 +45,17 @@ export function createContainer(): AppContainer {
     transactionDataSource,
   );
 
-  const loginUseCase = new LoginUseCase(authRepository);
+  const loginUseCase = new LoginUseCase(
+    authRepository,
+    secureStorageService,
+    SecureStorageKeys.USER_LOGIN_DATA,
+  );
+
+  const getUserLoggedUseCase = new GetUserLoggedUseCase(
+    secureStorageService,
+    SecureStorageKeys.USER_LOGIN_DATA,
+  );
+
   const getTransactionsUseCase = new GetTransactionsUseCase(
     transactionRepository,
   );
@@ -60,5 +72,6 @@ export function createContainer(): AppContainer {
     secureStorageService,
     biometricAuthService,
     authRemoteDataSource,
+    getUserLoggedUseCase
   };
 }
