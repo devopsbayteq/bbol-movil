@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  Alert,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
+import type {MainTabParamList} from '../../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {DevelopmentNoticeModal} from '../../components/DevelopmentNoticeModal';
+import {ErrorMessage} from '../../components/ErrorMessage';
 import {
   TransferIconArrowLeft,
   TransferIconArrowRight,
@@ -30,7 +36,33 @@ export function TransferReviewScreen() {
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
 
-  const vm = useTransferReviewViewModel();
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
+    >();
+
+  const onTransferSuccess = useCallback(
+    (transactionIdentifier: string) => {
+      Alert.alert(
+        'Transferencia exitosa',
+        `Identificador de transacción: ${transactionIdentifier}`,
+        [
+          {
+            text: 'Aceptar',
+            onPress: () => {
+              navigation.popToTop();
+              const tabNav =
+                navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+              tabNav?.navigate('Home');
+            },
+          },
+        ],
+      );
+    },
+    [navigation],
+  );
+
+  const vm = useTransferReviewViewModel({onTransferSuccess});
   const {
     displayAmount,
     beneficiary,
@@ -38,12 +70,14 @@ export function TransferReviewScreen() {
     fromAccountLine,
     commission,
     commissionLoading,
-    devNoticeVisible,
-    setDevNoticeVisible,
+    confirmLoading,
+    confirmError,
+    setConfirmError,
     paraSubline,
     conceptDisplay,
     transferDateLabel,
     onBack,
+    onConfirm,
   } = vm;
 
   return (
@@ -135,13 +169,30 @@ export function TransferReviewScreen() {
         </View>
 
         <View style={styles.actions}>
+          {confirmError ? (
+            <ErrorMessage
+              message={confirmError}
+              style={styles.confirmError}
+            />
+          ) : null}
           <TouchableOpacity
-            style={styles.primaryCta}
-            onPress={() => setDevNoticeVisible(true)}
+            style={[
+              styles.primaryCta,
+              confirmLoading && styles.primaryCtaDisabled,
+            ]}
+            onPress={() => {
+              setConfirmError(null);
+              void onConfirm();
+            }}
+            disabled={confirmLoading}
             activeOpacity={0.9}
             accessibilityRole="button"
             accessibilityLabel="Confirmar transferencia">
-            <TransferIconArrowRightWhite color={colors.white} size={20} />
+            {confirmLoading ? (
+              <ActivityIndicator color={colors.white} size="small" />
+            ) : (
+              <TransferIconArrowRightWhite color={colors.white} size={20} />
+            )}
             <Text style={styles.primaryCtaText}>Confirmar</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -154,13 +205,6 @@ export function TransferReviewScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      <DevelopmentNoticeModal
-        visible={devNoticeVisible}
-        onClose={() => setDevNoticeVisible(false)}
-        title="Próximamente"
-        message="La confirmación de transferencias estará disponible pronto."
-      />
     </View>
   );
 }
@@ -324,6 +368,9 @@ function useStyles(colors: ThemeColors) {
           gap: 12,
           alignItems: 'center',
         },
+        confirmError: {
+          alignSelf: 'stretch',
+        },
         primaryCta: {
           flexDirection: 'row',
           alignItems: 'center',
@@ -343,6 +390,9 @@ function useStyles(colors: ThemeColors) {
             android: {elevation: 2},
             default: {},
           }),
+        },
+        primaryCtaDisabled: {
+          opacity: 0.7,
         },
         primaryCtaText: {
           fontFamily: Lexend.semiBold,

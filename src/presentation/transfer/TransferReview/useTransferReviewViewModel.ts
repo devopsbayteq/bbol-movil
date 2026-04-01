@@ -3,9 +3,13 @@ import {
   useNavigation,
   useRoute,
   type RouteProp,
+  CommonActions,
 } from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
+import {useDI} from '../../../di';
+import {useAuth} from '../../../providers';
+import type {RootStackParamList} from '../../../navigation/AppNavigator';
 
 function formatReviewDate(date: Date): string {
   const day = date.getDate();
@@ -28,10 +32,19 @@ function beneficiaryAccountLine(
   return undefined;
 }
 
-export function useTransferReviewViewModel() {
+export type TransferReviewViewModelOptions = {
+  onTransferSuccess?: (transactionIdentifier: string) => void;
+};
+
+export function useTransferReviewViewModel(
+  options?: TransferReviewViewModelOptions,
+) {
+  const {onTransferSuccess} = options ?? {};
   const navigation =
     useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>>();
   const route = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>();
+  const {validateTransactionAmountUseCase, executeTransferUseCase} = useDI();
+  const {user} = useAuth();
 
   const {
     amountCents,
@@ -54,7 +67,8 @@ export function useTransferReviewViewModel() {
     setCommissionLoading(false);
   }, [amountCents]);
 
-  const [devNoticeVisible, setDevNoticeVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
 
   const paraSubline = useMemo(
     () => beneficiaryAccountLine(beneficiary.bankName, beneficiary.accountHint),
@@ -69,6 +83,72 @@ export function useTransferReviewViewModel() {
     navigation.goBack();
   }, [navigation]);
 
+  const onConfirm = useCallback(async () => {
+    setConfirmError(null);
+
+    if (beneficiary.kind === 'own_account') {
+      setConfirmError(
+        'Esta validación aplica a transferencias a contactos. Para cuentas propias, el flujo se habilitará próximamente.',
+      );
+      return;
+    }
+
+    const email = user?.email?.trim() ?? '';
+    if (!email) {
+      setConfirmError('No hay un correo en la sesión para continuar con la autenticación.');
+      return;
+    }
+
+    setConfirmLoading(true);
+    try {
+      const amount = Math.round(amountCents) / 100;
+      const result = await validateTransactionAmountUseCase.execute({
+        amount,
+        beneficiaryGuid: beneficiary.id,
+        accountGuid: accountId,
+        concept: concept.trim(),
+      });
+
+      if (!result.isValid) {
+        const execution = await executeTransferUseCase.execute({
+          amount,
+          beneficiaryContactGuid: beneficiary.id,
+          accountGuid: accountId,
+          concept: concept.trim(),
+        });
+        onTransferSuccess?.(execution.transactionIdentifier);
+        return;
+      }
+
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'OtpValidation',
+          params: {
+            mode: 'transfer',
+            email,
+          } satisfies RootStackParamList['OtpValidation'],
+        }),
+      );
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'No se pudo validar el monto.';
+      setConfirmError(message);
+    } finally {
+      setConfirmLoading(false);
+    }
+  }, [
+    accountId,
+    amountCents,
+    beneficiary.id,
+    beneficiary.kind,
+    concept,
+    navigation,
+    user?.email,
+    validateTransactionAmountUseCase,
+    executeTransferUseCase,
+    onTransferSuccess,
+  ]);
+
   return {
     amountCents,
     displayAmount,
@@ -79,11 +159,13 @@ export function useTransferReviewViewModel() {
     concept,
     commission,
     commissionLoading,
-    devNoticeVisible,
-    setDevNoticeVisible,
+    confirmLoading,
+    confirmError,
+    setConfirmError,
     paraSubline,
     conceptDisplay,
     transferDateLabel,
     onBack,
+    onConfirm,
   };
 }

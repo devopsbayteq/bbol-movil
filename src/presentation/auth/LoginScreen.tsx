@@ -45,6 +45,7 @@ export function LoginScreen() {
     handleBiometricLogin,
   } = useLoginViewModel(async user => {
     navigation.navigate('OtpValidation', {
+      mode: 'login',
       user,
       email: user.email,
     });
