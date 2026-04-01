@@ -9,7 +9,7 @@ export class SecurityRemoteDataSource {
     try {
       const response = await this.httpClient.get<
         ApiResponseModel<PublicKeyContentModel>
-      >('/api/v1/Security/public-key');
+      >('Security/public-key');
 
       if (response.data.responseType === 'Error' || !response.data.content) {
         throw new Error(

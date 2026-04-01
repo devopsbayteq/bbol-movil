@@ -27,17 +27,17 @@ export interface AppContainer {
 
 export function createContainer(): AppContainer {
   const httpClient = new AxiosHttpClient(
-    'https://dev4.bayteq.com:50112/'
+    'https://dev4.bayteq.com:50112/api/v1/'
   );
   const secureStorageService = new SecureStorageServiceImpl();
   const biometricAuthService = new BiometricAuthServiceImpl();
 
-  const authDataSource = new MockAuthDataSource();
+  const mockAuthDataSource = new MockAuthDataSource();
   const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
   const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
   const transactionDataSource = new MockTransactionDataSource();
 
-  const authRepository = new AuthRepositoryImpl(authDataSource);
+  const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
   const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
   const transactionRepository = new TransactionRepositoryImpl(
     transactionDataSource,
