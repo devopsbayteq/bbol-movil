@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {LoginScreen} from '../presentation/auth/LoginScreen';
-import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
+import {MainTabNavigator} from './MainTabNavigator';
 import {PublicKeyErrorScreen, SplashScreen} from '../presentation/splash';
 import {OtpValidationScreen} from '../presentation/otp';
 import {useAuth, useSecurity} from '../providers';
@@ -13,7 +13,7 @@ export type RootStackParamList = {
     user: User;
     email: string;
   };
-  Transactions: undefined;
+  Main: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -61,7 +61,7 @@ export function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       {isAuthenticated ? (
-        <Stack.Screen name="Transactions" component={TransactionsScreen} />
+        <Stack.Screen name="Main" component={MainTabNavigator} />
       ) : (
         <>
           <Stack.Screen name="Login" component={LoginScreen} />

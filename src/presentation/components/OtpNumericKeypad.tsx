@@ -44,7 +44,7 @@ export function OtpNumericKeypad({
   const styles = useStyles(colors);
 
   return (
-    <View style={styles.wrap} accessibilityRole="keyboard">
+    <View style={styles.wrap} accessibilityLabel="Teclado numérico">
       {ROWS.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
           {row.map(key => (
