@@ -111,7 +111,7 @@ export function useTransferViewModel() {
         fromHolderName: holderName,
         fromAccountLine: formatAccountKindLine(selectedAccount),
         accountId: selectedAccount.accountGuid,
-        concept: concept.trim(),
+        concept: concept,
       },
     };
   }, [amountCents, beneficiary, concept, displayAmount, selectedAccount, user?.name]);

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -14,14 +14,10 @@ import {
   Platform,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  useNavigation,
-  useRoute,
-  type RouteProp,
-} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
@@ -36,7 +32,8 @@ import {
   TransferIconArrowRightWhite,
 } from './transferIcons';
 import {useTransferViewModel} from './useTransferViewModel';
-import {accountTypeModalLabel, formatAccountKindLine} from '../../utils/accountDisplay';
+import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
+import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 
 const ZERO_DISPLAY = formatMoneyEc(0);
@@ -50,25 +47,19 @@ export function TransferScreen() {
   const insets = useSafeAreaInsets();
   const navigation =
     useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
-  const route = useRoute<RouteProp<TransferStackParamList, 'TransferMain'>>();
   const styles = useStyles(colors);
 
-  const vm = useTransferViewModel();
+  const transferViewModel = useTransferViewModel();
 
-  const {selectBeneficiary} = vm;
+  const {selectBeneficiary} = transferViewModel;
 
-  useEffect(() => {
-    const selected = route.params?.selectedBeneficiary;
-    if (selected) {
-      selectBeneficiary(selected);
-      navigation.setParams({selectedBeneficiary: undefined});
-    }
-  }, [navigation, route.params?.selectedBeneficiary, selectBeneficiary]);
+  const [beneficiaryModalVisible, setBeneficiaryModalVisible] = useState(false);
 
-  const holderName = vm.user?.name?.trim() || 'Titular';
 
-  const beneficiaryTitle = vm.beneficiary
-    ? vm.beneficiary.name
+  const holderName = transferViewModel.user?.name?.trim() || 'Titular';
+
+  const beneficiaryTitle = transferViewModel.beneficiary
+    ? transferViewModel.beneficiary.name
     : 'Selecciona el beneficiario';
 
   const onBack = () => {
@@ -91,19 +82,19 @@ export function TransferScreen() {
         <View style={styles.headerRightSpacer} />
       </View>
 
-      {vm.error ? (
+      {transferViewModel.error ? (
         <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>{vm.error}</Text>
+          <Text style={styles.errorText}>{transferViewModel.error}</Text>
           <TouchableOpacity
             onPress={() => {
-              vm.retry();
+              transferViewModel.retry();
             }}>
             <Text style={styles.retryText}>Reintentar</Text>
           </TouchableOpacity>
         </View>
       ) : null}
 
-      {vm.isLoading ? (
+      {transferViewModel.isLoading ? (
         <View style={styles.loadingWrap}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -123,8 +114,8 @@ export function TransferScreen() {
             <View style={styles.amountWrap}>
               <TextInput
                 style={styles.amountInput}
-                value={vm.displayAmount}
-                onChangeText={vm.onAmountChange}
+                value={transferViewModel.displayAmount}
+                onChangeText={transferViewModel.onAmountChange}
                 keyboardType="number-pad"
                 returnKeyType="done"
                 onSubmitEditing={() => Keyboard.dismiss()}
@@ -137,7 +128,7 @@ export function TransferScreen() {
 
             <TouchableOpacity
               style={styles.card}
-              onPress={() => navigation.navigate('BeneficiarySelect')}
+              onPress={() => setBeneficiaryModalVisible(true)}
               activeOpacity={0.9}>
               <View style={styles.iconChip}>
                 <TransferIconUser color={HERO_BG} size={16} />
@@ -154,10 +145,10 @@ export function TransferScreen() {
             <TouchableOpacity
               style={styles.card}
               onPress={
-                vm.accounts.length > 1 ? vm.openAccountPicker : undefined
+                transferViewModel.accounts.length > 1 ? transferViewModel.openAccountPicker : undefined
               }
-              activeOpacity={vm.accounts.length > 1 ? 0.9 : 1}
-              disabled={vm.accounts.length <= 1}>
+              activeOpacity={transferViewModel.accounts.length > 1 ? 0.9 : 1}
+              disabled={transferViewModel.accounts.length <= 1}>
               <View style={styles.iconChip}>
                 <TransferIconWallet color={HERO_BG} size={16} />
               </View>
@@ -166,15 +157,15 @@ export function TransferScreen() {
                 <Text style={styles.cardTitle} numberOfLines={1}>
                   {holderName}
                 </Text>
-                {vm.selectedAccount ? (
+                {transferViewModel.selectedAccount ? (
                   <Text style={styles.cardSub} numberOfLines={1}>
-                    {vm.fromAccountDescription}
+                    {transferViewModel.fromAccountDescription}
                   </Text>
                 ) : (
                   <Text style={styles.cardSub}>Sin cuenta disponible</Text>
                 )}
               </View>
-              {vm.accounts.length > 1 ? (
+              {transferViewModel.accounts.length > 1 ? (
                 <TransferIconArrowUp color={colors.iconPrimary} size={16} />
               ) : (
                 <View style={styles.cardChevronSpacer} />
@@ -190,27 +181,28 @@ export function TransferScreen() {
               </Text>
               <TextInput
                 style={styles.conceptInput}
-                value={vm.concept}
-                onChangeText={vm.setConcept}
+                value={transferViewModel.concept}
+                onChangeText={transferViewModel.setConcept}
                 placeholder="Ej. Pago zapatos"
                 placeholderTextColor={colors.placeholder}
                 maxLength={120}
               />
             </View>
 
-            {vm.validationMessage ? (
-              <Text style={styles.validationText}>{vm.validationMessage}</Text>
+            {transferViewModel.validationMessage ? (
+              <Text style={styles.validationText}>{transferViewModel.validationMessage}</Text>
             ) : null}
 
             <TouchableOpacity
               style={styles.primaryCta}
               onPress={() => {
-                const result = vm.prepareTransferReview();
+                const result = transferViewModel.prepareTransferReview();
+
                 if (!result.ok) {
-                  vm.setValidationMessage(result.message);
+                  transferViewModel.setValidationMessage(result.message);
                   return;
                 }
-                vm.setValidationMessage(null);
+                transferViewModel.setValidationMessage(null);
                 navigation.navigate('TransferReview', result.params);
               }}
               activeOpacity={0.9}>
@@ -225,14 +217,14 @@ export function TransferScreen() {
       )}
 
       <Modal
-        visible={vm.accountModalVisible}
+        visible={transferViewModel.accountModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => vm.setAccountModalVisible(false)}>
+        onRequestClose={() => transferViewModel.setAccountModalVisible(false)}>
         <View style={styles.modalRoot}>
           <Pressable
             style={StyleSheet.absoluteFill}
-            onPress={() => vm.setAccountModalVisible(false)}
+            onPress={() => transferViewModel.setAccountModalVisible(false)}
             accessibilityLabel="Cerrar"
           />
           <View
@@ -245,19 +237,19 @@ export function TransferScreen() {
               <Text style={styles.modalHeaderTitle}>CUENTAS</Text>
               <TouchableOpacity
                 style={styles.modalCloseBtn}
-                onPress={() => vm.setAccountModalVisible(false)}
+                onPress={() => transferViewModel.setAccountModalVisible(false)}
                 accessibilityRole="button"
                 accessibilityLabel="Cerrar selección de cuentas">
                 <TransferIconClose color={colors.iconPrimary} size={20} />
               </TouchableOpacity>
             </View>
             <FlatList
-              data={vm.accounts}
+              data={transferViewModel.accounts}
               keyExtractor={item => item.accountGuid}
-              scrollEnabled={vm.accounts.length > 4}
+              scrollEnabled={transferViewModel.accounts.length > 4}
               contentContainerStyle={styles.modalListContent}
               renderItem={({item, index}) => {
-                const isSelected = index === vm.accountIndex;
+                const isSelected = index === transferViewModel.accountIndex;
                 const isDisabled = item.balance <= 0;
                 return (
                   <TouchableOpacity
@@ -268,7 +260,7 @@ export function TransferScreen() {
                         styles.accountPickCardSelected,
                       isDisabled && styles.accountPickCardDisabled,
                     ]}
-                    onPress={() => vm.selectAccount(index)}
+                    onPress={() => transferViewModel.selectAccount(index)}
                     activeOpacity={isDisabled ? 1 : 0.88}
                     disabled={isDisabled}
                     accessibilityState={{
@@ -305,6 +297,14 @@ export function TransferScreen() {
         </View>
       </Modal>
 
+      <BeneficiarySelectModal
+        visible={beneficiaryModalVisible}
+        onRequestClose={() => setBeneficiaryModalVisible(false)}
+        onSelect={b => {
+          selectBeneficiary(b);
+          setBeneficiaryModalVisible(false);
+        }}
+      />
     </View>
   );
 }

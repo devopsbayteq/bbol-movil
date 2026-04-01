@@ -1,18 +1,11 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {TransferScreen} from '../presentation/transfer/TransferScreen';
-import {BeneficiarySelectScreen} from '../presentation/beneficiary/BeneficiarySelectScreen';
-import type {BeneficiaryOption} from '../presentation/transfer/transferTypes';
 import type {TransferReviewRouteParams} from '../presentation/transfer/TransferReview/transferReviewTypes';
 import {TransferReviewScreen} from '../presentation/transfer/TransferReview/TransferReviewScreen';
 
 export type TransferStackParamList = {
-  TransferMain:
-    | {
-        selectedBeneficiary?: BeneficiaryOption;
-      }
-    | undefined;
-  BeneficiarySelect: undefined;
+  TransferMain: undefined;
   TransferReview: TransferReviewRouteParams;
 };
 
@@ -27,10 +20,6 @@ export function TransferStackNavigator() {
       }}>
       <Stack.Screen name="TransferMain" component={TransferScreen} />
       <Stack.Screen name="TransferReview" component={TransferReviewScreen} />
-      <Stack.Screen
-        name="BeneficiarySelect"
-        component={BeneficiarySelectScreen}
-      />
     </Stack.Navigator>
   );
 }

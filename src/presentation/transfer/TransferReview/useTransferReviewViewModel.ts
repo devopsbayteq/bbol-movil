@@ -40,8 +40,6 @@ export function useTransferReviewViewModel(
   options?: TransferReviewViewModelOptions,
 ) {
   const {onTransferSuccess} = options ?? {};
-  const navigation =
-    useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>>();
   const route = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>();
   const {validateTransactionAmountUseCase, executeTransferUseCase} = useDI();
   const {user} = useAuth();
@@ -78,10 +76,6 @@ export function useTransferReviewViewModel(
   const conceptDisplay = concept.trim() ? concept.trim() : '—';
 
   const transferDateLabel = useMemo(() => formatReviewDate(new Date()), []);
-
-  const onBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
 
   const onConfirm = useCallback(async () => {
     setConfirmError(null);
@@ -120,15 +114,15 @@ export function useTransferReviewViewModel(
         return;
       }
 
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'OtpValidation',
-          params: {
-            mode: 'transfer',
-            email,
-          } satisfies RootStackParamList['OtpValidation'],
-        }),
-      );
+      // navigation.dispatch(
+      //   CommonActions.navigate({
+      //     name: 'OtpValidation',
+      //     params: {
+      //       mode: 'transfer',
+      //       email,
+      //     } satisfies RootStackParamList['OtpValidation'],
+      //   }),
+      // );
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'No se pudo validar el monto.';
@@ -142,7 +136,6 @@ export function useTransferReviewViewModel(
     beneficiary.id,
     beneficiary.kind,
     concept,
-    navigation,
     user?.email,
     validateTransactionAmountUseCase,
     executeTransferUseCase,
@@ -165,7 +158,6 @@ export function useTransferReviewViewModel(
     paraSubline,
     conceptDisplay,
     transferDateLabel,
-    onBack,
     onConfirm,
   };
 }

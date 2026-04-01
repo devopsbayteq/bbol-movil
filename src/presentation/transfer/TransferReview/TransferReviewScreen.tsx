@@ -15,9 +15,9 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../../navigation/MainTabNavigator';
-import {useTheme, type ThemeColors} from '../../../providers/theme';
+import {useTheme, type ThemeColors} from '../../../providers';
 import {Lexend} from '../../../theme/lexend';
-import {ErrorMessage} from '../../components/ErrorMessage';
+import {ErrorMessage} from '../../components';
 import {
   TransferIconArrowLeft,
   TransferIconArrowRight,
@@ -36,8 +36,7 @@ export function TransferReviewScreen() {
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
 
-  const navigation =
-    useNavigation<
+  const navigation = useNavigation<
       NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
 
@@ -62,7 +61,6 @@ export function TransferReviewScreen() {
     [navigation],
   );
 
-  const vm = useTransferReviewViewModel({onTransferSuccess});
   const {
     displayAmount,
     beneficiary,
@@ -76,15 +74,14 @@ export function TransferReviewScreen() {
     paraSubline,
     conceptDisplay,
     transferDateLabel,
-    onBack,
     onConfirm,
-  } = vm;
+  } = useTransferReviewViewModel({onTransferSuccess});
 
   return (
     <View style={styles.root}>
       <View style={[styles.header, {paddingTop: insets.top}]}>
         <TouchableOpacity
-          onPress={onBack}
+          onPress={()=>{navigation.goBack()}}
           style={styles.backBtn}
           accessibilityRole="button"
           accessibilityLabel="Volver">
@@ -127,7 +124,7 @@ export function TransferReviewScreen() {
 
           <TouchableOpacity
             style={styles.desdeRow}
-            onPress={onBack}
+            onPress={()=>{navigation.goBack()}}
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel="Volver para cambiar cuenta de origen">
@@ -197,7 +194,7 @@ export function TransferReviewScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.secondaryCta}
-            onPress={onBack}
+            onPress={()=>{navigation.goBack()}}
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel="Modificar transferencia">
