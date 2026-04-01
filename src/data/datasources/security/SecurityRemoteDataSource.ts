@@ -3,6 +3,8 @@ import {ApiResponseModel} from '../../models/ApiResponseModel';
 import { OtpValidationRequest } from '../../models/OtpValidationRequest';
 import { OtpValidationResponse } from '../../models/OtpValidationResponse';
 import {PublicKeyContentModel} from '../../models/PublicKeyContentModel';
+import {ValidateTransactionAmountRequest} from '../../models/ValidateTransactionAmountRequest';
+import {ValidateTransactionAmountContentModel} from '../../models/ValidateTransactionAmountContentModel';
 
 export class SecurityRemoteDataSource {
   constructor(private readonly httpClient: HttpClient) {}
@@ -36,6 +38,30 @@ export class SecurityRemoteDataSource {
       if (response.data.responseType === 'Error' || !response.data.content) {
         throw new Error(
           response.data.message || 'Error al validar el OTP. Por favor intente nuevamente.',
+        );
+      }
+
+      return response.data.content;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Error de conexión con el servidor');
+    }
+  }
+
+  async validateTransactionAmount(
+    request: ValidateTransactionAmountRequest,
+  ): Promise<ValidateTransactionAmountContentModel> {
+    try {
+      const response = await this.httpClient.post<
+        ApiResponseModel<ValidateTransactionAmountContentModel>
+      >('Security/validate-transaction-amount', request);
+
+      if (response.data.responseType === 'Error' || !response.data.content) {
+        throw new Error(
+          response.data.message ||
+            'No se pudo validar el monto. Por favor intente nuevamente.',
         );
       }
 

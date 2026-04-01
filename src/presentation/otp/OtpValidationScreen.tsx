@@ -36,7 +36,8 @@ export function OtpValidationScreen({route}: Props) {
   const styles = useStyles(colors);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {login} = useAuth();
-  const {user} = route.params;
+  const params = route.params;
+  const email = params.email;
 
   const {
     code,
@@ -45,7 +46,11 @@ export function OtpValidationScreen({route}: Props) {
     onChangeCode,
     handleValidate,
   } = useOtpValidationViewModel(async () => {
-    await login(user);
+    if (params.mode === 'transfer') {
+      navigation.goBack();
+      return;
+    }
+    await login(params.user);
   });
 
   const lastSubmitted = useRef<string | null>(null);
