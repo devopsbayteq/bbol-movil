@@ -8,57 +8,107 @@ import {AxiosHttpClient} from '../data/api/apiClient';
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
 import {SecurityRepositoryImpl} from '../data/repositories/SecurityRepositoryImpl';
-import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
-import {AuthRemoteDataSource} from '../data/datasources/auth/AuthRemoteDataSource';
+//import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
+import {AuthRemoteDataSource} from '../data/datasources/auth';
 import {SecurityRemoteDataSource} from '../data/datasources/security/SecurityRemoteDataSource';
-import {MockTransactionDataSource} from '../data/datasources/transaction/MockTransactionDataSource';
-import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
+import {MockTransactionDataSource} from '../data/datasources/transaction';
+import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
+import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
+import {ValidateOtpUseCase} from "../domain/usecases/ValidateOtpUseCase.ts";
+import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
+import {GetBeneficiaryContactsUseCase} from '../domain/usecases/GetBeneficiaryContactsUseCase';
+import {ContractBalanceRemoteDataSource} from '../data/datasources/contractBalance';
+import {BeneficiaryRemoteDataSource} from '../data/datasources/beneficiary';
+import {ContractBalanceRepositoryImpl} from '../data/repositories/ContractBalanceRepositoryImpl';
+import {BeneficiaryRepositoryImpl} from '../data/repositories/BeneficiaryRepositoryImpl';
 
 export interface AppContainer {
-  loginUseCase: LoginUseCase;
-  getTransactionsUseCase: GetTransactionsUseCase;
-  getPublicKeyUseCase: GetPublicKeyUseCase;
-  secureStorageService: SecureStorageService;
-  biometricAuthService: BiometricAuthService;
-  authRemoteDataSource: AuthRemoteDataSource;
+    loginUseCase: LoginUseCase;
+    getTransactionsUseCase: GetTransactionsUseCase;
+    getPublicKeyUseCase: GetPublicKeyUseCase;
+    secureStorageService: SecureStorageService;
+    biometricAuthService: BiometricAuthService;
+    authRemoteDataSource: AuthRemoteDataSource;
+    getUserLoggedUseCase: GetUserLoggedUseCase;
+    validateOtpUseCase: ValidateOtpUseCase;
+    getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
+    getBeneficiaryContactsUseCase: GetBeneficiaryContactsUseCase;
 }
 
 export function createContainer(): AppContainer {
-  const httpClient = new AxiosHttpClient(
-    'https://dev4.bayteq.com:50112/'
-  );
-  const secureStorageService = new SecureStorageServiceImpl();
-  const biometricAuthService = new BiometricAuthServiceImpl();
+    const secureStorageService = new SecureStorageServiceImpl();
+    const httpClient = new AxiosHttpClient(
+        'https://dev4.bayteq.com:50112/api/v1/',
+        secureStorageService,
+        SecureStorageKeys.AUTH_TOKEN,
+    );
+    const biometricAuthService = new BiometricAuthServiceImpl();
 
-  const authDataSource = new MockAuthDataSource();
-  const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
-  const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
-  const transactionDataSource = new MockTransactionDataSource();
+    //const mockAuthDataSource = new MockAuthDataSource();
+    const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
+    const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
+    const contractBalanceRemoteDataSource = new ContractBalanceRemoteDataSource(
+        httpClient,
+    );
+    const beneficiaryRemoteDataSource = new BeneficiaryRemoteDataSource(
+        httpClient,
+    );
+    const transactionDataSource = new MockTransactionDataSource();
 
-  const authRepository = new AuthRepositoryImpl(authDataSource);
-  const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
-  const transactionRepository = new TransactionRepositoryImpl(
-    transactionDataSource,
-  );
+    const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
+    const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
+    const contractBalanceRepository = new ContractBalanceRepositoryImpl(
+        contractBalanceRemoteDataSource,
+    );
+    const beneficiaryRepository = new BeneficiaryRepositoryImpl(
+        beneficiaryRemoteDataSource,
+    );
+    const transactionRepository = new TransactionRepositoryImpl(
+        transactionDataSource,
+    );
 
-  const loginUseCase = new LoginUseCase(authRepository);
-  const getTransactionsUseCase = new GetTransactionsUseCase(
-    transactionRepository,
-  );
-  const getPublicKeyUseCase = new GetPublicKeyUseCase(
-    securityRepository,
-    secureStorageService,
-    SecureStorageKeys.SERVER_PUBLIC_KEY,
-  );
+    const loginUseCase = new LoginUseCase(
+        authRepository,
+        secureStorageService,
+        SecureStorageKeys.USER_LOGIN_DATA,
+    );
 
-  return {
-    loginUseCase,
-    getTransactionsUseCase,
-    getPublicKeyUseCase,
-    secureStorageService,
-    biometricAuthService,
-    authRemoteDataSource,
-  };
+    const getUserLoggedUseCase = new GetUserLoggedUseCase(
+        secureStorageService,
+        SecureStorageKeys.USER_LOGIN_DATA,
+    );
+
+    const getTransactionsUseCase = new GetTransactionsUseCase(
+        transactionRepository,
+    );
+    const getPublicKeyUseCase = new GetPublicKeyUseCase(
+        securityRepository,
+        secureStorageService,
+        SecureStorageKeys.SERVER_PUBLIC_KEY,
+    );
+
+    const validateOtpUseCase = new ValidateOtpUseCase(securityRepository);
+
+    const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
+        contractBalanceRepository,
+    );
+
+    const getBeneficiaryContactsUseCase = new GetBeneficiaryContactsUseCase(
+        beneficiaryRepository,
+    );
+
+    return {
+        loginUseCase,
+        getTransactionsUseCase,
+        getPublicKeyUseCase,
+        secureStorageService,
+        biometricAuthService,
+        authRemoteDataSource,
+        getUserLoggedUseCase,
+        validateOtpUseCase,
+        getHomeContractBalanceUseCase,
+        getBeneficiaryContactsUseCase,
+    };
 }
