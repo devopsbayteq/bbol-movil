@@ -10,12 +10,36 @@ import {
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
+import {formatCurrency} from '../../transactions/TransactionItem';
 import {
   HOME_CARD_DARK,
   HOME_INFO_BLUE,
   HOME_INFO_BORDER,
   HOME_PRIMARY_LAYER,
 } from '../homeConstants';
+
+function formatShortDueDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return '—';
+  }
+  return `hasta ${d.toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+  })}`;
+}
+
+function formatInstallmentDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return '—';
+  }
+  return d.toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 function ShareIcon({color, size = 16}: {color: string; size?: number}) {
   return (
@@ -52,9 +76,17 @@ function EyeSlashIcon({color, size = 16}: {color: string; size?: number}) {
 
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
+  title?: string;
+  maskedAccountNumber: string;
+  balance: number;
 };
 
-export function SavingsAccountCard({style}: SavingsCardProps) {
+export function SavingsAccountCard({
+  style,
+  title = 'Cta. ahorros',
+  maskedAccountNumber,
+  balance,
+}: SavingsCardProps) {
   const {colors} = useTheme();
   const styles = useSavingsStyles(colors);
   const [masked, setMasked] = useState(true);
@@ -63,8 +95,8 @@ export function SavingsAccountCard({style}: SavingsCardProps) {
     <View style={[styles.card, style]}>
       <View style={styles.topRow}>
         <View>
-          <Text style={styles.title}>Cta. ahorros</Text>
-          <Text style={styles.subtitle}>**** 8829</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{maskedAccountNumber}</Text>
         </View>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir">
           <ShareIcon color={colors.white} />
@@ -74,7 +106,7 @@ export function SavingsAccountCard({style}: SavingsCardProps) {
         <View>
           <Text style={styles.balanceLabel}>Saldo</Text>
           <Text style={styles.balanceValue}>
-            {masked ? '$**.**' : '$1.250,00'}
+            {masked ? '$**.**' : formatCurrency(balance)}
           </Text>
         </View>
         <TouchableOpacity
@@ -151,19 +183,29 @@ function useSavingsStyles(colors: ThemeColors) {
   );
 }
 
-type CheckingCardProps = {style?: StyleProp<ViewStyle>};
+type CheckingCardProps = {
+  style?: StyleProp<ViewStyle>;
+  title?: string;
+  maskedAccountNumber: string;
+  balance: number;
+};
 
-export function CheckingAccountCard({style}: CheckingCardProps) {
+export function CheckingAccountCard({
+  style,
+  title = 'Cta. corriente',
+  maskedAccountNumber,
+  balance,
+}: CheckingCardProps) {
   const {colors} = useTheme();
   const styles = useCheckingStyles(colors);
   const [visible, setVisible] = useState(true);
 
   return (
-    <View style={[styles.card, style]} accessibilityLabel="Cuenta corriente">
+    <View style={[styles.card, style]} accessibilityLabel={title}>
       <View style={styles.topRow}>
         <View>
-          <Text style={styles.title}>Cta. corriente</Text>
-          <Text style={styles.subtitle}>68768762212</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{maskedAccountNumber}</Text>
         </View>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir">
           <ShareIcon color={colors.white} size={13} />
@@ -173,7 +215,7 @@ export function CheckingAccountCard({style}: CheckingCardProps) {
         <View>
           <Text style={styles.balanceLabel}>Saldo</Text>
           <Text style={styles.balanceValue}>
-            {visible ? '$143.89' : '$**.**'}
+            {visible ? formatCurrency(balance) : '$**.**'}
           </Text>
         </View>
         <TouchableOpacity
@@ -250,9 +292,19 @@ function useCheckingStyles(colors: ThemeColors) {
   );
 }
 
-type CreditCardPreviewProps = {style?: StyleProp<ViewStyle>};
+type CreditCardPreviewProps = {
+  style?: StyleProp<ViewStyle>;
+  maskedCardNumber: string;
+  totalDue: number;
+  maxPaymentDate: string;
+};
 
-export function CreditCardPreview({style}: CreditCardPreviewProps) {
+export function CreditCardPreview({
+  style,
+  maskedCardNumber,
+  totalDue,
+  maxPaymentDate,
+}: CreditCardPreviewProps) {
   const {colors} = useTheme();
   const styles = useCreditStyles(colors);
 
@@ -261,7 +313,7 @@ export function CreditCardPreview({style}: CreditCardPreviewProps) {
       <View style={styles.topRow}>
         <View>
           <Text style={styles.title}>Tarjeta</Text>
-          <Text style={styles.subtitle}>4454**** 8829</Text>
+          <Text style={styles.subtitle}>{maskedCardNumber}</Text>
         </View>
         <View style={styles.chipPill}>
           <View style={styles.chipDot} />
@@ -273,10 +325,12 @@ export function CreditCardPreview({style}: CreditCardPreviewProps) {
           <View style={styles.payRow}>
             <Text style={styles.mutedLabel}>Total a pagar</Text>
             <View style={styles.datePill}>
-              <Text style={styles.dateText}>hasta 18 may</Text>
+              <Text style={styles.dateText}>
+                {formatShortDueDate(maxPaymentDate)}
+              </Text>
             </View>
           </View>
-          <Text style={styles.amount}>$143.89</Text>
+          <Text style={styles.amount}>{formatCurrency(totalDue)}</Text>
         </View>
         <TouchableOpacity style={styles.eyeBtn} accessibilityRole="button">
           <EyeIcon color={colors.primary} size={13} />
@@ -377,6 +431,157 @@ function useCreditStyles(colors: ThemeColors) {
           backgroundColor: HOME_PRIMARY_LAYER,
           borderRadius: 3,
           padding: 3,
+        },
+      }),
+    [colors],
+  );
+}
+
+type LoanCardProps = {
+  style?: StyleProp<ViewStyle>;
+  outstandingBalance: number;
+  nextInstallmentAmount: number;
+  nextInstallmentDate: string;
+};
+
+export function LoanCard({
+  style,
+  outstandingBalance,
+  nextInstallmentAmount,
+  nextInstallmentDate,
+}: LoanCardProps) {
+  const {colors} = useTheme();
+  const styles = useLoanStyles(colors);
+
+  return (
+    <View style={[styles.card, style]} accessibilityLabel="Préstamo">
+      <Text style={styles.title}>Préstamo</Text>
+      <Text style={styles.label}>Saldo pendiente</Text>
+      <Text style={styles.amount}>{formatCurrency(outstandingBalance)}</Text>
+      <Text style={styles.label}>Próxima cuota</Text>
+      <Text style={styles.subAmount}>{formatCurrency(nextInstallmentAmount)}</Text>
+      <Text style={styles.date}>{formatInstallmentDate(nextInstallmentDate)}</Text>
+    </View>
+  );
+}
+
+function useLoanStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        card: {
+          width: 160,
+          padding: 10,
+          borderRadius: 7,
+          backgroundColor: HOME_INFO_BLUE,
+          borderWidth: 0.8,
+          borderColor: HOME_INFO_BORDER,
+          opacity: 0.95,
+        },
+        title: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 12,
+          lineHeight: 18,
+          color: colors.white,
+          marginBottom: 8,
+        },
+        label: {
+          fontFamily: Lexend.regular,
+          fontSize: 9,
+          lineHeight: 14,
+          color: colors.white,
+          opacity: 0.9,
+        },
+        amount: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 13,
+          lineHeight: 18,
+          color: colors.white,
+          marginBottom: 8,
+        },
+        subAmount: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 11,
+          lineHeight: 16,
+          color: colors.white,
+          marginTop: 2,
+        },
+        date: {
+          fontFamily: Lexend.regular,
+          fontSize: 9,
+          lineHeight: 14,
+          color: colors.white,
+          opacity: 0.85,
+          marginTop: 4,
+        },
+      }),
+    [colors],
+  );
+}
+
+type InvestmentCardProps = {
+  style?: StyleProp<ViewStyle>;
+  productName: string;
+  currentValue: number;
+  currency: string;
+};
+
+export function InvestmentCard({
+  style,
+  productName,
+  currentValue,
+  currency,
+}: InvestmentCardProps) {
+  const {colors} = useTheme();
+  const styles = useInvestmentStyles(colors);
+
+  return (
+    <View style={[styles.card, style]} accessibilityLabel="Inversión">
+      <Text style={styles.title} numberOfLines={2}>
+        {productName}
+      </Text>
+      <Text style={styles.label}>Valor actual</Text>
+      <Text style={styles.amount}>
+        {formatCurrency(currentValue)} {currency}
+      </Text>
+    </View>
+  );
+}
+
+function useInvestmentStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        card: {
+          width: 148,
+          padding: 10,
+          borderRadius: 7,
+          backgroundColor: HOME_CARD_DARK,
+          borderWidth: 0.8,
+          borderColor: colors.textTertiary,
+          opacity: 0.92,
+        },
+        title: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 11,
+          lineHeight: 16,
+          color: colors.white,
+          marginBottom: 10,
+          minHeight: 32,
+        },
+        label: {
+          fontFamily: Lexend.regular,
+          fontSize: 9,
+          lineHeight: 14,
+          color: colors.white,
+          opacity: 0.85,
+        },
+        amount: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 12,
+          lineHeight: 18,
+          color: colors.white,
+          marginTop: 4,
         },
       }),
     [colors],

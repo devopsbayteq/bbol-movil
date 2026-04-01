@@ -1,4 +1,5 @@
 import axios, {AxiosInstance} from 'axios';
+import {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {HttpClient, HttpResponse, RequestConfig} from './HttpClient';
 
 export class AxiosHttpClient implements HttpClient {
@@ -6,6 +7,8 @@ export class AxiosHttpClient implements HttpClient {
 
   constructor(
     baseURL: string,
+    secureStorageService: SecureStorageService,
+    authTokenStorageKey: string,
     defaultHeaders?: Record<string, string>,
     timeout = 15000,
   ) {
@@ -13,6 +16,14 @@ export class AxiosHttpClient implements HttpClient {
       baseURL,
       headers: {'Content-Type': 'application/json', ...defaultHeaders},
       timeout,
+    });
+
+    this.client.interceptors.request.use(async config => {
+      const token = await secureStorageService.get(authTokenStorageKey);
+      if (token) {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      }
+      return config;
     });
   }
 

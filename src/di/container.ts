@@ -17,6 +17,9 @@ import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImp
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
 import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
 import {ValidateOtpUseCase} from "../domain/usecases/ValidateOtpUseCase.ts";
+import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
+import {ContractBalanceRemoteDataSource} from '../data/datasources/contractBalance';
+import {ContractBalanceRepositoryImpl} from '../data/repositories/ContractBalanceRepositoryImpl';
 
 export interface AppContainer {
     loginUseCase: LoginUseCase;
@@ -26,23 +29,32 @@ export interface AppContainer {
     biometricAuthService: BiometricAuthService;
     authRemoteDataSource: AuthRemoteDataSource;
     getUserLoggedUseCase: GetUserLoggedUseCase;
-    validateOtpUseCase: ValidateOtpUseCase
+    validateOtpUseCase: ValidateOtpUseCase;
+    getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
 }
 
 export function createContainer(): AppContainer {
-    const httpClient = new AxiosHttpClient(
-        'https://dev4.bayteq.com:50112/api/v1/'
-    );
     const secureStorageService = new SecureStorageServiceImpl();
+    const httpClient = new AxiosHttpClient(
+        'https://dev4.bayteq.com:50112/api/v1/',
+        secureStorageService,
+        SecureStorageKeys.AUTH_TOKEN,
+    );
     const biometricAuthService = new BiometricAuthServiceImpl();
 
     //const mockAuthDataSource = new MockAuthDataSource();
     const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
     const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
+    const contractBalanceRemoteDataSource = new ContractBalanceRemoteDataSource(
+        httpClient,
+    );
     const transactionDataSource = new MockTransactionDataSource();
 
     const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
     const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
+    const contractBalanceRepository = new ContractBalanceRepositoryImpl(
+        contractBalanceRemoteDataSource,
+    );
     const transactionRepository = new TransactionRepositoryImpl(
         transactionDataSource,
     );
@@ -69,6 +81,10 @@ export function createContainer(): AppContainer {
 
     const validateOtpUseCase = new ValidateOtpUseCase(securityRepository);
 
+    const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
+        contractBalanceRepository,
+    );
+
     return {
         loginUseCase,
         getTransactionsUseCase,
@@ -77,6 +93,7 @@ export function createContainer(): AppContainer {
         biometricAuthService,
         authRemoteDataSource,
         getUserLoggedUseCase,
-        validateOtpUseCase
+        validateOtpUseCase,
+        getHomeContractBalanceUseCase,
     };
 }
