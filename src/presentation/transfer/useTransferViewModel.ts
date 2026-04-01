@@ -1,18 +1,11 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Alert} from 'react-native';
 import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import {useAuth} from '../../providers';
 import {formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
-
-export type BeneficiaryOption = {
-  id: string;
-  name: string;
-  kind: 'own_account' | 'contact';
-  bankName?: string;
-  accountHint?: string;
-};
+import type {TransferReviewRouteParams} from './transferReviewTypes';
+import type {BeneficiaryOption} from './transferTypes';
 
 const MAX_CENTS = 999_999_999_999;
 
@@ -94,49 +87,34 @@ export function useTransferViewModel() {
     setBeneficiary(b);
   }, []);
 
-  const onContinue = useCallback(() => {
-    setValidationMessage(null);
-
+  const prepareTransferReview = useCallback(():
+    | {ok: true; params: TransferReviewRouteParams}
+    | {ok: false; message: string} => {
     if (amountCents <= 0) {
-      setValidationMessage('Ingresa un monto mayor a cero.');
-      return;
+      return {ok: false, message: 'Ingresa un monto mayor a cero.'};
     }
     if (!beneficiary) {
-      setValidationMessage('Selecciona un beneficiario.');
-      return;
+      return {ok: false, message: 'Selecciona un beneficiario.'};
     }
     if (!selectedAccount) {
-      setValidationMessage('No hay una cuenta de origen disponible.');
-      return;
+      return {ok: false, message: 'No hay una cuenta de origen disponible.'};
     }
 
     const holderName = user?.name?.trim() || 'Titular';
-    const fromLine = `${holderName}\n${formatAccountKindLine(selectedAccount)}`;
 
-    const paraLines = [
-      beneficiary.name,
-      beneficiary.bankName,
-      beneficiary.accountHint,
-    ].filter(Boolean);
-
-    Alert.alert(
-      'Confirmar transferencia',
-      [
-        `Monto: ${displayAmount}`,
-        `Desde: ${fromLine.replace('\n', ' — ')}`,
-        `Para: ${paraLines.join(' — ')}`,
-        `Concepto: ${concept.trim() ? concept.trim() : '—'}`,
-      ].join('\n'),
-      [{text: 'OK'}],
-    );
-  }, [
-    amountCents,
-    beneficiary,
-    concept,
-    displayAmount,
-    selectedAccount,
-    user?.name,
-  ]);
+    return {
+      ok: true,
+      params: {
+        amountCents,
+        displayAmount,
+        beneficiary,
+        fromHolderName: holderName,
+        fromAccountLine: formatAccountKindLine(selectedAccount),
+        accountId: selectedAccount.accountGuid,
+        concept: concept.trim(),
+      },
+    };
+  }, [amountCents, beneficiary, concept, displayAmount, selectedAccount, user?.name]);
 
   return {
     user,
@@ -155,10 +133,11 @@ export function useTransferViewModel() {
     concept,
     setConcept,
     validationMessage,
+    setValidationMessage,
     openAccountPicker,
     selectAccount,
     selectBeneficiary,
     accountIndex,
-    onContinue,
+    prepareTransferReview,
   };
 }

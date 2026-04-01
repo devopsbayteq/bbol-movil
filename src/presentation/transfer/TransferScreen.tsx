@@ -204,7 +204,15 @@ export function TransferScreen() {
 
             <TouchableOpacity
               style={styles.primaryCta}
-              onPress={vm.onContinue}
+              onPress={() => {
+                const result = vm.prepareTransferReview();
+                if (!result.ok) {
+                  vm.setValidationMessage(result.message);
+                  return;
+                }
+                vm.setValidationMessage(null);
+                navigation.navigate('TransferReview', result.params);
+              }}
               activeOpacity={0.9}>
               <TransferIconArrowRightWhite
                 color={colors.white}
@@ -223,7 +231,7 @@ export function TransferScreen() {
         onRequestClose={() => vm.setAccountModalVisible(false)}>
         <View style={styles.modalRoot}>
           <Pressable
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             onPress={() => vm.setAccountModalVisible(false)}
             accessibilityLabel="Cerrar"
           />

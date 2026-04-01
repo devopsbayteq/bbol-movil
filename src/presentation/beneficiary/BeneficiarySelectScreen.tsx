@@ -27,7 +27,7 @@ import {
   type ContactTemplate,
 } from '../transfer/beneficiaryData';
 import {useBeneficiaryContactsViewModel} from './useBeneficiaryContactsViewModel';
-import type {BeneficiaryOption} from '../transfer/useTransferViewModel';
+import type {BeneficiaryOption} from '../transfer/transferTypes';
 import {
   TransferIconArrowLeft,
   TransferIconEllipsisVertical,

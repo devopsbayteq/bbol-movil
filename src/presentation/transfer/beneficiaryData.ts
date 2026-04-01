@@ -1,7 +1,7 @@
 import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
 import {accountProductTitle} from '../../utils/accountDisplay';
-import type {BeneficiaryOption} from './useTransferViewModel';
+import type {BeneficiaryOption} from './transferTypes';
 
 export type ContactTemplate = {
   id: string;
