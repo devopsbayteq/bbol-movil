@@ -1,7 +1,7 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {TransferPlaceholderScreen} from '../presentation/transfer/TransferPlaceholderScreen';
-import {BeneficiarySelectScreen} from '../presentation/transfer/BeneficiarySelectScreen';
+import {TransferScreen} from '../presentation/transfer/TransferScreen';
+import {BeneficiarySelectScreen} from '../presentation/beneficiary/BeneficiarySelectScreen';
 import type {BeneficiaryOption} from '../presentation/transfer/useTransferViewModel';
 
 export type TransferStackParamList = {
@@ -22,7 +22,7 @@ export function TransferStackNavigator() {
         headerShown: false,
         animation: 'slide_from_right',
       }}>
-      <Stack.Screen name="TransferMain" component={TransferPlaceholderScreen} />
+      <Stack.Screen name="TransferMain" component={TransferScreen} />
       <Stack.Screen
         name="BeneficiarySelect"
         component={BeneficiarySelectScreen}

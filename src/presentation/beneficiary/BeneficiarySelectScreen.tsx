@@ -25,16 +25,16 @@ import {
   ownAccountToBeneficiary,
   templateToBeneficiary,
   type ContactTemplate,
-} from './beneficiaryData';
+} from '../transfer/beneficiaryData';
 import {useBeneficiaryContactsViewModel} from './useBeneficiaryContactsViewModel';
-import type {BeneficiaryOption} from './useTransferViewModel';
+import type {BeneficiaryOption} from '../transfer/useTransferViewModel';
 import {
   TransferIconArrowLeft,
   TransferIconEllipsisVertical,
   TransferIconSearch,
   TransferIconUserPlus,
   TransferIconWallet,
-} from './transferIcons';
+} from '../transfer/transferIcons';
 import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
 
 const HERO_BG = '#0B515C';

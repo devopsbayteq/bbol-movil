@@ -45,7 +45,7 @@ const HERO_BG = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
 const CONCEPT_INPUT_BG = '#EFF0F4';
 
-export function TransferPlaceholderScreen() {
+export function TransferScreen() {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
   const navigation =
