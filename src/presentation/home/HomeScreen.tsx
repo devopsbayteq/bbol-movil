@@ -70,7 +70,7 @@ function iconForFrequentPayment(
   return <PaymentPersonIcon color={color} />;
 }
 
-const CARD_WIDTH = 164;
+const CARD_WIDTH = 200;
 const CARD_GAP = 12;
 const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
 

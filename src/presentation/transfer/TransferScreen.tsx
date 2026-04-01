@@ -141,23 +141,6 @@ export function TransferScreen() {
 
             <TouchableOpacity
               style={styles.card}
-              onPress={() => navigation.navigate('BeneficiarySelect')}
-              activeOpacity={0.9}
-              testID="transfer-beneficiary-picker">
-              <View style={styles.iconChip}>
-                <TransferIconUser color={HERO_BG} size={16} />
-              </View>
-              <View style={styles.cardBody}>
-                <Text style={styles.cardLabel}>Para</Text>
-                <Text style={styles.cardTitle} numberOfLines={2}>
-                  {beneficiaryTitle}
-                </Text>
-              </View>
-              <TransferIconArrowRight color={colors.iconPrimary} size={16} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.card}
               onPress={
                 vm.accounts.length > 1 ? vm.openAccountPicker : undefined
               }
@@ -185,6 +168,24 @@ export function TransferScreen() {
                 <View style={styles.cardChevronSpacer} />
               )}
             </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => navigation.navigate('BeneficiarySelect')}
+              activeOpacity={0.9}
+              testID="transfer-beneficiary-picker">
+              <View style={styles.iconChip}>
+                <TransferIconUser color={HERO_BG} size={16} />
+              </View>
+              <View style={styles.cardBody}>
+                <Text style={styles.cardLabel}>Para</Text>
+                <Text style={styles.cardTitle} numberOfLines={2}>
+                  {beneficiaryTitle}
+                </Text>
+              </View>
+              <TransferIconArrowRight color={colors.iconPrimary} size={16} />
+            </TouchableOpacity>
+
           </View>
 
           <View style={styles.bottomSection}>
