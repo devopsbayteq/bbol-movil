@@ -79,8 +79,8 @@ function useStyles(colors: ThemeColors) {
         },
         label: {
           fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 20,
+          fontSize: 14,
+          lineHeight: 22,
           color: colors.textPrimary,
         },
         inputRow: {
@@ -90,7 +90,7 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           paddingLeft: 16,
           paddingRight: 12,
-          paddingVertical: 17,
+          paddingVertical: 14,
           borderWidth: 0,
         },
         inputRowError: {
@@ -100,8 +100,8 @@ function useStyles(colors: ThemeColors) {
         input: {
           flex: 1,
           fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
+          fontSize: 14,
+          lineHeight: 22,
           color: colors.textPrimary,
           paddingVertical: 0,
         },

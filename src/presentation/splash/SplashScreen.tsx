@@ -6,10 +6,13 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const FIGMA_LOGO_URI =
   'https://www.figma.com/api/mcp/asset/d202396e-2cbe-4dff-b7eb-77b2627080b8';
+
+const SPLASH_GRADIENT = ['#005E6B', '#008292', '#4EC4D2'] as const;
 
 export function SplashScreen() {
   const opacity = useRef(new Animated.Value(0)).current;
@@ -33,57 +36,38 @@ export function SplashScreen() {
   }, [opacity, scale]);
 
   return (
-    <SafeAreaView style={styles.root}>
-      <View style={styles.backgroundLayer}>
-        <View style={[styles.glow, styles.glowTopRight]} />
-        <View style={[styles.glow, styles.glowBottomLeft]} />
-      </View>
-
-      <Animated.View
-        style={[
-          styles.centerWrapper,
-          {
-            opacity,
-            transform: [{scale}],
-          },
-        ]}>
-        <View style={styles.decorativeRing}>
-          <Image source={{uri: FIGMA_LOGO_URI}} style={styles.logo} />
-        </View>
-      </Animated.View>
-    </SafeAreaView>
+    <LinearGradient
+      colors={[...SPLASH_GRADIENT]}
+      locations={[0, 0.42, 1]}
+      start={{x: 0.5, y: 0}}
+      end={{x: 0.5, y: 1}}
+      style={styles.gradient}>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <Animated.View
+          style={[
+            styles.centerWrapper,
+            {
+              opacity,
+              transform: [{scale}],
+            },
+          ]}>
+          <View style={styles.decorativeRing}>
+            <Image source={{uri: FIGMA_LOGO_URI}} style={styles.logo} />
+          </View>
+        </Animated.View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
+  gradient: {
     flex: 1,
-    backgroundColor: '#008292',
+  },
+  safe: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  backgroundLayer: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#008292',
-  },
-  glow: {
-    position: 'absolute',
-    borderRadius: 999,
-    opacity: 0.2,
-  },
-  glowTopRight: {
-    width: 234,
-    height: 353.59,
-    top: -88.39,
-    right: -39,
-    backgroundColor: '#EEEEEE',
-  },
-  glowBottomLeft: {
-    width: 195,
-    height: 265.19,
-    bottom: -44.19,
-    left: -19.5,
-    backgroundColor: '#E2E2E2',
   },
   centerWrapper: {
     width: 172.8,

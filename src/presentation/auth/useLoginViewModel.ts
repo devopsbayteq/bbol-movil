@@ -3,10 +3,21 @@ import {User} from '../../domain/entities/User';
 import {useDI} from '../../di';
 import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
+import {
+  hasDisallowedLoginEmailCharacters,
+  hasDisallowedLoginPasswordCharacters,
+  loginValidationMessages,
+  sanitizeLoginEmailInput,
+  sanitizeLoginPasswordInput,
+  validateLoginEmail,
+  validateLoginPassword,
+} from '../../domain/validation';
 
 interface LoginState {
   email: string;
   password: string;
+  emailError: string | null;
+  passwordError: string | null;
   isLoadingLogin: boolean;
   isLoadingBiometric: boolean;
   error: string | null;
@@ -36,10 +47,20 @@ function mapBiometricError(err: unknown): string | null {
   return 'Ocurrió un error inesperado';
 }
 
+function getLiveEmailError(email: string): string | null {
+  return email ? validateLoginEmail(email) : null;
+}
+
+function getLivePasswordError(password: string): string | null {
+  return password ? validateLoginPassword(password) : null;
+}
+
 export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
   const [state, setState] = useState<LoginState>({
     email: '',
     password: '',
+    emailError: null,
+    passwordError: null,
     isLoadingLogin: false,
     isLoadingBiometric: false,
     error: null,
@@ -48,11 +69,31 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
   const {loginUseCase, secureStorageService, biometricAuthService} = useDI();
 
   const setEmail = useCallback((email: string) => {
-    setState(prev => ({...prev, email, error: null}));
+    const sanitizedEmail = sanitizeLoginEmailInput(email);
+    const emailError = hasDisallowedLoginEmailCharacters(email)
+      ? loginValidationMessages.emailInvalidCharacters
+      : getLiveEmailError(sanitizedEmail);
+
+    setState(prev => ({
+      ...prev,
+      email: sanitizedEmail,
+      emailError,
+      error: null,
+    }));
   }, []);
 
   const setPassword = useCallback((password: string) => {
-    setState(prev => ({...prev, password, error: null}));
+    const sanitizedPassword = sanitizeLoginPasswordInput(password);
+    const passwordError = hasDisallowedLoginPasswordCharacters(password)
+      ? loginValidationMessages.passwordInvalidCharacters
+      : getLivePasswordError(sanitizedPassword);
+
+    setState(prev => ({
+      ...prev,
+      password: sanitizedPassword,
+      passwordError,
+      error: null,
+    }));
   }, []);
 
   const saveBiometricCredentials = useCallback(
@@ -67,19 +108,51 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
   );
 
   const handleLogin = useCallback(async () => {
-    setState(prev => ({...prev, isLoadingLogin: true, error: null}));
+    const trimmedEmail = state.email.trim();
+    const trimmedPassword = state.password.trim();
+    const emailError = validateLoginEmail(trimmedEmail);
+    const passwordError = validateLoginPassword(trimmedPassword);
+
+    if (emailError || passwordError) {
+      setState(prev => ({
+        ...prev,
+        email: trimmedEmail,
+        password: trimmedPassword,
+        emailError,
+        passwordError,
+        error: null,
+      }));
+      return;
+    }
+
+    setState(prev => ({
+      ...prev,
+      email: trimmedEmail,
+      password: trimmedPassword,
+      emailError: null,
+      passwordError: null,
+      isLoadingLogin: true,
+      error: null,
+    }));
 
     try {
-      const trimmedEmail = state.email.trim();
-      const trimmedPassword = state.password.trim();
       const user = await loginUseCase.execute(trimmedEmail, trimmedPassword);
       await saveBiometricCredentials(trimmedEmail, trimmedPassword);
-      setState(prev => ({...prev, isLoadingLogin: false}));
+      setState(prev => ({
+        ...prev,
+        emailError: null,
+        passwordError: null,
+        isLoadingLogin: false,
+      }));
       onLoginSuccess(user);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Ocurrió un error inesperado';
-      setState(prev => ({...prev, isLoadingLogin: false, error: message}));
+      setState(prev => ({
+        ...prev,
+        isLoadingLogin: false,
+        error: message,
+      }));
     }
   }, [
     loginUseCase,
@@ -168,6 +241,8 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
   return {
     email: state.email,
     password: state.password,
+    emailError: state.emailError,
+    passwordError: state.passwordError,
     isLoadingLogin: state.isLoadingLogin,
     isLoadingBiometric: state.isLoadingBiometric,
     isBusy,

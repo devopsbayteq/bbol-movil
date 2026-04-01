@@ -110,8 +110,8 @@ function useStyles(colors: ThemeColors) {
         },
         loginPrimaryText: {
           fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
+          fontSize: 16,
+          lineHeight: 26,
           color: colors.white,
         },
       }),

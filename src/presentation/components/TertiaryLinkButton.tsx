@@ -12,7 +12,8 @@ import {Lexend} from '../../theme/lexend';
 
 interface TertiaryLinkButtonProps {
   title: string;
-  iconUri: string;
+  /** Si se omite, solo se muestra el texto (p. ej. "? Ayuda" completo en una sola cadena). */
+  iconUri?: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }
@@ -31,12 +32,15 @@ export function TertiaryLinkButton({
       style={[styles.root, style]}
       onPress={onPress}
       activeOpacity={0.8}
-      accessibilityRole="button">
-      <Image
-        source={{uri: iconUri}}
-        style={styles.icon}
-        resizeMode="contain"
-      />
+      accessibilityRole="button"
+      accessibilityLabel={title}>
+      {iconUri ? (
+        <Image
+          source={{uri: iconUri}}
+          style={styles.icon}
+          resizeMode="contain"
+        />
+      ) : null}
       <Text style={styles.label}>{title}</Text>
     </TouchableOpacity>
   );
@@ -62,8 +66,8 @@ function useStyles(colors: ThemeColors) {
         },
         label: {
           fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
+          fontSize: 16,
+          lineHeight: 26,
           color: colors.linkPrimary,
         },
       }),

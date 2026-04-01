@@ -1,5 +1,6 @@
 import {User} from '../entities/User';
 import {AuthRepository} from '../repositories/AuthRepository';
+import {validateLoginEmail, validateLoginPassword} from '../validation';
 
 export class LoginUseCase {
   constructor(private readonly authRepository: AuthRepository) {}
@@ -7,22 +8,15 @@ export class LoginUseCase {
   async execute(email: string, password: string): Promise<User> {
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
+    const emailError = validateLoginEmail(trimmedEmail);
+    const passwordError = validateLoginPassword(trimmedPassword);
 
-    if (!trimmedEmail) {
-      throw new Error('El email es requerido');
+    if (emailError) {
+      throw new Error(emailError);
     }
 
-    if (!trimmedPassword) {
-      throw new Error('La contraseña es requerida');
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      throw new Error('El formato del email no es válido');
-    }
-
-    if (trimmedPassword.length < 6) {
-      throw new Error('La contraseña debe tener al menos 6 caracteres');
+    if (passwordError) {
+      throw new Error(passwordError);
     }
 
     return this.authRepository.login(trimmedEmail, trimmedPassword);

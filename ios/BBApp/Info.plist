@@ -60,8 +60,8 @@
 	<false/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Lexend_600SemiBold.ttf</string>
 		<string>Lexend_400Regular.ttf</string>
+		<string>Lexend_600SemiBold.ttf</string>
 		<string>Lexend_700Bold.ttf</string>
 	</array>
 </dict>

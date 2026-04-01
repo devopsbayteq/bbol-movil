@@ -8,7 +8,7 @@ interface OrSeparatorProps {
   label?: string;
 }
 
-export function OrSeparator({label = 'O'}: OrSeparatorProps) {
+export function OrSeparator({label = 'o'}: OrSeparatorProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
@@ -32,8 +32,8 @@ function useStyles(colors: ThemeColors) {
         },
         text: {
           fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 20,
+          fontSize: 14,
+          lineHeight: 22,
           color: colors.textPrimary,
           textAlign: 'center',
         },

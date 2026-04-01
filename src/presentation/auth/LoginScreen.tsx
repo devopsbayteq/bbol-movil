@@ -66,6 +66,7 @@ export function LoginScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
+          <View style={styles.contentColumn}>
           <Image
             source={{uri: FIGMA_LOGIN_ASSETS.bankLogo}}
             style={styles.bankLogo}
@@ -136,8 +137,7 @@ export function LoginScreen() {
           </View>
 
           <TertiaryLinkButton
-            title="Ayuda"
-            iconUri={FIGMA_LOGIN_ASSETS.question}
+            title="? Ayuda"
             onPress={onHelp}
             style={styles.helpLink}
           />
@@ -147,6 +147,7 @@ export function LoginScreen() {
               Credenciales de prueba:{'\n'}
               <Text style={styles.hintBold}>test@gmail.com / 123456</Text>
             </Text>
+          </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -170,28 +171,33 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 24,
           paddingBottom: 32,
         },
+        contentColumn: {
+          width: '100%',
+          maxWidth: 400,
+          alignSelf: 'center',
+        },
         bankLogo: {
           width: 194,
           height: 46,
           marginTop: 8,
-          marginBottom: 32,
+          marginBottom: 24,
           alignSelf: 'flex-start',
         },
         hero: {
-          marginBottom: 48,
+          marginBottom: 32,
           gap: 8,
-          maxWidth: 384,
           alignSelf: 'stretch',
         },
         heroTitle: {
           fontFamily: Lexend.bold,
-          fontSize: 26,
-          lineHeight: 36,
+          fontSize: 34,
+          lineHeight: 44,
           color: colors.textPrimary,
         },
         heroSubtitle: {
           fontFamily: Lexend.regular,
-          fontSize: 14,
+          fontSize: 16,
+          lineHeight: 26,
           color: colors.textSecondary,
         },
         inputs: {
