@@ -1,0 +1,54 @@
+appId: com.bbapp
+name: Transferencias — formulario hasta pantalla de revisión
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- runFlow:
+    file: ../../subflows/open-transfer-tab.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-amount-input"
+    timeout: 15000
+
+- tapOn:
+    id: "transfer-amount-input"
+# Monto pequeño en centavos (ej. 100 → US$ 1,00) para no exceder saldo típico.
+- inputText: "100"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-screen"
+    timeout: 20000
+
+- assertVisible: "BENEFICIARIOS"
+- assertVisible: "Mis cuentas"
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "REVISAR TRANSFERENCIA"
+- assertVisible: "Monto a enviar"
+- assertVisible: "Confirmar"
+- assertVisible: "Modificar"

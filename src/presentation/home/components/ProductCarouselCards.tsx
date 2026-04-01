@@ -130,7 +130,7 @@ function useSavingsStyles(colors: ThemeColors) {
     () =>
       StyleSheet.create({
         card: {
-          width: 148,
+          flex: 1,
           padding: 12,
           borderRadius: 8,
           backgroundColor: colors.primary,
@@ -238,7 +238,7 @@ function useCheckingStyles(colors: ThemeColors) {
     () =>
       StyleSheet.create({
         card: {
-          width: 122,
+          flex: 1,
           padding: 10,
           borderRadius: 7,
           backgroundColor: HOME_INFO_BLUE,
@@ -253,13 +253,13 @@ function useCheckingStyles(colors: ThemeColors) {
         },
         title: {
           fontFamily: Lexend.semiBold,
-          fontSize: 11.5,
+          fontSize: 12,
           lineHeight: 18,
           color: colors.white,
         },
         subtitle: {
           fontFamily: Lexend.regular,
-          fontSize: 9.9,
+          fontSize: 11,
           lineHeight: 16,
           color: colors.white,
           opacity: 0.95,
@@ -268,7 +268,7 @@ function useCheckingStyles(colors: ThemeColors) {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          marginTop: 12,
+          marginTop: 'auto',
         },
         balanceLabel: {
           fontFamily: Lexend.regular,
@@ -345,7 +345,7 @@ function useCreditStyles(colors: ThemeColors) {
     () =>
       StyleSheet.create({
         card: {
-          width: 184,
+          flex: 1,
           padding: 10,
           borderRadius: 7,
           backgroundColor: HOME_CARD_DARK,
@@ -395,7 +395,7 @@ function useCreditStyles(colors: ThemeColors) {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          marginTop: 16,
+          marginTop: 'auto',
         },
         payRow: {
           flexDirection: 'row',
@@ -470,7 +470,7 @@ function useLoanStyles(colors: ThemeColors) {
     () =>
       StyleSheet.create({
         card: {
-          width: 160,
+          flex: 1,
           padding: 10,
           borderRadius: 7,
           backgroundColor: HOME_INFO_BLUE,
@@ -553,7 +553,7 @@ function useInvestmentStyles(colors: ThemeColors) {
     () =>
       StyleSheet.create({
         card: {
-          width: 148,
+          flex: 1,
           padding: 10,
           borderRadius: 7,
           backgroundColor: HOME_CARD_DARK,

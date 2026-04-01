@@ -21,16 +21,18 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type TabBarIconProps = {color: string; size?: number};
 
-const tabBarIconHome = ({color, size}: TabBarIconProps) => (
-  <TabHomeIcon color={color} size={size ?? 24} />
+type TabBarIconPropsWithFocused = TabBarIconProps & {focused: boolean};
+
+const tabBarIconHome = ({color, size, focused}: TabBarIconPropsWithFocused) => (
+  <TabHomeIcon focused={focused} color={color} size={size ?? 24} />
 );
 
-const tabBarIconTransfer = ({color, size}: TabBarIconProps) => (
-  <TabTransferIcon color={color} size={size ?? 24} />
+const tabBarIconTransfer = ({color, size, focused}: TabBarIconPropsWithFocused) => (
+  <TabTransferIcon focused={focused} color={color} size={size ?? 24} />
 );
 
-const tabBarIconMovements = ({color, size}: TabBarIconProps) => (
-  <TabMovementsIcon color={color} size={size ?? 24} />
+const tabBarIconMovements = ({color, size, focused}: TabBarIconPropsWithFocused) => (
+  <TabMovementsIcon focused={focused} color={color} size={size ?? 24} />
 );
 
 export function MainTabNavigator() {
@@ -42,22 +44,30 @@ export function MainTabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: '#C8C8C8',
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
           backgroundColor: colors.white,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.borderLight,
           height: TAB_BAR_HEIGHT + insets.bottom,
           paddingBottom: Math.max(insets.bottom, 4),
-          paddingTop: 6,
+          paddingTop: 4,
         },
         tabBarLabelStyle: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
-          marginBottom: Platform.OS === 'ios' ? 0 : 4,
+          marginLeft: 4,
+          marginBottom: 0,
         },
         tabBarIconStyle: {
-          marginTop: 4,
+          marginTop: 0,
+        },
+        tabBarItemStyle: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          paddingTop: Platform.OS === 'android' ? 4 : 0,
         },
       }}>
       <Tab.Screen

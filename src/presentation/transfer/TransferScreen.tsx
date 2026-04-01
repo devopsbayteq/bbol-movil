@@ -36,7 +36,7 @@ import {
   TransferIconArrowRightWhite,
 } from './transferIcons';
 import {useTransferViewModel} from './useTransferViewModel';
-import {accountTypeModalLabel, formatAccountKindLine} from '../../utils/accountDisplay';
+import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 
 const ZERO_DISPLAY = formatMoneyEc(0);
@@ -78,7 +78,7 @@ export function TransferScreen() {
   };
 
   return (
-    <View style={styles.root}>
+    <View style={styles.root} testID="transfer-main-screen">
       <View style={[styles.header, {paddingTop: insets.top}]}>
         <TouchableOpacity
           onPress={onBack}
@@ -132,13 +132,18 @@ export function TransferScreen() {
                 placeholder={ZERO_DISPLAY}
                 selectionColor={colors.white}
                 underlineColorAndroid="transparent"
+                testID="transfer-amount-input"
               />
+              {vm.amountFieldError ? (
+                <Text style={styles.amountFieldError}>{vm.amountFieldError}</Text>
+              ) : null}
             </View>
 
             <TouchableOpacity
               style={styles.card}
               onPress={() => navigation.navigate('BeneficiarySelect')}
-              activeOpacity={0.9}>
+              activeOpacity={0.9}
+              testID="transfer-beneficiary-picker">
               <View style={styles.iconChip}>
                 <TransferIconUser color={HERO_BG} size={16} />
               </View>
@@ -189,13 +194,20 @@ export function TransferScreen() {
                 <Text style={styles.conceptLabelMuted}>(Opcional)</Text>
               </Text>
               <TextInput
-                style={styles.conceptInput}
+                style={[
+                  styles.conceptInput,
+                  vm.conceptFieldError ? styles.conceptInputError : null,
+                ]}
                 value={vm.concept}
                 onChangeText={vm.setConcept}
                 placeholder="Ej. Pago zapatos"
                 placeholderTextColor={colors.placeholder}
                 maxLength={120}
+                testID="transfer-concept-input"
               />
+              {vm.conceptFieldError ? (
+                <Text style={styles.validationText}>{vm.conceptFieldError}</Text>
+              ) : null}
             </View>
 
             {vm.validationMessage ? (
@@ -213,7 +225,8 @@ export function TransferScreen() {
                 vm.setValidationMessage(null);
                 navigation.navigate('TransferReview', result.params);
               }}
-              activeOpacity={0.9}>
+              activeOpacity={0.9}
+              testID="transfer-continue-button">
               <TransferIconArrowRightWhite
                 color={colors.white}
                 size={20}
@@ -392,6 +405,16 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 8,
           minWidth: 200,
         },
+        amountFieldError: {
+          marginTop: 8,
+          fontFamily: Lexend.regular,
+          fontSize: 13,
+          lineHeight: 18,
+          color: '#FFB8B8',
+          textAlign: 'center',
+          alignSelf: 'center',
+          maxWidth: 280,
+        },
         amountInput: {
           fontFamily: Lexend.bold,
           fontSize: 50,
@@ -491,6 +514,9 @@ function useStyles(colors: ThemeColors) {
             },
             default: {},
           }),
+        },
+        conceptInputError: {
+          borderColor: colors.error,
         },
         validationText: {
           fontFamily: Lexend.regular,

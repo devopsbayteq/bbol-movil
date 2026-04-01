@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -6,6 +6,9 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
+  Animated,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../../providers';
@@ -67,15 +70,23 @@ function iconForFrequentPayment(
   return <PaymentPersonIcon color={color} />;
 }
 
+const CARD_WIDTH = 164;
+const CARD_GAP = 12;
+const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
+
 export function HomeScreen() {
   const {user} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [filter, setFilter] = useState<string>('Todos');
+  const [selectedIdx, setSelectedIdx] = useState(0);
   const iconColor = colors.primary;
   const {data, isLoading, error, retry} = useHomeViewModel();
+  const scaleAnims = useRef<Animated.Value[]>([]).current;
 
-  const productNodes = useMemo(() => {
+  type ProductItem = {key: string; node: React.ReactNode};
+
+  const productItems = useMemo((): ProductItem[] => {
     if (!data) {
       return [];
     }
@@ -85,87 +96,128 @@ export function HomeScreen() {
     const showLoans = filter === 'Todos' || filter === 'Préstamos';
     const showInvestments = filter === 'Todos' || filter === 'Inversiones';
 
-    const nodes: React.ReactNode[] = [];
-    let index = 0;
+    const items: ProductItem[] = [];
 
     if (showAccounts) {
       for (const acc of data.accounts) {
-        const middle = index % 3 === 1;
-        const cardStyle = [styles.productCard, middle && styles.productCardMiddle];
+        const k = `acc-${acc.accountGuid}`;
         if (acc.accountKind === 'checking') {
-          nodes.push(
-            <CheckingAccountCard
-              key={`acc-${acc.accountGuid}`}
-              style={cardStyle}
-              maskedAccountNumber={acc.maskedAccountNumber}
-              balance={acc.balance}
-            />,
-          );
+          items.push({
+            key: k,
+            node: (
+              <CheckingAccountCard
+                key={k}
+                style={styles.productCard}
+                maskedAccountNumber={acc.maskedAccountNumber}
+                balance={acc.balance}
+              />
+            ),
+          });
         } else {
-          nodes.push(
-            <SavingsAccountCard
-              key={`acc-${acc.accountGuid}`}
-              style={cardStyle}
-              title={accountTitle(acc.accountKind)}
-              maskedAccountNumber={acc.maskedAccountNumber}
-              balance={acc.balance}
-            />,
-          );
+          items.push({
+            key: k,
+            node: (
+              <SavingsAccountCard
+                key={k}
+                style={styles.productCard}
+                title={accountTitle(acc.accountKind)}
+                maskedAccountNumber={acc.maskedAccountNumber}
+                balance={acc.balance}
+              />
+            ),
+          });
         }
-        index += 1;
       }
     }
 
     if (showCards) {
       for (const card of data.creditCards) {
-        const middle = index % 3 === 1;
-        nodes.push(
-          <CreditCardPreview
-            key={`cc-${card.maskedCardNumber}-${card.maxPaymentDate}`}
-            style={[styles.productCard, middle && styles.productCardMiddle]}
-            maskedCardNumber={card.maskedCardNumber}
-            totalDue={card.totalDue}
-            maxPaymentDate={card.maxPaymentDate}
-          />,
-        );
-        index += 1;
+        const k = `cc-${card.maskedCardNumber}-${card.maxPaymentDate}`;
+        items.push({
+          key: k,
+          node: (
+            <CreditCardPreview
+              key={k}
+              style={styles.productCard}
+              maskedCardNumber={card.maskedCardNumber}
+              totalDue={card.totalDue}
+              maxPaymentDate={card.maxPaymentDate}
+            />
+          ),
+        });
       }
     }
 
     if (showLoans) {
       for (const loan of data.loans) {
-        const middle = index % 3 === 1;
-        nodes.push(
-          <LoanCard
-            key={`loan-${loan.loanGuid}`}
-            style={[styles.productCard, middle && styles.productCardMiddle]}
-            outstandingBalance={loan.outstandingBalance}
-            nextInstallmentAmount={loan.nextInstallmentAmount}
-            nextInstallmentDate={loan.nextInstallmentDate}
-          />,
-        );
-        index += 1;
+        const k = `loan-${loan.loanGuid}`;
+        items.push({
+          key: k,
+          node: (
+            <LoanCard
+              key={k}
+              style={styles.productCard}
+              outstandingBalance={loan.outstandingBalance}
+              nextInstallmentAmount={loan.nextInstallmentAmount}
+              nextInstallmentDate={loan.nextInstallmentDate}
+            />
+          ),
+        });
       }
     }
 
     if (showInvestments) {
       for (const inv of data.investments) {
-        const middle = index % 3 === 1;
-        nodes.push(
-          <InvestmentCard
-            key={`inv-${inv.investmentGuid}`}
-            style={[styles.productCard, middle && styles.productCardMiddle]}
-            productName={inv.productName}
-            currentValue={inv.currentValue}
-            currency={inv.currency}
-          />,
-        );
-        index += 1;
+        const k = `inv-${inv.investmentGuid}`;
+        items.push({
+          key: k,
+          node: (
+            <InvestmentCard
+              key={k}
+              style={styles.productCard}
+              productName={inv.productName}
+              currentValue={inv.currentValue}
+              currency={inv.currency}
+            />
+          ),
+        });
       }
     }
 
-    return nodes;
-  }, [data, filter, styles.productCard, styles.productCardMiddle]);
+    return items;
+  }, [data, filter, styles.productCard]);
+
+  // Ensure one Animated.Value per card, resetting when list changes.
+  if (scaleAnims.length !== productItems.length) {
+    scaleAnims.length = 0;
+    productItems.forEach((_, i) => {
+      scaleAnims.push(new Animated.Value(i === 0 ? 1 : 0.92));
+    });
+  }
+
+  const animateSelection = (idx: number) => {
+    if (idx === selectedIdx) {
+      return;
+    }
+    const animations = scaleAnims.map((anim, i) =>
+      Animated.spring(anim, {
+        toValue: i === idx ? 1 : 0.92,
+        useNativeDriver: true,
+        speed: 22,
+        bounciness: 6,
+      }),
+    );
+    setSelectedIdx(idx);
+    Animated.parallel(animations).start();
+  };
+
+  const onCarouselScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const idx = Math.round(x / CARD_SNAP_INTERVAL);
+    if (idx >= 0 && idx < productItems.length) {
+      animateSelection(idx);
+    }
+  };
 
   const frequentPayments = data?.frequentPayments ?? [];
 
@@ -213,19 +265,30 @@ export function HomeScreen() {
             <View style={styles.loadingBox}>
               <ActivityIndicator size="small" color={colors.primary} />
             </View>
-          ) : (
+          ) : productItems.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
+              snapToInterval={CARD_SNAP_INTERVAL}
+              snapToAlignment="start"
+              decelerationRate="fast"
+              onMomentumScrollEnd={onCarouselScroll}
               contentContainerStyle={styles.carouselRow}>
-              {productNodes.length > 0 ? (
-                productNodes
-              ) : (
-                <Text style={styles.emptyProducts}>
-                  No hay productos en esta categoría.
-                </Text>
-              )}
+              {productItems.map((item, i) => (
+                <Animated.View
+                  key={item.key}
+                  style={[
+                    styles.carouselItem,
+                    {transform: [{scale: scaleAnims[i] ?? new Animated.Value(1)}]},
+                  ]}>
+                  {item.node}
+                </Animated.View>
+              ))}
             </ScrollView>
+          ) : (
+            <Text style={styles.emptyProducts}>
+              No hay productos en esta categoría.
+            </Text>
           )}
         </View>
 
@@ -286,17 +349,18 @@ function useStyles(colors: ThemeColors) {
         },
         carouselRow: {
           flexDirection: 'row',
-          alignItems: 'flex-start',
-          gap: 12,
-          paddingVertical: 4,
+          alignItems: 'center',
+          paddingVertical: 8,
           paddingRight: 24,
-          minHeight: 120,
+          gap: CARD_GAP,
+        },
+        carouselItem: {
+          width: CARD_WIDTH,
+          height: 160,
         },
         productCard: {
-          marginRight: 0,
-        },
-        productCardMiddle: {
-          marginTop: 10,
+          width: CARD_WIDTH,
+          height: 160,
         },
         paymentsRow: {
           flexDirection: 'row',

@@ -1,7 +1,9 @@
 import React, {useMemo} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
+
+const bbIcon = require('../../../../assets/images/BBIcon.png');
 
 type Props = {
   userName?: string | null;
@@ -14,9 +16,12 @@ export function HomeHeader({userName}: Props) {
 
   return (
     <View style={styles.row}>
-      <View style={styles.logoMark} accessibilityLabel="Bolivariano">
-        <Text style={styles.logoLetter}>B</Text>
-      </View>
+      <Image
+        source={bbIcon}
+        style={styles.logoMark}
+        resizeMode="cover"
+        accessibilityLabel="Banco Bolivariano"
+      />
       <View style={styles.greetingBlock}>
         <Text style={styles.welcomeLabel}>Bienvenido de vuelta</Text>
         <Text style={styles.greetingName}>Hola, {displayName}</Text>
@@ -42,30 +47,22 @@ function useStyles(colors: ThemeColors) {
           width: 48,
           height: 48,
           borderRadius: 8,
-          backgroundColor: colors.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        logoLetter: {
-          fontFamily: Lexend.bold,
-          fontSize: 22,
-          color: colors.white,
         },
         greetingBlock: {
           flex: 1,
         },
         welcomeLabel: {
           fontFamily: Lexend.regular,
-          fontSize: 10,
-          lineHeight: 15,
-          letterSpacing: 1,
+          fontSize: 11,
+          lineHeight: 16,
+          letterSpacing: 0.5,
           textTransform: 'uppercase',
           color: colors.textSecondary,
         },
         greetingName: {
           fontFamily: Lexend.bold,
-          fontSize: 22,
-          lineHeight: 32,
+          fontSize: 26,
+          lineHeight: 34,
           color: colors.textPrimary,
           marginTop: 2,
         },

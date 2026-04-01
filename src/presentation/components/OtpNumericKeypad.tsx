@@ -5,7 +5,6 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   type ImageSourcePropType,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
@@ -53,7 +52,7 @@ export function OtpNumericKeypad({
 
   return (
     <View style={styles.wrap} accessibilityLabel="Teclado numérico">
-      {ROWS.map((row, rowIndex) => (
+      {GRID.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
           {row.map((cell, colIndex) => {
             if (cell === 'empty') {
@@ -136,7 +135,12 @@ function useStyles(colors: ThemeColors) {
           borderRadius: KEY_RADIUS,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: colors.white
+          backgroundColor: colors.white,
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 1},
+          shadowOpacity: 0.12,
+          shadowRadius: 3,
+          elevation: 2,
         },
         keyDisabled: {
           opacity: 0.5,

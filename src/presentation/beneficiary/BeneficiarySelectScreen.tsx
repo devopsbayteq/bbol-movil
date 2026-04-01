@@ -158,12 +158,17 @@ export function BeneficiarySelectScreen() {
       {filteredAccounts.length === 0 ? (
         <Text style={styles.emptyHint}>Sin cuentas que coincidan.</Text>
       ) : (
-        filteredAccounts.map(account => (
+        filteredAccounts.map((account, accountIndex) => (
           <TouchableOpacity
             key={account.accountGuid}
             style={styles.accountCard}
             onPress={() => onPickAccount(account)}
-            activeOpacity={0.9}>
+            activeOpacity={0.9}
+            testID={
+              accountIndex === 0
+                ? 'beneficiary-first-own-account'
+                : undefined
+            }>
             <View style={styles.iconChip}>
               <TransferIconWallet color={HERO_BG} size={16} />
             </View>
@@ -277,7 +282,7 @@ export function BeneficiarySelectScreen() {
   }
 
   return (
-    <View style={styles.root}>
+    <View style={styles.root} testID="beneficiary-select-screen">
       {headerTop}
       <SectionList
         style={styles.list}

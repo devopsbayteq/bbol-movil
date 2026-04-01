@@ -1,13 +1,21 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {AccountBalance} from '../../domain/entities/ContractBalance';
+import {
+  balanceDollarsToCents,
+  getLiveTransferAmountError,
+  hasDisallowedTransferConceptCharacters,
+  MAX_TRANSFER_CENTS,
+  sanitizeTransferConceptInput,
+  transferConceptMessages,
+  validateTransferAmountForSubmit,
+  validateTransferConcept,
+} from '../../domain/validation';
 import {useAuth} from '../../providers';
 import {formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
 import type {BeneficiaryOption} from './transferTypes';
-
-const MAX_CENTS = 999_999_999_999;
 
 function defaultAccountIndex(accounts: AccountBalance[]): number {
   if (accounts.length === 0) {
@@ -24,7 +32,8 @@ export function useTransferViewModel() {
   const [amountCents, setAmountCents] = useState(0);
   const [accountIndex, setAccountIndex] = useState(0);
   const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
-  const [concept, setConcept] = useState('');
+  const [concept, setConceptState] = useState('');
+  const [conceptFieldError, setConceptFieldError] = useState<string | null>(null);
   const [accountModalVisible, setAccountModalVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
@@ -59,8 +68,20 @@ export function useTransferViewModel() {
     [amountCents],
   );
 
+  const availableBalanceCents = useMemo(
+    () => balanceDollarsToCents(selectedAccount?.balance ?? 0),
+    [selectedAccount?.balance],
+  );
+
+  const amountFieldError = useMemo(
+    () => getLiveTransferAmountError(amountCents, availableBalanceCents),
+    [amountCents, availableBalanceCents],
+  );
+
   const onAmountChange = useCallback((text: string) => {
     const digits = text.replace(/\D/g, '');
+    setValidationMessage(null);
+
     if (digits === '') {
       setAmountCents(0);
       return;
@@ -69,7 +90,18 @@ export function useTransferViewModel() {
     if (Number.isNaN(n)) {
       return;
     }
-    setAmountCents(Math.min(n, MAX_CENTS));
+    setAmountCents(Math.min(n, MAX_TRANSFER_CENTS));
+  }, []);
+
+  const setConcept = useCallback((text: string) => {
+    const sanitized = sanitizeTransferConceptInput(text);
+    const nextError = hasDisallowedTransferConceptCharacters(text)
+      ? transferConceptMessages.invalidCharacters
+      : validateTransferConcept(sanitized);
+
+    setConceptState(sanitized);
+    setConceptFieldError(nextError);
+    setValidationMessage(null);
   }, []);
 
   const openAccountPicker = useCallback(() => {
@@ -85,19 +117,29 @@ export function useTransferViewModel() {
 
   const selectBeneficiary = useCallback((b: BeneficiaryOption) => {
     setBeneficiary(b);
+    setValidationMessage(null);
   }, []);
 
   const prepareTransferReview = useCallback(():
     | {ok: true; params: TransferReviewRouteParams}
     | {ok: false; message: string} => {
-    if (amountCents <= 0) {
-      return {ok: false, message: 'Ingresa un monto mayor a cero.'};
+    const amountError = validateTransferAmountForSubmit(
+      amountCents,
+      availableBalanceCents,
+    );
+    if (amountError) {
+      return {ok: false, message: amountError};
     }
     if (!beneficiary) {
       return {ok: false, message: 'Selecciona un beneficiario.'};
     }
     if (!selectedAccount) {
       return {ok: false, message: 'No hay una cuenta de origen disponible.'};
+    }
+
+    const conceptError = validateTransferConcept(concept);
+    if (conceptError) {
+      return {ok: false, message: conceptError};
     }
 
     const holderName = user?.name?.trim() || 'Titular';
@@ -114,7 +156,15 @@ export function useTransferViewModel() {
         concept: concept.trim(),
       },
     };
-  }, [amountCents, beneficiary, concept, displayAmount, selectedAccount, user?.name]);
+  }, [
+    amountCents,
+    availableBalanceCents,
+    beneficiary,
+    concept,
+    displayAmount,
+    selectedAccount,
+    user?.name,
+  ]);
 
   return {
     user,
@@ -132,6 +182,8 @@ export function useTransferViewModel() {
     onAmountChange,
     concept,
     setConcept,
+    amountFieldError,
+    conceptFieldError,
     validationMessage,
     setValidationMessage,
     openAccountPicker,

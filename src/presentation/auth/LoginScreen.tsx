@@ -23,7 +23,6 @@ import {
   TertiaryLinkButton,
   OrSeparator,
 } from '../components';
-import {FIGMA_LOGIN_ASSETS} from './figmaLoginAssets';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
 
@@ -106,7 +105,6 @@ export function LoginScreen() {
               onChangeText={setPassword}
               hasError={hasFieldError(!password)}
               editable={!isBusy}
-              eyeIconUri={FIGMA_LOGIN_ASSETS.eye}
               autoComplete="password"
             />
           </View>

@@ -1,4 +1,6 @@
 import {AuthRepositoryImpl} from '../../../src/data/repositories/AuthRepositoryImpl';
+import {BeneficiaryRepositoryImpl} from '../../../src/data/repositories/BeneficiaryRepositoryImpl';
+import {ContractBalanceRepositoryImpl} from '../../../src/data/repositories/ContractBalanceRepositoryImpl';
 import {SecurityRepositoryImpl} from '../../../src/data/repositories/SecurityRepositoryImpl';
 import {TransactionRepositoryImpl} from '../../../src/data/repositories/TransactionRepositoryImpl';
 
@@ -26,11 +28,83 @@ describe('data repositories', () => {
   test('SecurityRepositoryImpl maps remote public key content', async () => {
     const remoteDataSource = {
       getPublicKey: jest.fn().mockResolvedValue({publicKey: 'PUBLIC_KEY'}),
+      validateOtp: jest.fn(),
     };
     const repository = new SecurityRepositoryImpl(remoteDataSource);
 
     await expect(repository.getPublicKey()).resolves.toEqual({
       value: 'PUBLIC_KEY',
+    });
+  });
+
+  test('SecurityRepositoryImpl maps OTP validation response to entity', async () => {
+    const remoteDataSource = {
+      getPublicKey: jest.fn(),
+      validateOtp: jest.fn().mockResolvedValue({userMessage: 'Validado'}),
+    };
+    const repository = new SecurityRepositoryImpl(remoteDataSource);
+
+    await expect(repository.validateOtp('123456')).resolves.toEqual({
+      message: 'Validado',
+    });
+    expect(remoteDataSource.validateOtp).toHaveBeenCalledWith({otp: '123456'});
+  });
+
+  test('BeneficiaryRepositoryImpl maps contacts content to entities', async () => {
+    const dataSource = {
+      getContacts: jest.fn().mockResolvedValue({
+        contacts: [
+          {
+            beneficiaryGuid: 'g1',
+            contactName: 'Ana',
+            bankName: 'BB',
+            accountType: 1,
+            lastFourDigits: '4242',
+          },
+        ],
+      }),
+    };
+    const repository = new BeneficiaryRepositoryImpl(dataSource);
+
+    const result = await repository.getContacts();
+
+    expect(result).toEqual([
+      {
+        beneficiaryGuid: 'g1',
+        contactName: 'Ana',
+        bankName: 'BB',
+        accountType: 1,
+        lastFourDigits: '4242',
+      },
+    ]);
+  });
+
+  test('ContractBalanceRepositoryImpl maps home content to entity', async () => {
+    const dataSource = {
+      getHome: jest.fn().mockResolvedValue({
+        accounts: [
+          {
+            accountGuid: 'a1',
+            maskedAccountNumber: '****1111',
+            accountType: 1,
+            balance: 100,
+          },
+        ],
+        creditCards: [],
+        loans: [],
+        investments: [],
+        frequentPayments: [],
+      }),
+    };
+    const repository = new ContractBalanceRepositoryImpl(dataSource);
+
+    const result = await repository.getHomeBalance();
+
+    expect(result.accounts).toHaveLength(1);
+    expect(result.accounts[0]).toMatchObject({
+      accountGuid: 'a1',
+      accountKind: 'savings',
+      balance: 100,
     });
   });
 

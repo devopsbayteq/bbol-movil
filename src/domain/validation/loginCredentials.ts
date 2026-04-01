@@ -3,7 +3,6 @@ import {
   composeValidators,
   containsCharacters,
   containsMatchingCharacters,
-  filterCharacters,
   removeCharacters,
   rejectCharacters,
   rejectMatchingCharacters,
@@ -12,8 +11,12 @@ import {
   requirePattern,
   requireTrimmedValue,
 } from './rules';
+import {
+  INVISIBLE_CHAR_PATTERN,
+  isControlCharacter,
+  sanitizeUnsafeTextInput,
+} from './textSafety';
 
-export const INVISIBLE_CHAR_PATTERN = /[\u200B-\u200D\u2060\uFEFF]/g;
 export const WHITESPACE_PATTERN = /\s/g;
 export const LOGIN_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,23 +36,12 @@ export const loginValidationMessages = {
   passwordTooLong: `La contraseña no puede superar ${LOGIN_PASSWORD_MAX_LENGTH} caracteres`,
 } as const;
 
-function isControlCharacter(character: string): boolean {
-  const code = character.charCodeAt(0);
-
-  return (code >= 0 && code <= 31) || (code >= 127 && code <= 159);
-}
-
-const removeUnsafeCharacters = composeSanitizers(
-  filterCharacters(isControlCharacter),
-  removeCharacters(INVISIBLE_CHAR_PATTERN),
-);
-
 export const sanitizeLoginEmailInput = composeSanitizers(
-  removeUnsafeCharacters,
+  sanitizeUnsafeTextInput,
   removeCharacters(WHITESPACE_PATTERN),
 );
 
-export const sanitizeLoginPasswordInput = removeUnsafeCharacters;
+export const sanitizeLoginPasswordInput = sanitizeUnsafeTextInput;
 
 export const validateLoginEmail = composeValidators(
   requireTrimmedValue(loginValidationMessages.emailRequired),

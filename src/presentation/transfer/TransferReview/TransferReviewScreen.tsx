@@ -47,7 +47,7 @@ export function TransferReviewScreen() {
   } = vm;
 
   return (
-    <View style={styles.root}>
+    <View style={styles.root} testID="transfer-review-screen">
       <View style={[styles.header, {paddingTop: insets.top}]}>
         <TouchableOpacity
           onPress={onBack}

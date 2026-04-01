@@ -1,0 +1,8 @@
+appId: com.bbapp
+---
+# Pestaña central del tab bar (MainTabNavigator).
+- tapOn: "Transferir"
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 20000
