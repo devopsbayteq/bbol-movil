@@ -1,0 +1,5 @@
+{
+  "react-native.packager.port": 8081,
+  "debug.javascript.usePreview": true,
+  "javascript.debug.usePreview": true
+}

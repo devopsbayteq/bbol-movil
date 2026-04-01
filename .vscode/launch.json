@@ -1,0 +1,35 @@
+{
+  // Hermes: no uses "reactnative" (debuggerWorker eliminado en RN 0.73+).
+  // Si los breakpoints siguen grises: extensión React Native Tools actualizada, Metro
+  // arrancado, app cargada y luego F5 o "Attach"; cierra Flipper / otro inspector Hermes.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Android (Hermes)",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "platform": "android"
+    },
+    {
+      "name": "Debug iOS (Hermes)",
+      "type": "reactnativedirect",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "platform": "ios"
+    },
+    {
+      "name": "Attach to Hermes",
+      "type": "reactnativedirect",
+      "request": "attach",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Attach to Hermes (Android)",
+      "type": "reactnativedirect",
+      "request": "attach",
+      "cwd": "${workspaceFolder}",
+      "platform": "android"
+    }
+  ]
+}

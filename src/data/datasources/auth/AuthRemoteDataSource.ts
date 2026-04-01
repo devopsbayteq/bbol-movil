@@ -13,11 +13,11 @@ export class AuthRemoteDataSource implements AuthDataSource {
         ApiResponseModel<LoginResponseModel>
       >('/Auth/login', request);
 
-      if (response.data.responseType === 'Error' || !response.data.data) {
+      if (response.data.responseType === 'Error' || !response.data.content) {
         throw new Error(response.data.message || 'Error de autenticación');
       }
 
-      return response.data.data;
+      return response.data.content;
     } catch (error) {
       if (error instanceof Error) {
         throw error;

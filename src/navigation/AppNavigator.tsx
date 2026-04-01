@@ -2,11 +2,13 @@ import React from 'react';
 import {View, ActivityIndicator} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {LoginScreen} from '../presentation/auth/LoginScreen';
+import {CertificateHandshakeScreen} from '../presentation/security/CertificateHandshakeScreen';
 import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
 import {useAuth} from '../providers';
 import {useTheme} from '../providers/theme';
 
 export type RootStackParamList = {
+  CertificateHandshake: undefined;
   Login: undefined;
   Transactions: undefined;
 };
@@ -30,7 +32,13 @@ export function AppNavigator() {
       {isAuthenticated ? (
         <Stack.Screen name="Transactions" component={TransactionsScreen} />
       ) : (
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <>
+          <Stack.Screen
+            name="CertificateHandshake"
+            component={CertificateHandshakeScreen}
+          />
+          <Stack.Screen name="Login" component={LoginScreen} />
+        </>
       )}
     </Stack.Navigator>
   );

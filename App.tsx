@@ -5,10 +5,12 @@ import {AppNavigator} from './src/navigation/AppNavigator';
 import {DIProvider} from './src/di';
 import {AuthProvider} from './src/providers';
 import {ThemeProvider} from './src/providers/theme';
+import {TlsPinningBootstrap} from './src/presentation/TlsPinningBootstrap';
 
 function App() {
   return (
     <DIProvider>
+      <TlsPinningBootstrap />
       <AuthProvider>
         <ThemeProvider>
           <SafeAreaProvider>

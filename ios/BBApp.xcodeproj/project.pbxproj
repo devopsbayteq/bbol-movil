@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2C3D4E52F60718293A4B5C8 /* TlsPinningIOS.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */; };
 		0C80B921A6F3F58F76C31292 /* libPods-BBApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-BBApp.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
@@ -22,6 +23,7 @@
 		3B4392A12AC88292D35C810B /* Pods-BBApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BBApp.debug.xcconfig"; path = "Target Support Files/Pods-BBApp/Pods-BBApp.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-BBApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BBApp.release.xcconfig"; path = "Target Support Files/Pods-BBApp/Pods-BBApp.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-BBApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BBApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = TlsPinningIOS.m; path = BBApp/TlsPinningIOS.m; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = BBApp/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BBApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -42,6 +44,7 @@
 		13B07FAE1A68108700A75B9A /* BBApp */ = {
 			isa = PBXGroup;
 			children = (
+				B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -246,6 +249,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2C3D4E52F60718293A4B5C8 /* TlsPinningIOS.m in Sources */,
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
