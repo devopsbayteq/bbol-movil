@@ -5,14 +5,15 @@ import {useTheme, type ThemeColors} from '../../providers/theme';
 interface ErrorMessageProps {
   message: string;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
-export function ErrorMessage({message, style}: ErrorMessageProps) {
+export function ErrorMessage({message, style, testID}: ErrorMessageProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
   return (
-    <View style={[styles.container, style]}>
+    <View testID={testID} style={[styles.container, style]}>
       <Text style={styles.text}>{message}</Text>
     </View>
   );

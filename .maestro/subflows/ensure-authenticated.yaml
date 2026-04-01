@@ -1,14 +1,22 @@
 appId: com.bbapp
 ---
-# Inicia sesión solo si la pantalla de login está visible (sesión no restaurada).
+# Si ya hay sesión, la pantalla de movimientos aparece sin pedir credenciales.
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 8000
+    optional: true
+
+# Sin sesión: login mock + OTP demo (123456).
 - runFlow:
     when:
-      visible: "Bienvenido"
+      notVisible:
+        id: "transactions-screen"
     commands:
       - extendedWaitUntil:
           visible:
             id: "login-email-input"
-          timeout: 15000
+          timeout: 25000
       - tapOn:
           id: "login-email-input"
       - inputText: "test@gmail.com"
@@ -18,3 +26,5 @@ appId: com.bbapp
       - hideKeyboard
       - tapOn:
           id: "login-submit"
+      - runFlow:
+          file: complete-demo-otp.yaml

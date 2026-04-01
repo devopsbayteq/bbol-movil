@@ -87,7 +87,10 @@ export function OtpValidationScreen({route}: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView
+      testID="otp-screen"
+      style={styles.safe}
+      edges={['top', 'bottom']}>
       <View
         style={styles.textureBg}
         pointerEvents="none"
@@ -140,7 +143,9 @@ export function OtpValidationScreen({route}: Props) {
           />
         </View>
 
-        {error ? <ErrorMessage message={error} style={styles.error} /> : null}
+        {error ? (
+          <ErrorMessage testID="otp-error" message={error} style={styles.error} />
+        ) : null}
       </ScrollView>
 
       <View style={styles.footer}>

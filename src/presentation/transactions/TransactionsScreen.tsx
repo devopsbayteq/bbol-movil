@@ -64,13 +64,16 @@ export function TransactionsScreen() {
   };
 
   return (
-    <View style={[styles.root, {paddingTop: insets.top}]}>
+    <View
+      testID="transactions-screen"
+      style={[styles.root, {paddingTop: insets.top}]}>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Hola, {user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
         </View>
         <TouchableOpacity
+          testID="logout-button"
           style={styles.logoutButton}
           onPress={handleLogout}
           activeOpacity={0.7}>

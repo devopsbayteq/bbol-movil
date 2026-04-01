@@ -15,12 +15,14 @@ interface LoginTextFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;
   hasError?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export function LoginTextField({
   label,
   hasError = false,
   containerStyle,
+  testID,
   ...textInputProps
 }: LoginTextFieldProps) {
   const {colors} = useTheme();
@@ -30,6 +32,7 @@ export function LoginTextField({
     <View style={[styles.wrapper, containerStyle]}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        testID={testID}
         style={[styles.input, hasError && styles.inputError]}
         placeholderTextColor={colors.placeholder}
         {...textInputProps}

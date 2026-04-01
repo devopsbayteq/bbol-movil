@@ -19,6 +19,7 @@ interface LoginPasswordFieldProps
   hasError?: boolean;
   eyeIconUri: string;
   containerStyle?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export function LoginPasswordField({
@@ -26,6 +27,7 @@ export function LoginPasswordField({
   hasError = false,
   eyeIconUri,
   containerStyle,
+  testID,
   ...textInputProps
 }: LoginPasswordFieldProps) {
   const {colors} = useTheme();
@@ -39,6 +41,7 @@ export function LoginPasswordField({
       </View>
       <View style={[styles.inputRow, hasError && styles.inputRowError]}>
         <TextInput
+          testID={testID}
           style={styles.input}
           placeholderTextColor={colors.placeholder}
           {...textInputProps}

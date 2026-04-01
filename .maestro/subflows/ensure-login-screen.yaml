@@ -9,5 +9,6 @@ appId: com.bbapp
       - tapOn:
           id: "logout-button"
       - extendedWaitUntil:
-          visible: "Bienvenido"
-          timeout: 15000
+          visible:
+            id: "login-email-input"
+          timeout: 20000

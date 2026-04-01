@@ -19,6 +19,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export function Button({
@@ -28,6 +29,7 @@ export function Button({
   variant = 'primary',
   disabled = false,
   style,
+  testID,
 }: ButtonProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
@@ -36,6 +38,7 @@ export function Button({
 
   return (
     <TouchableOpacity
+      testID={testID}
       style={[
         styles.base,
         variant === 'primary' && styles.primary,

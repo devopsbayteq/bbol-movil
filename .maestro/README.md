@@ -70,11 +70,18 @@ npm run ios
   config.yaml              # Configuracion global (appId, nombre)
   flows/
     auth/
-      login-success.yaml           # Login exitoso
-      login-invalid-credentials.yaml  # Login con credenciales invalidas
-      logout.yaml                  # Logout y retorno a login
+      login-success.yaml              # Login + OTP + inicio (movimientos)
+      login-credentials-opens-otp.yaml   # Solo hasta pantalla OTP
+      login-otp-invalid.yaml          # PIN incorrecto en OTP
+      login-invalid-credentials.yaml  # Credenciales invalidas
+      logout.yaml                     # Logout y retorno a login
+      session-persisted-relaunch.yaml # Sesion restaurada al reabrir
     transactions/
       transactions-list-visible.yaml  # Verificar pantalla de transacciones
+  subflows/
+    ensure-login-screen.yaml        # Cierra sesion si hace falta
+    ensure-authenticated.yaml         # Sesion existente o login+OTP mock
+    complete-demo-otp.yaml          # Introduce PIN 123456 en teclado OTP
   fixtures/                # Datos de prueba (futuro)
   README.md
 ```
@@ -130,9 +137,11 @@ Si tu ROM lo permite, puedes volver a anadir `clearState: true` bajo `launchApp`
 
 | testID               | Elemento                        |
 |----------------------|---------------------------------|
-| login-email-input    | Campo de texto de email (login) |
-| login-password-input | Campo de texto de password      |
-| login-submit         | Boton "Iniciar Sesion"          |
+| login-email-input    | Campo de texto de usuario (login) |
+| login-password-input | Campo de texto de contraseña    |
+| login-submit         | Botón "Ingresar"                |
 | login-error          | Mensaje de error en login       |
+| otp-screen           | Pantalla OTP / PIN              |
+| otp-error            | Mensaje de error en OTP         |
 | transactions-screen  | Contenedor pantalla transacciones |
-| logout-button        | Boton "Salir"                   |
+| logout-button        | Botón "Salir"                   |

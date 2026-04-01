@@ -12,7 +12,7 @@ name: Sesión persistida — al reabrir la app no pide credenciales
       id: "transactions-screen"
     timeout: 20000
 
-- assertVisible: "Hola, Test User"
+- assertVisible: "Hola, test"
 
 - stopApp
 
@@ -24,6 +24,6 @@ name: Sesión persistida — al reabrir la app no pide credenciales
     timeout: 20000
 
 - assertVisible: "Movimientos recientes"
-- assertNotVisible: "Iniciar Sesión"
+- assertNotVisible: "Ingresar"
 - assertNotVisible:
     id: "login-email-input"

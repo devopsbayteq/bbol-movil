@@ -16,9 +16,10 @@ name: Logout y retorno a pantalla de login
     id: "logout-button"
 
 - extendedWaitUntil:
-    visible: "Bienvenido"
-    timeout: 15000
+    visible:
+      id: "login-email-input"
+    timeout: 20000
 
-- assertVisible: "Inicia sesión para continuar"
+- assertVisible: "Identidad Digital"
 - assertVisible:
     id: "login-submit"

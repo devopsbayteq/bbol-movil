@@ -82,6 +82,7 @@ export function LoginScreen() {
 
           <View style={styles.inputs}>
             <LoginTextField
+              testID="login-email-input"
               label="Ingresa tu usuario"
               placeholder="Usuario"
               value={email}
@@ -95,6 +96,7 @@ export function LoginScreen() {
             />
 
             <LoginPasswordField
+              testID="login-password-input"
               label="Contraseña"
               placeholder="Contraseña"
               value={password}
@@ -107,11 +109,16 @@ export function LoginScreen() {
           </View>
 
           {error ? (
-            <ErrorMessage message={error} style={styles.errorBanner} />
+            <ErrorMessage
+              testID="login-error"
+              message={error}
+              style={styles.errorBanner}
+            />
           ) : null}
 
           <View style={styles.actions}>
             <Button
+              testID="login-submit"
               title="Ingresar"
               onPress={handleLogin}
               loading={isLoadingLogin}
@@ -138,7 +145,7 @@ export function LoginScreen() {
           <View style={styles.hintContainer}>
             <Text style={styles.hintText}>
               Credenciales de prueba:{'\n'}
-              <Text style={styles.hintBold}>user@test.com / password123</Text>
+              <Text style={styles.hintBold}>test@gmail.com / 123456</Text>
             </Text>
           </View>
         </ScrollView>

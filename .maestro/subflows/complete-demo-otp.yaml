@@ -1,0 +1,19 @@
+appId: com.bbapp
+---
+# PIN demo fijo: 123456 (useOtpValidationViewModel)
+- extendedWaitUntil:
+    visible:
+      id: "otp-screen"
+    timeout: 30000
+
+- tapOn: "Digito 1"
+- tapOn: "Digito 2"
+- tapOn: "Digito 3"
+- tapOn: "Digito 4"
+- tapOn: "Digito 5"
+- tapOn: "Digito 6"
+
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 30000
