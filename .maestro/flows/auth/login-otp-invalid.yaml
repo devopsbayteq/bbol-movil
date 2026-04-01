@@ -41,4 +41,4 @@ name: PIN incorrecto muestra error en pantalla OTP
       id: "otp-error"
     timeout: 15000
 
-- assertVisible: "Codigo invalido. Usa 123456 para el flujo demo."
+- assertVisible: "Código inválido. Usa 123456 para el flujo demo."

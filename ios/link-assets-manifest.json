@@ -12,6 +12,22 @@
     {
       "path": "assets/fonts/Lexend_700Bold.ttf",
       "sha1": "c3006fdc382624dd82e1fdec223e432d1c5efed2"
+    },
+    {
+      "path": "assets/images/arrow-left.png",
+      "sha1": "270a6231f331fada3177eeafdde0503be7cbf62f"
+    },
+    {
+      "path": "assets/images/BBBanner.png",
+      "sha1": "efd8649dfdbc4b6c9133659e0af0b1d50995b9dd"
+    },
+    {
+      "path": "assets/images/fingerprint.png",
+      "sha1": "45c33993b6a41a6a4e0366f45cb22773d3bd711a"
+    },
+    {
+      "path": "assets/images/lock-keyhole-open.png",
+      "sha1": "98c9d1b472ae6a76a2ea193ab5eaf22e95fdb5bb"
     }
   ]
 }

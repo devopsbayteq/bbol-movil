@@ -6,6 +6,9 @@ import {
   StyleSheet,
   type StyleProp,
   type ViewStyle,
+  ImageSourcePropType,
+  Image,
+  View,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
@@ -16,6 +19,7 @@ interface ButtonProps {
   title: string;
   onPress: () => void;
   loading?: boolean;
+  iconSource?: ImageSourcePropType;
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -26,6 +30,7 @@ export function Button({
   title,
   onPress,
   loading = false,
+  iconSource,
   variant = 'primary',
   disabled = false,
   style,
@@ -58,14 +63,19 @@ export function Button({
           size="small"
         />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            variant === 'outline' && styles.outlineText,
-            variant === 'loginPrimary' && styles.loginPrimaryText,
-          ]}>
-          {title}
-        </Text>
+        <View style={styles.contentRow}>
+          {iconSource ? (
+            <Image source={iconSource} style={styles.icon} resizeMode="contain" />
+          ) : null}
+          <Text
+            style={[
+              styles.text,
+              variant === 'outline' && styles.outlineText,
+              variant === 'loginPrimary' && styles.loginPrimaryText,
+            ]}>
+            {title}
+          </Text>
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -113,6 +123,16 @@ function useStyles(colors: ThemeColors) {
           fontSize: 16,
           lineHeight: 26,
           color: colors.white,
+        },
+        icon: {
+          width: 24,
+          height: 24,
+          marginRight: 8,
+        },
+        contentRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
         },
       }),
     [colors],

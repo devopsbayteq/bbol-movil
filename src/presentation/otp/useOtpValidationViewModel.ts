@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 
 const RESEND_WINDOW_SECONDS = 30;
 const MOCK_VALID_OTP = '123456';
@@ -33,16 +33,11 @@ export function useOtpValidationViewModel(onSuccess: () => Promise<void>) {
   const canSubmit = code.length === 6 && !isLoading;
   const canResend = secondsLeft === 0 && !isLoading;
 
-  const resendLabel = useMemo(() => {
-    if (secondsLeft > 0) {
-      return `Reenviar codigo en ${secondsLeft}s`;
-    }
-    return 'Reenviar codigo';
-  }, [secondsLeft]);
+
 
   const handleValidate = useCallback(async () => {
     if (code.length !== 6) {
-      setError('Ingresa los 6 digitos del codigo.');
+      setError('Ingresa los 6 dígitos del código.');
       return;
     }
 
@@ -55,7 +50,7 @@ export function useOtpValidationViewModel(onSuccess: () => Promise<void>) {
 
     if (code !== MOCK_VALID_OTP) {
       setIsLoading(false);
-      setError('Codigo invalido. Usa 123456 para el flujo demo.');
+      setError('Código inválido. Usa 123456 para el flujo demo.');
       return;
     }
 
@@ -78,7 +73,6 @@ export function useOtpValidationViewModel(onSuccess: () => Promise<void>) {
     isLoading,
     canSubmit,
     canResend,
-    resendLabel,
     onChangeCode,
     handleValidate,
     handleResend,

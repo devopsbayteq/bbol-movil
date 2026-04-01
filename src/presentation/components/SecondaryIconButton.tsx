@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  type ImageSourcePropType,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -13,7 +14,9 @@ import {Lexend} from '../../theme/lexend';
 
 interface SecondaryIconButtonProps {
   title: string;
-  iconUri: string;
+  iconSource: ImageSourcePropType;
+  /** Si se define, aplica tinte al PNG/vector (omitir para assets multicolor). */
+  iconTintColor?: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
@@ -22,7 +25,8 @@ interface SecondaryIconButtonProps {
 
 export function SecondaryIconButton({
   title,
-  iconUri,
+  iconSource,
+  iconTintColor,
   onPress,
   disabled = false,
   loading = false,
@@ -43,8 +47,11 @@ export function SecondaryIconButton({
         <ActivityIndicator color={colors.iconPrimary} size="small" />
       ) : (
         <Image
-          source={{uri: iconUri}}
-          style={styles.icon}
+          source={iconSource}
+          style={[
+            styles.icon,
+            iconTintColor !== undefined ? {tintColor: iconTintColor} : null,
+          ]}
           resizeMode="contain"
         />
       )}
@@ -72,9 +79,8 @@ function useStyles(colors: ThemeColors) {
           opacity: 0.6,
         },
         icon: {
-          width: 20,
-          height: 20,
-          tintColor: colors.iconPrimary,
+          width: 24,
+          height: 24,
         },
         label: {
           fontFamily: Lexend.semiBold,

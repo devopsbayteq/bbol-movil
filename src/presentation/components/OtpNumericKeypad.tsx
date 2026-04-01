@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  type ImageSourcePropType,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
@@ -23,70 +24,86 @@ export type OtpKeypadKey =
   | '9'
   | 'backspace';
 
+type Cell = OtpKeypadKey | 'empty';
+
 interface OtpNumericKeypadProps {
   onKeyPress: (key: OtpKeypadKey) => void;
   disabled?: boolean;
-  backspaceIconUri: string;
+  deleteIconSource: ImageSourcePropType;
 }
 
-const ROWS: OtpKeypadKey[][] = [
+const KEY_SIZE = 58;
+const KEY_RADIUS = 12;
+
+/** Fila inferior: vacío | 0 | retroceso. */
+const GRID: Cell[][] = [
   ['1', '2', '3'],
   ['4', '5', '6'],
   ['7', '8', '9'],
+  ['empty', '0', 'backspace'],
 ];
 
 export function OtpNumericKeypad({
   onKeyPress,
   disabled = false,
-  backspaceIconUri,
+  deleteIconSource,
 }: OtpNumericKeypadProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
   return (
-    <View style={styles.wrap} accessibilityRole="keyboard">
-      {ROWS.map((row, rowIndex) => (
+    <View style={styles.wrap}>
+      {GRID.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
-          {row.map(key => (
-            <TouchableOpacity
-              key={key}
-              style={[styles.key, disabled && styles.keyDisabled]}
-              onPress={() => onKeyPress(key)}
-              disabled={disabled}
-              activeOpacity={0.75}
-              accessibilityLabel={`Digito ${key}`}
-              accessibilityRole="button">
-              <Text style={styles.digit}>{key}</Text>
-            </TouchableOpacity>
-          ))}
+          {row.map((cell, colIndex) => {
+            if (cell === 'empty') {
+              return (
+                <View
+                  key={`e-${rowIndex}-${colIndex}`}
+                  style={styles.cellSlot}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                />
+              );
+            }
+            if (cell === 'backspace') {
+              return (
+                <View key={`bs-${rowIndex}-${colIndex}`} style={styles.cellSlot}>
+                  <TouchableOpacity
+                    style={[styles.key, disabled && styles.keyDisabled]}
+                    onPress={() => onKeyPress('backspace')}
+                    disabled={disabled}
+                    activeOpacity={0.75}
+                    accessibilityLabel="Borrar"
+                    accessibilityRole="button">
+                    <Image
+                      source={deleteIconSource}
+                      style={[
+                        styles.deleteIcon,
+                        {tintColor: colors.iconPrimary},
+                      ]}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
+              );
+            }
+            return (
+              <View key={cell} style={styles.cellSlot}>
+                <TouchableOpacity
+                  style={[styles.key, disabled && styles.keyDisabled]}
+                  onPress={() => onKeyPress(cell)}
+                  disabled={disabled}
+                  activeOpacity={0.75}
+                  accessibilityLabel={`Digito ${cell}`}
+                  accessibilityRole="button">
+                  <Text style={styles.digit}>{cell}</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
       ))}
-      <View style={styles.lastRowOuter}>
-        <View style={styles.lastRowInner}>
-          <TouchableOpacity
-            style={[styles.key, styles.keyLastRow, disabled && styles.keyDisabled]}
-            onPress={() => onKeyPress('0')}
-            disabled={disabled}
-            activeOpacity={0.75}
-            accessibilityLabel="Digito 0"
-            accessibilityRole="button">
-            <Text style={styles.digit}>0</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.key, styles.keyLastRow, disabled && styles.keyDisabled]}
-            onPress={() => onKeyPress('backspace')}
-            disabled={disabled}
-            activeOpacity={0.75}
-            accessibilityLabel="Borrar"
-            accessibilityRole="button">
-            <Image
-              source={{uri: backspaceIconUri}}
-              style={styles.backspaceIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 }
@@ -97,53 +114,29 @@ function useStyles(colors: ThemeColors) {
       StyleSheet.create({
         wrap: {
           width: '100%',
-          maxWidth: 274,
+          maxWidth: 340,
           alignSelf: 'center',
-          gap: 24,
+          gap: 34,
         },
         row: {
           flexDirection: 'row',
+          width: '100%',
           justifyContent: 'space-between',
           alignItems: 'center',
-          width: '100%',
-          gap: 8,
         },
-        lastRowOuter: {
-          width: '100%',
-          alignItems: 'center',
-        },
-        lastRowInner: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: 168,
-        },
-        key: {
+        cellSlot: {
           flex: 1,
-          minHeight: 64,
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: 12,
-          backgroundColor: colors.white,
-          paddingVertical: 16,
-          marginHorizontal: 0,
-          ...Platform.select({
-            ios: {
-              shadowColor: '#000',
-              shadowOffset: {width: 0, height: 1},
-              shadowOpacity: 0.12,
-              shadowRadius: 3,
-            },
-            android: {
-              elevation: 2,
-            },
-            default: {},
-          }),
+          minHeight: KEY_SIZE,
         },
-        keyLastRow: {
-          flex: 0,
-          width: 76,
-          minHeight: 68,
+        key: {
+          width: KEY_SIZE,
+          height: KEY_SIZE,
+          borderRadius: KEY_RADIUS,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.white
         },
         keyDisabled: {
           opacity: 0.5,
@@ -151,12 +144,12 @@ function useStyles(colors: ThemeColors) {
         digit: {
           fontFamily: Lexend.bold,
           fontSize: 22,
-          lineHeight: 32,
-          color: '#1A1C1C',
+          lineHeight: 28,
+          color: colors.textPrimary,
         },
-        backspaceIcon: {
-          width: 25,
-          height: 20,
+        deleteIcon: {
+          width: 24,
+          height: 24,
         },
       }),
     [colors],

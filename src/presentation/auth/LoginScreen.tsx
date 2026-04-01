@@ -27,6 +27,8 @@ import {FIGMA_LOGIN_ASSETS} from './figmaLoginAssets';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
 
+const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
+
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {colors} = useTheme();
@@ -68,7 +70,7 @@ export function LoginScreen() {
           showsVerticalScrollIndicator={false}>
           <View style={styles.contentColumn}>
           <Image
-            source={{uri: FIGMA_LOGIN_ASSETS.bankLogo}}
+            source={require('../../../assets/images/BBBanner.png')}
             style={styles.bankLogo}
             resizeMode="contain"
             accessibilityLabel="Banco Bolivariano"
@@ -122,6 +124,7 @@ export function LoginScreen() {
               testID="login-submit"
               title="Ingresar"
               onPress={handleLogin}
+              iconSource={require('../../../assets/images/house.png')}
               loading={isLoadingLogin}
               disabled={isBusy}
               variant="loginPrimary"
@@ -129,7 +132,7 @@ export function LoginScreen() {
             <OrSeparator />
             <SecondaryIconButton
               title="Huella/FaceID"
-              iconUri={FIGMA_LOGIN_ASSETS.fingerprint}
+              iconSource={loginFingerprintIcon}
               onPress={handleBiometricLogin}
               disabled={isBusy}
               loading={isLoadingBiometric}
@@ -141,13 +144,6 @@ export function LoginScreen() {
             onPress={onHelp}
             style={styles.helpLink}
           />
-
-          <View style={styles.hintContainer}>
-            <Text style={styles.hintText}>
-              Credenciales de prueba:{'\n'}
-              <Text style={styles.hintBold}>test@gmail.com / 123456</Text>
-            </Text>
-          </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -177,14 +173,15 @@ function useStyles(colors: ThemeColors) {
           alignSelf: 'center',
         },
         bankLogo: {
-          width: 194,
-          height: 46,
+          width: 196,
+          height: 30,
           marginTop: 8,
           marginBottom: 24,
           alignSelf: 'flex-start',
         },
         hero: {
           marginBottom: 32,
+          marginTop: 16,
           gap: 8,
           alignSelf: 'stretch',
         },
@@ -208,26 +205,13 @@ function useStyles(colors: ThemeColors) {
           marginBottom: 16,
         },
         actions: {
+          marginTop: 26,
           gap: 8,
           marginBottom: 8,
         },
         helpLink: {
           alignSelf: 'center',
           marginBottom: 24,
-        },
-        hintContainer: {
-          alignItems: 'center',
-        },
-        hintText: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.textTertiary,
-          textAlign: 'center',
-        },
-        hintBold: {
-          fontFamily: Lexend.semiBold,
-          color: colors.textSecondary,
         },
       }),
     [colors],

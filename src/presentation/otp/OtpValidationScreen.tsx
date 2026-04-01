@@ -24,28 +24,26 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
-import {FIGMA_OTP_ASSETS} from './figmaOtpAssets';
+
+const otpBackArrow = require('../../../assets/images/arrow-left.png');
+const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
+const otpDelete = require('../../../assets/images/delete.png');
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OtpValidation'>;
-
-const INSTRUCTION_COLOR = '#3E494B';
 
 export function OtpValidationScreen({route}: Props) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {login} = useAuth();
-  const {user, email} = route.params;
+  const {user} = route.params;
 
   const {
     code,
     error,
     isLoading,
-    canResend,
-    resendLabel,
     onChangeCode,
     handleValidate,
-    handleResend,
   } = useOtpValidationViewModel(async () => {
     await login(user);
   });
@@ -82,7 +80,7 @@ export function OtpValidationScreen({route}: Props) {
   const handleForgotPin = () => {
     Alert.alert(
       'Ayuda',
-      'Si no recuerdas tu PIN o no recibiste el codigo, contacta a soporte.',
+      'Si no recuerdas tu PIN o no recibiste el código, contacta a soporte.',
     );
   };
 
@@ -91,17 +89,6 @@ export function OtpValidationScreen({route}: Props) {
       testID="otp-screen"
       style={styles.safe}
       edges={['top', 'bottom']}>
-      <View
-        style={styles.textureBg}
-        pointerEvents="none"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants">
-        <Image
-          source={{uri: FIGMA_OTP_ASSETS.backgroundTexture}}
-          style={StyleSheet.absoluteFillObject}
-          resizeMode="cover"
-        />
-      </View>
       <View style={styles.header}>
         <Pressable
           onPress={() => navigation.goBack()}
@@ -109,7 +96,7 @@ export function OtpValidationScreen({route}: Props) {
           accessibilityRole="button"
           accessibilityLabel="Volver">
           <Image
-            source={{uri: FIGMA_OTP_ASSETS.backArrow}}
+            source={otpBackArrow}
             style={styles.backIcon}
             resizeMode="contain"
           />
@@ -125,13 +112,12 @@ export function OtpValidationScreen({route}: Props) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <Text style={styles.instruction}>Introduce tu PIN para continuar</Text>
-        <Text style={styles.emailHint}>Codigo enviado a {email}</Text>
-
         <Image
-          source={{uri: FIGMA_OTP_ASSETS.padlock}}
+          source={otpLockOpen}
           style={styles.padlock}
           resizeMode="contain"
           accessibilityIgnoresInvertColors
+          accessibilityLabel="Candado abierto"
         />
 
         <View style={styles.pinSection}>
@@ -152,7 +138,7 @@ export function OtpValidationScreen({route}: Props) {
         <OtpNumericKeypad
           onKeyPress={handleKeypad}
           disabled={isLoading}
-          backspaceIconUri={FIGMA_OTP_ASSETS.backspace}
+          deleteIconSource={otpDelete}
         />
 
         <TouchableOpacity
@@ -161,21 +147,6 @@ export function OtpValidationScreen({route}: Props) {
           style={styles.forgotWrap}
           accessibilityRole="button">
           <Text style={styles.forgotText}>¿Olvidaste tu PIN?</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={handleResend}
-          disabled={!canResend}
-          activeOpacity={0.8}
-          style={styles.resendWrap}
-          accessibilityRole="button">
-          <Text
-            style={[
-              styles.resendLabel,
-              !canResend && styles.resendLabelDisabled,
-            ]}>
-            {resendLabel}
-          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -190,11 +161,6 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           backgroundColor: colors.background,
         },
-        textureBg: {
-          ...StyleSheet.absoluteFillObject,
-          opacity: 0.03,
-          zIndex: 0,
-        },
         header: {
           flexDirection: 'row',
           alignItems: 'center',
@@ -206,51 +172,51 @@ function useStyles(colors: ThemeColors) {
           borderBottomColor: colors.borderLight,
         },
         backIcon: {
-          width: 20,
-          height: 20,
-          tintColor: colors.iconPrimary,
+          width: 24,
+          height: 24,
         },
         headerTitle: {
           flex: 1,
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
+          fontFamily: Lexend.bold,
+          fontSize: 16,
+          lineHeight: 24,
+          letterSpacing: 0.6,
           color: colors.textPrimary,
           textAlign: 'center',
         },
         headerSpacer: {
-          width: 20,
+          width: 24,
         },
         scrollContent: {
           paddingHorizontal: 24,
-          paddingTop: 24,
+          paddingTop: 28,
           paddingBottom: 16,
           alignItems: 'center',
         },
         instruction: {
           fontFamily: Lexend.regular,
-          fontSize: 14,
-          lineHeight: 22,
-          color: INSTRUCTION_COLOR,
+          fontSize: 16,
+          lineHeight: 26,
+          color: colors.textPrimary,
           textAlign: 'center',
+          paddingHorizontal: 8,
         },
         emailHint: {
           marginTop: 8,
           fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.textTertiary,
+          fontSize: 14,
+          lineHeight: 22,
+          color: colors.textSecondary,
           textAlign: 'center',
+          paddingHorizontal: 8,
         },
         padlock: {
-          width: 100,
-          height: 100,
-          marginTop: 20,
-          marginBottom: 24,
-          opacity: 0.85,
+          width: 120,
+          height: 120,
+          marginTop: 28,
+          marginBottom: 28,
         },
         pinSection: {
-          marginBottom: 16,
           alignSelf: 'stretch',
           alignItems: 'center',
         },
@@ -261,31 +227,30 @@ function useStyles(colors: ThemeColors) {
         footer: {
           paddingHorizontal: 24,
           paddingBottom: 8,
-          paddingTop: 8,
         },
         forgotWrap: {
           alignSelf: 'center',
-          marginTop: 24,
+          marginTop: 20,
           paddingVertical: 8,
           paddingHorizontal: 4,
           borderRadius: 8,
         },
         forgotText: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
+          fontFamily: Lexend.bold,
+          fontSize: 16,
+          lineHeight: 26,
           color: colors.primary,
           textAlign: 'center',
         },
         resendWrap: {
           alignSelf: 'center',
-          marginTop: 8,
+          marginTop: 6,
           paddingVertical: 4,
         },
         resendLabel: {
           fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
+          fontSize: 14,
+          lineHeight: 22,
           color: colors.linkPrimary,
           textAlign: 'center',
         },
