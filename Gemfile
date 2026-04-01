@@ -14,3 +14,5 @@ gem 'bigdecimal'
 gem 'logger'
 gem 'benchmark'
 gem 'mutex_m'
+# Ruby 3.4+ / 4.0: stdlib kconv removed; nkf gem restores compatibility for CFPropertyList/CocoaPods.
+gem 'nkf'

@@ -6,7 +6,6 @@ import {rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64} from '../../security/
 import type {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {SecureStorageKeys} from '../datasources/storage/SecureStorageKeys';
 import {ensureDeviceId} from '../bootstrap/ensureDeviceId';
-import {resolveLanguageHeader} from './resolveLanguageHeader';
 import {
   loadDeviceHeaderSnapshot,
   type DeviceHeaderSnapshot,
@@ -15,11 +14,6 @@ import {
   infoFingerprintModelToJson,
   type InfoFingerprintModel,
 } from './infoFingerprintModel';
-import {
-  API_CHANNEL_HEADER,
-  API_HAS_GOOGLE_SERVICES,
-  API_TIME_ZONE,
-} from '../../config/apiHeaders.constants';
 
 const LOG = 'ApiHeaders/interceptor';
 
@@ -28,8 +22,7 @@ export type ApiHeadersInterceptorDeps = {
   secretKey: string;
   requestId: string;
   secureStorage: SecureStorageService;
-  serverPublicPemBase64: string;
-  getApiSwitchImplementation: () => string;
+  serverPublicPemBase64: string;  
   getDeviceState: () => string;
 };
 
@@ -72,8 +65,7 @@ export function attachApiHeadersInterceptor(
 
         const [
           authorization,
-          deviceId,
-          language,
+          deviceId,          
           xSecret,
           xFingerPrint,
           snapshot,
@@ -82,7 +74,7 @@ export function attachApiHeadersInterceptor(
             .get(SecureStorageKeys.AUTH_TOKEN)
             .then(t => t ?? ''),
           ensureDeviceId(deps.secureStorage),
-          resolveLanguageHeader(deps.secureStorage),
+          
           Promise.resolve(
             rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
               deps.serverPublicPemBase64,
@@ -102,32 +94,25 @@ export function attachApiHeadersInterceptor(
           config,
         );
 
-        const switchName = deps.getApiSwitchImplementation();
+        
         const headers = AxiosHeaders.from(config.headers ?? {});
 
         const set = (key: string, value: string) => {
           headers.set(key, value);
         };
 
-        set('Authorization', authorization);
+        set('Authorization', 'Bearer ' + authorization);
         set('X-Platform', snapshot.platform);
         set('X-Version', snapshot.version);
         set('X-Device', deviceId);
         set('X-Model', snapshot.model);
         set('X-SystemOperationVersion', snapshot.systemVersion);
         set('X-Brand', snapshot.brand);
-        set('X-Channel', API_CHANNEL_HEADER);
         set('X-Content', xContent);
         set('X-Time', timeStamp);
-        set('X-Language', language);
-        set('X-Secret', xSecret);
-        set('X-TimeZone', API_TIME_ZONE);
-        set('X-SwitchImplementation', switchName);
+        set('X-Secret', xSecret);            
         set('X-FingerPrint', xFingerPrint);
-        set('X-RequestId', deps.requestId);
-        set('X-OriginTransaction', 'Mobile');
-        set('X-HasGoogleServices', API_HAS_GOOGLE_SERVICES);
-
+        set('X-RequestId', deps.requestId);                
         config.headers = headers;
         return config;
       } catch (e) {
