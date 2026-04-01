@@ -21,12 +21,13 @@ import {accountProductTitle} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import {
-  buildContactList,
+  beneficiaryContactToTemplate,
   groupContactsByLetter,
   ownAccountToBeneficiary,
   templateToBeneficiary,
   type ContactTemplate,
 } from './beneficiaryData';
+import {useBeneficiaryContactsViewModel} from './useBeneficiaryContactsViewModel';
 import type {BeneficiaryOption} from './useTransferViewModel';
 import {
   TransferIconArrowLeft,
@@ -52,14 +53,23 @@ export function BeneficiarySelectScreen() {
   const styles = useStyles(colors);
 
   const {data, isLoading, error, retry} = useHomeViewModel();
+  const {
+    contacts: beneficiaryContacts,
+    isLoading: contactsLoading,
+    error: contactsError,
+    retry: retryContacts,
+  } = useBeneficiaryContactsViewModel();
   const [query, setQuery] = useState('');
 
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
 
-  const allContacts = useMemo(
-    () => buildContactList(data?.frequentPayments ?? []),
-    [data?.frequentPayments],
-  );
+  const allContacts = useMemo(() => {
+    return [...beneficiaryContacts]
+      .map(beneficiaryContactToTemplate)
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, 'es', {sensitivity: 'base'}),
+      );
+  }, [beneficiaryContacts]);
 
   const filteredAccounts = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -174,11 +184,22 @@ export function BeneficiarySelectScreen() {
     </Text>
   );
 
+  const contactosStatus =
+    contactsError && !contactsLoading ? (
+      <View style={styles.contactsErrorBanner}>
+        <Text style={styles.errorText}>{contactsError}</Text>
+        <TouchableOpacity onPress={retryContacts}>
+          <Text style={styles.retryText}>Reintentar</Text>
+        </TouchableOpacity>
+      </View>
+    ) : null;
+
   const listHeader = (
     <>
       {searchBlock}
       {misCuentasBlock}
       {contactosTitle}
+      {contactosStatus}
     </>
   );
 
@@ -269,9 +290,21 @@ export function BeneficiarySelectScreen() {
         ListHeaderComponent={listHeader}
         stickySectionHeadersEnabled={false}
         ListEmptyComponent={
-          <Text style={styles.emptyHint}>
-            No hay contactos que coincidan con la búsqueda.
-          </Text>
+          contactsLoading ? (
+            <View style={styles.contactsListEmpty}>
+              <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+          ) : contactsError ? (
+            <Text style={styles.emptyHint}>
+              No se pudieron cargar los contactos.
+            </Text>
+          ) : allContacts.length === 0 ? (
+            <Text style={styles.emptyHint}>No tienes contactos guardados.</Text>
+          ) : (
+            <Text style={styles.emptyHint}>
+              No hay contactos que coincidan con la búsqueda.
+            </Text>
+          )
         }
         showsVerticalScrollIndicator={false}
       />
@@ -377,6 +410,14 @@ function useStyles(colors: ThemeColors) {
         contactosHeading: {
           marginTop: 8,
           marginBottom: 4,
+        },
+        contactsErrorBanner: {
+          marginBottom: 8,
+          gap: 6,
+        },
+        contactsListEmpty: {
+          paddingVertical: 24,
+          alignItems: 'center',
         },
         accountCard: {
           flexDirection: 'row',

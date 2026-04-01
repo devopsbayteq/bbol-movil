@@ -18,8 +18,11 @@ import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImp
 import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
 import {ValidateOtpUseCase} from "../domain/usecases/ValidateOtpUseCase.ts";
 import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
+import {GetBeneficiaryContactsUseCase} from '../domain/usecases/GetBeneficiaryContactsUseCase';
 import {ContractBalanceRemoteDataSource} from '../data/datasources/contractBalance';
+import {BeneficiaryRemoteDataSource} from '../data/datasources/beneficiary';
 import {ContractBalanceRepositoryImpl} from '../data/repositories/ContractBalanceRepositoryImpl';
+import {BeneficiaryRepositoryImpl} from '../data/repositories/BeneficiaryRepositoryImpl';
 
 export interface AppContainer {
     loginUseCase: LoginUseCase;
@@ -31,6 +34,7 @@ export interface AppContainer {
     getUserLoggedUseCase: GetUserLoggedUseCase;
     validateOtpUseCase: ValidateOtpUseCase;
     getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
+    getBeneficiaryContactsUseCase: GetBeneficiaryContactsUseCase;
 }
 
 export function createContainer(): AppContainer {
@@ -48,12 +52,18 @@ export function createContainer(): AppContainer {
     const contractBalanceRemoteDataSource = new ContractBalanceRemoteDataSource(
         httpClient,
     );
+    const beneficiaryRemoteDataSource = new BeneficiaryRemoteDataSource(
+        httpClient,
+    );
     const transactionDataSource = new MockTransactionDataSource();
 
     const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
     const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
     const contractBalanceRepository = new ContractBalanceRepositoryImpl(
         contractBalanceRemoteDataSource,
+    );
+    const beneficiaryRepository = new BeneficiaryRepositoryImpl(
+        beneficiaryRemoteDataSource,
     );
     const transactionRepository = new TransactionRepositoryImpl(
         transactionDataSource,
@@ -85,6 +95,10 @@ export function createContainer(): AppContainer {
         contractBalanceRepository,
     );
 
+    const getBeneficiaryContactsUseCase = new GetBeneficiaryContactsUseCase(
+        beneficiaryRepository,
+    );
+
     return {
         loginUseCase,
         getTransactionsUseCase,
@@ -95,5 +109,6 @@ export function createContainer(): AppContainer {
         getUserLoggedUseCase,
         validateOtpUseCase,
         getHomeContractBalanceUseCase,
+        getBeneficiaryContactsUseCase,
     };
 }

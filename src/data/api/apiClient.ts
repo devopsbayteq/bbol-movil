@@ -14,7 +14,14 @@ export class AxiosHttpClient implements HttpClient {
   ) {
     this.client = axios.create({
       baseURL,
-      headers: {'Content-Type': 'application/json', ...defaultHeaders},
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Platform': 'Android',
+        'X-Timezone': 'America/Guayaquil',
+        'X-RequestId': 'ea18410a-4fcb-48b7-a927-25c0161ae11a',
+        'X-Time': '1775063630',
+        ...defaultHeaders},
       timeout,
     });
 

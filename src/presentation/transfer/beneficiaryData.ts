@@ -1,4 +1,5 @@
-import type {AccountBalance, FrequentPayment} from '../../domain/entities/ContractBalance';
+import type {AccountBalance} from '../../domain/entities/ContractBalance';
+import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
 import {accountProductTitle} from '../../utils/accountDisplay';
 import type {BeneficiaryOption} from './useTransferViewModel';
 
@@ -9,78 +10,25 @@ export type ContactTemplate = {
   accountHint: string;
 };
 
-/** Demo contacts (Figma 124:950) when API list is sparse. */
-export const MOCK_BENEFICIARY_CONTACTS: ContactTemplate[] = [
-  {
-    id: 'mock-andres',
-    name: 'Andrés Juan Delgado',
-    bankName: 'Banco Pichincha',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-  {
-    id: 'mock-ana',
-    name: 'Ana María Luz López',
-    bankName: 'Banco Bolivariano',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-  {
-    id: 'mock-alberto',
-    name: 'Alberto Roberto Sánchez',
-    bankName: 'Banco Guayaquil',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-  {
-    id: 'mock-barbara',
-    name: 'Barbara Ana  Casares',
-    bankName: 'Banco Bolivariano',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-  {
-    id: 'mock-cesar',
-    name: 'Cesar Esteban Janez',
-    bankName: 'Banco Bolivariano',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-  {
-    id: 'mock-carla',
-    name: 'Carla Johanna Ramos',
-    bankName: 'Banco Pacífico',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-  {
-    id: 'mock-roberto',
-    name: 'Roberto Almeida',
-    bankName: 'Banco Bolivariano',
-    accountHint: 'Cta. ahorros • **** 8291',
-  },
-];
-
-function bankLabelFromFrequentType(t: string): string {
-  const s = t.toLowerCase();
-  if (s.includes('luz') || s.includes('servicio') || s.includes('light')) {
-    return 'Servicios';
+function accountTypeLabel(accountType: number): string {
+  switch (accountType) {
+    case 1:
+      return 'ahorros';
+    case 2:
+      return 'corriente';
+    default:
+      return 'cuenta';
   }
-  if (
-    s.includes('edu') ||
-    s.includes('matricula') ||
-    s.includes('school') ||
-    s.includes('colegio')
-  ) {
-    return 'Educación';
-  }
-  return 'Banco Bolivariano';
 }
 
-export function frequentPaymentToContact(
-  fp: FrequentPayment,
-  index: number,
+export function beneficiaryContactToTemplate(
+  b: BeneficiaryContact,
 ): ContactTemplate {
-  const lastDigits = String(index + 1000).slice(-4);
   return {
-    id: `fp-${index}-${fp.beneficiaryName}`,
-    name: fp.beneficiaryName,
-    bankName: bankLabelFromFrequentType(fp.beneficiaryType),
-    accountHint: `Cta. ahorros • **** ${lastDigits}`,
+    id: b.beneficiaryGuid,
+    name: b.contactName,
+    bankName: b.bankName,
+    accountHint: `Cta. ${accountTypeLabel(b.accountType)} • **** ${b.lastFourDigits}`,
   };
 }
 
@@ -101,19 +49,6 @@ export function ownAccountToBeneficiary(account: AccountBalance): BeneficiaryOpt
     kind: 'own_account',
     accountHint: account.maskedAccountNumber,
   };
-}
-
-export function buildContactList(
-  frequent: FrequentPayment[],
-): ContactTemplate[] {
-  const fromApi = frequent.map((fp, i) => frequentPaymentToContact(fp, i));
-  const names = new Set(fromApi.map(c => c.name.toLowerCase()));
-  const extras = MOCK_BENEFICIARY_CONTACTS.filter(
-    m => !names.has(m.name.toLowerCase()),
-  );
-  return [...fromApi, ...extras].sort((a, b) =>
-    a.name.localeCompare(b.name, 'es', {sensitivity: 'base'}),
-  );
 }
 
 export function groupContactsByLetter(
