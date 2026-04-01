@@ -8,70 +8,75 @@ import {AxiosHttpClient} from '../data/api/apiClient';
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
 import {SecurityRepositoryImpl} from '../data/repositories/SecurityRepositoryImpl';
-import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
-import {AuthRemoteDataSource} from '../data/datasources/auth/AuthRemoteDataSource';
+//import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
+import {AuthRemoteDataSource} from '../data/datasources/auth';
 import {SecurityRemoteDataSource} from '../data/datasources/security/SecurityRemoteDataSource';
-import {MockTransactionDataSource} from '../data/datasources/transaction/MockTransactionDataSource';
-import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
+import {MockTransactionDataSource} from '../data/datasources/transaction';
+import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
-import { GetUserLoggedUseCase } from '../domain/usecases/GetUserLoggedUseCase';
+import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
+import {ValidateOtpUseCase} from "../domain/usecases/ValidateOtpUseCase.ts";
 
 export interface AppContainer {
-  loginUseCase: LoginUseCase;
-  getTransactionsUseCase: GetTransactionsUseCase;
-  getPublicKeyUseCase: GetPublicKeyUseCase;
-  secureStorageService: SecureStorageService;
-  biometricAuthService: BiometricAuthService;
-  authRemoteDataSource: AuthRemoteDataSource;
-  getUserLoggedUseCase: GetUserLoggedUseCase;
+    loginUseCase: LoginUseCase;
+    getTransactionsUseCase: GetTransactionsUseCase;
+    getPublicKeyUseCase: GetPublicKeyUseCase;
+    secureStorageService: SecureStorageService;
+    biometricAuthService: BiometricAuthService;
+    authRemoteDataSource: AuthRemoteDataSource;
+    getUserLoggedUseCase: GetUserLoggedUseCase;
+    validateOtpUseCase: ValidateOtpUseCase
 }
 
 export function createContainer(): AppContainer {
-  const httpClient = new AxiosHttpClient(
-    'https://dev4.bayteq.com:50112/api/v1/'
-  );
-  const secureStorageService = new SecureStorageServiceImpl();
-  const biometricAuthService = new BiometricAuthServiceImpl();
+    const httpClient = new AxiosHttpClient(
+        'https://dev4.bayteq.com:50112/api/v1/'
+    );
+    const secureStorageService = new SecureStorageServiceImpl();
+    const biometricAuthService = new BiometricAuthServiceImpl();
 
-  const mockAuthDataSource = new MockAuthDataSource();
-  const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
-  const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
-  const transactionDataSource = new MockTransactionDataSource();
+    //const mockAuthDataSource = new MockAuthDataSource();
+    const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
+    const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
+    const transactionDataSource = new MockTransactionDataSource();
 
-  const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
-  const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
-  const transactionRepository = new TransactionRepositoryImpl(
-    transactionDataSource,
-  );
+    const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
+    const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
+    const transactionRepository = new TransactionRepositoryImpl(
+        transactionDataSource,
+    );
 
-  const loginUseCase = new LoginUseCase(
-    authRepository,
-    secureStorageService,
-    SecureStorageKeys.USER_LOGIN_DATA,
-  );
+    const loginUseCase = new LoginUseCase(
+        authRepository,
+        secureStorageService,
+        SecureStorageKeys.USER_LOGIN_DATA,
+    );
 
-  const getUserLoggedUseCase = new GetUserLoggedUseCase(
-    secureStorageService,
-    SecureStorageKeys.USER_LOGIN_DATA,
-  );
+    const getUserLoggedUseCase = new GetUserLoggedUseCase(
+        secureStorageService,
+        SecureStorageKeys.USER_LOGIN_DATA,
+    );
 
-  const getTransactionsUseCase = new GetTransactionsUseCase(
-    transactionRepository,
-  );
-  const getPublicKeyUseCase = new GetPublicKeyUseCase(
-    securityRepository,
-    secureStorageService,
-    SecureStorageKeys.SERVER_PUBLIC_KEY,
-  );
+    const getTransactionsUseCase = new GetTransactionsUseCase(
+        transactionRepository,
+    );
+    const getPublicKeyUseCase = new GetPublicKeyUseCase(
+        securityRepository,
+        secureStorageService,
+        SecureStorageKeys.SERVER_PUBLIC_KEY,
+    );
 
-  return {
-    loginUseCase,
-    getTransactionsUseCase,
-    getPublicKeyUseCase,
-    secureStorageService,
-    biometricAuthService,
-    authRemoteDataSource,
-    getUserLoggedUseCase
-  };
+    const validateOtpUseCase = new ValidateOtpUseCase(securityRepository);
+
+    return {
+        loginUseCase,
+        getTransactionsUseCase,
+        getPublicKeyUseCase,
+        secureStorageService,
+        biometricAuthService,
+        authRemoteDataSource,
+        getUserLoggedUseCase,
+        validateOtpUseCase
+    };
 }
