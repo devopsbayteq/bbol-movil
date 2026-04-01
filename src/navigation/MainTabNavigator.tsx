@@ -3,7 +3,7 @@ import {Platform, StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeScreen} from '../presentation/home/HomeScreen';
-import {TransferPlaceholderScreen} from '../presentation/transfer/TransferPlaceholderScreen';
+import {TransferStackNavigator} from './TransferStackNavigator';
 import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
 import {useTheme} from '../providers/theme';
 import {Lexend} from '../theme/lexend';
@@ -70,7 +70,7 @@ export function MainTabNavigator() {
       />
       <Tab.Screen
         name="Transfer"
-        component={TransferPlaceholderScreen}
+        component={TransferStackNavigator}
         options={{
           title: 'Transferir',
           tabBarIcon: tabBarIconTransfer,
