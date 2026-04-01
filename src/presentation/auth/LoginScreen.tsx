@@ -2,71 +2,137 @@ import React, {useMemo} from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginViewModel} from './useLoginViewModel';
-import {useAuth} from '../../providers';
 import {useTheme, type ThemeColors} from '../../providers/theme';
-import {Button, LabeledInput, ErrorMessage} from '../components';
+import {
+  Button,
+  ErrorMessage,
+  LoginTextField,
+  LoginPasswordField,
+  SecondaryIconButton,
+  TertiaryLinkButton,
+  OrSeparator,
+} from '../components';
+import {FIGMA_LOGIN_ASSETS} from './figmaLoginAssets';
+import {Lexend} from '../../theme/lexend';
+import {RootStackParamList} from '../../navigation/AppNavigator';
 
 export function LoginScreen() {
-  const {login} = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const {email, password, isLoading, error, setEmail, setPassword, handleLogin} =
-    useLoginViewModel(async user => {
-      await login(user);
+  const {
+    email,
+    password,
+    isLoadingLogin,
+    isLoadingBiometric,
+    isBusy,
+    error,
+    setEmail,
+    setPassword,
+    handleLogin,
+    handleBiometricLogin,
+  } = useLoginViewModel(async user => {
+    navigation.navigate('OtpValidation', {
+      user,
+      email: user.email,
     });
+  });
+
+  const hasFieldError = (fieldEmpty: boolean) =>
+    !!error && fieldEmpty;
+
+  const onHelp = () => {
+    Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
+  };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>BB</Text>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <Image
+            source={{uri: FIGMA_LOGIN_ASSETS.bankLogo}}
+            style={styles.bankLogo}
+            resizeMode="contain"
+            accessibilityLabel="Banco Bolivariano"
+          />
+
+          <View style={styles.hero}>
+            <Text style={styles.heroTitle}>Identidad Digital</Text>
+            <Text style={styles.heroSubtitle}>
+              Ingresa con tu usuario y contraseña.
+            </Text>
           </View>
-          <Text style={styles.title}>Bienvenido</Text>
-          <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
-        </View>
 
-        <View style={styles.form}>
-          <LabeledInput
-            label="Email"
-            placeholder="correo@ejemplo.com"
-            value={email}
-            onChangeText={setEmail}
-            hasError={!!error && !email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
+          <View style={styles.inputs}>
+            <LoginTextField
+              label="Ingresa tu usuario"
+              placeholder="Usuario"
+              value={email}
+              onChangeText={setEmail}
+              hasError={hasFieldError(!email)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isBusy}
+              autoComplete="username"
+            />
 
-          <LabeledInput
-            label="Contraseña"
-            placeholder="Tu contraseña"
-            value={password}
-            onChangeText={setPassword}
-            hasError={!!error && !password}
-            secureTextEntry
-            editable={!isLoading}
-          />
+            <LoginPasswordField
+              label="Contraseña"
+              placeholder="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+              hasError={hasFieldError(!password)}
+              editable={!isBusy}
+              eyeIconUri={FIGMA_LOGIN_ASSETS.eye}
+              autoComplete="password"
+            />
+          </View>
 
-          {error && <ErrorMessage message={error} />}
+          {error ? (
+            <ErrorMessage message={error} style={styles.errorBanner} />
+          ) : null}
 
-          <Button
-            title="Iniciar Sesión"
-            onPress={handleLogin}
-            loading={isLoading}
-            style={styles.loginButton}
+          <View style={styles.actions}>
+            <Button
+              title="Ingresar"
+              onPress={handleLogin}
+              loading={isLoadingLogin}
+              disabled={isBusy}
+              variant="loginPrimary"
+            />
+            <OrSeparator />
+            <SecondaryIconButton
+              title="Huella/FaceID"
+              iconUri={FIGMA_LOGIN_ASSETS.fingerprint}
+              onPress={handleBiometricLogin}
+              disabled={isBusy}
+              loading={isLoadingBiometric}
+            />
+          </View>
+
+          <TertiaryLinkButton
+            title="Ayuda"
+            iconUri={FIGMA_LOGIN_ASSETS.question}
+            onPress={onHelp}
+            style={styles.helpLink}
           />
 
           <View style={styles.hintContainer}>
@@ -75,9 +141,9 @@ export function LoginScreen() {
               <Text style={styles.hintBold}>user@test.com / password123</Text>
             </Text>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -85,62 +151,69 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        root: {
+        safe: {
           flex: 1,
           backgroundColor: colors.background,
         },
+        root: {
+          flex: 1,
+        },
         scrollContent: {
           flexGrow: 1,
-          justifyContent: 'center',
           paddingHorizontal: 24,
-          paddingVertical: 48,
+          paddingBottom: 32,
         },
-        header: {
-          alignItems: 'center',
-          marginBottom: 40,
+        bankLogo: {
+          width: 194,
+          height: 46,
+          marginTop: 8,
+          marginBottom: 32,
+          alignSelf: 'flex-start',
         },
-        logoContainer: {
-          width: 72,
-          height: 72,
-          borderRadius: 20,
-          backgroundColor: colors.error,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 20,
+        hero: {
+          marginBottom: 48,
+          gap: 8,
+          maxWidth: 384,
+          alignSelf: 'stretch',
         },
-        logoText: {
-          fontSize: 28,
-          fontWeight: '700',
-          color: colors.white,
-        },
-        title: {
-          fontSize: 28,
-          fontWeight: '700',
+        heroTitle: {
+          fontFamily: Lexend.bold,
+          fontSize: 26,
+          lineHeight: 36,
           color: colors.textPrimary,
-          marginBottom: 8,
         },
-        subtitle: {
-          fontSize: 16,
+        heroSubtitle: {
+          fontFamily: Lexend.regular,
+          fontSize: 14,
           color: colors.textSecondary,
         },
-        form: {
-          gap: 16,
+        inputs: {
+          gap: 8,
+          marginBottom: 16,
         },
-        loginButton: {
-          marginTop: 8,
+        errorBanner: {
+          marginBottom: 16,
+        },
+        actions: {
+          gap: 8,
+          marginBottom: 8,
+        },
+        helpLink: {
+          alignSelf: 'center',
+          marginBottom: 24,
         },
         hintContainer: {
-          marginTop: 16,
           alignItems: 'center',
         },
         hintText: {
-          fontSize: 13,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
           color: colors.textTertiary,
           textAlign: 'center',
-          lineHeight: 20,
         },
         hintBold: {
-          fontWeight: '600',
+          fontFamily: Lexend.semiBold,
           color: colors.textSecondary,
         },
       }),

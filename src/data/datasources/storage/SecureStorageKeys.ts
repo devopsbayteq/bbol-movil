@@ -9,4 +9,7 @@ export const SecureStorageKeys = {
   CERTIFICATE_HASH: '@bb_certificate_hash',
   /** `validateHash` del API: activar pinning TLS estricto (doCertValidation) */
   CERTIFICATE_PINNING_ENABLED: '@bb_certificate_pinning_enabled',
+  SERVER_PUBLIC_KEY: '@bb_server_public_key',
+  BIOMETRIC_CREDENTIALS: '@bb_biometric_credentials',
+  USER_LOGIN_DATA: '@bb_user_login_data',
 } as const;

@@ -11,7 +11,7 @@ export class AuthRemoteDataSource implements AuthDataSource {
     try {
       const response = await this.httpClient.post<
         ApiResponseModel<LoginResponseModel>
-      >('/Auth/login', request);
+      >('Authentication/login', request);
 
       if (response.data.responseType === 'Error' || !response.data.content) {
         throw new Error(response.data.message || 'Error de autenticación');

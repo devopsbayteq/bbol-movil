@@ -3,6 +3,7 @@ import {
   attachApiHeadersInterceptor,
   type ApiHeadersInterceptorDeps,
 } from './apiHeadersInterceptor';
+import {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {HttpClient, HttpResponse, RequestConfig} from './HttpClient';
 
 export type {ApiHeadersInterceptorDeps};

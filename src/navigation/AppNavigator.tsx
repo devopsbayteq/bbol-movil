@@ -1,43 +1,72 @@
-import React from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {LoginScreen} from '../presentation/auth/LoginScreen';
-import {CertificateHandshakeScreen} from '../presentation/security/CertificateHandshakeScreen';
-import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
-import {useAuth} from '../providers';
-import {useTheme} from '../providers/theme';
+import {MainTabNavigator} from './MainTabNavigator';
+import {PublicKeyErrorScreen, SplashScreen} from '../presentation/splash';
+import {OtpValidationScreen} from '../presentation/otp';
+import {useAuth, useSecurity} from '../providers';
+import {User} from '../domain/entities/User';
 
 export type RootStackParamList = {
   CertificateHandshake: undefined;
   Login: undefined;
-  Transactions: undefined;
+  OtpValidation: {
+    user: User;
+    email: string;
+  };
+  Main: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
   const {isAuthenticated, isLoading} = useAuth();
-  const {colors} = useTheme();
+  const {
+    publicKey,
+    isLoading: isPublicKeyLoading,
+    error: publicKeyError,
+    retry: retryPublicKey,
+  } = useSecurity();
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
 
-  if (isLoading) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  if (publicKeyError && !publicKey) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background}}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      <PublicKeyErrorScreen
+        message={publicKeyError}
+        onRetry={() => {
+          void retryPublicKey();
+        }}
+        isRetrying={isPublicKeyLoading}
+      />
     );
+  }
+
+  if (isPublicKeyLoading || publicKey === null) {
+    return <SplashScreen />;
+  }
+
+  if (isSplashVisible || isLoading) {
+    return <SplashScreen />;
   }
 
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       {isAuthenticated ? (
-        <Stack.Screen name="Transactions" component={TransactionsScreen} />
+        <Stack.Screen name="Main" component={MainTabNavigator} />
       ) : (
         <>
-          <Stack.Screen
-            name="CertificateHandshake"
-            component={CertificateHandshakeScreen}
-          />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="OtpValidation" component={OtpValidationScreen} />
         </>
       )}
     </Stack.Navigator>
