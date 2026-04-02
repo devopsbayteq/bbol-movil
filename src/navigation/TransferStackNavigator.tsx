@@ -3,10 +3,13 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {TransferScreen} from '../presentation/transfer/TransferScreen';
 import type {TransferReviewRouteParams} from '../presentation/transfer/TransferReview/transferReviewTypes';
 import {TransferReviewScreen} from '../presentation/transfer/TransferReview/TransferReviewScreen';
+import {OtpValidationParams} from "./AppNavigator.tsx";
+import {OtpValidationScreen} from "../presentation/otp";
 
 export type TransferStackParamList = {
   TransferMain: undefined;
   TransferReview: TransferReviewRouteParams;
+    OtpValidationTransfer:OtpValidationParams
 };
 
 const Stack = createNativeStackNavigator<TransferStackParamList>();
@@ -20,6 +23,7 @@ export function TransferStackNavigator() {
       }}>
       <Stack.Screen name="TransferMain" component={TransferScreen} />
       <Stack.Screen name="TransferReview" component={TransferReviewScreen} />
+        <Stack.Screen name="OtpValidationTransfer" component={OtpValidationScreen} />
     </Stack.Navigator>
   );
 }

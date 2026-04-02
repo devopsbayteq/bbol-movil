@@ -24,7 +24,7 @@ import {
   OrSeparator,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
-import {RootStackParamList} from "../../navigation/LoginStackNavigation.tsx";
+import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
 
 
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');

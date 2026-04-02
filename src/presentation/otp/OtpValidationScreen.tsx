@@ -23,8 +23,7 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
-import {FIGMA_OTP_ASSETS} from './figmaOtpAssets';
-import {RootStackParamList} from "../../navigation/LoginStackNavigation.tsx";
+import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
 import {TransferStackParamList} from "../../navigation/TransferStackNavigator.tsx";
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
@@ -45,7 +44,6 @@ interface OTPScreenComponentProps {
     navigation: OTPScreenNavigationProp;
     route: OTPScreenRouteProp;
 }
-const INSTRUCTION_COLOR = '#3E494B';
 
 export function OtpValidationScreen({route}: OTPScreenComponentProps) {
 
@@ -55,7 +53,6 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList|TransferStackParamList>>();
   const {login} = useAuth();
   const params = route.params;
-  const email = params.email;
 
   const {
     code,

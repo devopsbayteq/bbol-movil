@@ -37,6 +37,7 @@ export type TransferReviewViewModelOptions = {
 };
 
 export function useTransferReviewViewModel(
+    navigateOtp:()=>void,
   options?: TransferReviewViewModelOptions,
 ) {
   const {onTransferSuccess} = options ?? {};

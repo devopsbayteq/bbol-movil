@@ -8,55 +8,55 @@
 
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-BBApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-BBApp.a */; };
+		0E1525F3AFEB477D84495C3C /* clock-rotate-left-selected.png in Resources */ = {isa = PBXBuildFile; fileRef = 6DEB99B0A14D4CA59D89B907 /* clock-rotate-left-selected.png */; };
+		1066E7564ACB471C9DF0283E /* Lexend_700Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B4C6361218A14F289A1C5104 /* Lexend_700Bold.ttf */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
-		7A1025B293545A622CB8B701 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B2C3D4E52F60718293A4B5C8 /* TlsPinningIOS.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */; };
-		B0AE8A6AD20C433DB7757608 /* arrow-left.png in Resources */ = {isa = PBXBuildFile; fileRef = B7AE40E612804E9CA4931621 /* arrow-left.png */; };
-		A9ABFDE55246474BAED89D57 /* BBBanner.png in Resources */ = {isa = PBXBuildFile; fileRef = 584B400705B54945A172EE84 /* BBBanner.png */; };
-		E83F80C9E0BE4F92870F8280 /* fingerprint.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CC43D6A0744B9E907D17B8 /* fingerprint.png */; };
+		14D2D774BFA34C82AF62E255 /* ArrowUpArrowDown.png in Resources */ = {isa = PBXBuildFile; fileRef = 05A094A1EE264E21BD205ED2 /* ArrowUpArrowDown.png */; };
+		2BAE77CA7E1A4EB68B45BB37 /* clock-rotate-left.png in Resources */ = {isa = PBXBuildFile; fileRef = 7BD67774528840A7B5E60BC7 /* clock-rotate-left.png */; };
+		37D2B6B7FF694059979E4F80 /* ArrowUpArrowDownSelected.png in Resources */ = {isa = PBXBuildFile; fileRef = E1917A570AF84B8387EA0DD7 /* ArrowUpArrowDownSelected.png */; };
+		3FCB4E8222D64BE4AAD8AD79 /* BBIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = C9CA862F9FF04685A218E89E /* BBIcon.png */; };
 		4E8FC2D2B2554F31B1113BE3 /* lock-keyhole-open.png in Resources */ = {isa = PBXBuildFile; fileRef = 2372A473A54A4B5FB07B8E56 /* lock-keyhole-open.png */; };
 		5640DD6434604F5EAC934B9F /* Lexend_400Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB6586417B774C5D94131ED5 /* Lexend_400Regular.ttf */; };
 		571E9576CB214B85B406A343 /* Lexend_600SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1F6AE642B4241DF908739B7 /* Lexend_600SemiBold.ttf */; };
-		1066E7564ACB471C9DF0283E /* Lexend_700Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B4C6361218A14F289A1C5104 /* Lexend_700Bold.ttf */; };
-		14D2D774BFA34C82AF62E255 /* ArrowUpArrowDown.png in Resources */ = {isa = PBXBuildFile; fileRef = 05A094A1EE264E21BD205ED2 /* ArrowUpArrowDown.png */; };
-		37D2B6B7FF694059979E4F80 /* ArrowUpArrowDownSelected.png in Resources */ = {isa = PBXBuildFile; fileRef = E1917A570AF84B8387EA0DD7 /* ArrowUpArrowDownSelected.png */; };
-		3FCB4E8222D64BE4AAD8AD79 /* BBIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = C9CA862F9FF04685A218E89E /* BBIcon.png */; };
-		0E1525F3AFEB477D84495C3C /* clock-rotate-left-selected.png in Resources */ = {isa = PBXBuildFile; fileRef = 6DEB99B0A14D4CA59D89B907 /* clock-rotate-left-selected.png */; };
-		2BAE77CA7E1A4EB68B45BB37 /* clock-rotate-left.png in Resources */ = {isa = PBXBuildFile; fileRef = 7BD67774528840A7B5E60BC7 /* clock-rotate-left.png */; };
-		F0037803E8A84F37819E477B /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 83794E6891374E2E91A4E764 /* delete.png */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		7A1025B293545A622CB8B701 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A9ABFDE55246474BAED89D57 /* BBBanner.png in Resources */ = {isa = PBXBuildFile; fileRef = 584B400705B54945A172EE84 /* BBBanner.png */; };
+		B0AE8A6AD20C433DB7757608 /* arrow-left.png in Resources */ = {isa = PBXBuildFile; fileRef = B7AE40E612804E9CA4931621 /* arrow-left.png */; };
+		B2C3D4E52F60718293A4B5C8 /* TlsPinningIOS.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */; };
 		DB700AC4D1DD440989491F0A /* Home.png in Resources */ = {isa = PBXBuildFile; fileRef = 939019A49A844AE58ED4F34C /* Home.png */; };
 		E16EF85BA84447FCA7AA0DA5 /* house.png in Resources */ = {isa = PBXBuildFile; fileRef = 7D7CF1CBF3B341FEAE49CC52 /* house.png */; };
+		E83F80C9E0BE4F92870F8280 /* fingerprint.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CC43D6A0744B9E907D17B8 /* fingerprint.png */; };
+		F0037803E8A84F37819E477B /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 83794E6891374E2E91A4E764 /* delete.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		05A094A1EE264E21BD205ED2 /* ArrowUpArrowDown.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ArrowUpArrowDown.png; path = ../assets/images/ArrowUpArrowDown.png; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* BBApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BBApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BBApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BBApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = BBApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2372A473A54A4B5FB07B8E56 /* lock-keyhole-open.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "lock-keyhole-open.png"; path = "../assets/images/lock-keyhole-open.png"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-BBApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BBApp.debug.xcconfig"; path = "Target Support Files/Pods-BBApp/Pods-BBApp.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-BBApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BBApp.release.xcconfig"; path = "Target Support Files/Pods-BBApp/Pods-BBApp.release.xcconfig"; sourceTree = "<group>"; };
+		584B400705B54945A172EE84 /* BBBanner.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = BBBanner.png; path = ../assets/images/BBBanner.png; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-BBApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BBApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DEB99B0A14D4CA59D89B907 /* clock-rotate-left-selected.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "clock-rotate-left-selected.png"; path = "../assets/images/clock-rotate-left-selected.png"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = BBApp/AppDelegate.swift; sourceTree = "<group>"; };
+		7BD67774528840A7B5E60BC7 /* clock-rotate-left.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "clock-rotate-left.png"; path = "../assets/images/clock-rotate-left.png"; sourceTree = "<group>"; };
+		7D7CF1CBF3B341FEAE49CC52 /* house.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = house.png; path = ../assets/images/house.png; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BBApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		83794E6891374E2E91A4E764 /* delete.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = delete.png; path = ../assets/images/delete.png; sourceTree = "<group>"; };
+		939019A49A844AE58ED4F34C /* Home.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Home.png; path = ../assets/images/Home.png; sourceTree = "<group>"; };
 		B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = TlsPinningIOS.m; path = BBApp/TlsPinningIOS.m; sourceTree = "<group>"; };
+		B4C6361218A14F289A1C5104 /* Lexend_700Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_700Bold.ttf; path = ../assets/fonts/Lexend_700Bold.ttf; sourceTree = "<group>"; };
+		B7AE40E612804E9CA4931621 /* arrow-left.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "arrow-left.png"; path = "../assets/images/arrow-left.png"; sourceTree = "<group>"; };
+		BB6586417B774C5D94131ED5 /* Lexend_400Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_400Regular.ttf; path = ../assets/fonts/Lexend_400Regular.ttf; sourceTree = "<group>"; };
+		C1F6AE642B4241DF908739B7 /* Lexend_600SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_600SemiBold.ttf; path = ../assets/fonts/Lexend_600SemiBold.ttf; sourceTree = "<group>"; };
+		C9CA862F9FF04685A218E89E /* BBIcon.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = BBIcon.png; path = ../assets/images/BBIcon.png; sourceTree = "<group>"; };
+		E1917A570AF84B8387EA0DD7 /* ArrowUpArrowDownSelected.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ArrowUpArrowDownSelected.png; path = ../assets/images/ArrowUpArrowDownSelected.png; sourceTree = "<group>"; };
+		E5CC43D6A0744B9E907D17B8 /* fingerprint.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = fingerprint.png; path = ../assets/images/fingerprint.png; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		B7AE40E612804E9CA4931621 /* arrow-left.png */ = {isa = PBXFileReference; name = "arrow-left.png"; path = "../assets/images/arrow-left.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		584B400705B54945A172EE84 /* BBBanner.png */ = {isa = PBXFileReference; name = "BBBanner.png"; path = "../assets/images/BBBanner.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		E5CC43D6A0744B9E907D17B8 /* fingerprint.png */ = {isa = PBXFileReference; name = "fingerprint.png"; path = "../assets/images/fingerprint.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		2372A473A54A4B5FB07B8E56 /* lock-keyhole-open.png */ = {isa = PBXFileReference; name = "lock-keyhole-open.png"; path = "../assets/images/lock-keyhole-open.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		BB6586417B774C5D94131ED5 /* Lexend_400Regular.ttf */ = {isa = PBXFileReference; name = "Lexend_400Regular.ttf"; path = "../assets/fonts/Lexend_400Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		C1F6AE642B4241DF908739B7 /* Lexend_600SemiBold.ttf */ = {isa = PBXFileReference; name = "Lexend_600SemiBold.ttf"; path = "../assets/fonts/Lexend_600SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		B4C6361218A14F289A1C5104 /* Lexend_700Bold.ttf */ = {isa = PBXFileReference; name = "Lexend_700Bold.ttf"; path = "../assets/fonts/Lexend_700Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		05A094A1EE264E21BD205ED2 /* ArrowUpArrowDown.png */ = {isa = PBXFileReference; name = "ArrowUpArrowDown.png"; path = "../assets/images/ArrowUpArrowDown.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		E1917A570AF84B8387EA0DD7 /* ArrowUpArrowDownSelected.png */ = {isa = PBXFileReference; name = "ArrowUpArrowDownSelected.png"; path = "../assets/images/ArrowUpArrowDownSelected.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		C9CA862F9FF04685A218E89E /* BBIcon.png */ = {isa = PBXFileReference; name = "BBIcon.png"; path = "../assets/images/BBIcon.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		6DEB99B0A14D4CA59D89B907 /* clock-rotate-left-selected.png */ = {isa = PBXFileReference; name = "clock-rotate-left-selected.png"; path = "../assets/images/clock-rotate-left-selected.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		7BD67774528840A7B5E60BC7 /* clock-rotate-left.png */ = {isa = PBXFileReference; name = "clock-rotate-left.png"; path = "../assets/images/clock-rotate-left.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		83794E6891374E2E91A4E764 /* delete.png */ = {isa = PBXFileReference; name = "delete.png"; path = "../assets/images/delete.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		939019A49A844AE58ED4F34C /* Home.png */ = {isa = PBXFileReference; name = "Home.png"; path = "../assets/images/Home.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		7D7CF1CBF3B341FEAE49CC52 /* house.png */ = {isa = PBXFileReference; name = "house.png"; path = "../assets/images/house.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
