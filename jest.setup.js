@@ -42,14 +42,3 @@ jest.mock('react-native-keychain', () => ({
   AUTHENTICATION_TYPE: {BIOMETRICS: 'AuthenticationWithBiometrics'},
 }));
 
-jest.mock('react-native-rsa-native', () => ({
-  RSA: {
-    generateKeys: jest.fn(() =>
-      Promise.resolve({
-        public: '-----BEGIN PUBLIC KEY-----\nM\n-----END PUBLIC KEY-----',
-        private: '-----BEGIN RSA PRIVATE KEY-----\nP\n-----END RSA PRIVATE KEY-----',
-      }),
-    ),
-    signWithAlgorithm: jest.fn(() => Promise.resolve('signed-b64')),
-  },
-}));

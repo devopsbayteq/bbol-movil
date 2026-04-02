@@ -1,11 +1,8 @@
 import {Buffer} from 'buffer';
-import {RSA} from 'react-native-rsa-native';
+import crypto from 'react-native-quick-crypto';
 import {BiometricRSAError} from './errors';
 
 const RSA_KEY_BITS = 2048;
-
-/** Firma RSA-SHA256; mismo esquema que expone react-native-rsa-native. */
-const SIGN_ALGORITHM = 'SHA256withRSA' as const;
 
 export interface RsaKeyPairPem {
   readonly publicKeyPem: string;
@@ -13,8 +10,8 @@ export interface RsaKeyPairPem {
 }
 
 /**
- * RSA vía react-native-rsa-native: generación, exportación de pública en Base64 (UTF-8 PEM → Base64),
- * firma de challenge.
+ * RSA 2048 (SPKI / PKCS#8 PEM) y firma RSASSA-PKCS1-v1_5 + SHA-256 vía react-native-quick-crypto
+ * (OpenSSL), sustituyendo react-native-rsa-native (Android deprecado).
  */
 export class CryptoService {
   private memoryPrivatePem: string | null = null;
@@ -22,12 +19,20 @@ export class CryptoService {
 
   async generateKeyPair(): Promise<RsaKeyPairPem> {
     try {
-      const pair = await RSA.generateKeys(RSA_KEY_BITS);
-      this.memoryPrivatePem = pair.private;
-      this.memoryPublicPem = pair.public;
+      const {publicKey, privateKey} = crypto.generateKeyPairSync('rsa', {
+        modulusLength: RSA_KEY_BITS,
+        publicExponent: 0x10001,
+        publicKeyEncoding: {type: 'spki', format: 'pem'},
+        privateKeyEncoding: {type: 'pkcs8', format: 'pem'},
+      });
+      if (typeof publicKey !== 'string' || typeof privateKey !== 'string') {
+        throw new Error('Claves RSA no devueltas en PEM');
+      }
+      this.memoryPrivatePem = privateKey;
+      this.memoryPublicPem = publicKey;
       return {
-        publicKeyPem: pair.public,
-        privateKeyPem: pair.private,
+        publicKeyPem: publicKey,
+        privateKeyPem: privateKey,
       };
     } catch (e) {
       throw new BiometricRSAError(
@@ -56,18 +61,20 @@ export class CryptoService {
   }
 
   /**
-   * Firma el challenge (UTF-8) con la clave privada PEM.
+   * Firma el challenge (UTF-8) con la clave privada PEM (PKCS#8).
+   * Salida Base64 del binario de la firma (equivalente a SHA256withRSA del API Java).
    */
   async signChallenge(
     challenge: string,
     privateKeyPem: string,
   ): Promise<string> {
     try {
-      return await RSA.signWithAlgorithm(
-        challenge,
+      const signature = crypto.sign(
+        'sha256',
+        Buffer.from(challenge, 'utf8'),
         privateKeyPem,
-        SIGN_ALGORITHM,
       );
+      return Buffer.from(signature).toString('base64');
     } catch (e) {
       throw new BiometricRSAError(
         'No se pudo firmar el challenge',
