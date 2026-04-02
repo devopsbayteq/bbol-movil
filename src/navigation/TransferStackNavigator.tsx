@@ -9,7 +9,7 @@ import {OtpValidationScreen} from "../presentation/otp";
 export type TransferStackParamList = {
   TransferMain: undefined;
   TransferReview: TransferReviewRouteParams;
-    OtpValidationTransfer:OtpValidationParams
+  OtpValidationTransfer:OtpValidationParams
 };
 
 const Stack = createNativeStackNavigator<TransferStackParamList>();

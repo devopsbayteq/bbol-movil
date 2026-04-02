@@ -9,7 +9,7 @@ import {User} from '../domain/entities/User';
 
 export type OtpValidationParams =
   | {mode: 'login'; user: User; email: string}
-  | {mode: 'transfer'; email: string};
+  | {mode: 'transfer'; email: string,onClose: (isSuccess: boolean) => void;};
 
 export type RootStackParamList = {
   CertificateHandshake: undefined;

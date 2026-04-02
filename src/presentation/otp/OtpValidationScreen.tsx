@@ -66,7 +66,8 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
         return;
       }
       if (params.mode === 'transfer') {
-        navigation.goBack();
+           params.onClose(true)
+          navigation.goBack();
       }
   });
 

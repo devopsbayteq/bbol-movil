@@ -1,15 +1,13 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
-  useNavigation,
   useRoute,
   type RouteProp,
-  CommonActions,
+
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 import {useDI} from '../../../di';
 import {useAuth} from '../../../providers';
-import type {RootStackParamList} from '../../../navigation/AppNavigator';
+
 
 function formatReviewDate(date: Date): string {
   const day = date.getDate();
@@ -113,17 +111,9 @@ export function useTransferReviewViewModel(
         });
         onTransferSuccess?.(execution.transactionIdentifier);
         return;
+      }else {
+        navigateOtp()
       }
-
-      // navigation.dispatch(
-      //   CommonActions.navigate({
-      //     name: 'OtpValidation',
-      //     params: {
-      //       mode: 'transfer',
-      //       email,
-      //     } satisfies RootStackParamList['OtpValidation'],
-      //   }),
-      // );
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'No se pudo validar el monto.';
@@ -132,6 +122,7 @@ export function useTransferReviewViewModel(
       setConfirmLoading(false);
     }
   }, [
+      navigateOtp,
     accountId,
     amountCents,
     beneficiary.id,
