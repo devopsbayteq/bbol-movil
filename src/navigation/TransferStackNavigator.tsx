@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {TransferScreen} from '../presentation/transfer/TransferScreen';
@@ -19,19 +19,16 @@ const Stack = createNativeStackNavigator<TransferStackParamList>();
 
 export function TransferStackNavigator() {
 
-    const navigation =
-        useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+    const [key, setKey] = useState(0);
 
     useFocusEffect(
         useCallback(() => {
-            navigation.navigate('Transfer', {
-                screen: 'TransferMain',
-            });
-        }, [navigation])
+            setKey(prev => prev + 1);
+        }, [])
     );
-
     return (
     <Stack.Navigator
+        key={key}
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',

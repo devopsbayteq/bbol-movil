@@ -25,7 +25,8 @@ import {
 } from '../components';
 import {FIGMA_LOGIN_ASSETS} from './figmaLoginAssets';
 import {Lexend} from '../../theme/lexend';
-import {RootStackParamList} from '../../navigation/AppNavigator';
+import {RootStackParamList} from "../../navigation/LoginStackNavigation.tsx";
+
 
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();

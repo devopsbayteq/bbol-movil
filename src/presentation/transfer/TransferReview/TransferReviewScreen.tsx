@@ -19,13 +19,13 @@ import {useTheme, type ThemeColors} from '../../../providers';
 import {Lexend} from '../../../theme/lexend';
 import {ErrorMessage} from '../../components';
 import {
-  TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowRightWhite,
   TransferIconUser,
   TransferIconWallet,
 } from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
+import {ToolbarApp} from "../../components/ToolbarApp.tsx";
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -81,17 +81,12 @@ export function TransferReviewScreen() {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.header, {paddingTop: insets.top}]}>
-        <TouchableOpacity
-          onPress={()=>{navigation.goBack()}}
-          style={styles.backBtn}
-          accessibilityRole="button"
-          accessibilityLabel="Volver">
-          <TransferIconArrowLeft color={colors.iconPrimary} size={20} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>REVISAR TRANSFERENCIA</Text>
-        <View style={styles.headerRightSpacer} />
-      </View>
+      <ToolbarApp
+          title={"REVISAR TRANSFERENCIA"}
+          backPress={()=> {
+          navigation.goBack()
+      }
+      }/>
 
       <ScrollView
         style={styles.scroll}
@@ -215,31 +210,6 @@ function useStyles(colors: ThemeColors) {
         root: {
           flex: 1,
           backgroundColor: colors.background,
-        },
-        header: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          minHeight: 64,
-          paddingHorizontal: 16,
-          backgroundColor: colors.white,
-        },
-        backBtn: {
-          width: 44,
-          height: 44,
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-        },
-        headerTitle: {
-          flex: 1,
-          textAlign: 'center',
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-          color: colors.textPrimary,
-        },
-        headerRightSpacer: {
-          width: 44,
         },
         scroll: {
           flex: 1,

@@ -23,7 +23,6 @@ import type {TransferStackParamList} from '../../navigation/TransferStackNavigat
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {TransferWatermark} from './components/TransferWatermark';
 import {
-  TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowUp,
   TransferIconClose,
@@ -35,6 +34,7 @@ import {useTransferViewModel} from './useTransferViewModel';
 import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
+import {ToolbarApp} from "../components/ToolbarApp.tsx";
 
 const ZERO_DISPLAY = formatMoneyEc(0);
 
@@ -53,7 +53,7 @@ export function TransferScreen() {
 
   const {selectBeneficiary} = transferViewModel;
 
-  const [beneficiaryModalVisible, setBeneficiaryModalVisible] = useState(false);
+  const [beneficiarySelectorVisible, setBeneficiarySelectorVisible] = useState(false);
 
 
   const holderName = transferViewModel.user?.name?.trim() || 'Titular';
@@ -70,17 +70,11 @@ export function TransferScreen() {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.header, {paddingTop: insets.top}]}>
-        <TouchableOpacity
-          onPress={onBack}
-          style={styles.backBtn}
-          accessibilityRole="button"
-          accessibilityLabel="Volver al inicio">
-          <TransferIconArrowLeft color={colors.iconPrimary} size={20} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>TRANSFERIR</Text>
-        <View style={styles.headerRightSpacer} />
-      </View>
+        <ToolbarApp
+            title={"TRANSFERIR"}
+            backPress={()=>{
+            onBack()
+        }}/>
 
       {transferViewModel.error ? (
         <View style={styles.errorBanner}>
@@ -107,6 +101,7 @@ export function TransferScreen() {
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
+
           <View style={styles.hero}>
             <TransferWatermark />
             <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
@@ -128,7 +123,7 @@ export function TransferScreen() {
 
             <TouchableOpacity
               style={styles.card}
-              onPress={() => setBeneficiaryModalVisible(true)}
+              onPress={() => setBeneficiarySelectorVisible(true)}
               activeOpacity={0.9}>
               <View style={styles.iconChip}>
                 <TransferIconUser color={HERO_BG} size={16} />
@@ -298,11 +293,11 @@ export function TransferScreen() {
       </Modal>
 
       <BeneficiarySelectModal
-        visible={beneficiaryModalVisible}
-        onRequestClose={() => setBeneficiaryModalVisible(false)}
+        visible={beneficiarySelectorVisible}
+        onRequestClose={() => setBeneficiarySelectorVisible(false)}
         onSelect={b => {
           selectBeneficiary(b);
-          setBeneficiaryModalVisible(false);
+          setBeneficiarySelectorVisible(false);
         }}
       />
     </View>

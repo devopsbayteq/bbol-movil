@@ -11,18 +11,16 @@ import {
   Modal,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import {accountProductTitle} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import {
-  beneficiaryContactToTemplate,
   groupContactsByLetter,
   ownAccountToBeneficiary,
   templateToBeneficiary,
-  type ContactTemplate,
 } from '../transfer/beneficiaryData';
 import {useBeneficiaryContactsViewModel} from './useBeneficiaryContactsViewModel';
 import type {BeneficiaryOption} from '../transfer/transferTypes';
@@ -34,13 +32,14 @@ import {
   TransferIconWallet,
 } from '../transfer/transferIcons';
 import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
+import {BeneficiaryContact} from "../../domain/entities/BeneficiaryContact.ts";
 
 const HERO_BG = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
 
 type Section = {
   title: string;
-  data: ContactTemplate[];
+  data: BeneficiaryContact[];
 };
 
 export type BeneficiarySelectModalProps = {
@@ -69,18 +68,14 @@ export function BeneficiarySelectModal({
   } = useBeneficiaryContactsViewModel();
 
   const [query, setQuery] = useState('');
-  const [devNotice, setDevNotice] = useState<{
-    title: string;
-    message: string;
-  } | null>(null);
+  const [showDevNotice, setShowDevNotice] = useState<boolean>(false);
 
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
 
   const allContacts = useMemo(() => {
     return [...beneficiaryContacts]
-      .map(beneficiaryContactToTemplate)
       .sort((a, b) =>
-        a.name.localeCompare(b.name, 'es', {sensitivity: 'base'}),
+        a.contactName.localeCompare(b.contactName, 'es', {sensitivity: 'base'}),
       );
   }, [beneficiaryContacts]);
 
@@ -103,7 +98,7 @@ export function BeneficiarySelectModal({
     }
     return allContacts.filter(
       c =>
-        c.name.toLowerCase().includes(q) ||
+        c.contactName.toLowerCase().includes(q) ||
         c.bankName.toLowerCase().includes(q),
     );
   }, [allContacts, query]);
@@ -121,7 +116,7 @@ export function BeneficiarySelectModal({
     pickBeneficiary(ownAccountToBeneficiary(account));
   }
 
-  function onPickContact(t: ContactTemplate) {
+  function onPickContact(t: BeneficiaryContact) {
     pickBeneficiary(templateToBeneficiary(t));
   }
 
@@ -215,7 +210,7 @@ export function BeneficiarySelectModal({
     index,
     section,
   }: {
-    item: ContactTemplate;
+    item: BeneficiaryContact;
     index: number;
     section: Section;
   }) {
@@ -234,18 +229,15 @@ export function BeneficiarySelectModal({
           activeOpacity={0.85}>
           <View style={styles.contactTextCol}>
             <Text style={styles.contactName} numberOfLines={2}>
-              {item.name}
+              {item.contactName}
             </Text>
             <Text style={styles.contactBank}>{item.bankName}</Text>
-            <Text style={styles.contactHint}>{item.accountHint}</Text>
+            <Text style={styles.contactHint}>"Cta. ${item.accountType} • **** ${item.lastFourDigits}"</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            setDevNotice({
-              title: 'Próximamente',
-              message: 'Las opciones de contacto no están disponibles aún.',
-            })
+            setShowDevNotice(true)
           }
           hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
           <TransferIconEllipsisVertical color={colors.iconPrimary} size={16} />
@@ -282,7 +274,7 @@ export function BeneficiarySelectModal({
             {paddingBottom: Math.max(insets.bottom, 24) + 80},
           ]}
           sections={sections}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.beneficiaryGuid}
           renderItem={renderContactRow}
           renderSectionHeader={({section: {title}}) => (
             <Text style={styles.letterHeader}>{title}</Text>
@@ -315,21 +307,16 @@ export function BeneficiarySelectModal({
             {bottom: Math.max(insets.bottom, 16) + 8},
           ]}
           onPress={() =>
-            setDevNotice({
-              title: 'Próximamente',
-              message: 'Agregar contacto no está disponible aún.',
-            })
-          }
-          accessibilityRole="button"
-          accessibilityLabel="Agregar contacto">
+            setShowDevNotice(true)
+          }>
           <TransferIconUserPlus color={colors.white} size={22} />
         </TouchableOpacity>
 
         <DevelopmentNoticeModal
-          visible={devNotice !== null}
-          onClose={() => setDevNotice(null)}
-          title={devNotice?.title}
-          message={devNotice?.message}
+          visible={showDevNotice}
+          onClose={() => setShowDevNotice(false)}
+          title={"Próximamente"}
+          message={"Agregar contacto no está disponible aún."}
         />
       </View>
     );
