@@ -7,7 +7,6 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Platform,
-    Alert,
 } from 'react-native';
 import { useNavigation} from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
@@ -26,7 +25,10 @@ import {
 } from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from "../components/ToolbarApp.tsx";
-import {TransferModalSuccess} from "../components/TransferModalSuccess.tsx";
+import {
+    TransferModalSuccess,
+    type TransferDataResume,
+} from '../components/TransferModalSuccess';
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -42,28 +44,28 @@ export function TransferReviewScreen() {
     >();
 
 
-    const [showTransferSuccessModal, setTransferSuccessModal] = useState(false)
+    const [showTransferSuccessModal, setTransferSuccessModal] = useState(false);
+    const [successTransactionData, setSuccessTransactionData] =
+        useState<TransferDataResume | null>(null);
 
+    const resetTransferSuccessUi = useCallback(() => {
+        setTransferSuccessModal(false);
+        setSuccessTransactionData(null);
+    }, []);
+
+    const goToHomeTab = useCallback(() => {
+        navigation.popToTop();
+        const tabNav =
+            navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+        tabNav?.navigate('Home');
+    }, [navigation]);
 
     const onTransferSuccess = useCallback(
-        (transactionIdentifier: string) => {
-            Alert.alert(
-                'Transferencia exitosa',
-                `Identificador de transacción: ${transactionIdentifier}`,
-                [
-                    {
-                        text: 'Aceptar',
-                        onPress: () => {
-                            navigation.popToTop();
-                            const tabNav =
-                                navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-                            tabNav?.navigate('Home');
-                        },
-                    },
-                ],
-            );
+        (data: TransferDataResume) => {
+            setSuccessTransactionData(data);
+            setTransferSuccessModal(true);
         },
-        [navigation],
+        [],
     );
 
     const {
@@ -83,7 +85,7 @@ export function TransferReviewScreen() {
     } = useTransferReviewViewModel(() => {
         navigation.navigate(
             'OtpValidationTransfer', {
-                mode: 'transfer', email: "", onClose: (isValid: boolean) => {
+                mode: 'transfer', email: "", onClose: (_isValid: boolean) => {
 
                      console.log("volviste de otp")
                 }
@@ -190,7 +192,7 @@ export function TransferReviewScreen() {
                         ]}
                         onPress={() => {
                             setConfirmError(null);
-                            void onConfirm();
+                            onConfirm().catch(() => {});
                         }}
                         disabled={confirmLoading}
                         activeOpacity={0.9}
@@ -217,39 +219,25 @@ export function TransferReviewScreen() {
 
             </ScrollView>
 
-            <TransferModalSuccess
-                openVoucher={() => {
-                    navigation.navigate("TransferVoucher")
-                }}
-                transactionData={{
-                    accountId: "",
-                    fromHolderName: "holder",
-                    fromAccountLine: "Credito",
-                    transactionIdentifier: "12344556",
-                    displayAmount: "$10.00",
-                    concept: "Pago pendiente",
-                    amountCents: "10.00",
-                    beneficiary: {
-                        name: "Beneficiary",
-                        kind: 'contact',
-                        accountHint: "8****J",
-                        bankName: "Procredit",
-                        id: "dhhdeueu3737373336"
-                    }
-                }}
-                visible={showTransferSuccessModal}
-                onClose={() => {
-                    setTransferSuccessModal(false)
-                }}
-                navigateToTransfer={() => {
-                    setTransferSuccessModal(false)
-                    //navigation.pop()
-                }}
-                navigateToHome={() => {
-                    setTransferSuccessModal(false)
-                    //navigation.pop()
-                }}
-            />
+            {successTransactionData ? (
+                <TransferModalSuccess
+                    openVoucher={() => {
+                        resetTransferSuccessUi();
+                        navigation.navigate('TransferVoucher');
+                    }}
+                    transactionData={successTransactionData}
+                    visible={showTransferSuccessModal}
+                    onClose={resetTransferSuccessUi}
+                    navigateToTransfer={() => {
+                        resetTransferSuccessUi();
+                        navigation.popToTop();
+                    }}
+                    navigateToHome={() => {
+                        resetTransferSuccessUi();
+                        goToHomeTab();
+                    }}
+                />
+            ) : null}
         </View>
     );
 }

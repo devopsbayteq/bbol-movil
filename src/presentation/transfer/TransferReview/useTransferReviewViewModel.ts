@@ -7,6 +7,7 @@ import {
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 import {useDI} from '../../../di';
 import {useAuth} from '../../../providers';
+import type {TransferDataResume} from '../components/TransferModalSuccess';
 
 
 function formatReviewDate(date: Date): string {
@@ -31,7 +32,7 @@ function beneficiaryAccountLine(
 }
 
 export type TransferReviewViewModelOptions = {
-  onTransferSuccess?: (transactionIdentifier: string) => void;
+  onTransferSuccess?: (data: TransferDataResume) => void;
 };
 
 export function useTransferReviewViewModel(
@@ -109,7 +110,17 @@ export function useTransferReviewViewModel(
           accountGuid: accountId,
           concept: concept.trim(),
         });
-        onTransferSuccess?.(execution.transactionIdentifier);
+        const payload: TransferDataResume = {
+          amountCents: String(amountCents),
+          displayAmount,
+          beneficiary,
+          fromHolderName,
+          fromAccountLine,
+          accountId,
+          concept: concept.trim(),
+          transactionIdentifier: execution.transactionIdentifier,
+        };
+        onTransferSuccess?.(payload);
         return;
       }else {
         navigateOtp()
@@ -122,12 +133,14 @@ export function useTransferReviewViewModel(
       setConfirmLoading(false);
     }
   }, [
-      navigateOtp,
+    navigateOtp,
     accountId,
     amountCents,
-    beneficiary.id,
-    beneficiary.kind,
+    beneficiary,
     concept,
+    displayAmount,
+    fromAccountLine,
+    fromHolderName,
     user?.email,
     validateTransactionAmountUseCase,
     executeTransferUseCase,
