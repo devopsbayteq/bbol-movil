@@ -19,6 +19,7 @@ import {useTheme, type ThemeColors} from '../../../providers';
 import {Lexend} from '../../../theme/lexend';
 import {ErrorMessage} from '../../components';
 import {
+  TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowRightWhite,
   TransferIconUser,

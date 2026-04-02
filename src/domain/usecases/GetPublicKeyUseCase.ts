@@ -1,3 +1,4 @@
+import {normalizePemKeyMaterialBase64} from '../../security/certificate/rsaUtils';
 import {PublicKey} from '../entities/PublicKey';
 import {SecurityRepository} from '../repositories/SecurityRepository';
 import {SecureStorageService} from '../services/SecureStorageService';
@@ -15,7 +16,8 @@ export class GetPublicKeyUseCase {
     if (!trimmed) {
       throw new Error('La clave pública recibida no es válida');
     }
-    await this.secureStorage.save(this.storageKey, trimmed);
-    return {value: trimmed};
+    const pemBase64 = normalizePemKeyMaterialBase64(trimmed);
+    await this.secureStorage.save(this.storageKey, pemBase64);
+    return {value: pemBase64};
   }
 }

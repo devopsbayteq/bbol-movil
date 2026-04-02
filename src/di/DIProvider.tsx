@@ -1,10 +1,16 @@
-import React, {createContext, useContext, useMemo} from 'react';
+import React, {createContext, useContext, useEffect, useMemo} from 'react';
+import {ensureDeviceId} from '../data/bootstrap/ensureDeviceId';
 import {AppContainer, createContainer} from './container';
 
 const DIContext = createContext<AppContainer | undefined>(undefined);
 
 export function DIProvider({children}: {children: React.ReactNode}) {
   const container = useMemo(() => createContainer(), []);
+
+  useEffect(() => {
+    ensureDeviceId(container.secureStorageService).catch(() => {});
+  }, [container]);
+
   return <DIContext.Provider value={container}>{children}</DIContext.Provider>;
 }
 

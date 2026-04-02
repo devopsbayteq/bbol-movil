@@ -57,7 +57,6 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   const params = route.params;
   const email = params.email;
 
-
   const {
     code,
     error,

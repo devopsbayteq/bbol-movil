@@ -1,15 +1,17 @@
+import {v4 as uuidv4} from 'uuid';
 import {LoginUseCase} from '../domain/usecases/LoginUseCase';
 import {GetTransactionsUseCase} from '../domain/usecases/GetTransactionsUseCase';
+import {RunCertificateHandshakeUseCase} from '../domain/usecases/RunCertificateHandshakeUseCase';
 import {GetPublicKeyUseCase} from '../domain/usecases/GetPublicKeyUseCase';
 import {SecureStorageService} from '../domain/services/SecureStorageService';
 import {BiometricAuthService} from '../domain/services/BiometricAuthService';
 
+import {API_BASE_URL} from '../config/apiEnvironment';
 import {AxiosHttpClient} from '../data/api/apiClient';
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
 import {TransferRepositoryImpl} from '../data/repositories/TransferRepositoryImpl';
 import {SecurityRepositoryImpl} from '../data/repositories/SecurityRepositoryImpl';
-//import {MockAuthDataSource} from '../data/datasources/auth/MockAuthDataSource';
 import {AuthRemoteDataSource} from '../data/datasources/auth';
 import {SecurityRemoteDataSource} from '../data/datasources/security/SecurityRemoteDataSource';
 import {
@@ -19,8 +21,10 @@ import {
 import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
+import {createApiSecretKey} from '../security/http/apiSecretKey';
+import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../security/certificate/keys.constants';
 import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
-import {ValidateOtpUseCase} from "../domain/usecases/ValidateOtpUseCase.ts";
+import {ValidateOtpUseCase} from '../domain/usecases/ValidateOtpUseCase';
 import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
 import {GetBeneficiaryContactsUseCase} from '../domain/usecases/GetBeneficiaryContactsUseCase';
 import {ValidateTransactionAmountUseCase} from '../domain/usecases/ValidateTransactionAmountUseCase';
@@ -29,104 +33,138 @@ import {ContractBalanceRemoteDataSource} from '../data/datasources/contractBalan
 import {BeneficiaryRemoteDataSource} from '../data/datasources/beneficiary';
 import {ContractBalanceRepositoryImpl} from '../data/repositories/ContractBalanceRepositoryImpl';
 import {BeneficiaryRepositoryImpl} from '../data/repositories/BeneficiaryRepositoryImpl';
+import {BiometricRemoteDataSource} from '../data/datasources/biometric';
+import {
+  BiometricRSAAuthOrchestrator,
+  CryptoService,
+  BiometricKeyStorageService,
+} from '../security/biometric';
 
 export interface AppContainer {
-    loginUseCase: LoginUseCase;
-    getTransactionsUseCase: GetTransactionsUseCase;
-    getPublicKeyUseCase: GetPublicKeyUseCase;
-    secureStorageService: SecureStorageService;
-    biometricAuthService: BiometricAuthService;
-    authRemoteDataSource: AuthRemoteDataSource;
-    getUserLoggedUseCase: GetUserLoggedUseCase;
-    validateOtpUseCase: ValidateOtpUseCase;
-    getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
-    getBeneficiaryContactsUseCase: GetBeneficiaryContactsUseCase;
-    validateTransactionAmountUseCase: ValidateTransactionAmountUseCase;
-    executeTransferUseCase: ExecuteTransferUseCase;
+  loginUseCase: LoginUseCase;
+  getTransactionsUseCase: GetTransactionsUseCase;
+  runCertificateHandshakeUseCase: RunCertificateHandshakeUseCase;
+  getPublicKeyUseCase: GetPublicKeyUseCase;
+  secureStorageService: SecureStorageService;
+  biometricAuthService: BiometricAuthService;
+  authRemoteDataSource: AuthRemoteDataSource;
+  getUserLoggedUseCase: GetUserLoggedUseCase;
+  validateOtpUseCase: ValidateOtpUseCase;
+  getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
+  getBeneficiaryContactsUseCase: GetBeneficiaryContactsUseCase;
+  validateTransactionAmountUseCase: ValidateTransactionAmountUseCase;
+  executeTransferUseCase: ExecuteTransferUseCase;
+  biometricRSAAuthOrchestrator: BiometricRSAAuthOrchestrator;
 }
 
 export function createContainer(): AppContainer {
-    const secureStorageService = new SecureStorageServiceImpl();
-    const httpClient = new AxiosHttpClient(
-        'https://dev4.bayteq.com:50112/api/v1/',
-        secureStorageService,
-        SecureStorageKeys.AUTH_TOKEN,
-    );
-    const biometricAuthService = new BiometricAuthServiceImpl();
+  const secureStorageService = new SecureStorageServiceImpl();
+  const secretKey = createApiSecretKey();
+  const requestId = uuidv4();
 
-    //const mockAuthDataSource = new MockAuthDataSource();
-    const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
-    const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
-    const contractBalanceRemoteDataSource = new ContractBalanceRemoteDataSource(
-        httpClient,
-    );
-    const beneficiaryRemoteDataSource = new BeneficiaryRemoteDataSource(
-        httpClient,
-    );
-    const transferRemoteDataSource = new TransferRemoteDataSource(httpClient);
-    const transactionDataSource = new MockTransactionDataSource();
+  const httpClient = new AxiosHttpClient({
+    baseURL: API_BASE_URL,
+    secretKey,
+    requestId,
+    secureStorage: secureStorageService,
+    serverPublicPemBase64: SERVER_PUBLIC_KEY_PEM_BASE64,
+    getDeviceState: () => 'unknown',
+  });
 
-    const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
-    const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
-    const contractBalanceRepository = new ContractBalanceRepositoryImpl(
-        contractBalanceRemoteDataSource,
-    );
-    const beneficiaryRepository = new BeneficiaryRepositoryImpl(
-        beneficiaryRemoteDataSource,
-    );
-    const transactionRepository = new TransactionRepositoryImpl(
-        transactionDataSource,
-    );
-    const transferRepository = new TransferRepositoryImpl(transferRemoteDataSource);
+  const biometricAuthService = new BiometricAuthServiceImpl();
+  const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
+  const securityRemoteDataSource = new SecurityRemoteDataSource(httpClient);
+  const contractBalanceRemoteDataSource = new ContractBalanceRemoteDataSource(
+    httpClient,
+  );
+  const beneficiaryRemoteDataSource = new BeneficiaryRemoteDataSource(
+    httpClient,
+  );
+  const transferRemoteDataSource = new TransferRemoteDataSource(httpClient);
+  const biometricRemoteDataSource = new BiometricRemoteDataSource(httpClient);
+  const transactionDataSource = new MockTransactionDataSource();
 
-    const loginUseCase = new LoginUseCase(
-        authRepository,
-        secureStorageService,
-        SecureStorageKeys.USER_LOGIN_DATA,
-    );
+  const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
+  const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
+  const contractBalanceRepository = new ContractBalanceRepositoryImpl(
+    contractBalanceRemoteDataSource,
+  );
+  const beneficiaryRepository = new BeneficiaryRepositoryImpl(
+    beneficiaryRemoteDataSource,
+  );
+  const transactionRepository = new TransactionRepositoryImpl(
+    transactionDataSource,
+  );
+  const transferRepository = new TransferRepositoryImpl(transferRemoteDataSource);
 
-    const getUserLoggedUseCase = new GetUserLoggedUseCase(
-        secureStorageService,
-        SecureStorageKeys.USER_LOGIN_DATA,
-    );
+  const getPublicKeyUseCase = new GetPublicKeyUseCase(
+    securityRepository,
+    secureStorageService,
+    SecureStorageKeys.SERVER_PUBLIC_KEY,
+  );
 
-    const getTransactionsUseCase = new GetTransactionsUseCase(
-        transactionRepository,
-    );
-    const getPublicKeyUseCase = new GetPublicKeyUseCase(
-        securityRepository,
-        secureStorageService,
-        SecureStorageKeys.SERVER_PUBLIC_KEY,
-    );
+  const loginUseCase = new LoginUseCase(
+    authRepository,
+    secureStorageService,
+    SecureStorageKeys.USER_LOGIN_DATA,
+    getPublicKeyUseCase,
+    SecureStorageKeys.AUTH_TOKEN,
+  );
 
-    const validateOtpUseCase = new ValidateOtpUseCase(securityRepository);
+  const getUserLoggedUseCase = new GetUserLoggedUseCase(
+    secureStorageService,
+    SecureStorageKeys.USER_LOGIN_DATA,
+  );
 
-    const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
-        contractBalanceRepository,
-    );
+  const getTransactionsUseCase = new GetTransactionsUseCase(
+    transactionRepository,
+  );
 
-    const getBeneficiaryContactsUseCase = new GetBeneficiaryContactsUseCase(
-        beneficiaryRepository,
-    );
+  const cryptoService = new CryptoService();
+  const biometricKeyStorageService = new BiometricKeyStorageService();
+  const biometricRSAAuthOrchestrator = new BiometricRSAAuthOrchestrator(
+    biometricRemoteDataSource,
+    cryptoService,
+    biometricKeyStorageService,
+    secureStorageService,
+    getPublicKeyUseCase,
+    SecureStorageKeys.SERVER_PUBLIC_KEY,
+  );
 
-    const validateTransactionAmountUseCase = new ValidateTransactionAmountUseCase(
-        securityRepository,
-    );
+  const validateOtpUseCase = new ValidateOtpUseCase(securityRepository);
 
-    const executeTransferUseCase = new ExecuteTransferUseCase(transferRepository);
+  const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
+    contractBalanceRepository,
+  );
 
-    return {
-        loginUseCase,
-        getTransactionsUseCase,
-        getPublicKeyUseCase,
-        secureStorageService,
-        biometricAuthService,
-        authRemoteDataSource,
-        getUserLoggedUseCase,
-        validateOtpUseCase,
-        getHomeContractBalanceUseCase,
-        getBeneficiaryContactsUseCase,
-        validateTransactionAmountUseCase,
-        executeTransferUseCase,
-    };
+  const getBeneficiaryContactsUseCase = new GetBeneficiaryContactsUseCase(
+    beneficiaryRepository,
+  );
+
+  const runCertificateHandshakeUseCase = new RunCertificateHandshakeUseCase(
+    securityRemoteDataSource,
+  );
+
+  const validateTransactionAmountUseCase = new ValidateTransactionAmountUseCase(
+    securityRepository,
+  );
+
+  const executeTransferUseCase = new ExecuteTransferUseCase(transferRepository);
+
+  return {
+    loginUseCase,
+    getTransactionsUseCase,
+    runCertificateHandshakeUseCase,
+    getPublicKeyUseCase,
+    secureStorageService,
+    biometricAuthService,
+    authRemoteDataSource,
+    getUserLoggedUseCase,
+    validateOtpUseCase,
+    getHomeContractBalanceUseCase,
+    getBeneficiaryContactsUseCase,
+    validateTransactionAmountUseCase,
+    executeTransferUseCase,
+    biometricRSAAuthOrchestrator,
+  };
 }

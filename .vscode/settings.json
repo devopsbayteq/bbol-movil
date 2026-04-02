@@ -1,0 +1,6 @@
+{
+  "react-native.packager.port": 8081,
+  "debug.javascript.usePreview": true,
+  "javascript.debug.usePreview": true,
+  "react-native.ios.runArguments.simulator": ["--simulator", "iPhone 16"]
+}

@@ -6,8 +6,15 @@ import {mapLoginResponseToUser} from '../mappers/UserMapper';
 export class AuthRepositoryImpl implements AuthRepository {
   constructor(private readonly dataSource: AuthDataSource) {}
 
-  async login(email: string, password: string): Promise<User> {
-    const response = await this.dataSource.login({username: email, password});
-    return mapLoginResponseToUser(response, email);
+  async login(
+    plainEmail: string,
+    encryptedUsername: string,
+    encryptedPassword: string,
+  ): Promise<User> {
+    const response = await this.dataSource.login({
+      username: encryptedUsername,
+      password: encryptedPassword,
+    });
+    return mapLoginResponseToUser(response, plainEmail);
   }
 }

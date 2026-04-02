@@ -13,6 +13,7 @@ const MOCK_USER_RESPONSE: LoginResponseModel = {
 
 const SIMULATED_DELAY_MS = 1500;
 
+/** Credenciales en texto plano; no coincide con el flujo real que usa `LoginUseCase` + cifrado RSA. */
 export class MockAuthDataSource implements AuthDataSource {
   async login(request: LoginRequestModel): Promise<LoginResponseModel> {
     return new Promise((resolve, reject) => {

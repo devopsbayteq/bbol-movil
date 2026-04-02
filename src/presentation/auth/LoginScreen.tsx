@@ -39,11 +39,13 @@ export function LoginScreen() {
     password,
     isLoadingLogin,
     isLoadingBiometric,
+    isLoadingRegisterBiometric,
     isBusy,
     error,
     setEmail,
     setPassword,
     handleLogin,
+    handleRegisterBiometric,
     handleBiometricLogin,
   } = useLoginViewModel(async user => {
     navigation.navigate('OtpValidation', {
@@ -128,6 +130,13 @@ export function LoginScreen() {
               loading={isLoadingLogin}
               disabled={isBusy}
               variant="loginPrimary"
+            />
+            <Button
+              title="Activar biometría"
+              onPress={handleRegisterBiometric}
+              loading={isLoadingRegisterBiometric}
+              disabled={isBusy}
+              variant="outline"
             />
             <OrSeparator />
             <SecondaryIconButton

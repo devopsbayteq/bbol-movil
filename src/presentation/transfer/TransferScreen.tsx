@@ -23,6 +23,7 @@ import type {TransferStackParamList} from '../../navigation/TransferStackNavigat
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {TransferWatermark} from './components/TransferWatermark';
 import {
+  TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowUp,
   TransferIconClose,
@@ -101,7 +102,6 @@ export function TransferScreen() {
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-
           <View style={styles.hero}>
             <TransferWatermark />
             <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
@@ -170,7 +170,7 @@ export function TransferScreen() {
                 <View style={styles.cardChevronSpacer} />
               )}
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={styles.card}
               onPress={() => setBeneficiarySelectorVisible(true)}
