@@ -1,6 +1,6 @@
-import {Modal, Text, StyleSheet, View} from "react-native";
+import {Modal, Text, StyleSheet, View, Image} from "react-native";
 import {ThemeColors, useTheme} from "../../../providers";
-import {useMemo} from "react";
+import React, {useMemo} from "react";
 import {Button, TertiaryLinkButton} from "../../components";
 import {CardAccountItem} from "./CardAccountItem.tsx";
 import {TransferIconUser} from "../transferIcons.tsx";
@@ -47,7 +47,14 @@ export const TransferModalSuccess = ({
             <View style={styles.rootScreen}>
                 <View style={styles.cardInfoContainer}>
                     <View style={styles.containerInfo}>
-                        <TransferIconUser color={colors.primary}/>
+
+                        <Image
+                            source={require("../../../../assets/images/circle-check.png")}
+                            style={styles.logo}
+                            resizeMode="cover"
+                            accessibilityLabel="Banco Bolivariano"
+                        />
+
                         <Text>¡Transferencia exitosa!</Text>
                         <Text>{transactionData.displayAmount}</Text>
                         <Text>Comprobante:{transactionData.transactionIdentifier}</Text>
@@ -77,6 +84,10 @@ function useStyles(colors: ThemeColors) {
     return useMemo(
         () =>
             StyleSheet.create({
+                logo:{
+                    height:50,
+                    width:50
+                },
                 rootScreen: {
                     backgroundColor: colors.background
                 },
