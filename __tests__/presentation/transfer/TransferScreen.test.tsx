@@ -3,6 +3,45 @@ import ReactTestRenderer, {act} from 'react-test-renderer';
 import {ActivityIndicator, TouchableOpacity} from 'react-native';
 import {TransferScreen} from '../../../src/presentation/transfer/TransferScreen';
 
+// ── Módulos nativos ──────────────────────────────────────────────────────────
+jest.mock('react-native-encrypted-storage', () => ({
+  __esModule: true,
+  default: {
+    setItem: jest.fn(() => Promise.resolve()),
+    getItem: jest.fn(() => Promise.resolve(null)),
+    removeItem: jest.fn(() => Promise.resolve()),
+    clear: jest.fn(() => Promise.resolve()),
+  },
+}));
+
+jest.mock('react-native-biometrics', () =>
+  jest.fn().mockImplementation(() => ({
+    isSensorAvailable: jest.fn(() => Promise.resolve({available: false})),
+    simplePrompt: jest.fn(),
+    createKeys: jest.fn(),
+    deleteKeys: jest.fn(),
+  })),
+);
+
+// ── Hooks usados por BeneficiarySelectModal ───────────────────────────────────
+jest.mock('../../../src/presentation/home/useHomeViewModel', () => ({
+  useHomeViewModel: () => ({
+    data: {accounts: [], creditCards: [], loans: [], investments: [], frequentPayments: []},
+    isLoading: false,
+    error: null,
+    retry: jest.fn(),
+  }),
+}));
+
+jest.mock('../../../src/presentation/beneficiary/useBeneficiaryContactsViewModel', () => ({
+  useBeneficiaryContactsViewModel: () => ({
+    contacts: [],
+    isLoading: false,
+    error: null,
+    retry: jest.fn(),
+  }),
+}));
+
 function findAncestorWithOnPress(
   start: ReactTestRenderer.ReactTestInstance | null,
 ): ReactTestRenderer.ReactTestInstance | null {
@@ -35,6 +74,14 @@ const mockUseTransferViewModel = jest.fn();
 const mockNavigate = jest.fn();
 const mockSetParams = jest.fn();
 const mockTabNavigate = jest.fn();
+
+// Previene que providers/index.ts cargue AuthProvider → di/container → módulos nativos
+jest.mock('../../../src/providers', () => ({
+  useAuth: () => ({user: {name: 'Titular Demo'}, logout: jest.fn()}),
+  useTheme: () => ({
+    colors: require('../../../src/providers/theme/colors').LightColors,
+  }),
+}));
 
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({

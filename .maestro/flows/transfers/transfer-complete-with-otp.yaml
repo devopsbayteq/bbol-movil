@@ -1,5 +1,5 @@
 appId: com.bbapp
-name: Transferencias — formulario hasta pantalla de revisión
+name: Transferencia completa — formulario, revisión, OTP y éxito
 ---
 
 - launchApp
@@ -15,9 +15,9 @@ name: Transferencias — formulario hasta pantalla de revisión
       id: "transfer-amount-input"
     timeout: 15000
 
+# Monto: 100 centavos = US$ 1,00 (no excede saldo típico demo)
 - tapOn:
     id: "transfer-amount-input"
-# Monto pequeño en centavos (ej. 100 → US$ 1,00) para no exceder saldo típico.
 - inputText: "100"
 - hideKeyboard
 
@@ -52,3 +52,18 @@ name: Transferencias — formulario hasta pantalla de revisión
 - assertVisible: "Monto a enviar"
 - assertVisible: "Confirmar"
 - assertVisible: "Modificar"
+
+# Confirmar abre pantalla OTP (mode: 'transfer')
+- tapOn: "Confirmar"
+
+- runFlow:
+    file: ../../subflows/complete-demo-otp-transfer.yaml
+
+# Alerta nativa de éxito
+- assertVisible: "Transferencia exitosa"
+- tapOn: "Aceptar"
+
+# Tras aceptar, la app navega a Home (popToTop + tab Home)
+- extendedWaitUntil:
+    visible: "Mis Productos"
+    timeout: 15000

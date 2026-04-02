@@ -1,91 +1,184 @@
 import {
-  beneficiaryContactToTemplate,
   groupContactsByLetter,
   ownAccountToBeneficiary,
   templateToBeneficiary,
 } from '../../../src/presentation/transfer/beneficiaryData';
+import type {BeneficiaryContact} from '../../../src/domain/entities/BeneficiaryContact';
+import type {AccountBalance} from '../../../src/domain/entities/ContractBalance';
+
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+function makeContact(overrides: Partial<BeneficiaryContact> = {}): BeneficiaryContact {
+  return {
+    beneficiaryGuid: 'guid-1',
+    contactName: 'Ana Pérez',
+    bankName: 'Banco Bolivariano',
+    accountType: 1,
+    lastFourDigits: '1234',
+    ...overrides,
+  };
+}
+
+function makeAccount(overrides: Partial<AccountBalance> = {}): AccountBalance {
+  return {
+    accountGuid: 'ag-1',
+    maskedAccountNumber: '****4242',
+    accountKind: 'savings',
+    balance: 1000,
+    ...overrides,
+  };
+}
+
+// ─── templateToBeneficiary ───────────────────────────────────────────────────
 
 describe('beneficiaryData', () => {
-  test('beneficiaryContactToTemplate builds hint for each account type', () => {
-    expect(
-      beneficiaryContactToTemplate({
-        beneficiaryGuid: 'g1',
-        contactName: 'Ana',
+  describe('templateToBeneficiary', () => {
+    test('mapea beneficiaryGuid → id y contactName → name', () => {
+      const result = templateToBeneficiary(
+        makeContact({beneficiaryGuid: 'g1', contactName: 'Ana', bankName: 'BB'}),
+      );
+      expect(result.id).toBe('g1');
+      expect(result.name).toBe('Ana');
+      expect(result.bankName).toBe('BB');
+      expect(result.kind).toBe('contact');
+    });
+
+    test('construye accountHint con accountType y lastFourDigits', () => {
+      const result = templateToBeneficiary(
+        makeContact({accountType: 2, lastFourDigits: '5678'}),
+      );
+      expect(result.accountHint).toContain('2');
+      expect(result.accountHint).toContain('5678');
+    });
+
+    test('objeto completo coincide con la forma esperada', () => {
+      expect(
+        templateToBeneficiary({
+          beneficiaryGuid: 'g1',
+          contactName: 'Ana',
+          bankName: 'BB',
+          accountType: 1,
+          lastFourDigits: '1111',
+        }),
+      ).toEqual({
+        id: 'g1',
+        name: 'Ana',
+        kind: 'contact',
         bankName: 'BB',
-        accountType: 1,
-        lastFourDigits: '1111',
-      }),
-    ).toEqual({
-      id: 'g1',
-      name: 'Ana',
-      bankName: 'BB',
-      accountHint: 'Cta. ahorros • **** 1111',
+        accountHint: 'Cta. 1 • **** 1111',
+      });
     });
 
-    expect(
-      beneficiaryContactToTemplate({
-        beneficiaryGuid: 'g2',
-        contactName: 'Luis',
-        bankName: 'X',
-        accountType: 2,
-        lastFourDigits: '2222',
-      }).accountHint,
-    ).toContain('corriente');
-
-    expect(
-      beneficiaryContactToTemplate({
-        beneficiaryGuid: 'g3',
-        contactName: 'Z',
-        bankName: 'Y',
-        accountType: 99,
-        lastFourDigits: '3333',
-      }).accountHint,
-    ).toContain('cuenta');
-  });
-
-  test('templateToBeneficiary maps to BeneficiaryOption', () => {
-    expect(
-      templateToBeneficiary({
-        id: 'id1',
-        name: 'N',
-        bankName: 'B',
-        accountHint: 'hint',
-      }),
-    ).toEqual({
-      id: 'id1',
-      name: 'N',
-      kind: 'contact',
-      bankName: 'B',
-      accountHint: 'hint',
+    test('kind siempre es "contact"', () => {
+      expect(templateToBeneficiary(makeContact()).kind).toBe('contact');
     });
   });
 
-  test('ownAccountToBeneficiary uses product title and masked number', () => {
-    expect(
-      ownAccountToBeneficiary({
-        accountGuid: 'ag',
-        maskedAccountNumber: '****4242',
-        accountKind: 'savings',
-        balance: 0,
-      }),
-    ).toEqual({
-      id: 'own-ag',
-      name: 'Cuenta de Ahorros',
-      kind: 'own_account',
-      accountHint: '****4242',
+  // ─── ownAccountToBeneficiary ───────────────────────────────────────────────
+
+  describe('ownAccountToBeneficiary', () => {
+    test('usa accountGuid directamente como id (sin prefijo)', () => {
+      const result = ownAccountToBeneficiary(makeAccount({accountGuid: 'ag'}));
+      expect(result.id).toBe('ag');
+    });
+
+    test('cuenta de ahorros — objeto completo', () => {
+      expect(
+        ownAccountToBeneficiary({
+          accountGuid: 'ag',
+          maskedAccountNumber: '****4242',
+          accountKind: 'savings',
+          balance: 0,
+        }),
+      ).toEqual({
+        id: 'ag',
+        name: 'Cuenta de Ahorros',
+        kind: 'own_account',
+        accountHint: '****4242',
+      });
+    });
+
+    test('cuenta corriente — título correcto', () => {
+      const result = ownAccountToBeneficiary(
+        makeAccount({accountKind: 'checking', accountGuid: 'ag2'}),
+      );
+      expect(result.name).toBe('Cuenta Corriente');
+      expect(result.id).toBe('ag2');
+      expect(result.kind).toBe('own_account');
+    });
+
+    test('usa maskedAccountNumber como accountHint', () => {
+      const result = ownAccountToBeneficiary(
+        makeAccount({maskedAccountNumber: '****9999'}),
+      );
+      expect(result.accountHint).toBe('****9999');
+    });
+
+    test('kind siempre es "own_account"', () => {
+      expect(ownAccountToBeneficiary(makeAccount()).kind).toBe('own_account');
     });
   });
 
-  test('groupContactsByLetter groups and sorts', () => {
-    const groups = groupContactsByLetter([
-      {id: '1', name: 'beta', bankName: '', accountHint: ''},
-      {id: '2', name: 'Álvaro', bankName: '', accountHint: ''},
-      {id: '3', name: ' 123', bankName: '', accountHint: ''},
-    ]);
+  // ─── groupContactsByLetter ────────────────────────────────────────────────
 
-    const titles = groups.map(g => g.title);
-    expect(titles).toContain('#');
-    expect(titles.some(t => /Á|A/i.test(t) || t === 'Á')).toBe(true);
-    expect(groups.reduce((n, g) => n + g.data.length, 0)).toBe(3);
+  describe('groupContactsByLetter', () => {
+    test('retorna array vacío para entrada vacía', () => {
+      expect(groupContactsByLetter([])).toEqual([]);
+    });
+
+    test('agrupa correctamente por primera letra y clasifica # para no-alfa', () => {
+      const groups = groupContactsByLetter([
+        makeContact({beneficiaryGuid: '1', contactName: 'beta'}),
+        makeContact({beneficiaryGuid: '2', contactName: 'Álvaro'}),
+        makeContact({beneficiaryGuid: '3', contactName: ' 123'}),
+      ]);
+      const titles = groups.map(g => g.title);
+      expect(titles).toContain('#');
+      expect(titles.some(t => /^[AÁ]$/i.test(t))).toBe(true);
+      expect(groups.reduce((n, g) => n + g.data.length, 0)).toBe(3);
+    });
+
+    test('ordena grupos alfabéticamente (A < C < Z)', () => {
+      const groups = groupContactsByLetter([
+        makeContact({beneficiaryGuid: 'z', contactName: 'Zara'}),
+        makeContact({beneficiaryGuid: 'a', contactName: 'Ana'}),
+        makeContact({beneficiaryGuid: 'c', contactName: 'Carlos'}),
+      ]);
+      const titles = groups.map(g => g.title);
+      expect(titles.indexOf('A')).toBeLessThan(titles.indexOf('C'));
+      expect(titles.indexOf('C')).toBeLessThan(titles.indexOf('Z'));
+    });
+
+    test('varios contactos con la misma letra van en el mismo grupo', () => {
+      const groups = groupContactsByLetter([
+        makeContact({beneficiaryGuid: '1', contactName: 'Ana'}),
+        makeContact({beneficiaryGuid: '2', contactName: 'Alberto'}),
+        makeContact({beneficiaryGuid: '3', contactName: 'Beatriz'}),
+      ]);
+      expect(groups.find(g => g.title === 'A')?.data.length).toBe(2);
+      expect(groups.find(g => g.title === 'B')?.data.length).toBe(1);
+    });
+
+    test('caracteres no alfabéticos (#, dígitos, @) van bajo "#"', () => {
+      const groups = groupContactsByLetter([
+        makeContact({beneficiaryGuid: '1', contactName: '123 Corp'}),
+        makeContact({beneficiaryGuid: '2', contactName: '@empresa'}),
+      ]);
+      expect(groups.find(g => g.title === '#')?.data.length).toBe(2);
+    });
+
+    test('contacto único genera un grupo con un elemento', () => {
+      const groups = groupContactsByLetter([
+        makeContact({beneficiaryGuid: 'x', contactName: 'Mónica'}),
+      ]);
+      expect(groups.length).toBe(1);
+      expect(groups[0].data.length).toBe(1);
+    });
+
+    test('preserva todos los datos del contacto dentro del grupo', () => {
+      const contact = makeContact({beneficiaryGuid: 'abc', contactName: 'Luis', bankName: 'Produbanco'});
+      const groups = groupContactsByLetter([contact]);
+      expect(groups[0].data[0]).toEqual(contact);
+    });
   });
 });
