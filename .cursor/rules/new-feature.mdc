@@ -1,0 +1,28 @@
+---
+description: Orden para crear un feature nuevo
+globs:
+  - src/presentation/**
+  - src/domain/**
+  - src/data/**
+  - src/di/**
+---
+
+# Feature nuevo
+
+Al agregar un feature, seguir este orden (de dominio hacia UI):
+
+1. Entidad en `src/domain/entities/`.
+2. Repositorio (interfaz) en `src/domain/repositories/`.
+3. Caso de uso en `src/domain/usecases/`.
+4. DTO / modelo en `src/data/models/`.
+5. Mapper en `src/data/mappers/`.
+6. DataSource en `src/data/datasources/<área>/` (empezar con mock).
+7. Repositorio (impl) en `src/data/repositories/`.
+8. Wiring en DI en `src/di/container.ts`.
+9. ViewModel en `src/presentation/<feature>/useXxxViewModel.ts`.
+10. Screen en `src/presentation/<feature>/XxxScreen.tsx`.
+11. Navegación en `src/navigation/AppNavigator.tsx` si aplica.
+
+Como referencia en el repo, revisar el feature `transactions`.
+
+Las capas `domain` y `data` se organizan por tipo técnico (no por feature). `presentation` sigue enfoque feature-first: cada feature en su propia carpeta con Screen, ViewModel y componentes locales.
