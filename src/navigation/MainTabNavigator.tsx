@@ -12,7 +12,8 @@ import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './tabIcons';
 const TAB_BAR_HEIGHT = 60;
 
 export type MainTabParamList = {
-  Home: undefined;
+  /** `refreshHome`: timestamp para forzar recarga al volver desde transferencia (opcional). */
+  Home: {refreshHome?: number};
   Transfer: undefined;
   Movements: undefined;
 };

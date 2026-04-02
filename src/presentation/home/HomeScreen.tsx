@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -7,11 +7,20 @@ import {
   Text,
   TouchableOpacity,
   Animated,
+  RefreshControl,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+  type RouteProp,
+} from '@react-navigation/native';
+import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../../providers';
+import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
@@ -81,8 +90,23 @@ export function HomeScreen() {
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const iconColor = colors.primary;
-  const {data, isLoading, error, retry} = useHomeViewModel();
+  const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
+  const navigation =
+    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+  const {data, isLoading, isRefreshing, error, refresh, retry} =
+    useHomeViewModel();
   const scaleAnims = useRef<Animated.Value[]>([]).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      const token = route.params?.refreshHome;
+      if (token === undefined) {
+        return;
+      }
+      void refresh();
+      navigation.setParams({refreshHome: undefined});
+    }, [navigation, refresh, route.params?.refreshHome]),
+  );
 
   type ProductItem = {key: string; node: React.ReactNode};
 
@@ -230,7 +254,15 @@ export function HomeScreen() {
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }>
         <HomeAlertBanner
           title="Nueva tarjeta en camino"
           subtitle="Llegará el 24 de Octubre"

@@ -56,7 +56,10 @@ export function TransferReviewScreen() {
                             navigation.popToTop();
                             const tabNav =
                                 navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-                            tabNav?.navigate('Home');
+                            tabNav?.navigate({
+                                name: 'Home',
+                                params: {refreshHome: Date.now()},
+                            });
                         },
                     },
                 ],
