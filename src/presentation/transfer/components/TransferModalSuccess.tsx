@@ -18,6 +18,7 @@ interface TransferModalSuccessProps {
     onClose: () => void;
     navigateToHome: () => void;
     navigateToTransfer: () => void;
+    openVoucher: () => void;
     transactionData: TransferDataResume;
 }
 
@@ -38,6 +39,7 @@ export const TransferModalSuccess = ({
                                          navigateToTransfer,
                                          navigateToHome,
                                          transactionData,
+                                         openVoucher
                                      }: TransferModalSuccessProps) => {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
@@ -90,6 +92,15 @@ export const TransferModalSuccess = ({
                                 accessibilityLabel="Nueva transferencia">
                                 <Text style={styles.primaryButtonText}>Nueva transferencia</Text>
                             </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.tertiaryButton}
+                                onPress={openVoucher}
+                                activeOpacity={0.85}
+                                accessibilityRole="button"
+                                accessibilityLabel="Voucher">
+                                <Text style={styles.tertiaryButtonText}>Voucher</Text>
+                            </TouchableOpacity>
+
                             <TouchableOpacity
                                 style={styles.tertiaryButton}
                                 onPress={navigateToHome}
