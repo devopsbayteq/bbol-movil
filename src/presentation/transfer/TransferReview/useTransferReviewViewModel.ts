@@ -1,15 +1,11 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import { useCallback, useEffect, useMemo, useState} from 'react';
 import {
-  useNavigation,
   useRoute,
   type RouteProp,
-  CommonActions,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 import {useDI} from '../../../di';
 import {useAuth} from '../../../providers';
-import type {RootStackParamList} from '../../../navigation/AppNavigator';
 
 function formatReviewDate(date: Date): string {
   const day = date.getDate();
@@ -37,11 +33,11 @@ export type TransferReviewViewModelOptions = {
 };
 
 export function useTransferReviewViewModel(
+    openOtpValidation:()=>void,
   options?: TransferReviewViewModelOptions,
+
 ) {
   const {onTransferSuccess} = options ?? {};
-  const navigation =
-    useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>>();
   const route = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>();
   const {validateTransactionAmountUseCase, executeTransferUseCase} = useDI();
   const {user} = useAuth();
@@ -59,6 +55,7 @@ export function useTransferReviewViewModel(
   const [commission, setCommission] = useState<
     'Sin cargo' | 'Con cargo' | null
   >(null);
+
   const [commissionLoading, setCommissionLoading] = useState(true);
 
   useEffect(() => {
@@ -79,11 +76,8 @@ export function useTransferReviewViewModel(
 
   const transferDateLabel = useMemo(() => formatReviewDate(new Date()), []);
 
-  const onBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   const onConfirm = useCallback(async () => {
+
     setConfirmError(null);
 
     if (beneficiary.kind === 'own_account') {
@@ -93,42 +87,31 @@ export function useTransferReviewViewModel(
       return;
     }
 
-    const email = user?.email?.trim() ?? '';
-    if (!email) {
-      setConfirmError('No hay un correo en la sesión para continuar con la autenticación.');
-      return;
-    }
-
     setConfirmLoading(true);
     try {
+
       const amount = Math.round(amountCents) / 100;
+
       const result = await validateTransactionAmountUseCase.execute({
         amount,
         beneficiaryGuid: beneficiary.id,
         accountGuid: accountId,
-        concept: concept.trim(),
+        concept: concept,
       });
 
       if (!result.isValid) {
-        const execution = await executeTransferUseCase.execute({
+        const transferExecution = await executeTransferUseCase.execute({
           amount,
           beneficiaryContactGuid: beneficiary.id,
           accountGuid: accountId,
-          concept: concept.trim(),
+          concept: concept,
         });
-        onTransferSuccess?.(execution.transactionIdentifier);
-        return;
-      }
 
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'OtpValidation',
-          params: {
-            mode: 'transfer',
-            email,
-          } satisfies RootStackParamList['OtpValidation'],
-        }),
-      );
+        onTransferSuccess?.(transferExecution.transactionIdentifier);
+        return;
+      } else {
+      openOtpValidation()
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'No se pudo validar el monto.';
@@ -137,13 +120,12 @@ export function useTransferReviewViewModel(
       setConfirmLoading(false);
     }
   }, [
+      openOtpValidation,
     accountId,
     amountCents,
     beneficiary.id,
     beneficiary.kind,
     concept,
-    navigation,
-    user?.email,
     validateTransactionAmountUseCase,
     executeTransferUseCase,
     onTransferSuccess,
@@ -165,7 +147,6 @@ export function useTransferReviewViewModel(
     paraSubline,
     conceptDisplay,
     transferDateLabel,
-    onBack,
     onConfirm,
   };
 }

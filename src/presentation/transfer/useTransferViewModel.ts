@@ -32,8 +32,8 @@ export function useTransferViewModel() {
   const [amountCents, setAmountCents] = useState(0);
   const [accountIndex, setAccountIndex] = useState(0);
   const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
-  const [concept, setConceptState] = useState('');
-  const [conceptFieldError, setConceptFieldError] = useState<string | null>(null);
+  const [concept, setConcept] = useState('');
+
   const [accountModalVisible, setAccountModalVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
@@ -93,14 +93,13 @@ export function useTransferViewModel() {
     setAmountCents(Math.min(n, MAX_TRANSFER_CENTS));
   }, []);
 
-  const setConcept = useCallback((text: string) => {
+  const setConceptState = useCallback((text: string) => {
     const sanitized = sanitizeTransferConceptInput(text);
     const nextError = hasDisallowedTransferConceptCharacters(text)
       ? transferConceptMessages.invalidCharacters
       : validateTransferConcept(sanitized);
 
     setConceptState(sanitized);
-    setConceptFieldError(nextError);
     setValidationMessage(null);
   }, []);
 
@@ -153,7 +152,7 @@ export function useTransferViewModel() {
         fromHolderName: holderName,
         fromAccountLine: formatAccountKindLine(selectedAccount),
         accountId: selectedAccount.accountGuid,
-        concept: concept.trim(),
+        concept: concept,
       },
     };
   }, [
@@ -183,7 +182,6 @@ export function useTransferViewModel() {
     concept,
     setConcept,
     amountFieldError,
-    conceptFieldError,
     validationMessage,
     setValidationMessage,
     openAccountPicker,

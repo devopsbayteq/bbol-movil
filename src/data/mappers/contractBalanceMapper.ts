@@ -16,7 +16,6 @@ import {
   LoanBalanceModel,
 } from '../models/ContractBalanceContentModel';
 
-/** Valores provisionales hasta documentación del API */
 export const ACCOUNT_TYPE_SAVINGS = 1;
 export const ACCOUNT_TYPE_CHECKING = 2;
 

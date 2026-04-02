@@ -15,17 +15,17 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../../navigation/MainTabNavigator';
-import {useTheme, type ThemeColors} from '../../../providers/theme';
+import {useTheme, type ThemeColors} from '../../../providers';
 import {Lexend} from '../../../theme/lexend';
-import {ErrorMessage} from '../../components/ErrorMessage';
+import {ErrorMessage} from '../../components';
 import {
-  TransferIconArrowLeft,
   TransferIconArrowRight,
   TransferIconArrowRightWhite,
   TransferIconUser,
   TransferIconWallet,
 } from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
+import {ToolbarApp} from "../../components/ToolbarApp.tsx";
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -36,8 +36,7 @@ export function TransferReviewScreen() {
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
 
-  const navigation =
-    useNavigation<
+  const navigation = useNavigation<
       NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
 
@@ -62,7 +61,6 @@ export function TransferReviewScreen() {
     [navigation],
   );
 
-  const vm = useTransferReviewViewModel({onTransferSuccess});
   const {
     displayAmount,
     beneficiary,
@@ -76,23 +74,19 @@ export function TransferReviewScreen() {
     paraSubline,
     conceptDisplay,
     transferDateLabel,
-    onBack,
     onConfirm,
-  } = vm;
+  } = useTransferReviewViewModel(() => {
+      navigation.navigate('OtpValidationTransfer',{mode:'transfer',email:""})
+  },{onTransferSuccess});
 
   return (
     <View style={styles.root} testID="transfer-review-screen">
-      <View style={[styles.header, {paddingTop: insets.top}]}>
-        <TouchableOpacity
-          onPress={onBack}
-          style={styles.backBtn}
-          accessibilityRole="button"
-          accessibilityLabel="Volver">
-          <TransferIconArrowLeft color={colors.iconPrimary} size={20} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>REVISAR TRANSFERENCIA</Text>
-        <View style={styles.headerRightSpacer} />
-      </View>
+      <ToolbarApp
+          title={"REVISAR TRANSFERENCIA"}
+          backPress={()=> {
+          navigation.goBack()
+      }
+      }/>
 
       <ScrollView
         style={styles.scroll}
@@ -127,7 +121,7 @@ export function TransferReviewScreen() {
 
           <TouchableOpacity
             style={styles.desdeRow}
-            onPress={onBack}
+            onPress={()=>{navigation.goBack()}}
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel="Volver para cambiar cuenta de origen">
@@ -197,7 +191,7 @@ export function TransferReviewScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.secondaryCta}
-            onPress={onBack}
+            onPress={()=>{navigation.goBack()}}
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel="Modificar transferencia">
@@ -216,31 +210,6 @@ function useStyles(colors: ThemeColors) {
         root: {
           flex: 1,
           backgroundColor: colors.background,
-        },
-        header: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          minHeight: 64,
-          paddingHorizontal: 16,
-          backgroundColor: colors.white,
-        },
-        backBtn: {
-          width: 44,
-          height: 44,
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-        },
-        headerTitle: {
-          flex: 1,
-          textAlign: 'center',
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-          color: colors.textPrimary,
-        },
-        headerRightSpacer: {
-          width: 44,
         },
         scroll: {
           flex: 1,

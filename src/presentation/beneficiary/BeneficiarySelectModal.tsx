@@ -8,23 +8,19 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
+  Modal,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import {accountProductTitle} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import {
-  beneficiaryContactToTemplate,
   groupContactsByLetter,
   ownAccountToBeneficiary,
   templateToBeneficiary,
-  type ContactTemplate,
 } from '../transfer/beneficiaryData';
 import {useBeneficiaryContactsViewModel} from './useBeneficiaryContactsViewModel';
 import type {BeneficiaryOption} from '../transfer/transferTypes';
@@ -36,42 +32,50 @@ import {
   TransferIconWallet,
 } from '../transfer/transferIcons';
 import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
+import {BeneficiaryContact} from "../../domain/entities/BeneficiaryContact.ts";
 
 const HERO_BG = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
 
 type Section = {
   title: string;
-  data: ContactTemplate[];
+  data: BeneficiaryContact[];
 };
 
-export function BeneficiarySelectScreen() {
+export type BeneficiarySelectModalProps = {
+  visible: boolean;
+  onRequestClose: () => void;
+  onSelect: (beneficiary: BeneficiaryOption) => void;
+};
+
+export function BeneficiarySelectModal({
+  visible,
+  onRequestClose,
+  onSelect,
+}: BeneficiarySelectModalProps) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
-  const navigation =
-    useNavigation<NativeStackNavigationProp<TransferStackParamList>>();
+
   const styles = useStyles(colors);
 
   const {data, isLoading, error, retry} = useHomeViewModel();
+
   const {
     contacts: beneficiaryContacts,
     isLoading: contactsLoading,
     error: contactsError,
     retry: retryContacts,
   } = useBeneficiaryContactsViewModel();
+
   const [query, setQuery] = useState('');
-  const [devNotice, setDevNotice] = useState<{
-    title: string;
-    message: string;
-  } | null>(null);
+  const [showDevNotice, setShowDevNotice] = useState<boolean>(false);
 
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
 
   const allContacts = useMemo(() => {
     return [...beneficiaryContacts]
-      .map(beneficiaryContactToTemplate)
       .sort((a, b) =>
-        a.name.localeCompare(b.name, 'es', {sensitivity: 'base'}),
+        a.contactName.localeCompare(b.contactName, 'es', {sensitivity: 'base'}),
       );
   }, [beneficiaryContacts]);
 
@@ -94,7 +98,7 @@ export function BeneficiarySelectScreen() {
     }
     return allContacts.filter(
       c =>
-        c.name.toLowerCase().includes(q) ||
+        c.contactName.toLowerCase().includes(q) ||
         c.bankName.toLowerCase().includes(q),
     );
   }, [allContacts, query]);
@@ -105,27 +109,21 @@ export function BeneficiarySelectScreen() {
   );
 
   function pickBeneficiary(b: BeneficiaryOption) {
-    navigation.navigate({
-      name: 'TransferMain',
-      params: {selectedBeneficiary: b},
-      merge: true,
-    });
+    onSelect(b);
   }
 
   function onPickAccount(account: AccountBalance) {
     pickBeneficiary(ownAccountToBeneficiary(account));
   }
 
-  function onPickContact(t: ContactTemplate) {
+  function onPickContact(t: BeneficiaryContact) {
     pickBeneficiary(templateToBeneficiary(t));
   }
-
-  const onBack = () => navigation.goBack();
 
   const headerTop = (
     <View style={[styles.header, {paddingTop: insets.top}]}>
       <TouchableOpacity
-        onPress={onBack}
+        onPress={onRequestClose}
         style={styles.backBtn}
         accessibilityRole="button"
         accessibilityLabel="Volver">
@@ -217,7 +215,7 @@ export function BeneficiarySelectScreen() {
     index,
     section,
   }: {
-    item: ContactTemplate;
+    item: BeneficiaryContact;
     index: number;
     section: Section;
   }) {
@@ -236,18 +234,15 @@ export function BeneficiarySelectScreen() {
           activeOpacity={0.85}>
           <View style={styles.contactTextCol}>
             <Text style={styles.contactName} numberOfLines={2}>
-              {item.name}
+              {item.contactName}
             </Text>
             <Text style={styles.contactBank}>{item.bankName}</Text>
-            <Text style={styles.contactHint}>{item.accountHint}</Text>
+            <Text style={styles.contactHint}>"Cta. ${item.accountType} • **** ${item.lastFourDigits}"</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            setDevNotice({
-              title: 'Próximamente',
-              message: 'Las opciones de contacto no están disponibles aún.',
-            })
+            setShowDevNotice(true)
           }
           hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
           <TransferIconEllipsisVertical color={colors.iconPrimary} size={16} />
@@ -256,8 +251,8 @@ export function BeneficiarySelectScreen() {
     );
   }
 
-  if (error) {
-    return (
+  const body =
+    error ? (
       <View style={styles.root}>
         {headerTop}
         <View style={styles.errorBanner}>
@@ -267,80 +262,79 @@ export function BeneficiarySelectScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    );
-  }
-
-  if (isLoading && !data) {
-    return (
+    ) : isLoading && !data ? (
       <View style={styles.root}>
         {headerTop}
         <View style={styles.loadingWrap}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </View>
+    ) : (
+      <View style={styles.root}>
+        {headerTop}
+        <SectionList
+          style={styles.list}
+          contentContainerStyle={[
+            styles.listContent,
+            {paddingBottom: Math.max(insets.bottom, 24) + 80},
+          ]}
+          sections={sections}
+          keyExtractor={item => item.beneficiaryGuid}
+          renderItem={renderContactRow}
+          renderSectionHeader={({section: {title}}) => (
+            <Text style={styles.letterHeader}>{title}</Text>
+          )}
+          ListHeaderComponent={listHeader}
+          stickySectionHeadersEnabled={false}
+          ListEmptyComponent={
+            contactsLoading ? (
+              <View style={styles.contactsListEmpty}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : contactsError ? (
+              <Text style={styles.emptyHint}>
+                No se pudieron cargar los contactos.
+              </Text>
+            ) : allContacts.length === 0 ? (
+              <Text style={styles.emptyHint}>No tienes contactos guardados.</Text>
+            ) : (
+              <Text style={styles.emptyHint}>
+                No hay contactos que coincidan con la búsqueda.
+              </Text>
+            )
+          }
+          showsVerticalScrollIndicator={false}
+        />
+
+        <TouchableOpacity
+          style={[
+            styles.fab,
+            {bottom: Math.max(insets.bottom, 16) + 8},
+          ]}
+          onPress={() =>
+            setShowDevNotice(true)
+          }>
+          <TransferIconUserPlus color={colors.white} size={22} />
+        </TouchableOpacity>
+
+        <DevelopmentNoticeModal
+          visible={showDevNotice}
+          onClose={() => setShowDevNotice(false)}
+          title={"Próximamente"}
+          message={"Agregar contacto no está disponible aún."}
+        />
+      </View>
     );
-  }
 
   return (
-    <View style={styles.root} testID="beneficiary-select-screen">
-      {headerTop}
-      <SectionList
-        style={styles.list}
-        contentContainerStyle={[
-          styles.listContent,
-          {paddingBottom: Math.max(insets.bottom, 24) + 80},
-        ]}
-        sections={sections}
-        keyExtractor={item => item.id}
-        renderItem={renderContactRow}
-        renderSectionHeader={({section: {title}}) => (
-          <Text style={styles.letterHeader}>{title}</Text>
-        )}
-        ListHeaderComponent={listHeader}
-        stickySectionHeadersEnabled={false}
-        ListEmptyComponent={
-          contactsLoading ? (
-            <View style={styles.contactsListEmpty}>
-              <ActivityIndicator size="small" color={colors.primary} />
-            </View>
-          ) : contactsError ? (
-            <Text style={styles.emptyHint}>
-              No se pudieron cargar los contactos.
-            </Text>
-          ) : allContacts.length === 0 ? (
-            <Text style={styles.emptyHint}>No tienes contactos guardados.</Text>
-          ) : (
-            <Text style={styles.emptyHint}>
-              No hay contactos que coincidan con la búsqueda.
-            </Text>
-          )
-        }
-        showsVerticalScrollIndicator={false}
-      />
-
-      <TouchableOpacity
-        style={[
-          styles.fab,
-          {bottom: Math.max(insets.bottom, 16) + 8},
-        ]}
-        onPress={() =>
-          setDevNotice({
-            title: 'Próximamente',
-            message: 'Agregar contacto no está disponible aún.',
-          })
-        }
-        accessibilityRole="button"
-        accessibilityLabel="Agregar contacto">
-        <TransferIconUserPlus color={colors.white} size={22} />
-      </TouchableOpacity>
-
-      <DevelopmentNoticeModal
-        visible={devNotice !== null}
-        onClose={() => setDevNotice(null)}
-        title={devNotice?.title}
-        message={devNotice?.message}
-      />
-    </View>
+    <Modal
+      testID="beneficiary-select-modal"
+      visible={visible}
+      animationType="slide"
+      presentationStyle="fullScreen"
+      onRequestClose={onRequestClose}>
+      {body}
+    </Modal>
   );
 }
 
