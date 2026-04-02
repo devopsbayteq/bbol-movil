@@ -82,11 +82,12 @@ export function TransferReviewScreen() {
         conceptDisplay,
         transferDateLabel,
         onConfirm,
+        doTransacction
     } = useTransferReviewViewModel(() => {
         navigation.navigate(
             'OtpValidationTransfer', {
                 mode: 'transfer', email: "", onClose: (_isValid: boolean) => {
-                    onConfirm().catch()
+                    doTransacction().catch()
                 }
             }
         )
