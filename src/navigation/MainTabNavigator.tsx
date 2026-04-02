@@ -1,6 +1,7 @@
 import React from 'react';
 import {Platform, StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import type {NavigatorScreenParams} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeScreen} from '../presentation/home/HomeScreen';
 import {TransferStackNavigator} from './TransferStackNavigator';
@@ -8,12 +9,13 @@ import {TransactionsScreen} from '../presentation/transactions/TransactionsScree
 import {useTheme} from '../providers/theme';
 import {Lexend} from '../theme/lexend';
 import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './tabIcons';
+import type {TransferStackParamList} from './TransferStackNavigator';
 
 const TAB_BAR_HEIGHT = 60;
 
 export type MainTabParamList = {
   Home: undefined;
-  Transfer: undefined;
+  Transfer: NavigatorScreenParams<TransferStackParamList>;
   Movements: undefined;
 };
 
