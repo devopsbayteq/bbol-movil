@@ -4,3 +4,7 @@ export interface ApiResponseModel<T> {
   message: string;
   content?: T;
 }
+
+export function getApiPayload<T>(body: ApiResponseModel<T>): T | undefined {
+  return body.content;
+}

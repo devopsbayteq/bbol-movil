@@ -34,7 +34,7 @@ import {useTransferViewModel} from './useTransferViewModel';
 import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
-import {ToolbarApp} from "../components/ToolbarApp.tsx";
+import {ToolbarApp} from "./components/ToolbarApp.tsx";
 
 const ZERO_DISPLAY = formatMoneyEc(0);
 
@@ -72,7 +72,7 @@ export function TransferScreen() {
     <View style={styles.root} testID="transfer-main-screen">
         <ToolbarApp
             title={"TRANSFERIR"}
-            backPress={()=>{
+            onBackPress={()=>{
             onBack()
         }}/>
 
@@ -101,7 +101,6 @@ export function TransferScreen() {
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-
           <View style={styles.hero}>
             <TransferWatermark />
             <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
@@ -170,7 +169,7 @@ export function TransferScreen() {
                 <View style={styles.cardChevronSpacer} />
               )}
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={styles.card}
               onPress={() => setBeneficiarySelectorVisible(true)}

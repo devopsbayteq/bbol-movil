@@ -25,7 +25,7 @@ import {
   TransferIconWallet,
 } from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
-import {ToolbarApp} from "../../components/ToolbarApp.tsx";
+import {ToolbarApp} from "../components/ToolbarApp.tsx";
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -83,7 +83,7 @@ export function TransferReviewScreen() {
     <View style={styles.root} testID="transfer-review-screen">
       <ToolbarApp
           title={"REVISAR TRANSFERENCIA"}
-          backPress={()=> {
+          onBackPress={()=> {
           navigation.goBack()
       }
       }/>

@@ -1,37 +1,28 @@
 import axios, {AxiosInstance} from 'axios';
+import {
+  attachApiHeadersInterceptor,
+  type ApiHeadersInterceptorDeps,
+} from './apiHeadersInterceptor';
 import {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {HttpClient, HttpResponse, RequestConfig} from './HttpClient';
+
+export type {ApiHeadersInterceptorDeps};
+
+export type AxiosHttpClientConfig = ApiHeadersInterceptorDeps & {
+  timeout?: number;
+};
 
 export class AxiosHttpClient implements HttpClient {
   private readonly client: AxiosInstance;
 
-  constructor(
-    baseURL: string,
-    secureStorageService: SecureStorageService,
-    authTokenStorageKey: string,
-    defaultHeaders?: Record<string, string>,
-    timeout = 15000,
-  ) {
+  constructor(config: AxiosHttpClientConfig) {
+    const {timeout = 15000, ...interceptorDeps} = config;
     this.client = axios.create({
-      baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Platform': 'Android',
-        'X-Timezone': 'America/Guayaquil',
-        'X-RequestId': 'ea18410a-4fcb-48b7-a927-25c0161ae11a',
-        'X-Time': '1775063630',
-        ...defaultHeaders},
+      baseURL: interceptorDeps.baseURL,
+      headers: {'Content-Type': 'application/json'},
       timeout,
     });
-
-    this.client.interceptors.request.use(async config => {
-      const token = await secureStorageService.get(authTokenStorageKey);
-      if (token) {
-        config.headers.set('Authorization', `Bearer ${token}`);
-      }
-      return config;
-    });
+    attachApiHeadersInterceptor(this.client, interceptorDeps);
   }
 
   async get<T>(

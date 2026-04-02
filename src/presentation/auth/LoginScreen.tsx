@@ -24,7 +24,7 @@ import {
   OrSeparator,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
-import {RootStackParamList} from "../../navigation/LoginStackNavigation.tsx";
+import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
 
 
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
@@ -39,11 +39,13 @@ export function LoginScreen() {
     password,
     isLoadingLogin,
     isLoadingBiometric,
+    isLoadingRegisterBiometric,
     isBusy,
     error,
     setEmail,
     setPassword,
     handleLogin,
+    handleRegisterBiometric,
     handleBiometricLogin,
   } = useLoginViewModel(async user => {
     navigation.navigate('OtpValidation', {
@@ -127,6 +129,13 @@ export function LoginScreen() {
               loading={isLoadingLogin}
               disabled={isBusy}
               variant="loginPrimary"
+            />
+            <Button
+              title="Activar biometría"
+              onPress={handleRegisterBiometric}
+              loading={isLoadingRegisterBiometric}
+              disabled={isBusy}
+              variant="outline"
             />
             <OrSeparator />
             <SecondaryIconButton

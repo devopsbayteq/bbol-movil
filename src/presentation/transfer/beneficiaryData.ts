@@ -3,19 +3,48 @@ import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact'
 import {accountProductTitle} from '../../utils/accountDisplay';
 import type {BeneficiaryOption} from './transferTypes';
 
-export function templateToBeneficiary(b: BeneficiaryContact): BeneficiaryOption {
+export type ContactTemplate = {
+  id: string;
+  name: string;
+  bankName: string;
+  accountHint: string;
+};
+
+function accountTypeLabel(accountType: number): string {
+  switch (accountType) {
+    case 1:
+      return 'ahorros';
+    case 2:
+      return 'corriente';
+    default:
+      return 'cuenta';
+  }
+}
+
+export function beneficiaryContactToTemplate(
+  b: BeneficiaryContact,
+): ContactTemplate {
   return {
     id: b.beneficiaryGuid,
     name: b.contactName,
-    kind: 'contact',
     bankName: b.bankName,
-    accountHint: `Cta. ${b.accountType} • **** ${b.lastFourDigits}`,
+    accountHint: `Cta. ${accountTypeLabel(b.accountType)} • **** ${b.lastFourDigits}`,
+  };
+}
+
+export function templateToBeneficiary(t: ContactTemplate): BeneficiaryOption {
+  return {
+    id: t.id,
+    name: t.name,
+    kind: 'contact',
+    bankName: t.bankName,
+    accountHint: t.accountHint,
   };
 }
 
 export function ownAccountToBeneficiary(account: AccountBalance): BeneficiaryOption {
   return {
-    id: account.accountGuid,
+    id: `own-${account.accountGuid}`,
     name: accountProductTitle(account),
     kind: 'own_account',
     accountHint: account.maskedAccountNumber,
@@ -23,11 +52,11 @@ export function ownAccountToBeneficiary(account: AccountBalance): BeneficiaryOpt
 }
 
 export function groupContactsByLetter(
-  contacts: BeneficiaryContact[],
-): {title: string; data: BeneficiaryContact[]}[] {
-  const map = new Map<string, BeneficiaryContact[]>();
+  contacts: ContactTemplate[],
+): {title: string; data: ContactTemplate[]}[] {
+  const map = new Map<string, ContactTemplate[]>();
   for (const c of contacts) {
-    const letter = c.contactName.trim().charAt(0).toLocaleUpperCase('es-EC');
+    const letter = c.name.trim().charAt(0).toLocaleUpperCase('es-EC');
     const key = /[A-ZÁÉÍÓÚÑ]/i.test(letter) ? letter : '#';
     if (!map.has(key)) {
       map.set(key, []);

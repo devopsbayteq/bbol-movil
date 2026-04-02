@@ -33,7 +33,6 @@ export function useTransferViewModel() {
   const [accountIndex, setAccountIndex] = useState(0);
   const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
   const [concept, setConcept] = useState('');
-
   const [accountModalVisible, setAccountModalVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 

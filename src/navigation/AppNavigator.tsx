@@ -1,12 +1,20 @@
 import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {LoginScreen} from '../presentation/auth/LoginScreen';
 import {MainTabNavigator} from './MainTabNavigator';
 import {PublicKeyErrorScreen, SplashScreen} from '../presentation/splash';
+import {OtpValidationScreen} from '../presentation/otp';
 import {useAuth, useSecurity} from '../providers';
-import {LoinStackNavigator} from "./LoginStackNavigation.tsx";
+import {User} from '../domain/entities/User';
+
+export type OtpValidationParams =
+  | {mode: 'login'; user: User; email: string}
+  | {mode: 'transfer'; email: string};
 
 export type RootStackParamList = {
-  LoginStack: undefined;
+  CertificateHandshake: undefined;
+  Login: undefined;
+  OtpValidation: OtpValidationParams;
   Main: undefined;
 };
 
@@ -59,7 +67,10 @@ export function AppNavigator() {
           <Stack.Screen name="Main" component={MainTabNavigator} />
         </>
       ) : (
-        <Stack.Screen name="LoginStack" component={LoinStackNavigator}/>
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="OtpValidation" component={OtpValidationScreen} />
+        </>
       )}
     </Stack.Navigator>
   );
