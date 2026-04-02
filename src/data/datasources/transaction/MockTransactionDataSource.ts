@@ -1,5 +1,7 @@
 import {TransactionModel} from '../../models/TransactionModel';
 import {TransactionDataSource} from './TransactionDataSource';
+import {TransferContentModel} from "../../models/TransferContentModel.ts";
+import {TransferRequest} from "../../models/TransferRequest.ts";
 
 const MOCK_TRANSACTIONS: TransactionModel[] = [
   {
@@ -125,5 +127,9 @@ export class MockTransactionDataSource implements TransactionDataSource {
         resolve(MOCK_TRANSACTIONS);
       }, SIMULATED_DELAY_MS);
     });
+  }
+
+  transfer(_: TransferRequest): Promise<TransferContentModel> {
+    return Promise.resolve({transactionIdentifier:''});
   }
 }

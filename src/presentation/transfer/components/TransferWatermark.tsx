@@ -2,9 +2,6 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 
-/**
- * Decorative watermark inspired by the Figma ISO mark; low-opacity white on teal.
- */
 export function TransferWatermark() {
   return (
     <View style={styles.wrap} pointerEvents="none">

@@ -7,13 +7,14 @@ import {OtpValidationScreen} from '../presentation/otp';
 import {useAuth, useSecurity} from '../providers';
 import {User} from '../domain/entities/User';
 
+export type OtpValidationParams =
+  | {mode: 'login'; user: User; email: string}
+  | {mode: 'transfer'; email: string};
+
 export type RootStackParamList = {
   CertificateHandshake: undefined;
   Login: undefined;
-  OtpValidation: {
-    user: User;
-    email: string;
-  };
+  OtpValidation: OtpValidationParams;
   Main: undefined;
 };
 
@@ -60,9 +61,11 @@ export function AppNavigator() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator  screenOptions={{headerShown: false}}>
       {isAuthenticated ? (
-        <Stack.Screen name="Main" component={MainTabNavigator} />
+        <>
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+        </>
       ) : (
         <>
           <Stack.Screen name="Login" component={LoginScreen} />

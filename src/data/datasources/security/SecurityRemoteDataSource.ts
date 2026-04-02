@@ -9,6 +9,8 @@ import type {
   CertificateEnvelopeResponse,
   CertificateRequest,
 } from '../../models/CertificateModels';
+import {ValidateTransactionAmountRequest} from '../../models/ValidateTransactionAmountRequest';
+import {ValidateTransactionAmountContentModel} from '../../models/ValidateTransactionAmountContentModel';
 
 const LOG_AREA = 'Security/certificate';
 
@@ -99,6 +101,30 @@ export class SecurityRemoteDataSource {
       if (response.data.responseType === 'Error' || !response.data.content) {
         throw new Error(
           response.data.message || 'Error al validar el OTP. Por favor intente nuevamente.',
+        );
+      }
+
+      return response.data.content;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Error de conexión con el servidor');
+    }
+  }
+
+  async validateTransactionAmount(
+    request: ValidateTransactionAmountRequest,
+  ): Promise<ValidateTransactionAmountContentModel> {
+    try {
+      const response = await this.httpClient.post<
+        ApiResponseModel<ValidateTransactionAmountContentModel>
+      >('Security/validate-transaction-amount', request);
+
+      if (response.data.responseType === 'Error' || !response.data.content) {
+        throw new Error(
+          response.data.message ||
+            'No se pudo validar el monto. Por favor intente nuevamente.',
         );
       }
 
