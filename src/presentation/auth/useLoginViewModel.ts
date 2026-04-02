@@ -4,13 +4,13 @@ import {useDI} from '../../di';
 import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
 import {
-  hasDisallowedLoginEmailCharacters,
   hasDisallowedLoginPasswordCharacters,
+  hasDisallowedLoginUsernameCharacters,
   loginValidationMessages,
-  sanitizeLoginEmailInput,
   sanitizeLoginPasswordInput,
-  validateLoginEmail,
+  sanitizeLoginUsernameInput,
   validateLoginPassword,
+  validateLoginUsername,
 } from '../../domain/validation';
 
 interface LoginState {
@@ -47,8 +47,8 @@ function mapBiometricError(err: unknown): string | null {
   return 'Ocurrió un error inesperado';
 }
 
-function getLiveEmailError(email: string): string | null {
-  return email ? validateLoginEmail(email) : null;
+function getLiveUsernameError(username: string): string | null {
+  return username ? validateLoginUsername(username) : null;
 }
 
 function getLivePasswordError(password: string): string | null {
@@ -69,10 +69,10 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
   const {loginUseCase, secureStorageService, biometricAuthService} = useDI();
 
   const setEmail = useCallback((email: string) => {
-    const sanitizedEmail = sanitizeLoginEmailInput(email);
-    const emailError = hasDisallowedLoginEmailCharacters(email)
-      ? loginValidationMessages.emailInvalidCharacters
-      : getLiveEmailError(sanitizedEmail);
+    const sanitizedEmail = sanitizeLoginUsernameInput(email);
+    const emailError = hasDisallowedLoginUsernameCharacters(email)
+      ? loginValidationMessages.usernameInvalidCharacters
+      : getLiveUsernameError(sanitizedEmail);
 
     setState(prev => ({
       ...prev,
@@ -110,7 +110,7 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
   const handleLogin = useCallback(async () => {
     const trimmedEmail = state.email.trim();
     const trimmedPassword = state.password.trim();
-    const emailError = validateLoginEmail(trimmedEmail);
+    const emailError = validateLoginUsername(trimmedEmail);
     const passwordError = validateLoginPassword(trimmedPassword);
 
     if (emailError || passwordError) {

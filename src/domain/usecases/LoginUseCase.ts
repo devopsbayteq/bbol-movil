@@ -1,6 +1,6 @@
 import {User} from '../entities/User';
 import {AuthRepository} from '../repositories/AuthRepository';
-import {validateLoginEmail, validateLoginPassword} from '../validation';
+import {validateLoginPassword, validateLoginUsername} from '../validation';
 import { SecureStorageService } from '../services/SecureStorageService';
 
 export class LoginUseCase {
@@ -13,11 +13,11 @@ export class LoginUseCase {
   async execute(email: string, password: string): Promise<User> {
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
-    const emailError = validateLoginEmail(trimmedEmail);
+    const usernameError = validateLoginUsername(trimmedEmail);
     const passwordError = validateLoginPassword(trimmedPassword);
 
-    if (emailError) {
-      throw new Error(emailError);
+    if (usernameError) {
+      throw new Error(usernameError);
     }
 
     if (passwordError) {

@@ -12,8 +12,7 @@ name: Login exitoso — llega al inicio con saldo y movimientos
       id: "transactions-screen"
     timeout: 20000
 
-- assertVisible: "Hola, test"
-- assertVisible: "test@gmail.com"
+- assertVisible: "usuario01"
 - assertVisible: "Saldo disponible"
 - assertVisible: "$15,642.50"
 - assertVisible: "Movimientos recientes"

@@ -1,15 +1,14 @@
 export {
-  hasDisallowedLoginEmailCharacters,
   hasDisallowedLoginPasswordCharacters,
-  LOGIN_EMAIL_MAX_LENGTH,
-  LOGIN_EMAIL_PATTERN,
+  hasDisallowedLoginUsernameCharacters,
   LOGIN_PASSWORD_MAX_LENGTH,
   LOGIN_PASSWORD_MIN_LENGTH,
+  LOGIN_USERNAME_MAX_LENGTH,
   loginValidationMessages,
-  sanitizeLoginEmailInput,
   sanitizeLoginPasswordInput,
-  validateLoginEmail,
+  sanitizeLoginUsernameInput,
   validateLoginPassword,
+  validateLoginUsername,
 } from './loginCredentials';
 export {
   balanceDollarsToCents,

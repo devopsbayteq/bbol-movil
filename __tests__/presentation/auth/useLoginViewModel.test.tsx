@@ -33,7 +33,7 @@ describe('useLoginViewModel', () => {
     jest.clearAllMocks();
   });
 
-  test('sanitizes disallowed characters in email and exposes a field error', async () => {
+  test('sanitizes caracteres no permitidos en usuario y muestra error de campo', async () => {
     mockedUseDI.mockReturnValue({
       loginUseCase: {execute: jest.fn()},
       secureStorageService: {save: jest.fn(), get: jest.fn()},
@@ -47,12 +47,12 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail(' cli\u200Bente @banco.com ');
+      latest?.setEmail('usuario\u200B01');
     });
 
-    expect(latest?.email).toBe('cliente@banco.com');
+    expect(latest?.email).toBe('usuario01');
     expect(latest?.emailError).toBe(
-      'El email contiene caracteres no permitidos',
+      'El usuario contiene caracteres no permitidos',
     );
   });
 
@@ -72,7 +72,7 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('cliente@banco.com');
+      latest?.setEmail('usuario01');
       latest?.setPassword('123');
     });
 
@@ -88,9 +88,9 @@ describe('useLoginViewModel', () => {
 
   test('submits trimmed credentials and stores biometric credentials after success', async () => {
     const execute = jest.fn().mockResolvedValue({
-      id: 'cliente@banco.com',
-      email: 'cliente@banco.com',
-      name: 'cliente',
+      id: 'usuario01',
+      email: 'usuario01',
+      name: 'Usuario Demo',
       token: 'jwt-token',
     });
     const save = jest.fn().mockResolvedValue(undefined);
@@ -109,7 +109,7 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('  cliente@banco.com  ');
+      latest?.setEmail('  usuario01  ');
       latest?.setPassword('  123456  ');
     });
 
@@ -117,18 +117,18 @@ describe('useLoginViewModel', () => {
       await latest?.handleLogin();
     });
 
-    expect(execute).toHaveBeenCalledWith('cliente@banco.com', '123456');
+    expect(execute).toHaveBeenCalledWith('usuario01', '123456');
     expect(save).toHaveBeenCalledWith(
       '@bb_biometric_credentials',
       JSON.stringify({
-        email: 'cliente@banco.com',
+        email: 'usuario01',
         password: '123456',
       }),
     );
     expect(onLoginSuccess).toHaveBeenCalledWith({
-      id: 'cliente@banco.com',
-      email: 'cliente@banco.com',
-      name: 'cliente',
+      id: 'usuario01',
+      email: 'usuario01',
+      name: 'Usuario Demo',
       token: 'jwt-token',
     });
     expect(latest?.emailError).toBeNull();

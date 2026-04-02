@@ -9,9 +9,9 @@ import {ValidateOtpUseCase} from '../../../src/domain/usecases/ValidateOtpUseCas
 describe('domain use cases', () => {
   test('LoginUseCase trims credentials, persists session and returns user', async () => {
     const user = {
-      id: 'test@gmail.com',
-      email: 'test@gmail.com',
-      name: 'test',
+      id: 'usuario01',
+      email: 'usuario01',
+      name: 'Usuario Demo',
       token: 'jwt-token',
     };
     const authRepository = {
@@ -26,10 +26,10 @@ describe('domain use cases', () => {
       '@bb_user_session',
     );
 
-    const result = await useCase.execute('  test@gmail.com  ', '  123456  ');
+    const result = await useCase.execute('  usuario01  ', '  123456  ');
 
     expect(authRepository.login).toHaveBeenCalledWith(
-      'test@gmail.com',
+      'usuario01',
       '123456',
     );
     expect(secureStorage.save).toHaveBeenCalledWith(
@@ -39,7 +39,7 @@ describe('domain use cases', () => {
     expect(result.token).toBe('jwt-token');
   });
 
-  test('LoginUseCase rejects invalid email before calling repository', async () => {
+  test('LoginUseCase rejects usuario vacío before calling repository', async () => {
     const authRepository = {
       login: jest.fn(),
     };
@@ -50,8 +50,8 @@ describe('domain use cases', () => {
       '@bb_user_session',
     );
 
-    await expect(useCase.execute('correo-invalido', '123456')).rejects.toThrow(
-      'El formato del email no es válido',
+    await expect(useCase.execute('', '123456')).rejects.toThrow(
+      'El usuario es requerido',
     );
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
@@ -67,7 +67,7 @@ describe('domain use cases', () => {
     );
 
     await expect(
-      useCase.execute('test@gmail.com', '12345'),
+      useCase.execute('usuario01', '12345'),
     ).rejects.toThrow('La contraseña debe tener al menos 6 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();

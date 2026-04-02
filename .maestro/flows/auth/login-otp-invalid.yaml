@@ -14,7 +14,7 @@ name: PIN incorrecto muestra error en pantalla OTP
 
 - tapOn:
     id: "login-email-input"
-- inputText: "test@gmail.com"
+- inputText: "usuario01"
 
 - tapOn:
     id: "login-password-input"
