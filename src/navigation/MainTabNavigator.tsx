@@ -40,7 +40,7 @@ export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
 
   return (
-    <Tab.Navigator
+    <Tab.Navigator 
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,

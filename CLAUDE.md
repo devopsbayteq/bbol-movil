@@ -63,7 +63,7 @@ npm run lint          # ESLint
 |-------|-------|
 | Usuario | `usuario01` |
 | Password | `123456` |
-| OTP/PIN | `123456` (siempre válido en modo demo) |
+| OTP/PIN | `123457` (siempre válido en modo demo) |
 | App ID | `com.bbapp` |
 
 ## testIDs de referencia
@@ -103,6 +103,7 @@ El borrado usa `accessibilityLabel`: `"Borrar"`.
 │   │   ├── login-credentials-opens-otp.yaml # Credenciales válidas abren OTP
 │   │   ├── login-invalid-credentials.yaml   # Error con credenciales inválidas
 │   │   ├── login-otp-invalid.yaml           # PIN incorrecto muestra error
+│   │   ├── login-validation-fields.yaml     # Validaciones de campo impiden envío
 │   │   ├── logout.yaml                      # Cierre de sesión
 │   │   └── session-persisted-relaunch.yaml  # Sesión persiste al relanzar
 │   ├── transactions/
@@ -114,8 +115,8 @@ El borrado usa `accessibilityLabel`: `"Borrar"`.
 └── subflows/
     ├── ensure-authenticated.yaml            # Garantiza sesión activa (idempotente)
     ├── ensure-login-screen.yaml             # Garantiza pantalla de login
-    ├── complete-demo-otp.yaml               # Ingresa PIN 123456 (flujo login)
-    ├── complete-demo-otp-transfer.yaml      # Ingresa PIN 123456 (flujo transferencia)
+    ├── complete-demo-otp.yaml               # Ingresa PIN 123457 (flujo login)
+    ├── complete-demo-otp-transfer.yaml      # Ingresa PIN 123457 (flujo transferencia)
     └── open-transfer-tab.yaml              # Navega a la pestaña Transferir
 ```
 
@@ -145,6 +146,6 @@ Base URL: `https://dev4.bayteq.com:50112/api/v1/`
 
 - **Seguridad**: Las credenciales se cifran con clave pública del servidor antes de enviarse. La clave se obtiene en el `SplashScreen` y se cachea en `SecureStorage`.
 - **Biometría**: Al hacer login exitoso, se guardan las credenciales cifradas para reutilizarlas con FaceID/Huella.
-- **Modo demo**: El OTP `123456` siempre es aceptado. Los datos de transacciones vienen de `MockTransactionDataSource`.
+- **Modo demo**: El OTP `123457` siempre es aceptado. Los datos de transacciones vienen de `MockTransactionDataSource`.
 - **DI**: Todos los use cases y repositorios se construyen en `src/di/container.ts`.
 - **Temas**: Zustand maneja el modo claro/oscuro/sistema. El hook `useTheme()` provee colores y el hook `useThemeStore()` las acciones.

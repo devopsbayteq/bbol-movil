@@ -1,6 +1,6 @@
 appId: com.bbapp
 ---
-# PIN demo fijo: 123456 - contexto de transferencia.
+# PIN demo fijo: 123457 - contexto de transferencia.
 # Tras validar, OtpValidationScreen llama navigation.goBack() → vuelve a TransferReview,
 # que ejecuta la transferencia y muestra la alerta "Transferencia exitosa".
 - extendedWaitUntil:
@@ -13,7 +13,7 @@ appId: com.bbapp
 - tapOn: "Digito 3"
 - tapOn: "Digito 4"
 - tapOn: "Digito 5"
-- tapOn: "Digito 6"
+- tapOn: "Digito 7"
 
 - extendedWaitUntil:
     visible: "Transferencia exitosa"

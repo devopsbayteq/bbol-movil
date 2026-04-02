@@ -81,7 +81,7 @@ npm run ios
   subflows/
     ensure-login-screen.yaml        # Cierra sesion si hace falta
     ensure-authenticated.yaml         # Sesion existente o login+OTP mock
-    complete-demo-otp.yaml          # Introduce PIN 123456 en teclado OTP
+    complete-demo-otp.yaml          # Introduce PIN 123457 en teclado OTP
   fixtures/                # Datos de prueba (futuro)
   README.md
 ```

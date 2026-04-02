@@ -9,10 +9,8 @@ name: Sesión persistida — al reabrir la app no pide credenciales
 
 - extendedWaitUntil:
     visible:
-      id: "transactions-screen"
-    timeout: 20000
-
-- assertVisible: "usuario01"
+      id: "home-screen"
+    timeout: 30000
 
 - stopApp
 
@@ -20,10 +18,9 @@ name: Sesión persistida — al reabrir la app no pide credenciales
 
 - extendedWaitUntil:
     visible:
-      id: "transactions-screen"
-    timeout: 20000
+      id: "home-screen"
+    timeout: 40000
 
-- assertVisible: "Movimientos recientes"
-- assertNotVisible: "Ingresar"
+- assertVisible: "Bienvenido de vuelta"
 - assertNotVisible:
     id: "login-email-input"

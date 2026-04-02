@@ -9,8 +9,16 @@ name: Logout y retorno a pantalla de login
 
 - extendedWaitUntil:
     visible:
+      id: "home-screen"
+    timeout: 30000
+
+# Navegar al tab Movimientos donde está el botón Salir.
+- tapOn: "Movimientos"
+
+- extendedWaitUntil:
+    visible:
       id: "transactions-screen"
-    timeout: 20000
+    timeout: 15000
 
 - tapOn:
     id: "logout-button"

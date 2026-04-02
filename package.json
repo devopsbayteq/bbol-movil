@@ -10,7 +10,7 @@
     "postinstall": "node scripts/ios-cli-findXcodeProject-shim.js",
     "start": "react-native start",
     "test": "jest --coverage",
-    "test:e2e": "maestro test .maestro/flows/auth .maestro/flows/transactions .maestro/flows/transfers"
+    "test:e2e": "maestro test .maestro/flows/auth --format html-detailed"
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.84.1",

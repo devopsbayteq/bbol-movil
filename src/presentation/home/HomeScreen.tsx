@@ -222,7 +222,7 @@ export function HomeScreen() {
   const frequentPayments = data?.frequentPayments ?? [];
 
   return (
-    <View style={styles.root}>
+    <View style={styles.root} testID="home-screen">
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
         <HomeHeader userName={user?.name} />
       </SafeAreaView>
