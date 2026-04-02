@@ -1,29 +1,35 @@
-import {Modal, Text, StyleSheet, View, Image} from "react-native";
-import {ThemeColors, useTheme} from "../../../providers";
-import React, {useMemo} from "react";
-import {Button, TertiaryLinkButton} from "../../components";
-import {CardAccountItem} from "./CardAccountItem.tsx";
-import {TransferIconUser} from "../transferIcons.tsx";
-import {BeneficiaryOption} from "../transferTypes.ts";
-
+import {
+    Modal,
+    Text,
+    StyleSheet,
+    View,
+    TouchableOpacity,
+} from 'react-native';
+import {ThemeColors, useTheme} from '../../../providers';
+import React, {useMemo} from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {CardAccountItem} from './CardAccountItem';
+import {BeneficiaryOption} from '../transferTypes';
+import {Lexend} from '../../../theme/lexend';
+import {TransactionHeaderInformation} from "./TransactionHeaderInformation.tsx";
 
 interface TransferModalSuccessProps {
-    visible: boolean,
-    onClose: () => void,
-    navigateToHome: () => void,
-    navigateToTransfer: () => void,
-    transactionData:TransferDataResume
+    visible: boolean;
+    onClose: () => void;
+    navigateToHome: () => void;
+    navigateToTransfer: () => void;
+    transactionData: TransferDataResume;
 }
 
-export  interface  TransferDataResume{
-    amountCents:string,
-    displayAmount:string,
-    beneficiary:BeneficiaryOption,
-    fromHolderName:string,
-    fromAccountLine:string,
-    accountId:string,
-    concept:string,
-    transactionIdentifier:string
+export interface TransferDataResume {
+    amountCents: string;
+    displayAmount: string;
+    beneficiary: BeneficiaryOption;
+    fromHolderName: string;
+    fromAccountLine: string;
+    accountId: string;
+    concept: string;
+    transactionIdentifier: string;
 }
 
 export const TransferModalSuccess = ({
@@ -31,91 +37,147 @@ export const TransferModalSuccess = ({
                                          onClose,
                                          navigateToTransfer,
                                          navigateToHome,
-                                         transactionData
+                                         transactionData,
                                      }: TransferModalSuccessProps) => {
     const {colors} = useTheme();
-    //const insets = useSafeAreaInsets();
-
+    const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
+
+
     return (
         <Modal
+            transparent
             animationType="slide"
             visible={visible}
-            onRequestClose={() => {
-                onClose()
-            }}>
-            <View style={styles.rootScreen}>
-                <View style={styles.cardInfoContainer}>
-                    <View style={styles.containerInfo}>
+            onRequestClose={onClose}>
+            <View style={styles.modalRoot}>
+                <TouchableOpacity
+                    style={styles.backdrop}
+                    activeOpacity={1}
+                    onPress={onClose}
+                    accessibilityRole="button"
+                    accessibilityLabel="Cerrar"
+                />
+                <View
+                    style={[
+                        styles.sheet,
+                        {paddingBottom: Math.max(insets.bottom, 12)},
+                    ]}>
+                    <View style={styles.sheetInner}>
+                        <View style={styles.cardInfoContainer}>
+                            <TransactionHeaderInformation transferResume={transactionData}/>
+                            <View style={styles.accountsBlock}>
+                                <CardAccountItem
+                                    origin="Desde"
+                                    accountType={transactionData.fromAccountLine}
+                                    name={transactionData.fromHolderName}
+                                    showBottomBorder
+                                />
+                                <CardAccountItem
+                                    origin="Para"
+                                    accountType={transactionData.beneficiary.accountHint}
+                                    name={transactionData.beneficiary.name}
+                                />
+                            </View>
+                        </View>
 
-                        <Image
-                            source={require("../../../../assets/images/circle-check.png")}
-                            style={styles.logo}
-                            resizeMode="cover"
-                            accessibilityLabel="Banco Bolivariano"
-                        />
-
-                        <Text>¡Transferencia exitosa!</Text>
-                        <Text>{transactionData.displayAmount}</Text>
-                        <Text>Comprobante:{transactionData.transactionIdentifier}</Text>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                style={styles.primaryButton}
+                                onPress={navigateToTransfer}
+                                activeOpacity={0.85}
+                                accessibilityRole="button"
+                                accessibilityLabel="Nueva transferencia">
+                                <Text style={styles.primaryButtonText}>Nueva transferencia</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.tertiaryButton}
+                                onPress={navigateToHome}
+                                activeOpacity={0.85}
+                                accessibilityRole="button"
+                                accessibilityLabel="Ir al inicio">
+                                <Text style={styles.tertiaryButtonText}>Ir al inicio</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                    <CardAccountItem origin={"Desde"} accountType={transactionData.fromAccountLine} name={transactionData.fromHolderName}/>
-                    <View style={styles.separator}/>
-                    <CardAccountItem origin={"Para"} accountType={transactionData.beneficiary.accountHint} name={transactionData.beneficiary.name}/>
                 </View>
-                <View style={styles.buttonContainer}>
-                    <Button title="Nueva Transferencia" onPress={() => {
-                        navigateToTransfer()
-                    }}/>
-
-                    <TertiaryLinkButton title="Ir al Inicio" onPress={() => {
-                        navigateToHome()
-                    }}/>
-
-                </View>
-
             </View>
         </Modal>
-
-    )
-}
+    );
+};
 
 function useStyles(colors: ThemeColors) {
     return useMemo(
         () =>
             StyleSheet.create({
-                logo:{
-                    height:50,
-                    width:50
-                },
-                rootScreen: {
-                    backgroundColor: colors.background
-                },
-                root: {
+                modalRoot: {
                     flex: 1,
+                    justifyContent: 'flex-end',
+                },
+                backdrop: {
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                },
+                sheet: {
                     backgroundColor: colors.background,
+                    borderTopLeftRadius: 12,
+                    borderTopRightRadius: 12,
+                    paddingTop: 24,
+                    maxWidth: '100%',
+                    alignSelf: 'stretch',
                 },
-                cardItem: {
-                    flexDirection: 'row'
+                sheetInner: {
+                    gap: 24,
+                    alignItems: 'center',
+                    paddingHorizontal: 24,
                 },
-                separator: {
-                    height: 2,
-                    width: '70%',
-                    backgroundColor: colors.primary,
-                    marginHorizontal: 10
-
-                },
-                containerInfo: {
-                    alignItems: 'center'
+                accountsBlock: {
+                    width: '100%',
                 },
                 cardInfoContainer: {
                     backgroundColor: colors.surface,
-                    marginVertical: 24,
-                    marginHorizontal: 24,
-                    paddingVertical: 12
+                    borderRadius: 12,
+                    padding: 12,
+                    width: '100%',
+                    maxWidth: 312,
+                    gap: 24,
                 },
-                buttonContainer:{
-                    marginHorizontal:24
-                }
-            }), [colors])
+                buttonContainer: {
+                    width: '100%',
+                    maxWidth: 312,
+                    gap: 12,
+                    alignItems: 'center',
+                },
+                primaryButton: {
+                    backgroundColor: colors.primary,
+                    borderRadius: 8,
+                    height: 54,
+                    width: '100%',
+                    maxWidth: 312,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 16,
+                },
+                primaryButtonText: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 14,
+                    lineHeight: 22,
+                    color: colors.white,
+                },
+                tertiaryButton: {
+                    paddingVertical: 8,
+                    paddingHorizontal: 4,
+                    borderRadius: 8,
+                    width: 261,
+                    alignItems: 'center',
+                },
+                tertiaryButtonText: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 14,
+                    lineHeight: 22,
+                    color: colors.linkPrimary,
+                },
+            }),
+        [colors],
+    );
 }

@@ -221,7 +221,7 @@ export function TransferScreen() {
                         </TouchableOpacity>
 
                         <Button title="Demo" onPress={() => {
-                            setTransferSuccessModal(true)
+                            navigation.navigate('TransferVoucher')
                         }}/>
                     </View>
                 </ScrollView>
