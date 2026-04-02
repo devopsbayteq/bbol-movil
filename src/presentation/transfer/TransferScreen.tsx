@@ -35,8 +35,7 @@ import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {ToolbarApp} from "./components/ToolbarApp.tsx";
-import {Button} from "../components";
-import {TransferModalSuccess} from "./components/TransferModalSuccess.tsx";
+
 
 const ZERO_DISPLAY = formatMoneyEc(0);
 
@@ -56,8 +55,6 @@ export function TransferScreen() {
     const {selectBeneficiary} = transferViewModel;
 
     const [beneficiarySelectorVisible, setBeneficiarySelectorVisible] = useState(false);
-
-    const [showTransferSuccessModal, setTransferSuccessModal] = useState(false)
 
     const holderName = transferViewModel.user?.name?.trim() || 'Titular';
 
@@ -219,10 +216,6 @@ export function TransferScreen() {
                             />
                             <Text style={styles.primaryCtaText}>Continuar</Text>
                         </TouchableOpacity>
-
-                        <Button title="Demo" onPress={() => {
-                            navigation.navigate('TransferVoucher')
-                        }}/>
                     </View>
                 </ScrollView>
             )}
@@ -317,39 +310,7 @@ export function TransferScreen() {
                 }}
             />
 
-            <TransferModalSuccess
-                openVoucher={() => {
-                    navigation.navigate("TransferVoucher")
-                }}
-                transactionData={{
-                    accountId: "",
-                    fromHolderName: "holder",
-                    fromAccountLine: "Credito",
-                    transactionIdentifier: "12344556",
-                    displayAmount: "$10.00",
-                    concept: "Pago pendiente",
-                    amountCents: "10.00",
-                    beneficiary: {
-                        name: "Beneficiary",
-                        kind: 'contact',
-                        accountHint: "8****J",
-                        bankName: "Procredit",
-                        id: "dhhdeueu3737373336"
-                    }
-                }}
-                visible={showTransferSuccessModal}
-                onClose={() => {
-                    setTransferSuccessModal(false)
-                }}
-                navigateToTransfer={() => {
-                    setTransferSuccessModal(false)
-                    //navigation.pop()
-                }}
-                navigateToHome={() => {
-                    setTransferSuccessModal(false)
-                    //navigation.pop()
-                }}
-            />
+
         </View>
     );
 }

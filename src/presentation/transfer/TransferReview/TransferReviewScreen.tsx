@@ -26,6 +26,7 @@ import {
 } from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from "../components/ToolbarApp.tsx";
+import {TransferModalSuccess} from "../components/TransferModalSuccess.tsx";
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -40,8 +41,8 @@ export function TransferReviewScreen() {
         NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
 
-    // const route = useRoute<PantallaARouteProp>();
-    const [otpSuccess, setOtpSuccess] = useState<boolean>(false);
+
+    const [showTransferSuccessModal, setTransferSuccessModal] = useState(false)
 
 
     const onTransferSuccess = useCallback(
@@ -83,7 +84,7 @@ export function TransferReviewScreen() {
         navigation.navigate(
             'OtpValidationTransfer', {
                 mode: 'transfer', email: "", onClose: (isValid: boolean) => {
-                     setOtpSuccess(isValid)
+
                      console.log("volviste de otp")
                 }
             }
@@ -213,7 +214,42 @@ export function TransferReviewScreen() {
                         <Text style={styles.secondaryCtaText}>Modificar</Text>
                     </TouchableOpacity>
                 </View>
+
             </ScrollView>
+
+            <TransferModalSuccess
+                openVoucher={() => {
+                    navigation.navigate("TransferVoucher")
+                }}
+                transactionData={{
+                    accountId: "",
+                    fromHolderName: "holder",
+                    fromAccountLine: "Credito",
+                    transactionIdentifier: "12344556",
+                    displayAmount: "$10.00",
+                    concept: "Pago pendiente",
+                    amountCents: "10.00",
+                    beneficiary: {
+                        name: "Beneficiary",
+                        kind: 'contact',
+                        accountHint: "8****J",
+                        bankName: "Procredit",
+                        id: "dhhdeueu3737373336"
+                    }
+                }}
+                visible={showTransferSuccessModal}
+                onClose={() => {
+                    setTransferSuccessModal(false)
+                }}
+                navigateToTransfer={() => {
+                    setTransferSuccessModal(false)
+                    //navigation.pop()
+                }}
+                navigateToHome={() => {
+                    setTransferSuccessModal(false)
+                    //navigation.pop()
+                }}
+            />
         </View>
     );
 }
