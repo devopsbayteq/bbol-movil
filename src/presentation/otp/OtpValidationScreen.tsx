@@ -10,11 +10,10 @@ import {
   Pressable,
   ScrollView,
 } from 'react-native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../navigation/AppNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+
+import {useTheme, type ThemeColors} from '../../providers';
 import {useAuth} from '../../providers';
 import {
   ErrorMessage,
@@ -25,18 +24,35 @@ import {
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
 import {FIGMA_OTP_ASSETS} from './figmaOtpAssets';
+import {RootStackParamList} from "../../navigation/LoginStackNavigation.tsx";
+import {TransferStackParamList} from "../../navigation/TransferStackNavigator.tsx";
 
-type Props = NativeStackScreenProps<RootStackParamList, 'OtpValidation'>;
+type OTPScreenNavigationProp =
+    | NativeStackNavigationProp<RootStackParamList, 'OtpValidation'>
+    | NativeStackNavigationProp<TransferStackParamList, 'OtpValidationTransfer'>;
 
+
+type OTPScreenRouteProp =
+    | RouteProp<RootStackParamList, 'OtpValidation'>
+    | RouteProp<TransferStackParamList, 'OtpValidationTransfer'>;
+
+
+interface OTPScreenComponentProps {
+    navigation: OTPScreenNavigationProp;
+    route: OTPScreenRouteProp;
+}
 const INSTRUCTION_COLOR = '#3E494B';
 
-export function OtpValidationScreen({route}: Props) {
+export function OtpValidationScreen({route}: OTPScreenComponentProps) {
+
+
   const {colors} = useTheme();
   const styles = useStyles(colors);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList|TransferStackParamList>>();
   const {login} = useAuth();
   const params = route.params;
   const email = params.email;
+
 
   const {
     code,
@@ -48,11 +64,13 @@ export function OtpValidationScreen({route}: Props) {
     handleValidate,
     handleResend,
   } = useOtpValidationViewModel(async () => {
-    if (params.mode === 'transfer') {
-      navigation.goBack();
-      return;
-    }
-    await login(params.user);
+      if (params.mode === 'login') {
+        await login(params.user);
+        return;
+      }
+      if (params.mode === 'transfer') {
+        navigation.goBack();
+      }
   });
 
   const lastSubmitted = useRef<string | null>(null);

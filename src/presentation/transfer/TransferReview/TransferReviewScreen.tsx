@@ -75,7 +75,9 @@ export function TransferReviewScreen() {
     conceptDisplay,
     transferDateLabel,
     onConfirm,
-  } = useTransferReviewViewModel({onTransferSuccess});
+  } = useTransferReviewViewModel(() => {
+      navigation.navigate('OtpValidationTransfer',{mode:'transfer',email:""})
+  },{onTransferSuccess});
 
   return (
     <View style={styles.root}>
