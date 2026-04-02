@@ -37,11 +37,13 @@ export function LoginScreen() {
     password,
     isLoadingLogin,
     isLoadingBiometric,
+    isLoadingRegisterBiometric,
     isBusy,
     error,
     setEmail,
     setPassword,
     handleLogin,
+    handleRegisterBiometric,
     handleBiometricLogin,
   } = useLoginViewModel(async user => {
     navigation.navigate('OtpValidation', {
@@ -119,9 +121,16 @@ export function LoginScreen() {
               disabled={isBusy}
               variant="loginPrimary"
             />
+            <Button
+              title="Activar biometría"
+              onPress={handleRegisterBiometric}
+              loading={isLoadingRegisterBiometric}
+              disabled={isBusy}
+              variant="outline"
+            />
             <OrSeparator />
             <SecondaryIconButton
-              title="Huella/FaceID"
+              title="Huella/Face ID"
               iconUri={FIGMA_LOGIN_ASSETS.fingerprint}
               onPress={handleBiometricLogin}
               disabled={isBusy}

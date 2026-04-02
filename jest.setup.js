@@ -31,3 +31,25 @@ jest.mock('react-native-device-info', () => ({
   getSystemVersion: jest.fn(() => Promise.resolve('17.0')),
   isEmulator: jest.fn(() => Promise.resolve(false)),
 }));
+
+jest.mock('react-native-keychain', () => ({
+  setGenericPassword: jest.fn(() => Promise.resolve({service: 's', storage: 'k'})),
+  getGenericPassword: jest.fn(() => Promise.resolve(false)),
+  hasGenericPassword: jest.fn(() => Promise.resolve(false)),
+  resetGenericPassword: jest.fn(() => Promise.resolve(true)),
+  ACCESS_CONTROL: {BIOMETRY_ANY: 'BiometryAny'},
+  ACCESSIBLE: {WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'AccessibleWhenUnlockedThisDeviceOnly'},
+  AUTHENTICATION_TYPE: {BIOMETRICS: 'AuthenticationWithBiometrics'},
+}));
+
+jest.mock('react-native-rsa-native', () => ({
+  RSA: {
+    generateKeys: jest.fn(() =>
+      Promise.resolve({
+        public: '-----BEGIN PUBLIC KEY-----\nM\n-----END PUBLIC KEY-----',
+        private: '-----BEGIN RSA PRIVATE KEY-----\nP\n-----END RSA PRIVATE KEY-----',
+      }),
+    ),
+    signWithAlgorithm: jest.fn(() => Promise.resolve('signed-b64')),
+  },
+}));

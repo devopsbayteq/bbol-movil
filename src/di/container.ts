@@ -33,6 +33,12 @@ import {ContractBalanceRemoteDataSource} from '../data/datasources/contractBalan
 import {BeneficiaryRemoteDataSource} from '../data/datasources/beneficiary';
 import {ContractBalanceRepositoryImpl} from '../data/repositories/ContractBalanceRepositoryImpl';
 import {BeneficiaryRepositoryImpl} from '../data/repositories/BeneficiaryRepositoryImpl';
+import {BiometricRemoteDataSource} from '../data/datasources/biometric';
+import {
+  BiometricRSAAuthOrchestrator,
+  CryptoService,
+  BiometricKeyStorageService,
+} from '../security/biometric';
 
 export interface AppContainer {
   loginUseCase: LoginUseCase;
@@ -48,6 +54,7 @@ export interface AppContainer {
   getBeneficiaryContactsUseCase: GetBeneficiaryContactsUseCase;
   validateTransactionAmountUseCase: ValidateTransactionAmountUseCase;
   executeTransferUseCase: ExecuteTransferUseCase;
+  biometricRSAAuthOrchestrator: BiometricRSAAuthOrchestrator;
 }
 
 export function createContainer(): AppContainer {
@@ -74,6 +81,7 @@ export function createContainer(): AppContainer {
     httpClient,
   );
   const transferRemoteDataSource = new TransferRemoteDataSource(httpClient);
+  const biometricRemoteDataSource = new BiometricRemoteDataSource(httpClient);
   const transactionDataSource = new MockTransactionDataSource();
 
   const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
@@ -89,10 +97,18 @@ export function createContainer(): AppContainer {
   );
   const transferRepository = new TransferRepositoryImpl(transferRemoteDataSource);
 
+  const getPublicKeyUseCase = new GetPublicKeyUseCase(
+    securityRepository,
+    secureStorageService,
+    SecureStorageKeys.SERVER_PUBLIC_KEY,
+  );
+
   const loginUseCase = new LoginUseCase(
     authRepository,
     secureStorageService,
     SecureStorageKeys.USER_LOGIN_DATA,
+    getPublicKeyUseCase,
+    SecureStorageKeys.AUTH_TOKEN,
   );
 
   const getUserLoggedUseCase = new GetUserLoggedUseCase(
@@ -103,9 +119,15 @@ export function createContainer(): AppContainer {
   const getTransactionsUseCase = new GetTransactionsUseCase(
     transactionRepository,
   );
-  const getPublicKeyUseCase = new GetPublicKeyUseCase(
-    securityRepository,
+
+  const cryptoService = new CryptoService();
+  const biometricKeyStorageService = new BiometricKeyStorageService();
+  const biometricRSAAuthOrchestrator = new BiometricRSAAuthOrchestrator(
+    biometricRemoteDataSource,
+    cryptoService,
+    biometricKeyStorageService,
     secureStorageService,
+    getPublicKeyUseCase,
     SecureStorageKeys.SERVER_PUBLIC_KEY,
   );
 
@@ -143,5 +165,6 @@ export function createContainer(): AppContainer {
     getBeneficiaryContactsUseCase,
     validateTransactionAmountUseCase,
     executeTransferUseCase,
+    biometricRSAAuthOrchestrator,
   };
 }

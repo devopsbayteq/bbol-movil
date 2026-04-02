@@ -20,9 +20,27 @@ export function pemFromBase64PemBlock(base64Pem: string): string {
   return Buffer.from(base64Pem, 'base64').toString('utf8');
 }
 
+/**
+ * Unifica material PEM (público o privado) al formato esperado por `base64ToBinaryLatin1`:
+ * Base64(UTF-8(PEM)). El API puede devolver PEM en texto o ya en Base64.
+ * Sin esto, PEM plano provoca "invalid base64 characters" al decodificar.
+ */
+export function normalizePemKeyMaterialBase64(raw: string): string {
+  const trimmed = raw.trim().replace(/^\uFEFF/, '');
+  if (!trimmed) {
+    throw new Error('El material PEM está vacío');
+  }
+  if (trimmed.includes('-----BEGIN')) {
+    return Buffer.from(trimmed, 'utf8').toString('base64');
+  }
+  const compact = trimmed.replace(/\s/g, '');
+  return compact.replace(/-/g, '+').replace(/_/g, '/');
+}
+
 export function createPublicKeyFromPemBase64(base64Pem: string): RsaPublicKey {
+  const normalized = normalizePemKeyMaterialBase64(base64Pem);
   return crypto.createPublicKey({
-    key: base64ToBinaryLatin1(base64Pem),
+    key: base64ToBinaryLatin1(normalized),
     format: 'pem',
   });
 }
@@ -30,7 +48,8 @@ export function createPublicKeyFromPemBase64(base64Pem: string): RsaPublicKey {
 export function createPrivateKeyFromPemBase64(
   base64Pem: string,
 ): RsaPrivateKey {
-  return crypto.createPrivateKey(base64ToBinaryLatin1(base64Pem));
+  const normalized = normalizePemKeyMaterialBase64(base64Pem);
+  return crypto.createPrivateKey(base64ToBinaryLatin1(normalized));
 }
 
 function rsaOaepEncryptWithPublicKey(

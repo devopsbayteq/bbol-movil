@@ -10,6 +10,9 @@ export const SecureStorageKeys = {
   /** `validateHash` del API: activar pinning TLS estricto (doCertValidation) */
   CERTIFICATE_PINNING_ENABLED: '@bb_certificate_pinning_enabled',
   SERVER_PUBLIC_KEY: '@bb_server_public_key',
+  /** @deprecated No guardar contraseña para biometría; usar flujo RSA + BIOMETRIC_USERNAME */
   BIOMETRIC_CREDENTIALS: '@bb_biometric_credentials',
+  /** Email/usuario para cifrado en challenge/login biométrico (sin contraseña) */
+  BIOMETRIC_USERNAME: '@bb_biometric_username',
   USER_LOGIN_DATA: '@bb_user_login_data',
 } as const;
