@@ -110,12 +110,14 @@ Maestro Studio abre una interfaz visual donde puedes explorar la jerarquia de el
 
 ## Credenciales de prueba
 
-Coinciden con `MockAuthDataSource` (modo mock):
+Usuario y contraseña (sin correo). En modo mock coinciden con `MockAuthDataSource`:
 
-| Campo    | Valor            |
-|----------|------------------|
-| Email    | test@gmail.com   |
-| Password | 123456           |
+| Campo     | Valor     |
+|-----------|-----------|
+| Usuario   | usuario01 |
+| Contraseña | 123456   |
+
+Otros usuarios de entorno (usuario02, etc.) pueden usarse en pruebas manuales; los flujos Maestro usan **usuario01** por defecto.
 
 ## Solucion de problemas
 

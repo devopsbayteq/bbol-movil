@@ -115,7 +115,6 @@ export function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               hasError={hasFieldError(!email)}
-              keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isBusy}

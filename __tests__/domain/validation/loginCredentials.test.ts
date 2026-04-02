@@ -1,33 +1,32 @@
 import {
-  hasDisallowedLoginEmailCharacters,
   hasDisallowedLoginPasswordCharacters,
+  hasDisallowedLoginUsernameCharacters,
+  LOGIN_USERNAME_MAX_LENGTH,
   loginValidationMessages,
-  sanitizeLoginEmailInput,
   sanitizeLoginPasswordInput,
-  validateLoginEmail,
+  sanitizeLoginUsernameInput,
   validateLoginPassword,
+  validateLoginUsername,
 } from '../../../src/domain/validation';
 
 describe('loginCredentials validation', () => {
-  test('sanitizes unsafe characters from login email input', () => {
-    const rawEmail = ' test\u200B@gmai\u0000l.com ';
+  test('sanitizes unsafe characters from login username input', () => {
+    const raw = ' test\u200Busuario\u0000id ';
 
-    expect(sanitizeLoginEmailInput(rawEmail)).toBe('test@gmail.com');
-    expect(hasDisallowedLoginEmailCharacters(rawEmail)).toBe(true);
+    expect(sanitizeLoginUsernameInput(raw)).toBe(' testusuarioid ');
+    expect(hasDisallowedLoginUsernameCharacters(raw)).toBe(true);
   });
 
-  test('requires a valid login email format', () => {
-    expect(validateLoginEmail('correo-invalido')).toBe(
-      loginValidationMessages.emailInvalidFormat,
-    );
+  test('accepts plain text username without email format', () => {
+    expect(validateLoginUsername('usuario123')).toBeNull();
+    expect(validateLoginUsername('mi-usuario_sin_correo')).toBeNull();
   });
 
-  test('rejects login emails longer than the allowed maximum', () => {
-    const localPart = 'a'.repeat(246);
-    const longEmail = `${localPart}@mail.com`;
+  test('rejects usernames longer than the allowed maximum', () => {
+    const longUsername = 'a'.repeat(LOGIN_USERNAME_MAX_LENGTH + 1);
 
-    expect(validateLoginEmail(longEmail)).toBe(
-      loginValidationMessages.emailTooLong,
+    expect(validateLoginUsername(longUsername)).toBe(
+      loginValidationMessages.usernameTooLong,
     );
   });
 

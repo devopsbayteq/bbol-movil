@@ -1,14 +1,11 @@
 import {
-  composeSanitizers,
   composeValidators,
   containsCharacters,
   containsMatchingCharacters,
-  removeCharacters,
   rejectCharacters,
   rejectMatchingCharacters,
   requireMaxLength,
   requireMinLength,
-  requirePattern,
   requireTrimmedValue,
 } from './rules';
 import {
@@ -17,18 +14,14 @@ import {
   sanitizeUnsafeTextInput,
 } from './textSafety';
 
-export const WHITESPACE_PATTERN = /\s/g;
-export const LOGIN_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export const LOGIN_EMAIL_MAX_LENGTH = 254;
+export const LOGIN_USERNAME_MAX_LENGTH = 128;
 export const LOGIN_PASSWORD_MIN_LENGTH = 6;
 export const LOGIN_PASSWORD_MAX_LENGTH = 128;
 
 export const loginValidationMessages = {
-  emailRequired: 'El email es requerido',
-  emailInvalidCharacters: 'El email contiene caracteres no permitidos',
-  emailInvalidFormat: 'El formato del email no es válido',
-  emailTooLong: `El email no puede superar ${LOGIN_EMAIL_MAX_LENGTH} caracteres`,
+  usernameRequired: 'El usuario es requerido',
+  usernameInvalidCharacters: 'El usuario contiene caracteres no permitidos',
+  usernameTooLong: `El usuario no puede superar ${LOGIN_USERNAME_MAX_LENGTH} caracteres`,
   passwordRequired: 'La contraseña es requerida',
   passwordInvalidCharacters:
     'La contraseña contiene caracteres no permitidos',
@@ -36,32 +29,24 @@ export const loginValidationMessages = {
   passwordTooLong: `La contraseña no puede superar ${LOGIN_PASSWORD_MAX_LENGTH} caracteres`,
 } as const;
 
-export const sanitizeLoginEmailInput = composeSanitizers(
-  sanitizeUnsafeTextInput,
-  removeCharacters(WHITESPACE_PATTERN),
-);
+export const sanitizeLoginUsernameInput = sanitizeUnsafeTextInput;
 
 export const sanitizeLoginPasswordInput = sanitizeUnsafeTextInput;
 
-export const validateLoginEmail = composeValidators(
-  requireTrimmedValue(loginValidationMessages.emailRequired),
+export const validateLoginUsername = composeValidators(
+  requireTrimmedValue(loginValidationMessages.usernameRequired),
   rejectMatchingCharacters(
     isControlCharacter,
-    loginValidationMessages.emailInvalidCharacters,
+    loginValidationMessages.usernameInvalidCharacters,
   ),
   rejectCharacters(
     INVISIBLE_CHAR_PATTERN,
-    loginValidationMessages.emailInvalidCharacters,
-  ),
-  rejectCharacters(
-    WHITESPACE_PATTERN,
-    loginValidationMessages.emailInvalidCharacters,
+    loginValidationMessages.usernameInvalidCharacters,
   ),
   requireMaxLength(
-    LOGIN_EMAIL_MAX_LENGTH,
-    loginValidationMessages.emailTooLong,
+    LOGIN_USERNAME_MAX_LENGTH,
+    loginValidationMessages.usernameTooLong,
   ),
- // requirePattern(LOGIN_EMAIL_PATTERN, loginValidationMessages.emailInvalidFormat),
 );
 
 export const validateLoginPassword = composeValidators(
@@ -84,11 +69,10 @@ export const validateLoginPassword = composeValidators(
   ),
 );
 
-export function hasDisallowedLoginEmailCharacters(value: string): boolean {
+export function hasDisallowedLoginUsernameCharacters(value: string): boolean {
   return (
     containsMatchingCharacters(isControlCharacter, value) ||
-    containsCharacters(INVISIBLE_CHAR_PATTERN, value) ||
-    containsCharacters(WHITESPACE_PATTERN, value)
+    containsCharacters(INVISIBLE_CHAR_PATTERN, value)
   );
 }
 

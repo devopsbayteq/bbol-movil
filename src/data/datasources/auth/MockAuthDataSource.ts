@@ -3,7 +3,7 @@ import {LoginResponseModel} from '../../models/LoginResponseModel';
 import {AuthDataSource} from './AuthDataSource';
 
 const MOCK_CREDENTIALS = {
-  email: 'test@gmail.com',
+  username: 'usuario01',
   password: '123456',
 };
 
@@ -19,7 +19,7 @@ export class MockAuthDataSource implements AuthDataSource {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (
-          request.username === MOCK_CREDENTIALS.email &&
+          request.username === MOCK_CREDENTIALS.username &&
           request.password === MOCK_CREDENTIALS.password
         ) {
           resolve(MOCK_USER_RESPONSE);

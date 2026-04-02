@@ -10,9 +10,9 @@ import * as rsaUtils from '../../../src/security/certificate/rsaUtils';
 describe('domain use cases', () => {
   test('LoginUseCase trims credentials, persists session and returns user', async () => {
     const user = {
-      id: 'test@gmail.com',
-      email: 'test@gmail.com',
-      name: 'test',
+      id: 'usuario01',
+      email: 'usuario01',
+      name: 'Usuario Demo',
       token: 'jwt-token',
     };
     const authRepository = {
@@ -35,14 +35,13 @@ describe('domain use cases', () => {
       '@auth_token',
     );
 
-    const result = await useCase.execute('  test@gmail.com  ', '  123456  ');
+    const result = await useCase.execute('  usuario01  ', '  123456  ');
 
     expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
-      'test@gmail.com',
-      'enc-blob',
-      'enc-blob',
+      'usuario01',
+      '123456',
     );
     expect(secureStorage.save).toHaveBeenCalledWith(
       '@bb_user_session',
@@ -53,7 +52,7 @@ describe('domain use cases', () => {
     encryptSpy.mockRestore();
   });
 
-  test('LoginUseCase rejects invalid email before calling repository', async () => {
+  test('LoginUseCase rejects usuario vacío before calling repository', async () => {
     const authRepository = {
       login: jest.fn(),
     };
@@ -67,8 +66,8 @@ describe('domain use cases', () => {
       '@auth_token',
     );
 
-    await expect(useCase.execute('correo-invalido', '123456')).rejects.toThrow(
-      'El formato del email no es válido',
+    await expect(useCase.execute('', '123456')).rejects.toThrow(
+      'El usuario es requerido',
     );
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
@@ -87,7 +86,7 @@ describe('domain use cases', () => {
     );
 
     await expect(
-      useCase.execute('test@gmail.com', '12345'),
+      useCase.execute('usuario01', '12345'),
     ).rejects.toThrow('La contraseña debe tener al menos 6 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();

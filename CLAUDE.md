@@ -61,7 +61,7 @@ npm run lint          # ESLint
 
 | Campo | Valor |
 |-------|-------|
-| Email | `test@gmail.com` |
+| Usuario | `usuario01` |
 | Password | `123456` |
 | OTP/PIN | `123456` (siempre válido en modo demo) |
 | App ID | `com.bbapp` |
