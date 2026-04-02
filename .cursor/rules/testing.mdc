@@ -1,0 +1,23 @@
+---
+description: Reglas de testing Jest + Maestro
+globs:
+  - __tests__/**
+  - .maestro/**
+  - src/**/*.test.*
+---
+
+# Testing
+
+El proyecto usa dos herramientas:
+
+- `Jest` para lógica pura: casos de uso, mappers, utilidades. Se corre con `npm test`.
+- `Maestro` para flujos de usuario (E2E). La estructura esperada es `.maestro/flows/<feature>/`.
+
+Al escribir tests:
+
+- Validar comportamiento observable, no detalles internos de implementación.
+- Si el cambio afecta un recorrido de usuario, evaluar si necesita un flujo Maestro nuevo o actualizar uno existente.
+- Los nombres de flujos Maestro deben reflejar la intención: `login-success.yaml`, `transactions-list-visible.yaml`.
+- No crear tests que solo fijen snapshots o implementación frágil.
+
+Para criterios de calidad E2E y la política mientras Maestro no esté configurado, ver `docs/TESTING.md`.
