@@ -86,8 +86,7 @@ export function TransferReviewScreen() {
         navigation.navigate(
             'OtpValidationTransfer', {
                 mode: 'transfer', email: "", onClose: (_isValid: boolean) => {
-
-                     console.log("volviste de otp")
+                    onConfirm().catch()
                 }
             }
         )
@@ -223,7 +222,9 @@ export function TransferReviewScreen() {
                 <TransferModalSuccess
                     openVoucher={() => {
                         resetTransferSuccessUi();
-                        navigation.navigate('TransferVoucher');
+                        navigation.navigate('TransferVoucher', {
+                            routeSuccessTransactionData: successTransactionData,
+                        });
                     }}
                     transactionData={successTransactionData}
                     visible={showTransferSuccessModal}
