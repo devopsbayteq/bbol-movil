@@ -27,6 +27,7 @@ function useStyles(colors: ThemeColors) {
                     backgroundColor: colors.surface,
                     borderRadius: 12,
                     padding: 12,
+                    alignSelf: 'center',
                     width: '100%',
                     maxWidth: 312,
                     gap: 24,

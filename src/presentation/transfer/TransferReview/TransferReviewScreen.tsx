@@ -7,7 +7,6 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Platform,
-    Alert,
 } from 'react-native';
 import { useNavigation} from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
@@ -26,6 +25,10 @@ import {
 } from '../transferIcons';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from "../components/ToolbarApp.tsx";
+import {
+    TransferModalSuccess,
+    type TransferDataResume,
+} from '../components/TransferModalSuccess';
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -40,32 +43,29 @@ export function TransferReviewScreen() {
         NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
 
-    // const route = useRoute<PantallaARouteProp>();
-    const [otpSuccess, setOtpSuccess] = useState<boolean>(false);
 
+    const [showTransferSuccessModal, setTransferSuccessModal] = useState(false);
+    const [successTransactionData, setSuccessTransactionData] =
+        useState<TransferDataResume | null>(null);
+
+    const resetTransferSuccessUi = useCallback(() => {
+        setTransferSuccessModal(false);
+        setSuccessTransactionData(null);
+    }, []);
+
+    const goToHomeTab = useCallback(() => {
+        navigation.popToTop();
+        const tabNav =
+            navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+        tabNav?.navigate({name: 'Home', params: {refreshHome: Date.now()}});
+    }, [navigation]);
 
     const onTransferSuccess = useCallback(
-        (transactionIdentifier: string) => {
-            Alert.alert(
-                'Transferencia exitosa',
-                `Identificador de transacción: ${transactionIdentifier}`,
-                [
-                    {
-                        text: 'Aceptar',
-                        onPress: () => {
-                            navigation.popToTop();
-                            const tabNav =
-                                navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-                            tabNav?.navigate({
-                                name: 'Home',
-                                params: {refreshHome: Date.now()},
-                            });
-                        },
-                    },
-                ],
-            );
+        (data: TransferDataResume) => {
+            setSuccessTransactionData(data);
+            setTransferSuccessModal(true);
         },
-        [navigation],
+        [],
     );
 
     const {
@@ -82,12 +82,12 @@ export function TransferReviewScreen() {
         conceptDisplay,
         transferDateLabel,
         onConfirm,
+        doTransacction
     } = useTransferReviewViewModel(() => {
         navigation.navigate(
             'OtpValidationTransfer', {
-                mode: 'transfer', email: "", onClose: (isValid: boolean) => {
-                     setOtpSuccess(isValid)
-                     console.log("volviste de otp")
+                mode: 'transfer', email: "", onClose: (_isValid: boolean) => {
+                    doTransacction().catch()
                 }
             }
         )
@@ -192,7 +192,7 @@ export function TransferReviewScreen() {
                         ]}
                         onPress={() => {
                             setConfirmError(null);
-                            void onConfirm();
+                            onConfirm().catch(() => {});
                         }}
                         disabled={confirmLoading}
                         activeOpacity={0.9}
@@ -216,7 +216,30 @@ export function TransferReviewScreen() {
                         <Text style={styles.secondaryCtaText}>Modificar</Text>
                     </TouchableOpacity>
                 </View>
+
             </ScrollView>
+
+            {successTransactionData ? (
+                <TransferModalSuccess
+                    openVoucher={() => {
+                        resetTransferSuccessUi();
+                        navigation.navigate('TransferVoucher', {
+                            routeSuccessTransactionData: successTransactionData,
+                        });
+                    }}
+                    transactionData={successTransactionData}
+                    visible={showTransferSuccessModal}
+                    onClose={resetTransferSuccessUi}
+                    navigateToTransfer={() => {
+                        resetTransferSuccessUi();
+                        navigation.popToTop();
+                    }}
+                    navigateToHome={() => {
+                        resetTransferSuccessUi();
+                        goToHomeTab();
+                    }}
+                />
+            ) : null}
         </View>
     );
 }

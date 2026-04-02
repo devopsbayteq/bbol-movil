@@ -6,12 +6,13 @@ import {TransferReviewScreen} from '../presentation/transfer/TransferReview/Tran
 import {OtpValidationParams} from "./AppNavigator.tsx";
 import {OtpValidationScreen} from "../presentation/otp";
 import {TransferVoucherScreen} from "../presentation/transfer/TranferVoucherScreen.tsx";
+import {TransferDataResume} from "../presentation/transfer/components/TransferModalSuccess.tsx";
 
 export type TransferStackParamList = {
     TransferMain: undefined;
     TransferReview: TransferReviewRouteParams;
     OtpValidationTransfer: OtpValidationParams;
-    TransferVoucher: undefined
+    TransferVoucher: {routeSuccessTransactionData: TransferDataResume};
 };
 
 const Stack = createNativeStackNavigator<TransferStackParamList>();
