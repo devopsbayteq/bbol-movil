@@ -61,7 +61,7 @@ export const validateLoginEmail = composeValidators(
     LOGIN_EMAIL_MAX_LENGTH,
     loginValidationMessages.emailTooLong,
   ),
-  requirePattern(LOGIN_EMAIL_PATTERN, loginValidationMessages.emailInvalidFormat),
+ // requirePattern(LOGIN_EMAIL_PATTERN, loginValidationMessages.emailInvalidFormat),
 );
 
 export const validateLoginPassword = composeValidators(

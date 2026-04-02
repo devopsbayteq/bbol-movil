@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginViewModel} from './useLoginViewModel';
+import {useAuth} from '../../providers';
+import {useDI} from '../../di';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {
   Button,
@@ -31,29 +33,48 @@ const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
 
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const {login} = useAuth();
+  const {biometricRSAAuthOrchestrator} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
+
+  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
+      if (!cancelled) {
+        setShowBiometricLogin(has);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [biometricRSAAuthOrchestrator]);
 
   const {
     email,
     password,
     isLoadingLogin,
     isLoadingBiometric,
-    isLoadingRegisterBiometric,
     isBusy,
     error,
     setEmail,
     setPassword,
     handleLogin,
-    handleRegisterBiometric,
     handleBiometricLogin,
-  } = useLoginViewModel(async user => {
-    navigation.navigate('OtpValidation', {
-      mode: 'login',
-      user,
-      email: user.email,
-    });
-  });
+  } = useLoginViewModel(
+    user => {
+      navigation.navigate('OtpValidation', {
+        mode: 'login',
+        user,
+        email: user.email,
+      });
+    },
+    user => {
+      void login(user);
+    },
+  );
 
   const hasFieldError = (fieldEmpty: boolean) =>
     !!error && fieldEmpty;
@@ -131,21 +152,18 @@ export function LoginScreen() {
               disabled={isBusy}
               variant="loginPrimary"
             />
-            <Button
-              title="Activar biometría"
-              onPress={handleRegisterBiometric}
-              loading={isLoadingRegisterBiometric}
-              disabled={isBusy}
-              variant="outline"
-            />
-            <OrSeparator />
-            <SecondaryIconButton
-              title="Huella/FaceID"
-              iconSource={loginFingerprintIcon}
-              onPress={handleBiometricLogin}
-              disabled={isBusy}
-              loading={isLoadingBiometric}
-            />
+            {showBiometricLogin ? (
+              <>
+                <OrSeparator />
+                <SecondaryIconButton
+                  title="Huella/FaceID"
+                  iconSource={loginFingerprintIcon}
+                  onPress={handleBiometricLogin}
+                  disabled={isBusy}
+                  loading={isLoadingBiometric}
+                />
+              </>
+            ) : null}
           </View>
 
           <TertiaryLinkButton

@@ -15,5 +15,13 @@ appId: com.bbapp
 
 - extendedWaitUntil:
     visible:
+      id: "biometric-offer-screen"
+    timeout: 30000
+
+- tapOn:
+    id: "biometric-offer-skip"
+
+- extendedWaitUntil:
+    visible:
       id: "transactions-screen"
     timeout: 30000
