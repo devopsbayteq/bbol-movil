@@ -5,6 +5,7 @@ import {GetTransactionsUseCase} from '../../../src/domain/usecases/GetTransactio
 import {GetUserLoggedUseCase} from '../../../src/domain/usecases/GetUserLoggedUseCase';
 import {LoginUseCase} from '../../../src/domain/usecases/LoginUseCase';
 import {ValidateOtpUseCase} from '../../../src/domain/usecases/ValidateOtpUseCase';
+import * as rsaUtils from '../../../src/security/certificate/rsaUtils';
 
 describe('domain use cases', () => {
   test('LoginUseCase trims credentials, persists session and returns user', async () => {
@@ -20,23 +21,36 @@ describe('domain use cases', () => {
     const secureStorage = {
       save: jest.fn().mockResolvedValue(undefined),
     };
+    const getPublicKeyUseCase = {
+      execute: jest.fn().mockResolvedValue({value: 'server-public-key-material'}),
+    };
+    const encryptSpy = jest
+      .spyOn(rsaUtils, 'rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64')
+      .mockReturnValue('enc-blob');
     const useCase = new LoginUseCase(
       authRepository,
-      secureStorage,
+      secureStorage as never,
       '@bb_user_session',
+      getPublicKeyUseCase as never,
+      '@auth_token',
     );
 
     const result = await useCase.execute('  test@gmail.com  ', '  123456  ');
 
+    expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
+    expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
       'test@gmail.com',
-      '123456',
+      'enc-blob',
+      'enc-blob',
     );
     expect(secureStorage.save).toHaveBeenCalledWith(
       '@bb_user_session',
       JSON.stringify(user),
     );
+    expect(secureStorage.save).toHaveBeenCalledWith('@auth_token', 'jwt-token');
     expect(result.token).toBe('jwt-token');
+    encryptSpy.mockRestore();
   });
 
   test('LoginUseCase rejects invalid email before calling repository', async () => {
@@ -44,10 +58,13 @@ describe('domain use cases', () => {
       login: jest.fn(),
     };
     const secureStorage = {save: jest.fn()};
+    const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
-      secureStorage,
+      secureStorage as never,
       '@bb_user_session',
+      getPublicKeyUseCase as never,
+      '@auth_token',
     );
 
     await expect(useCase.execute('correo-invalido', '123456')).rejects.toThrow(
@@ -60,10 +77,13 @@ describe('domain use cases', () => {
   test('LoginUseCase rejects invalid password before calling repository', async () => {
     const authRepository = {login: jest.fn()};
     const secureStorage = {save: jest.fn()};
+    const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
-      secureStorage,
+      secureStorage as never,
       '@bb_user_session',
+      getPublicKeyUseCase as never,
+      '@auth_token',
     );
 
     await expect(
@@ -81,16 +101,16 @@ describe('domain use cases', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     const useCase = new GetPublicKeyUseCase(
-      securityRepository,
-      secureStorage,
+      securityRepository as never,
+      secureStorage as never,
       'server-key',
     );
 
     const result = await useCase.execute();
 
     expect(securityRepository.getPublicKey).toHaveBeenCalledTimes(1);
-    expect(secureStorage.save).toHaveBeenCalledWith('server-key', 'PUBLIC_KEY');
-    expect(result).toEqual({value: 'PUBLIC_KEY'});
+    expect(secureStorage.save).toHaveBeenCalledWith('server-key', 'PUBLIC/KEY');
+    expect(result).toEqual({value: 'PUBLIC/KEY'});
   });
 
   test('GetPublicKeyUseCase rejects an empty public key', async () => {
@@ -101,8 +121,8 @@ describe('domain use cases', () => {
       save: jest.fn(),
     };
     const useCase = new GetPublicKeyUseCase(
-      securityRepository,
-      secureStorage,
+      securityRepository as never,
+      secureStorage as never,
       'server-key',
     );
 
@@ -135,14 +155,29 @@ describe('domain use cases', () => {
     expect(result[0].description).toBe('Depósito');
   });
 
-  test('ValidateOtpUseCase delegates to security repository', async () => {
+  test('ValidateOtpUseCase encrypts OTP with server public key then delegates to repository', async () => {
     const securityRepository = {
       validateOtp: jest.fn().mockResolvedValue({message: 'OK'}),
     };
-    const useCase = new ValidateOtpUseCase(securityRepository);
+    const getPublicKeyUseCase = {
+      execute: jest.fn().mockResolvedValue({value: 'server-public-key-material'}),
+    };
+    const encryptSpy = jest
+      .spyOn(rsaUtils, 'rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64')
+      .mockReturnValue('enc-otp');
+    const useCase = new ValidateOtpUseCase(
+      securityRepository as never,
+      getPublicKeyUseCase as never,
+    );
 
     await expect(useCase.execute('123456')).resolves.toEqual({message: 'OK'});
-    expect(securityRepository.validateOtp).toHaveBeenCalledWith('123456');
+    expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
+    expect(encryptSpy).toHaveBeenCalledWith(
+      'server-public-key-material',
+      '123456',
+    );
+    expect(securityRepository.validateOtp).toHaveBeenCalledWith('enc-otp');
+    encryptSpy.mockRestore();
   });
 
   test('GetUserLoggedUseCase parses stored JSON user', async () => {
@@ -150,7 +185,7 @@ describe('domain use cases', () => {
     const secureStorage = {
       get: jest.fn().mockResolvedValue(JSON.stringify(user)),
     };
-    const useCase = new GetUserLoggedUseCase(secureStorage, '@key');
+    const useCase = new GetUserLoggedUseCase(secureStorage as never, '@key');
 
     await expect(useCase.execute()).resolves.toEqual(user);
     expect(secureStorage.get).toHaveBeenCalledWith('@key');
@@ -158,7 +193,7 @@ describe('domain use cases', () => {
 
   test('GetUserLoggedUseCase throws when no session is stored', async () => {
     const secureStorage = {get: jest.fn().mockResolvedValue(null)};
-    const useCase = new GetUserLoggedUseCase(secureStorage, '@key');
+    const useCase = new GetUserLoggedUseCase(secureStorage as never, '@key');
 
     await expect(useCase.execute()).rejects.toThrow('No se encontró el usuario.');
   });
