@@ -131,7 +131,10 @@ export function createContainer(): AppContainer {
     SecureStorageKeys.SERVER_PUBLIC_KEY,
   );
 
-  const validateOtpUseCase = new ValidateOtpUseCase(securityRepository);
+  const validateOtpUseCase = new ValidateOtpUseCase(
+    securityRepository,
+    getPublicKeyUseCase,
+  );
 
   const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
     contractBalanceRepository,
