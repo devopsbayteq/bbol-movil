@@ -14,15 +14,19 @@ import {Lexend} from '../../theme/lexend';
 interface LoginTextFieldProps extends Omit<TextInputProps, 'style'> {
   label: string;
   hasError?: boolean;
+  errorMessage?: string;
   containerStyle?: StyleProp<ViewStyle>;
   testID?: string;
+  errorTestID?: string;
 }
 
 export function LoginTextField({
   label,
   hasError = false,
+  errorMessage,
   containerStyle,
   testID,
+  errorTestID,
   ...textInputProps
 }: LoginTextFieldProps) {
   const {colors} = useTheme();
@@ -33,10 +37,13 @@ export function LoginTextField({
       <Text style={styles.label}>{label}</Text>
       <TextInput
         testID={testID}
-        style={[styles.input, hasError && styles.inputError]}
+        style={[styles.input, (hasError || !!errorMessage) && styles.inputError]}
         placeholderTextColor={colors.placeholder}
         {...textInputProps}
       />
+      {errorMessage ? (
+        <Text testID={errorTestID} style={styles.errorText}>{errorMessage}</Text>
+      ) : null}
     </View>
   );
 }
@@ -70,6 +77,14 @@ function useStyles(colors: ThemeColors) {
         inputError: {
           borderWidth: 1,
           borderColor: colors.error,
+        },
+        errorText: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 18,
+          color: colors.error,
+          marginTop: 4,
+          marginLeft: 4,
         },
       }),
     [colors],

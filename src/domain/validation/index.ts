@@ -4,6 +4,7 @@ export {
   LOGIN_PASSWORD_MAX_LENGTH,
   LOGIN_PASSWORD_MIN_LENGTH,
   LOGIN_USERNAME_MAX_LENGTH,
+  LOGIN_USERNAME_MIN_LENGTH,
   loginValidationMessages,
   sanitizeLoginPasswordInput,
   sanitizeLoginUsernameInput,

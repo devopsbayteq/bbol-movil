@@ -37,7 +37,7 @@ describe('useLoginViewModel', () => {
     mockedUseDI.mockReturnValue({
       loginUseCase: {execute: jest.fn()},
       secureStorageService: {save: jest.fn(), get: jest.fn()},
-      biometricAuthService: {getAvailability: jest.fn(), authenticate: jest.fn()},
+      biometricRSAAuthOrchestrator: {registerBiometricForUser: jest.fn().mockResolvedValue(undefined)},
     } as never);
 
     await act(async () => {
@@ -81,25 +81,25 @@ describe('useLoginViewModel', () => {
     });
 
     expect(latest?.passwordError).toBe(
-      'La contraseña debe tener al menos 6 caracteres',
+      'La contraseña debe tener al menos 8 caracteres',
     );
     expect(execute).not.toHaveBeenCalled();
   });
 
-  test('submits trimmed credentials and stores biometric credentials after success', async () => {
+  test('submits trimmed credentials and calls onLoginSuccess after success', async () => {
     const execute = jest.fn().mockResolvedValue({
       id: 'usuario01',
       email: 'usuario01',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });
-    const save = jest.fn().mockResolvedValue(undefined);
+    const registerBiometricForUser = jest.fn().mockResolvedValue(undefined);
     const onLoginSuccess = jest.fn();
 
     mockedUseDI.mockReturnValue({
       loginUseCase: {execute},
-      secureStorageService: {save, get: jest.fn()},
-      biometricAuthService: {getAvailability: jest.fn(), authenticate: jest.fn()},
+      secureStorageService: {save: jest.fn(), get: jest.fn()},
+      biometricRSAAuthOrchestrator: {registerBiometricForUser},
     } as never);
 
     await act(async () => {
@@ -110,21 +110,15 @@ describe('useLoginViewModel', () => {
 
     act(() => {
       latest?.setEmail('  usuario01  ');
-      latest?.setPassword('  123456  ');
+      latest?.setPassword('  12345678  ');
     });
 
     await act(async () => {
       await latest?.handleLogin();
     });
 
-    expect(execute).toHaveBeenCalledWith('usuario01', '123456');
-    expect(save).toHaveBeenCalledWith(
-      '@bb_biometric_credentials',
-      JSON.stringify({
-        email: 'usuario01',
-        password: '123456',
-      }),
-    );
+    expect(execute).toHaveBeenCalledWith('usuario01', '12345678');
+    expect(registerBiometricForUser).toHaveBeenCalledWith('usuario01');
     expect(onLoginSuccess).toHaveBeenCalledWith({
       id: 'usuario01',
       email: 'usuario01',

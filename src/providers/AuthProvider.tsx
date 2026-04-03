@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
+import {AppState} from 'react-native';
 import {User} from '../domain/entities/User';
 import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
 import {useDI} from '../di';
@@ -36,6 +37,15 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     restoreSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'background' || nextState === 'inactive') {
+        void secureStorage.remove(SecureStorageKeys.USER_LOGIN_DATA);
+      }
+    });
+    return () => subscription.remove();
+  }, [secureStorage]);
 
   async function restoreSession() {
     try {
