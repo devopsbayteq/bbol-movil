@@ -12,6 +12,7 @@ import type {TransferStackParamList} from "../../navigation/TransferStackNavigat
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import QRCode from "react-native-qrcode-svg";
 import ViewShot from 'react-native-view-shot';
+import Share from 'react-native-share';
 import {Lexend} from "../../theme/lexend.ts";
 import {SpacerView} from "../components/SpacerView.tsx";
 const shareIcon = require('../../../assets/images/share-nodes.png');
@@ -33,6 +34,20 @@ export const TransferVoucherScreen = () => {
     const takeShot = async () => {
         if (!viewShotRef.current) return;
         const uri = await (viewShotRef.current as any).capture();
+
+        const shareOptions = {
+            title: 'BBO',
+            message: 'Compartir comprobante',
+            url: uri,
+        };
+
+        try {
+            const ShareResponse = await Share.open(shareOptions);
+            console.log('Result =>', ShareResponse);
+        } catch (error) {
+            console.log('Error =>', error);
+
+        }
 
         console.log(uri);
     };
