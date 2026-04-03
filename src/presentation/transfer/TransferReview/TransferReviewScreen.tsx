@@ -232,7 +232,11 @@ export function TransferReviewScreen() {
                     onClose={resetTransferSuccessUi}
                     navigateToTransfer={() => {
                         resetTransferSuccessUi();
-                        navigation.popToTop();
+                        //navigation.popToTop();
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'TransferMain' }],
+                        });
                     }}
                     navigateToHome={() => {
                         resetTransferSuccessUi();

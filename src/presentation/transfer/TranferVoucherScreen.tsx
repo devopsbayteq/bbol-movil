@@ -7,29 +7,28 @@ import {CardViewContainer} from "./components/CardViewContainer.tsx";
 import {TransactionHeaderInformation} from "./components/TransactionHeaderInformation.tsx";
 import {Button, SecondaryIconButton, TertiaryLinkButton} from "../components";
 import {CardAccountItem} from "./components/CardAccountItem.tsx";
-import {useRoute, type RouteProp} from "@react-navigation/native";
+import {useRoute, RouteProp, useNavigation} from "@react-navigation/native";
 import type {TransferStackParamList} from "../../navigation/TransferStackNavigator";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 
 const shareIcon = require('../../../assets/images/share-nodes.png');
 
-type TransferVoucherRouteProp = RouteProp<
-    TransferStackParamList,
-    "TransferVoucher"
->;
+type TransferVoucherRouteProp = RouteProp<TransferStackParamList, "TransferVoucher">;
+type nativeNavigation = NativeStackNavigationProp<TransferStackParamList, "TransferVoucher">;
 
 export const TransferVoucherScreen = () => {
     const {colors} = useTheme()
     const styles = useStyles(colors)
     const insets = useSafeAreaInsets();
     const {params} = useRoute<TransferVoucherRouteProp>();
+
+    const navigation = useNavigation<nativeNavigation>()
     const transactionData = params.routeSuccessTransactionData;
     return (
         <View style={styles.root} testID="transfer-main-screen">
             <ToolbarApp
                 title={"COMPROBANTE"}
-                onBackPress={() => {
-
-                }}/>
+                />
             <ScrollView
                 style={styles.scroll}
                 contentContainerStyle={[
@@ -64,11 +63,16 @@ export const TransferVoucherScreen = () => {
                                 title="Nueva transferencia"
                                 iconSource={shareIcon}
                                 onPress={() => {
+                                    navigation.reset({
+                                        index:0,
+                                        routes:[{name:'TransferMain'}]
+                                    })
                                 }}
                                 disabled={false}
                                 loading={false}
                             />
                             <TertiaryLinkButton title="Ir al Inicio" onPress={() => {
+                                      navigation.getParent()?.navigate('Home')
                             }}/>
                         </View>
                     </View>
