@@ -127,7 +127,8 @@ export function TransferScreen() {
                         <TouchableOpacity
                             style={styles.card}
                             onPress={() => setBeneficiarySelectorVisible(true)}
-                            activeOpacity={0.9}>
+                            activeOpacity={0.9}
+                            testID="transfer-beneficiary-picker">
                             <View style={styles.iconChip}>
                                 <TransferIconUser color={HERO_BG} size={16}/>
                             </View>
@@ -179,15 +180,25 @@ export function TransferScreen() {
                                 <Text style={styles.conceptLabelMuted}>(Opcional)</Text>
                             </Text>
                             <TextInput
-                                style={styles.conceptInput}
+                                style={[
+                                    styles.conceptInput,
+                                    transferViewModel.conceptError ? styles.conceptInputError : null,
+                                ]}
                                 value={transferViewModel.concept}
-                                onChangeText={transferViewModel.setConcept}
+                                onChangeText={transferViewModel.onConceptChange}
                                 placeholder="Ej. Pago zapatos"
                                 placeholderTextColor={colors.placeholder}
                                 maxLength={120}
                                 testID="transfer-concept-input"
                             />
-                            {transferViewModel.validationMessage ? (
+                            {transferViewModel.conceptError ? (
+                                <Text
+                                    style={styles.validationText}
+                                    testID="transfer-concept-error">
+                                    {transferViewModel.conceptError}
+                                </Text>
+                            ) : null}
+                            {!transferViewModel.conceptError && transferViewModel.validationMessage ? (
                                 <Text style={styles.validationText}>{transferViewModel.validationMessage}</Text>
                             ) : null}
                         </View>

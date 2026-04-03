@@ -1,0 +1,100 @@
+appId: com.bbapp
+name: Transferencias — validación de caracteres extraños en concepto
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- runFlow:
+    file: ../../subflows/open-transfer-tab.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-amount-input"
+    timeout: 15000
+
+# --- Ingresar monto y beneficiario para habilitar el botón Continuar ---
+- tapOn:
+    id: "transfer-amount-input"
+- inputText: "100"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-modal"
+    timeout: 20000
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+# --- 1. Concepto vacío: no bloquea el formulario (opcional) ---
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "Concepto"
+
+# Volver al formulario
+- tapOn:
+    id: "transfer-modify-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+# --- 2. Concepto válido: se acepta sin error ---
+- tapOn:
+    id: "transfer-concept-input"
+- clearText
+- inputText: "Pago servicio mensual"
+- hideKeyboard
+
+# No debe aparecer error de caracteres
+- assertNotVisible:
+    id: "transfer-concept-error"
+
+# --- 3. Concepto válido llega a la pantalla de revisión ---
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "Pago servicio mensual"
+- assertVisible: "Concepto"
+
+# Volver para el siguiente test
+- tapOn:
+    id: "transfer-modify-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+# --- 4. Concepto con acentos y puntuación básica: válido ---
+- tapOn:
+    id: "transfer-concept-input"
+- clearText
+- inputText: "Cuota mensual #3 — año 2025"
+- hideKeyboard
+
+- assertNotVisible:
+    id: "transfer-concept-error"

@@ -10,6 +10,7 @@ import React, {
 import {AppState, StyleSheet, View} from 'react-native';
 import {useAuth} from './AuthProvider';
 import {SessionTimeoutWarningModal} from '../presentation/components/SessionTimeoutWarningModal';
+import {SessionExpiredModal} from '../presentation/components/SessionExpiredModal';
 
 /** Segundos antes del cierre por inactividad en que se muestra la advertencia. */
 const WARNING_LEAD_SECONDS = 60;
@@ -34,6 +35,7 @@ export function SessionTimeoutProvider({
   const {user, isAuthenticated, logout} = useAuth();
 
   const [showWarning, setShowWarning] = useState(false);
+  const [showExpired, setShowExpired] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
 
   // Refs: no disparan re-render, seguros en closures de setInterval
@@ -63,7 +65,7 @@ export function SessionTimeoutProvider({
       if (now >= user.sessionExpiresAt) {
         clearTimers();
         setShowWarning(false);
-        void logout();
+        setShowExpired(true);
         return;
       }
 
@@ -77,7 +79,7 @@ export function SessionTimeoutProvider({
       if (now >= inactivityDeadline) {
         clearTimers();
         setShowWarning(false);
-        void logout();
+        setShowExpired(true);
         return;
       }
 
@@ -90,7 +92,7 @@ export function SessionTimeoutProvider({
         setShowWarning(false);
       }
     },
-    [user, logout, clearTimers],
+    [user, clearTimers],
   );
 
   const startTimers = useCallback(() => {
@@ -133,6 +135,11 @@ export function SessionTimeoutProvider({
     return () => subscription.remove();
   }, [isAuthenticated, user, clearTimers, checkExpiry, startTimers]);
 
+  const handleExpiredAccept = useCallback(() => {
+    setShowExpired(false);
+    void logout();
+  }, [logout]);
+
   const contextValue = useMemo(
     () => ({resetInactivityTimer}),
     [resetInactivityTimer],
@@ -159,6 +166,10 @@ export function SessionTimeoutProvider({
           onContinue={resetInactivityTimer}
         />
       )}
+      <SessionExpiredModal
+        visible={showExpired}
+        onAccept={handleExpiredAccept}
+      />
     </SessionTimeoutContext.Provider>
   );
 }

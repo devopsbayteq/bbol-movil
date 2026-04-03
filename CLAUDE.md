@@ -74,16 +74,24 @@ npm run lint          # ESLint
 | `login-password-input` | LoginScreen — campo contraseña |
 | `login-submit` | LoginScreen — botón "Ingresar" |
 | `login-error` | LoginScreen — mensaje de error |
+| `login-username-error` | LoginScreen — error inline campo usuario |
+| `login-password-error` | LoginScreen — error inline campo contraseña |
 | `otp-screen` | OtpValidationScreen — vista raíz |
 | `otp-error` | OtpValidationScreen — mensaje de error |
 | `transactions-screen` | TransactionsScreen — vista raíz |
 | `logout-button` | TransactionsScreen — botón "Salir" |
 | `transfer-main-screen` | TransferScreen — vista raíz |
 | `transfer-amount-input` | TransferScreen — TextInput monto |
-| `transfer-beneficiary-picker` | TransferScreen — card "Para" (segunda) |
+| `transfer-beneficiary-picker` | TransferScreen — card "Para" |
 | `transfer-concept-input` | TransferScreen — TextInput concepto |
+| `transfer-concept-error` | TransferScreen — error inline concepto |
 | `transfer-continue-button` | TransferScreen — botón "Continuar" |
 | `transfer-review-screen` | TransferReviewScreen — vista raíz |
+| `transfer-confirm-button` | TransferReviewScreen — botón "Confirmar" |
+| `transfer-modify-button` | TransferReviewScreen — botón "Modificar" |
+| `transfer-success-modal` | TransferModalSuccess — sheet del modal |
+| `transfer-voucher-button` | TransferModalSuccess — botón "Voucher" |
+| `transfer-voucher-screen` | TransferVoucherScreen — vista raíz |
 | `beneficiary-select-modal` | BeneficiarySelectModal — Modal wrapper |
 | `beneficiary-first-own-account` | BeneficiarySelectModal — primera cuenta propia |
 
@@ -109,9 +117,12 @@ El borrado usa `accessibilityLabel`: `"Borrar"`.
 │   ├── transactions/
 │   │   └── transactions-list-visible.yaml   # Lista y estados de transacciones
 │   └── transfers/
-│       ├── transfer-to-review-screen.yaml   # Formulario → pantalla de revisión
-│       ├── transfer-validation-messages.yaml # Validaciones del formulario
-│       └── transfer-complete-with-otp.yaml  # Transferencia completa con OTP
+│       ├── transfer-to-review-screen.yaml        # Formulario → pantalla de revisión
+│       ├── transfer-validation-messages.yaml      # Validaciones del formulario (monto, bene, concepto)
+│       ├── transfer-concept-special-chars.yaml    # Caracteres extraños y concepto válido en revisión
+│       ├── transfer-review-detail.yaml            # Todos los campos y botones de la revisión
+│       ├── transfer-complete-with-otp.yaml        # Transferencia completa con OTP → home
+│       └── transfer-voucher.yaml                  # Transferencia completa → modal éxito → comprobante
 └── subflows/
     ├── ensure-authenticated.yaml            # Garantiza sesión activa (idempotente)
     ├── ensure-login-screen.yaml             # Garantiza pantalla de login

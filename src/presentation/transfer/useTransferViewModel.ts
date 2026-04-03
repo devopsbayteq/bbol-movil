@@ -33,6 +33,7 @@ export function useTransferViewModel() {
   const [accountIndex, setAccountIndex] = useState(0);
   const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
   const [concept, setConcept] = useState('');
+  const [conceptError, setConceptError] = useState<string | null>(null);
   const [accountModalVisible, setAccountModalVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
@@ -92,13 +93,14 @@ export function useTransferViewModel() {
     setAmountCents(Math.min(n, MAX_TRANSFER_CENTS));
   }, []);
 
-  const setConceptState = useCallback((text: string) => {
+  const onConceptChange = useCallback((text: string) => {
     const sanitized = sanitizeTransferConceptInput(text);
     const nextError = hasDisallowedTransferConceptCharacters(text)
       ? transferConceptMessages.invalidCharacters
       : validateTransferConcept(sanitized);
 
-    setConceptState(sanitized);
+    setConcept(sanitized);
+    setConceptError(nextError);
     setValidationMessage(null);
   }, []);
 
@@ -179,7 +181,8 @@ export function useTransferViewModel() {
     displayAmount,
     onAmountChange,
     concept,
-    setConcept,
+    onConceptChange,
+    conceptError,
     amountFieldError,
     validationMessage,
     setValidationMessage,

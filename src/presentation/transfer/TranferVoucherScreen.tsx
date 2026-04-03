@@ -25,7 +25,7 @@ export const TransferVoucherScreen = () => {
     const navigation = useNavigation<nativeNavigation>()
     const transactionData = params.routeSuccessTransactionData;
     return (
-        <View style={styles.root} testID="transfer-main-screen">
+        <View style={styles.root} testID="transfer-voucher-screen">
             <ToolbarApp
                 title={"COMPROBANTE"}
                 />
