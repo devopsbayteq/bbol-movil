@@ -17,6 +17,7 @@ interface SecondaryIconButtonProps {
   iconSource: ImageSourcePropType;
   /** Si se define, aplica tinte al PNG/vector (omitir para assets multicolor). */
   iconTintColor?: string;
+  iconRight?:boolean
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
@@ -26,7 +27,7 @@ interface SecondaryIconButtonProps {
 export function SecondaryIconButton({
   title,
   iconSource,
-  iconTintColor,
+  iconTintColor,iconRight= false,
   onPress,
   disabled = false,
   loading = false,
