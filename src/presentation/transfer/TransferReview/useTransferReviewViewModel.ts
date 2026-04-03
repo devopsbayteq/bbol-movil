@@ -7,7 +7,7 @@ import {
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator';
 import {useDI} from '../../../di';
 import {useAuth} from '../../../providers';
-import type {TransferDataResume} from '../components/TransferModalSuccess';
+import type {TransferDataResume} from '../transferResult/TransferModalSuccess.tsx';
 
 
 function formatReviewDate(date: Date): string {

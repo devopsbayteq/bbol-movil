@@ -2,7 +2,7 @@ import {
   groupContactsByLetter,
   ownAccountToBeneficiary,
   templateToBeneficiary,
-} from '../../../src/presentation/transfer/beneficiaryData';
+} from '../../../src/presentation/beneficiary/beneficiaryData.ts';
 import type {BeneficiaryContact} from '../../../src/domain/entities/BeneficiaryContact';
 import type {AccountBalance} from '../../../src/domain/entities/ContractBalance';
 

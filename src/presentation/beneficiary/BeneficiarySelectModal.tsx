@@ -23,16 +23,16 @@ import {
   ownAccountToBeneficiary,
   templateToBeneficiary,
   type ContactTemplate,
-} from '../transfer/beneficiaryData';
+} from './beneficiaryData.ts';
 import {useBeneficiaryContactsViewModel} from './useBeneficiaryContactsViewModel';
-import type {BeneficiaryOption} from '../transfer/transferTypes';
+import type {BeneficiaryOption} from './transferTypes.ts';
 import {
   TransferIconArrowLeft,
   TransferIconEllipsisVertical,
   TransferIconSearch,
   TransferIconUserPlus,
   TransferIconWallet,
-} from '../transfer/transferIcons';
+} from '../transfer/components/transferIcons.tsx';
 import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
 
 const HERO_BG = '#0B515C';

@@ -2,7 +2,7 @@ import {Image, Platform, StyleSheet, Text, View} from "react-native";
 import React, {useMemo} from "react";
 import {ThemeColors, useTheme} from "../../../providers";
 import {Lexend} from "../../../theme/lexend.ts";
-import {TransferDataResume} from "./TransferModalSuccess.tsx";
+import {TransferDataResume} from "../transferResult/TransferModalSuccess.tsx";
 interface TransactionHeaderInformationProps{
     transferResume:TransferDataResume
 }

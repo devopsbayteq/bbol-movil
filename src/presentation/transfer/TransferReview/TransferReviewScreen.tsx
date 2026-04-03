@@ -22,13 +22,13 @@ import {
     TransferIconArrowRightWhite,
     TransferIconUser,
     TransferIconWallet,
-} from '../transferIcons';
+} from '../components/transferIcons.tsx';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from "../components/ToolbarApp.tsx";
 import {
     TransferModalSuccess,
     type TransferDataResume,
-} from '../components/TransferModalSuccess';
+} from '../transferResult/TransferModalSuccess.tsx';
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
