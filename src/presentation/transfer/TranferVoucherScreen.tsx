@@ -72,6 +72,10 @@ export const TransferVoucherScreen = () => {
                         <CardViewContainer children={(<>
                             <View>
                                 <TransactionHeaderInformation transferResume={transactionData}/>
+                                {(transactionData.concept != null && transactionData.concept !=="") && ( <View style={styles.contentConcept}>
+                                    <Text style={styles.title}>Concepto</Text>
+                                    <Text>{transactionData.concept}</Text>
+                                </View>)}
 
                                 <CardAccountItem
                                     origin="Desde"
@@ -98,13 +102,14 @@ export const TransferVoucherScreen = () => {
                         </>)}/>
                         </ViewShot>
                         <View style={styles.actionsGroup}>
-                            <Button title="Compartir" onPress={() => {
+                            <Button
+                                iconSourceRight={shareIcon}
+                                title="Compartir" onPress={() => {
                                 takeShot().catch(_ => {
                                 })
                             }}/>
                             <SecondaryIconButton
                                 title="Nueva transferencia"
-                                iconSource={shareIcon}
                                 onPress={() => {
                                     navigation.reset({
                                         index:0,
@@ -162,6 +167,16 @@ function useStyles(colors: ThemeColors) {
                     fontWeight:400,
                     color:colors.primary,
                     fontFamily:Lexend.bold
+                },
+                title: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                    textAlign: 'center',
+                },
+                contentConcept:{
+                    alignItems:'flex-start',
                 }
             }), [colors])
 }

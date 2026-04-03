@@ -20,6 +20,7 @@ interface ButtonProps {
   onPress: () => void;
   loading?: boolean;
   iconSource?: ImageSourcePropType;
+  iconSourceRight?: ImageSourcePropType
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -30,7 +31,7 @@ export function Button({
   title,
   onPress,
   loading = false,
-  iconSource,
+  iconSource, iconSourceRight,
   variant = 'primary',
   disabled = false,
   style,
@@ -75,6 +76,9 @@ export function Button({
             ]}>
             {title}
           </Text>
+            {iconSourceRight ? (
+                <Image source={iconSourceRight} style={styles.icon} resizeMode="contain" />
+            ) : null}
         </View>
       )}
     </TouchableOpacity>
