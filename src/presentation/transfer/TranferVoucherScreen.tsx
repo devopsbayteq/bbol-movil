@@ -1,6 +1,6 @@
-import {ScrollView, StyleSheet, View} from "react-native";
+import {ScrollView, StyleSheet, Text, View} from "react-native";
 import {ThemeColors, useTheme} from "../../providers";
-import React, {useMemo} from "react";
+import React, { useMemo, useRef} from "react";
 import {ToolbarApp} from "./components/ToolbarApp.tsx";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {CardViewContainer} from "./components/CardViewContainer.tsx";
@@ -10,7 +10,10 @@ import {CardAccountItem} from "./components/CardAccountItem.tsx";
 import {useRoute, RouteProp, useNavigation} from "@react-navigation/native";
 import type {TransferStackParamList} from "../../navigation/TransferStackNavigator";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-
+import QRCode from "react-native-qrcode-svg";
+import ViewShot from 'react-native-view-shot';
+import {Lexend} from "../../theme/lexend.ts";
+import {SpacerView} from "../components/SpacerView.tsx";
 const shareIcon = require('../../../assets/images/share-nodes.png');
 
 type TransferVoucherRouteProp = RouteProp<TransferStackParamList, "TransferVoucher">;
@@ -24,6 +27,16 @@ export const TransferVoucherScreen = () => {
 
     const navigation = useNavigation<nativeNavigation>()
     const transactionData = params.routeSuccessTransactionData;
+
+
+    const viewShotRef = useRef<ViewShot | null>(null);
+    const takeShot = async () => {
+        if (!viewShotRef.current) return;
+        const uri = await (viewShotRef.current as any).capture();
+
+        console.log(uri);
+    };
+
     return (
         <View style={styles.root} testID="transfer-main-screen">
             <ToolbarApp
@@ -39,6 +52,8 @@ export const TransferVoucherScreen = () => {
                 showsVerticalScrollIndicator={false}>
                 <View style={styles.containerForm}>
                     <View style={styles.contentColumn}>
+                        <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>
+
                         <CardViewContainer children={(<>
                             <View>
                                 <TransactionHeaderInformation transferResume={transactionData}/>
@@ -53,11 +68,24 @@ export const TransferVoucherScreen = () => {
                                     origin="Para"
                                     accountType={transactionData.beneficiary.accountHint}
                                     name={transactionData.beneficiary.name}
+                                    showBottomBorder
                                 />
+                                <SpacerView/>
+                                <View style={styles.containerQR}>
+                                    <QRCode
+                                    value={transactionData.transactionIdentifier}
+                                    size={100}
+                                    />
+                                    <SpacerView/>
+                                    <Text style={styles.qrDescription}>QR de verificación{"\n"}de transacción</Text>
+                                </View>
                             </View>
                         </>)}/>
+                        </ViewShot>
                         <View style={styles.actionsGroup}>
                             <Button title="Compartir" onPress={() => {
+                                takeShot().catch(_ => {
+                                })
                             }}/>
                             <SecondaryIconButton
                                 title="Nueva transferencia"
@@ -110,5 +138,15 @@ function useStyles(colors: ThemeColors) {
                     gap: 12,
                     width: '100%',
                 },
+                containerQR:{
+                    flexDirection:'row',
+                    alignItems:'center'
+                },
+                qrDescription:{
+                    fontSize:14,
+                    fontWeight:400,
+                    color:colors.primary,
+                    fontFamily:Lexend.bold
+                }
             }), [colors])
 }
