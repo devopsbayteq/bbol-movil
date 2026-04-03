@@ -1,4 +1,4 @@
-import type {BeneficiaryOption} from '../transferTypes';
+import type {BeneficiaryOption} from '../../beneficiary/transferTypes.ts';
 
 export type TransferReviewRouteParams = {
   amountCents: number;

@@ -29,7 +29,7 @@ import {
     TransferIconUser,
     TransferIconWallet,
     TransferIconArrowRightWhite,
-} from './transferIcons';
+} from './components/transferIcons.tsx';
 import {useTransferViewModel} from './useTransferViewModel';
 import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {accountTypeModalLabel} from '../../utils/accountDisplay';

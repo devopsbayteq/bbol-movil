@@ -8,10 +8,10 @@ import {
 import {ThemeColors, useTheme} from '../../../providers';
 import React, {useMemo} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {CardAccountItem} from './CardAccountItem';
-import {BeneficiaryOption} from '../transferTypes';
-import {Lexend} from '../../../theme/lexend';
-import {TransactionHeaderInformation} from "./TransactionHeaderInformation.tsx";
+import {CardAccountItem} from '../components/CardAccountItem.tsx';
+import {BeneficiaryOption} from '../../beneficiary/transferTypes.ts';
+import {Lexend} from '../../../theme/lexend.ts';
+import {TransactionHeaderInformation} from "../components/TransactionHeaderInformation.tsx";
 
 interface TransferModalSuccessProps {
     visible: boolean;

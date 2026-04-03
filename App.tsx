@@ -6,26 +6,29 @@ import {DIProvider} from './src/di';
 import {AuthProvider, SecurityProvider, SessionTimeoutProvider} from './src/providers';
 import {ThemeProvider} from './src/providers/theme';
 import {TlsPinningBootstrap} from './src/presentation/TlsPinningBootstrap';
+import {ErrorBoundary} from "react-error-boundary";
+import {BoundaryAppFallback} from "./src/presentation/boundary/BoundaryAppFallback.tsx";
 
 function App() {
   return (
-    <DIProvider>
-      <TlsPinningBootstrap />
-      
-      <SecurityProvider>
-        <AuthProvider>
-          <SessionTimeoutProvider>
-            <ThemeProvider>
-              <SafeAreaProvider>
-                <NavigationContainer>
-                  <AppNavigator />
-                </NavigationContainer>
-              </SafeAreaProvider>
-            </ThemeProvider>
-          </SessionTimeoutProvider>
-        </AuthProvider>
-      </SecurityProvider>
-    </DIProvider>
+    <ErrorBoundary fallbackRender={BoundaryAppFallback}>
+      <DIProvider>
+        <TlsPinningBootstrap />
+        <SecurityProvider>
+          <AuthProvider>
+            <SessionTimeoutProvider>
+              <ThemeProvider>
+                <SafeAreaProvider>
+                  <NavigationContainer>
+                    <AppNavigator />
+                  </NavigationContainer>
+                </SafeAreaProvider>
+              </ThemeProvider>
+            </SessionTimeoutProvider>
+          </AuthProvider>
+        </SecurityProvider>
+      </DIProvider>
+    </ErrorBoundary>
   );
 }
 

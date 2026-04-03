@@ -1,21 +1,21 @@
 import {ScrollView, StyleSheet, Text, View} from "react-native";
-import {ThemeColors, useTheme} from "../../providers";
+import {ThemeColors, useTheme} from "../../../providers";
 import React, { useMemo, useRef} from "react";
-import {ToolbarApp} from "./components/ToolbarApp.tsx";
+import {ToolbarApp} from "../components/ToolbarApp.tsx";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
-import {CardViewContainer} from "./components/CardViewContainer.tsx";
-import {TransactionHeaderInformation} from "./components/TransactionHeaderInformation.tsx";
-import {Button, SecondaryIconButton, TertiaryLinkButton} from "../components";
-import {CardAccountItem} from "./components/CardAccountItem.tsx";
+import {CardViewContainer} from "../components/CardViewContainer.tsx";
+import {TransactionHeaderInformation} from "../components/TransactionHeaderInformation.tsx";
+import {Button, SecondaryIconButton, TertiaryLinkButton} from "../../components";
+import {CardAccountItem} from "../components/CardAccountItem.tsx";
 import {useRoute, RouteProp, useNavigation} from "@react-navigation/native";
-import type {TransferStackParamList} from "../../navigation/TransferStackNavigator";
+import type {TransferStackParamList} from "../../../navigation/TransferStackNavigator.tsx";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import QRCode from "react-native-qrcode-svg";
 import ViewShot from 'react-native-view-shot';
 import Share from 'react-native-share';
-import {Lexend} from "../../theme/lexend.ts";
-import {SpacerView} from "../components/SpacerView.tsx";
-const shareIcon = require('../../../assets/images/share-nodes.png');
+import {Lexend} from "../../../theme/lexend.ts";
+import {SpacerView} from "../../components/SpacerView.tsx";
+const shareIcon = require('../../../../assets/images/share-nodes.png');
 
 type TransferVoucherRouteProp = RouteProp<TransferStackParamList, "TransferVoucher">;
 type nativeNavigation = NativeStackNavigationProp<TransferStackParamList, "TransferVoucher">;
@@ -72,6 +72,10 @@ export const TransferVoucherScreen = () => {
                         <CardViewContainer children={(<>
                             <View>
                                 <TransactionHeaderInformation transferResume={transactionData}/>
+                                {(transactionData.concept != null && transactionData.concept !=="") && ( <View style={styles.contentConcept}>
+                                    <Text style={styles.title}>Concepto</Text>
+                                    <Text>{transactionData.concept}</Text>
+                                </View>)}
 
                                 <CardAccountItem
                                     origin="Desde"
@@ -98,13 +102,14 @@ export const TransferVoucherScreen = () => {
                         </>)}/>
                         </ViewShot>
                         <View style={styles.actionsGroup}>
-                            <Button title="Compartir" onPress={() => {
+                            <Button
+                                iconSourceRight={shareIcon}
+                                title="Compartir" onPress={() => {
                                 takeShot().catch(_ => {
                                 })
                             }}/>
                             <SecondaryIconButton
                                 title="Nueva transferencia"
-                                iconSource={shareIcon}
                                 onPress={() => {
                                     navigation.reset({
                                         index:0,
@@ -162,6 +167,16 @@ function useStyles(colors: ThemeColors) {
                     fontWeight:400,
                     color:colors.primary,
                     fontFamily:Lexend.bold
+                },
+                title: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                    textAlign: 'center',
+                },
+                contentConcept:{
+                    alignItems:'flex-start',
                 }
             }), [colors])
 }

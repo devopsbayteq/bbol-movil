@@ -20,6 +20,7 @@
     "axios": "^1.14.0",
     "buffer": "^6.0.3",
     "react": "19.2.3",
+    "react-error-boundary": "^6.1.1",
     "react-native": "0.84.1",
     "react-native-base64": "^0.2.2",
     "react-native-biometrics": "^3.0.1",

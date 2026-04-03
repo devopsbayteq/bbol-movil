@@ -1,7 +1,7 @@
-import type {AccountBalance} from '../../domain/entities/ContractBalance';
-import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
-import {accountProductTitle} from '../../utils/accountDisplay';
-import type {BeneficiaryOption} from './transferTypes';
+import type {AccountBalance} from '../../domain/entities/ContractBalance.ts';
+import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact.ts';
+import {accountProductTitle} from '../../utils/accountDisplay.ts';
+import type {BeneficiaryOption} from './transferTypes.ts';
 
 export type ContactTemplate = {
   id: string;

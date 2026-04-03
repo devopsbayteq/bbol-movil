@@ -1,5 +1,5 @@
 import {Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {TransferIconArrowLeft} from "../transferIcons.tsx";
+import {TransferIconArrowLeft} from "./transferIcons.tsx";
 import React, {useMemo} from "react";
 import {ThemeColors, useTheme} from "../../../providers";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
