@@ -23,11 +23,20 @@ jest.mock('../src/navigation/AppNavigator', () => ({
 
 jest.mock('../src/di', () => ({
   DIProvider: ({children}: {children: React.ReactNode}) => children,
+  useDI: () => ({
+    secureStorageService: {
+      get: jest.fn(),
+      save: jest.fn(),
+      remove: jest.fn(),
+      clear: jest.fn(),
+    },
+  }),
 }));
 
 jest.mock('../src/providers', () => ({
   AuthProvider: ({children}: {children: React.ReactNode}) => children,
   SecurityProvider: ({children}: {children: React.ReactNode}) => children,
+  SessionTimeoutProvider: ({children}: {children: React.ReactNode}) => children,
 }));
 
 jest.mock('../src/providers/theme', () => ({
