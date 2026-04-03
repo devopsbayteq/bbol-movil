@@ -54,8 +54,13 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       );
       if (sessionJson) {
         const user: User = JSON.parse(sessionJson);
-        setState({user, isAuthenticated: true, isLoading: false});
-        return;
+        if (user.sessionExpiresAt && Date.now() < user.sessionExpiresAt) {
+          setState({user, isAuthenticated: true, isLoading: false});
+          return;
+        }
+        // Sesión expirada mientras la app estaba cerrada — limpiar silenciosamente
+        await secureStorage.remove(SecureStorageKeys.USER_SESSION);
+        await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
       }
     } catch {
       await secureStorage.clear();

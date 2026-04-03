@@ -14,6 +14,8 @@ describe('domain use cases', () => {
       email: 'usuario01',
       name: 'Usuario Demo',
       token: 'jwt-token',
+      sessionExpiresAt: Date.now() + 3600 * 1000,
+      inactivityTimeoutSeconds: 300,
     };
     const authRepository = {
       login: jest.fn().mockResolvedValue(user),
@@ -35,13 +37,14 @@ describe('domain use cases', () => {
       '@auth_token',
     );
 
-    const result = await useCase.execute('  usuario01  ', '  123456  ');
+    const result = await useCase.execute('  usuario01  ', '  12345678  ');
 
     expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
       'usuario01',
-      '123456',
+      'enc-blob',
+      'enc-blob',
     );
     expect(secureStorage.save).toHaveBeenCalledWith(
       '@bb_user_session',
@@ -86,8 +89,8 @@ describe('domain use cases', () => {
     );
 
     await expect(
-      useCase.execute('usuario01', '12345'),
-    ).rejects.toThrow('La contraseña debe tener al menos 6 caracteres');
+      useCase.execute('usuario01', '1234567'),
+    ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
   });

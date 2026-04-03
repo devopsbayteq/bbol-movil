@@ -11,3 +11,4 @@ export {OrSeparator} from './OrSeparator';
 export {OtpCodeInput} from './OtpCodeInput';
 export {OtpNumericKeypad} from './OtpNumericKeypad';
 export type {OtpKeypadKey} from './OtpNumericKeypad';
+export {SessionTimeoutWarningModal} from './SessionTimeoutWarningModal';
