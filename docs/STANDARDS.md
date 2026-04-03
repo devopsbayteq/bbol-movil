@@ -61,6 +61,24 @@ Reglas:
 
 Las capas `domain` y `data` se organizan por responsabilidad técnica, no por feature. Esto evita duplicación de contratos y facilita el reuso entre flujos.
 
+### Flujo sugerido al agregar un feature nuevo
+
+Orden recomendado (de dominio hacia UI):
+
+1. **Entidad** en `src/domain/entities/`.
+2. **Repositorio (interfaz)** en `src/domain/repositories/`.
+3. **Caso de uso** en `src/domain/usecases/`.
+4. **DTO / modelo** en `src/data/models/`.
+5. **Mapper** en `src/data/mappers/`.
+6. **DataSource** en `src/data/datasources/<área>/` (suele empezarse con mock).
+7. **Repositorio (implementación)** en `src/data/repositories/`.
+8. **Wiring en DI** en `src/di/container.ts`.
+9. **ViewModel** en `src/presentation/<feature>/useXxxViewModel.ts`.
+10. **Pantalla** en `src/presentation/<feature>/XxxScreen.tsx`.
+11. **Navegación** en `src/navigation/AppNavigator.tsx` si aplica.
+
+Ejemplo de referencia en el repo: feature `transactions`.
+
 ## 4. Convenciones de nombres
 
 | Tipo | Convención | Ejemplo |
@@ -69,11 +87,13 @@ Las capas `domain` y `data` se organizan por responsabilidad técnica, no por fe
 | Repositorio de dominio | `PascalCaseRepository` | `AuthRepository.ts` |
 | Caso de uso | `Verbo + Sustantivo + UseCase` | `GetTransactionsUseCase.ts` |
 | Modelo de datos | `PascalCaseModel` | `TransactionModel.ts` |
+| Mapper | `PascalCaseMapper` | `TransactionMapper.ts` |
 | Implementación | `Nombre + Impl` | `AuthRepositoryImpl.ts` |
 | DataSource | `Mock/Remote/Local + Nombre + DataSource` | `MockAuthDataSource.ts` |
 | Pantalla | `FeatureScreen` | `LoginScreen.tsx` |
 | ViewModel | `useFeatureViewModel` | `useLoginViewModel.ts` |
 | Provider | `NombreProvider` | `AuthProvider.tsx` |
+| Componente compartido | `PascalCase` descriptivo | `Button.tsx`, `ErrorMessage.tsx` |
 
 ## 5. Estándares de código
 
@@ -116,7 +136,7 @@ Antes de cerrar un cambio, el código debe quedar compatible con:
 
 ## 7. Estándar de documentación
 
-Toda decisión técnica repetible o relevante debe quedar documentada en `docs/`.
+Toda decisión técnica repetible o relevante debe quedar documentada en `docs/`. Si se agrega un documento nuevo de referencia, actualizar el índice en `AGENTS.md` (y una regla en `.cursor/rules/` si aplica) para evitar duplicar el contenido en varios sitios.
 
 Se debe actualizar documentación cuando:
 

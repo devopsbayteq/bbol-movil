@@ -1,0 +1,31 @@
+---
+description: Restricciones de arquitectura Clean Architecture + MVVM
+alwaysApply: true
+---
+
+# Arquitectura
+
+La dirección de dependencias es `presentation → domain ← data`. No se deben cruzar capas.
+
+```
+src/
+├── domain/          # Entidades, repos (interfaces), casos de uso. Sin deps de framework.
+├── data/            # Implementaciones de repos, datasources, mappers, DTOs, HttpClient.
+├── presentation/    # Pantallas (feature-first), ViewModels, componentes compartidos.
+├── di/              # Composition root (container.ts) y DIProvider.
+├── providers/       # AuthProvider, ThemeProvider (Zustand).
+└── navigation/      # AppNavigator.
+```
+
+## Restricciones
+
+- `domain` no importa de `data`, `presentation`, React ni librerías de infraestructura.
+- `data` implementa los contratos definidos en `domain`.
+- `presentation` accede a la lógica solo a través de `useDI()`.
+- La lógica de negocio no debe vivir en pantallas; se delega al ViewModel o al caso de uso.
+- Los providers resuelven estado transversal pero no deben convertirse en una capa paralela de negocio.
+- Las dependencias nuevas se registran en `src/di/container.ts`.
+
+La composición arranca en `App.tsx`: `DIProvider → AuthProvider → ThemeProvider → SafeAreaProvider → NavigationContainer → AppNavigator`.
+
+Para diagramas de flujo y decisiones de diseño, consultar `docs/ARCHITECTURE.md`.

@@ -192,10 +192,6 @@ export function TransferScreen() {
                             ) : null}
                         </View>
 
-                        {transferViewModel.validationMessage ? (
-                            <Text style={styles.validationText}>{transferViewModel.validationMessage}</Text>
-                        ) : null}
-
                         <TouchableOpacity
                             style={styles.primaryCta}
                             onPress={() => {
