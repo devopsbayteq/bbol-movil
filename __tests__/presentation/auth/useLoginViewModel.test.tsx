@@ -99,7 +99,7 @@ describe('useLoginViewModel', () => {
     });
 
     expect(latest?.passwordError).toBe(
-      'La contraseña debe tener al menos 6 caracteres',
+      'La contraseña debe tener al menos 8 caracteres',
     );
     expect(execute).not.toHaveBeenCalled();
   });
@@ -130,18 +130,18 @@ describe('useLoginViewModel', () => {
 
     act(() => {
       latest?.setEmail('  usuario01  ');
-      latest?.setPassword('  123456  ');
+      latest?.setPassword('  12345678  ');
     });
 
     await act(async () => {
       await latest?.handleLogin();
     });
 
-    expect(execute).toHaveBeenCalledWith('cliente@banco.com', '123456');
+    expect(execute).toHaveBeenCalledWith('usuario01', '12345678');
     expect(onCredentialLoginSuccess).toHaveBeenCalledWith({
-      id: 'cliente@banco.com',
-      email: 'cliente@banco.com',
-      name: 'cliente',
+      id: 'usuario01',
+      email: 'usuario01',
+      name: 'Usuario Demo',
       token: 'jwt-token',
     });
     expect(onBiometricLoginSuccess).not.toHaveBeenCalled();

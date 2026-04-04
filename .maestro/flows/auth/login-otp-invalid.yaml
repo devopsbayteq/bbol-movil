@@ -7,10 +7,11 @@ name: PIN incorrecto muestra error en pantalla OTP
 - runFlow:
     file: ../../subflows/ensure-login-screen.yaml
 
+# Esperar a que el splash termine y aparezca el login.
 - extendedWaitUntil:
     visible:
       id: "login-email-input"
-    timeout: 15000
+    timeout: 30000
 
 - tapOn:
     id: "login-email-input"
@@ -28,17 +29,18 @@ name: PIN incorrecto muestra error en pantalla OTP
 - extendedWaitUntil:
     visible:
       id: "otp-screen"
-    timeout: 25000
+    timeout: 30000
 
-# Código inválido (el demo solo acepta 123456)
+# PIN inválido: 111111 (el servidor rechaza cualquier código distinto al correcto)
 - repeat:
     times: 6
     commands:
-      - tapOn: "Digito 1"
+    - tapOn:
+        label: "Digito 1"
 
 - extendedWaitUntil:
     visible:
       id: "otp-error"
     timeout: 15000
 
-- assertVisible: "Código inválido. Usa 123456 para el flujo demo."
+- assertVisible: "El código ingresado es incorrecto."

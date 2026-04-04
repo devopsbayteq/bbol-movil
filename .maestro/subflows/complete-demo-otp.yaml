@@ -1,6 +1,6 @@
 appId: com.bbapp
 ---
-# PIN demo fijo: 123456 (useOtpValidationViewModel)
+# PIN demo fijo: 123457
 - extendedWaitUntil:
     visible:
       id: "otp-screen"
@@ -11,8 +11,9 @@ appId: com.bbapp
 - tapOn: "Digito 3"
 - tapOn: "Digito 4"
 - tapOn: "Digito 5"
-- tapOn: "Digito 6"
+- tapOn: "Digito 7"
 
+# Tras OTP exitoso en login, la app navega a oferta biométrica y luego al tab Inicio.
 - extendedWaitUntil:
     visible:
       id: "biometric-offer-screen"

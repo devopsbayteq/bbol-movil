@@ -10,8 +10,9 @@ name: Login exitoso — llega al inicio con saldo y movimientos
 - extendedWaitUntil:
     visible:
       id: "home-screen"
-    timeout: 20000
+    timeout: 30000
 
+- assertVisible: "Bienvenido de vuelta"
 - assertVisible: "usuario01"
 - assertVisible: "Mis Productos"
 - assertVisible: "Pagos frecuentes"

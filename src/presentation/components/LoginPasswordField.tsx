@@ -59,16 +59,20 @@ interface LoginPasswordFieldProps
   extends Omit<TextInputProps, 'style' | 'secureTextEntry'> {
   label: string;
   hasError?: boolean;
+  errorMessage?: string;
   eyeIconUri?: string;
   containerStyle?: StyleProp<ViewStyle>;
   testID?: string;
+  errorTestID?: string;
 }
 
 export function LoginPasswordField({
   label,
   hasError = false,
+  errorMessage,
   containerStyle,
   testID,
+  errorTestID,
   ...textInputProps
 }: LoginPasswordFieldProps) {
   const {colors} = useTheme();
@@ -80,7 +84,7 @@ export function LoginPasswordField({
       <View style={styles.labelRow}>
         <Text style={styles.label}>{label}</Text>
       </View>
-      <View style={[styles.inputRow, hasError && styles.inputRowError]}>
+      <View style={[styles.inputRow, (hasError || !!errorMessage) && styles.inputRowError]}>
         <TextInput
           testID={testID}
           style={styles.input}
@@ -103,6 +107,9 @@ export function LoginPasswordField({
           )}
         </TouchableOpacity>
       </View>
+      {errorMessage ? (
+        <Text testID={errorTestID} style={styles.errorText}>{errorMessage}</Text>
+      ) : null}
     </View>
   );
 }
@@ -148,6 +155,14 @@ function useStyles(colors: ThemeColors) {
         },
         eyeButton: {
           padding: 4,
+        },
+        errorText: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 18,
+          color: colors.error,
+          marginTop: 4,
+          marginLeft: 4,
         },
       }),
     [colors],

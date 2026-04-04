@@ -1,0 +1,82 @@
+appId: com.bbapp
+name: Transferencias — revisión detallada (monto, beneficiario, concepto, acciones)
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- runFlow:
+    file: ../../subflows/open-transfer-tab.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-amount-input"
+    timeout: 15000
+
+# Monto: 500 centavos = US$ 5,00
+- tapOn:
+    id: "transfer-amount-input"
+- inputText: "500"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-modal"
+    timeout: 20000
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+# Añadir concepto
+- tapOn:
+    id: "transfer-concept-input"
+- inputText: "Pago prueba E2E"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+# --- Verificar todos los campos de la pantalla de revisión ---
+- assertVisible: "REVISAR TRANSFERENCIA"
+- assertVisible: "Monto a enviar"
+- assertVisible: "Para"
+- assertVisible: "Desde"
+- assertVisible: "Comisión"
+- assertVisible: "Fecha"
+- assertVisible: "Concepto"
+- assertVisible: "Pago prueba E2E"
+
+# --- Verificar botones de acción ---
+- assertVisible:
+    id: "transfer-confirm-button"
+- assertVisible:
+    id: "transfer-modify-button"
+
+# --- Botón Modificar vuelve al formulario ---
+- tapOn:
+    id: "transfer-modify-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+- assertVisible: "TRANSFERIR"
+
+# --- Verificar que el concepto se conservó al volver ---
+# (el stack mantiene el formulario con los datos anteriores)

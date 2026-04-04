@@ -55,6 +55,8 @@ export function LoginScreen() {
   const {
     email,
     password,
+    emailError,
+    passwordError,
     isLoadingLogin,
     isLoadingBiometric,
     isBusy,
@@ -75,9 +77,6 @@ export function LoginScreen() {
       void login(user);
     },
   );
-
-  const hasFieldError = (fieldEmpty: boolean) =>
-    !!error && fieldEmpty;
 
   const onHelp = () => {
     Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
@@ -114,7 +113,9 @@ export function LoginScreen() {
               placeholder="Usuario"
               value={email}
               onChangeText={setEmail}
-              hasError={hasFieldError(!email)}
+              hasError={!!emailError}
+              errorMessage={emailError ?? undefined}
+              errorTestID="login-username-error"
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isBusy}
@@ -127,7 +128,9 @@ export function LoginScreen() {
               placeholder="Contraseña"
               value={password}
               onChangeText={setPassword}
-              hasError={hasFieldError(!password)}
+              hasError={!!passwordError}
+              errorMessage={passwordError ?? undefined}
+              errorTestID="login-password-error"
               editable={!isBusy}
               autoComplete="password"
             />

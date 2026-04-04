@@ -11,11 +11,15 @@ describe('data repositories', () => {
     };
     const repository = new AuthRepositoryImpl(dataSource);
 
-    const result = await repository.login('cliente@banco.com', '123456');
+    const result = await repository.login(
+      'cliente@banco.com',
+      'encrypted-user',
+      'encrypted-pass',
+    );
 
     expect(dataSource.login).toHaveBeenCalledWith({
-      username: 'cliente@banco.com',
-      password: '123456',
+      username: 'encrypted-user',
+      password: 'encrypted-pass',
     });
     expect(result).toMatchObject({
       id: 'cliente@banco.com',

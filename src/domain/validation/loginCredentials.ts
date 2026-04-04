@@ -14,13 +14,15 @@ import {
   sanitizeUnsafeTextInput,
 } from './textSafety';
 
-export const LOGIN_USERNAME_MAX_LENGTH = 128;
-export const LOGIN_PASSWORD_MIN_LENGTH = 6;
-export const LOGIN_PASSWORD_MAX_LENGTH = 128;
+export const LOGIN_USERNAME_MIN_LENGTH = 6;
+export const LOGIN_USERNAME_MAX_LENGTH = 20;
+export const LOGIN_PASSWORD_MIN_LENGTH = 8;
+export const LOGIN_PASSWORD_MAX_LENGTH = 16;
 
 export const loginValidationMessages = {
   usernameRequired: 'El usuario es requerido',
   usernameInvalidCharacters: 'El usuario contiene caracteres no permitidos',
+  usernameTooShort: `El usuario debe tener al menos ${LOGIN_USERNAME_MIN_LENGTH} caracteres`,
   usernameTooLong: `El usuario no puede superar ${LOGIN_USERNAME_MAX_LENGTH} caracteres`,
   passwordRequired: 'La contraseña es requerida',
   passwordInvalidCharacters:
@@ -46,6 +48,10 @@ export const validateLoginUsername = composeValidators(
   requireMaxLength(
     LOGIN_USERNAME_MAX_LENGTH,
     loginValidationMessages.usernameTooLong,
+  ),
+  requireMinLength(
+    LOGIN_USERNAME_MIN_LENGTH,
+    loginValidationMessages.usernameTooShort,
   ),
 );
 

@@ -9,6 +9,8 @@ const MOCK_CREDENTIALS = {
 
 const MOCK_USER_RESPONSE: LoginResponseModel = {
   accessToken: 'mock-jwt-token-xyz123',
+  sessionTimeSeconds: 3600,
+  inactivityTimeoutSeconds: 300,
 };
 
 const SIMULATED_DELAY_MS = 1500;

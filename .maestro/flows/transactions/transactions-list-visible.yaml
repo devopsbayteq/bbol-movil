@@ -11,8 +11,16 @@ name: Lista de transacciones y estados visibles
 
 - extendedWaitUntil:
     visible:
+      id: "home-screen"
+    timeout: 30000
+
+# Navegar al tab Movimientos.
+- tapOn: "Movimientos"
+
+- extendedWaitUntil:
+    visible:
       id: "transactions-screen"
-    timeout: 20000
+    timeout: 15000
 
 - assertVisible: "MOVIMIENTOS"
 - assertVisible: "Movimientos"

@@ -32,3 +32,35 @@ name: Transferencias — validación al continuar sin datos
 - extendedWaitUntil:
     visible: "Selecciona un beneficiario."
     timeout: 10000
+
+# --- 3. Con beneficiario, el concepto válido no bloquea el envío ---
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-modal"
+    timeout: 20000
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+- tapOn:
+    id: "transfer-concept-input"
+- inputText: "Concepto valido"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "Concepto valido"

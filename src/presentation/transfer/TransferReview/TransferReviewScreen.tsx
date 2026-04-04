@@ -204,7 +204,8 @@ export function TransferReviewScreen() {
                         disabled={confirmLoading}
                         activeOpacity={0.9}
                         accessibilityRole="button"
-                        accessibilityLabel="Confirmar transferencia">
+                        accessibilityLabel="Confirmar transferencia"
+                        testID="transfer-confirm-button">
                         {confirmLoading ? (
                             <ActivityIndicator color={colors.white} size="small"/>
                         ) : (
@@ -219,7 +220,8 @@ export function TransferReviewScreen() {
                         }}
                         activeOpacity={0.88}
                         accessibilityRole="button"
-                        accessibilityLabel="Modificar transferencia">
+                        accessibilityLabel="Modificar transferencia"
+                        testID="transfer-modify-button">
                         <Text style={styles.secondaryCtaText}>Modificar</Text>
                     </TouchableOpacity>
                 </View>
