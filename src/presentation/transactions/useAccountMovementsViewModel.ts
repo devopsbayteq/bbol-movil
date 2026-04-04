@@ -23,6 +23,21 @@ function isoEndOfDay(d: Date): string {
   return x.toISOString();
 }
 
+/** Evita filas duplicadas (misma respuesta o solapamiento al paginar). */
+function dedupeAccountMovements(items: AccountMovement[]): AccountMovement[] {
+  const map = new Map<string, AccountMovement>();
+  for (const item of items) {
+    const guid = item.transactionGuid?.trim();
+    const key = guid
+      ? guid
+      : `${item.transactionIdentifier}|${item.transferDate}|${item.amount}|${item.beneficiaryName}`;
+    if (!map.has(key)) {
+      map.set(key, item);
+    }
+  }
+  return [...map.values()];
+}
+
 function dateRangeFromPreset(preset: DateRangePreset): {
   dateFrom?: string;
   dateTo?: string;
@@ -117,11 +132,13 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
         });
         setTotalCount(result.totalCount);
         setPageNumber(result.pageNumber);
-        setItems(prev =>
-          page === 1 || mode === 'replace'
-            ? result.items
-            : [...prev, ...result.items],
-        );
+        setItems(prev => {
+          const merged =
+            page === 1 || mode === 'replace'
+              ? result.items
+              : [...prev, ...result.items];
+          return dedupeAccountMovements(merged);
+        });
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Error al cargar movimientos';

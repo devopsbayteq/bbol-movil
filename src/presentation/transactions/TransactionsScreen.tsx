@@ -9,6 +9,7 @@ import {
   RefreshControl,
   Dimensions,
   ActivityIndicator,
+  SectionListData,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
@@ -365,7 +366,12 @@ export function TransactionsScreen() {
     <View testID="transactions-screen" style={styles.root}>
       <SectionList
         sections={sections}
-        keyExtractor={item => item.transactionGuid}
+        keyExtractor={(item, index) => {
+          const id =
+            item.transactionGuid?.trim() ||
+            `${item.transactionIdentifier}|${item.transferDate}`;
+          return `${id}|${index}`;
+        }}
         renderItem={renderMovementRow}
         renderSectionHeader={({section: {title}}) => (
           <Text style={styles.groupHeader}>{title}</Text>
