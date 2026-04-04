@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
     View,
     Text,
@@ -8,7 +8,7 @@ import {
     ActivityIndicator,
     Platform,
 } from 'react-native';
-import { useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -22,13 +22,13 @@ import {
     TransferIconArrowRightWhite,
     TransferIconUser,
     TransferIconWallet,
-} from '../transferIcons';
+} from '../components/transferIcons.tsx';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from "../components/ToolbarApp.tsx";
 import {
     TransferModalSuccess,
     type TransferDataResume,
-} from '../components/TransferModalSuccess';
+} from '../transferResult/TransferModalSuccess.tsx';
 
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
@@ -42,6 +42,8 @@ export function TransferReviewScreen() {
     const navigation = useNavigation<
         NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
+
+    const router = useRoute<RouteProp<TransferStackParamList,'TransferReview'>>()
 
 
     const [showTransferSuccessModal, setTransferSuccessModal] = useState(false);
@@ -84,14 +86,19 @@ export function TransferReviewScreen() {
         onConfirm,
         doTransacction
     } = useTransferReviewViewModel(() => {
-        navigation.navigate(
-            'OtpValidationTransfer', {
-                mode: 'transfer', email: "", onClose: (_isValid: boolean) => {
-                    doTransacction().catch()
-                }
-            }
-        )
+        navigation.navigate('OtpValidationTransfer', {mode: 'transfer', email: "",})
     }, {onTransferSuccess});
+
+    useEffect(() => {
+        if(router.params?.resultFromOtp?.otpValidated){
+            navigation.setParams({resultFromOtp:undefined})
+            doTransacction().catch()
+        }
+    },[
+        doTransacction,
+        navigation,
+        router.params?.resultFromOtp
+    ])
 
     return (
         <View style={styles.root} testID="transfer-review-screen">
@@ -232,7 +239,11 @@ export function TransferReviewScreen() {
                     onClose={resetTransferSuccessUi}
                     navigateToTransfer={() => {
                         resetTransferSuccessUi();
-                        navigation.popToTop();
+                        //navigation.popToTop();
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'TransferMain' }],
+                        });
                     }}
                     navigateToHome={() => {
                         resetTransferSuccessUi();

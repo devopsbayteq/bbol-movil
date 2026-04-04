@@ -15,7 +15,7 @@ import {formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
-import type {BeneficiaryOption} from './transferTypes';
+import type {BeneficiaryOption} from '../beneficiary/transferTypes.ts';
 
 function defaultAccountIndex(accounts: AccountBalance[]): number {
   if (accounts.length === 0) {

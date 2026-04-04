@@ -1,0 +1,34 @@
+---
+description: Theming y estilos con tokens de color
+globs:
+  - src/presentation/**
+  - src/providers/theme/**
+---
+
+# Theming
+
+Todos los componentes que necesiten colores deben seguir este patrón:
+
+```typescript
+const { colors } = useTheme();
+const styles = useStyles(colors);
+```
+
+`useStyles` va como función separada al final del archivo:
+
+```typescript
+function useStyles(colors: ThemeColors) {
+  return useMemo(
+    () => StyleSheet.create({ /* estilos */ }),
+    [colors],
+  );
+}
+```
+
+Reglas:
+
+- Los colores siempre vienen de `colors.xxx`. No usar valores hex en componentes.
+- Los tokens nuevos se agregan en `src/providers/theme/colors.ts`: en la interfaz `ThemeColors`, en `LightColors` y en `DarkColors`.
+- Nombrar los tokens por su rol (`textPrimary`), no por su apariencia (`darkGray`).
+
+Para la referencia completa de tokens y la guía para agregar colores, ver `docs/THEMING.md`.

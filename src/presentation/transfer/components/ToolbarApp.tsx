@@ -1,5 +1,5 @@
 import {Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {TransferIconArrowLeft} from "../transferIcons.tsx";
+import {TransferIconArrowLeft} from "./transferIcons.tsx";
 import React, {useMemo} from "react";
 import {ThemeColors, useTheme} from "../../../providers";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
@@ -7,7 +7,7 @@ import {Lexend} from "../../../theme/lexend.ts";
 
 interface ToolbarAppProps {
     title?: string,
-    onBackPress: () => void
+    onBackPress?: () => void
 }
 
 export const ToolbarApp = ({title = "", onBackPress}: ToolbarAppProps) => {
@@ -18,14 +18,15 @@ export const ToolbarApp = ({title = "", onBackPress}: ToolbarAppProps) => {
     const styles = useStyles(colors);
     return (
         <View style={[styles.header, {paddingTop: insets.top}]}>
-            <TouchableOpacity
-                onPress={() => {
-                    onBackPress()
-                }}
-                style={styles.backBtn}
-            >
-                <TransferIconArrowLeft color={colors.iconPrimary} size={20}/>
-            </TouchableOpacity>
+            {onBackPress != null && (
+                <TouchableOpacity
+                    onPress={() => {
+                        onBackPress()
+                    }}
+                    style={styles.backBtn}
+                >
+                    <TransferIconArrowLeft color={colors.iconPrimary} size={20}/>
+                </TouchableOpacity>)}
             <Text style={styles.headerTitle}>{title}</Text>
             <View style={styles.headerRightSpacer}/>
         </View>

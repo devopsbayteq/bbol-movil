@@ -14,7 +14,7 @@ import {Lexend} from '../../theme/lexend';
 import {
   TransferIconClose,
   TransferIconCodeBrackets,
-} from '../transfer/transferIcons';
+} from '../transfer/components/transferIcons.tsx';
 
 const ALERT_CONTAINER_BG = '#FFE5E2';
 const ICON_BOX = 56;

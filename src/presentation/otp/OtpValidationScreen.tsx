@@ -10,7 +10,7 @@ import {
   Pressable,
   ScrollView,
 } from 'react-native';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {useTheme, type ThemeColors} from '../../providers';
@@ -22,8 +22,8 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
-import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
-import {TransferStackParamList} from "../../navigation/TransferStackNavigator.tsx";
+import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
+import {TransferStackParamList} from '../../navigation/TransferStackNavigator.tsx';
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
@@ -71,7 +71,13 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
       return;
     }
     if (params.mode === 'transfer') {
-      navigation.goBack();
+      navigation.dispatch(
+        StackActions.popTo(
+          'TransferReview',
+          {resultFromOtp: {otpValidated: true}},
+          {merge: true},
+        ),
+      );
     }
   });
 

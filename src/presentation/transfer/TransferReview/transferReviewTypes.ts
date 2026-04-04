@@ -1,4 +1,4 @@
-import type {BeneficiaryOption} from '../transferTypes';
+import type {BeneficiaryOption} from '../../beneficiary/transferTypes.ts';
 
 export type TransferReviewRouteParams = {
   amountCents: number;
@@ -8,4 +8,7 @@ export type TransferReviewRouteParams = {
   fromAccountLine: string;
   accountId: string;
   concept: string;
+  resultFromOtp?:{
+    otpValidated:boolean
+  }
 };

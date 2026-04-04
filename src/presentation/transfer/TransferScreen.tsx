@@ -29,7 +29,7 @@ import {
     TransferIconUser,
     TransferIconWallet,
     TransferIconArrowRightWhite,
-} from './transferIcons';
+} from './components/transferIcons.tsx';
 import {useTransferViewModel} from './useTransferViewModel';
 import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {accountTypeModalLabel} from '../../utils/accountDisplay';
@@ -191,10 +191,6 @@ export function TransferScreen() {
                                 <Text style={styles.validationText}>{transferViewModel.validationMessage}</Text>
                             ) : null}
                         </View>
-
-                        {transferViewModel.validationMessage ? (
-                            <Text style={styles.validationText}>{transferViewModel.validationMessage}</Text>
-                        ) : null}
 
                         <TouchableOpacity
                             style={styles.primaryCta}

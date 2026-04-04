@@ -1,0 +1,43 @@
+---
+description: Estilo de código TypeScript y React Native
+alwaysApply: true
+---
+
+# Estilo de código
+
+## Naming
+
+| Tipo | Convención | Ejemplo |
+|---|---|---|
+| Entidad | `PascalCase` | `Transaction.ts` |
+| Repo (interfaz) | `XxxRepository` | `AuthRepository.ts` |
+| Repo (impl) | `XxxRepositoryImpl` | `AuthRepositoryImpl.ts` |
+| Caso de uso | `VerboSustantivoUseCase` | `GetTransactionsUseCase.ts` |
+| DTO | `XxxModel` | `LoginResponseModel.ts` |
+| Mapper | `XxxMapper` | `TransactionMapper.ts` |
+| DataSource | `Mock/Remote/Local + XxxDataSource` | `MockAuthDataSource.ts` |
+| Pantalla | `XxxScreen` | `LoginScreen.tsx` |
+| ViewModel | `useXxxViewModel` | `useLoginViewModel.ts` |
+| Provider | `XxxProvider` | `AuthProvider.tsx` |
+| Componente compartido | `PascalCase` descriptivo | `Button.tsx` |
+
+## TypeScript
+
+- No usar `any` sin justificación documentada.
+- Preferir interfaces explícitas en límites de dominio, props y servicios.
+- Modelar variantes con union types.
+
+## React y React Native
+
+- Usar named exports (`export function Xxx`), no `export default`.
+- Las pantallas renderizan UI y delegan la lógica al ViewModel.
+- Los estilos se resuelven con `useTheme()` + `useStyles(colors)` + `useMemo([colors])`.
+- Los colores siempre vienen de tokens del tema (`colors.xxx`), nunca hardcodeados.
+- Imports agrupados y ordenados. No cruzar capas en imports.
+
+## Lint y formato
+
+- Prettier: `singleQuote: true`, `trailingComma: 'all'`, `arrowParens: 'avoid'`.
+- Correr `npm run lint` antes de cerrar un cambio.
+
+Para más detalle sobre imports y organización, ver `docs/STANDARDS.md`.

@@ -4,6 +4,7 @@ import {
   createBottomTabNavigator,
   type BottomTabBarButtonProps,
 } from '@react-navigation/bottom-tabs';
+import {useIsFocused} from '@react-navigation/core';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeScreen} from '../presentation/home/HomeScreen';
 import {TransferStackNavigator} from './TransferStackNavigator';
@@ -39,6 +40,20 @@ const tabBarIconTransfer = ({color, size, focused}: TabBarIconPropsWithFocused) 
 const tabBarIconMovements = ({color, size, focused}: TabBarIconPropsWithFocused) => (
   <TabMovementsIcon focused={focused} color={color} size={size ?? 24} />
 );
+
+function UnmountOnBlur({children}: {children: React.ReactNode}) {
+  const isFocused = useIsFocused();
+
+  if (!isFocused) {
+    return null;
+  }
+
+  return children;
+}
+
+function transferStackTabLayout({children}: {children: React.ReactNode}) {
+  return <UnmountOnBlur>{children}</UnmountOnBlur>;
+}
 
 export function MainTabNavigator() {
   const {colors} = useTheme();
@@ -107,7 +122,9 @@ export function MainTabNavigator() {
       <Tab.Screen
         name="Transfer"
         component={TransferStackNavigator}
+        layout={transferStackTabLayout}
         options={{
+          popToTopOnBlur: true,
           title: 'Transferir',
           tabBarIcon: tabBarIconTransfer,
         }}

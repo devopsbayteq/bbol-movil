@@ -2,7 +2,23 @@
 
 ## Vista general
 
-BBApp sigue una arquitectura **Clean Architecture** con el patron **MVVM** y organizacion **Feature-First** en la capa de presentacion. La inyeccion de dependencias se realiza de forma manual mediante React Context.
+BBApp sigue una arquitectura **Clean Architecture** con el patrón **MVVM** y organización **Feature-First** en la capa de presentación. La inyección de dependencias se realiza de forma manual mediante React Context.
+
+Vista general de la arquitectura por capas (transversales, presentación, dominio y datos):
+
+![Arquitectura de código de la app — Clean Architecture + MVVM](architecture-diagram.png)
+
+### Por qué Clean Architecture
+
+Separa la lógica de negocio (Domain) de la infraestructura (Data) y la UI (Presentation). Esto permite cambiar frameworks, fuentes de datos o librerías HTTP sin modificar las reglas de negocio. Para una app bancaria donde la confiabilidad es crítica, esta separación reduce el riesgo de que un cambio técnico introduzca errores en lógica financiera.
+
+### Por qué MVVM
+
+Los View Models (hooks personalizados) encapsulan el estado y la lógica de cada pantalla, manteniendo los Screens como componentes de renderizado puro. Este patrón se alinea naturalmente con React Hooks y facilita testear la lógica de UI sin montar componentes.
+
+### Por qué Feature-First
+
+Cada feature agrupa su Screen, View Model y componentes locales en una sola carpeta. Esto hace que agregar, modificar o eliminar un feature sea una operación aislada, sin tocar carpetas de otros features. Aplica exclusivamente a `src/presentation/`; las capas Domain y Data se organizan por tipo técnico porque sus artefactos son compartidos entre features.
 
 ## Estado actual del repositorio
 
@@ -17,10 +33,8 @@ Actualmente el proyecto es una unica aplicacion **React Native** con estas decis
 
 ## Documentos relacionados
 
-- `docs/README.md`: indice de documentacion tecnica.
-- `docs/STANDARDS.md`: estandares de arquitectura, codigo y documentacion.
-- `docs/TESTING.md`: estrategia de testing del proyecto, con `Maestro` como estandar E2E.
-- `docs/AI_DEVELOPMENT.md`: guia para usar IA en el desarrollo sin romper la arquitectura.
+- `docs/STANDARDS.md`: estandares de arquitectura, codigo, naming y Definition of Done.
+- `docs/TESTING.md`: estrategia de testing con Jest y Maestro.
 
 ```
 src/
@@ -37,9 +51,10 @@ src/
 │   ├── mappers/         # Transformadores DTO <-> Entidad
 │   ├── repositories/    # Implementaciones de repositorios
 │   └── services/        # Implementaciones de servicios
-├── presentation/        # UI (pantallas + ViewModels)
+├── presentation/        # UI (pantallas + View Models)
 │   ├── auth/            # Feature de autenticacion
-│   └── transactions/    # Feature de transacciones
+│   ├── transactions/    # Feature de transacciones
+│   └── components/      # Componentes compartidos entre features
 ├── navigation/          # Configuracion de navegacion
 └── providers/           # Proveedores transversales (auth, tema)
     └── theme/           # Sistema de temas
@@ -72,11 +87,11 @@ flowchart TB
     Screen --> ViewModel
     ViewModel --> UseCase
     UseCase --> RepoInterface
-    RepoInterface -.->|implementa| RepoImpl
+    RepoImpl -.->|implements| RepoInterface
     RepoImpl --> DataSource
     RepoImpl --> Mapper
     DataSource --> HttpClientInterface
-    HttpClientInterface -.->|implementa| HttpClientImpl
+    HttpClientImpl -.->|implements| HttpClientInterface
     DataSource --> DTO
     Mapper --> Entity
     Mapper --> DTO
@@ -153,7 +168,7 @@ Implementa los contratos de `domain` y gestiona el acceso a datos.
 ```typescript
 // src/data/repositories/TransactionRepositoryImpl.ts
 export class TransactionRepositoryImpl implements TransactionRepository {
-  constructor(private readonly dataSource: MockTransactionDataSource) {}
+  constructor(private readonly dataSource: TransactionDataSource) {}
 
   async getTransactions(): Promise<Transaction[]> {
     const models = await this.dataSource.getTransactions();
@@ -190,15 +205,18 @@ export interface AppContainer {
   loginUseCase: LoginUseCase;
   getTransactionsUseCase: GetTransactionsUseCase;
   secureStorageService: SecureStorageService;
+  authRemoteDataSource: AuthRemoteDataSource;
 }
 
 export function createContainer(): AppContainer {
+  const httpClient = new AxiosHttpClient(baseUrl, headers);
   const secureStorageService = new SecureStorageServiceImpl();
   const authDataSource = new MockAuthDataSource();
+  const authRemoteDataSource = new AuthRemoteDataSource(httpClient);
   const authRepository = new AuthRepositoryImpl(authDataSource);
   const loginUseCase = new LoginUseCase(authRepository);
   // ...
-  return { loginUseCase, getTransactionsUseCase, secureStorageService };
+  return { loginUseCase, getTransactionsUseCase, secureStorageService, authRemoteDataSource };
 }
 ```
 

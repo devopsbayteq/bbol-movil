@@ -5,8 +5,8 @@ import type {TransferReviewRouteParams} from '../presentation/transfer/TransferR
 import {TransferReviewScreen} from '../presentation/transfer/TransferReview/TransferReviewScreen';
 import {OtpValidationParams} from "./AppNavigator.tsx";
 import {OtpValidationScreen} from "../presentation/otp";
-import {TransferVoucherScreen} from "../presentation/transfer/TranferVoucherScreen.tsx";
-import {TransferDataResume} from "../presentation/transfer/components/TransferModalSuccess.tsx";
+import {TransferVoucherScreen} from "../presentation/transfer/transferResult/TranferVoucherScreen.tsx";
+import {TransferDataResume} from "../presentation/transfer/transferResult/TransferModalSuccess.tsx";
 
 export type TransferStackParamList = {
     TransferMain: undefined;

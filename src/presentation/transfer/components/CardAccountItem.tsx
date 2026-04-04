@@ -1,7 +1,7 @@
 import {Text, View, StyleSheet} from 'react-native';
 import {ThemeColors, useTheme} from '../../../providers';
 import React, {useMemo} from 'react';
-import {TransferIconWallet} from '../transferIcons.tsx';
+import {TransferIconWallet} from './transferIcons.tsx';
 import {Lexend} from '../../../theme/lexend';
 
 const HERO_ICON = '#0B515C';
