@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
-import {Platform, Pressable, StyleSheet} from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
+import {PlatformPressable} from '@react-navigation/elements';
 import {
   createBottomTabNavigator,
   type BottomTabBarButtonProps,
@@ -63,15 +64,15 @@ export function MainTabNavigator() {
     (props: BottomTabBarButtonProps) => {
       const focused = props.accessibilityState?.selected;
       return (
-        <Pressable
+        <PlatformPressable
           {...props}
-          style={({pressed}) => [
+          pressOpacity={0.88}
+          style={[
             props.style,
             focused && {
               borderTopWidth: 3,
               borderTopColor: colors.primary,
             },
-            pressed && {opacity: 0.88},
           ]}
         />
       );
