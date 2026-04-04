@@ -1,36 +1,47 @@
+import {AppState, type AppStateStatus} from 'react-native';
 import type {DeviceSecuritySnapshot} from '../../domain/entities/DeviceSecuritySnapshot';
 
 export interface InfoFingerprintModel {
+  /** Primer / segundo plano: `foreground` | `background` | `inactive` (ver `getAppLifecycleDeviceState`). */
   deviceState: string;
   isRoot: boolean;
   isDebugger: boolean;
   isDevelopment: boolean;
   isPhysicalDevice: boolean;
-  /** Opciones de desarrollador del sistema (Android); en iOS suele ser false. */
-  isDeveloperModeEnabled: boolean;
 }
 
-/** Codificación estable para auditoría / backend (flags separados por |). */
-export function encodeDeviceState(snapshot: DeviceSecuritySnapshot): string {
-  return [
-    `root:${snapshot.isRootedOrJailbroken ? 1 : 0}`,
-    `emu:${snapshot.isEmulator ? 1 : 0}`,
-    `devopt:${snapshot.isDeveloperModeEnabled ? 1 : 0}`,
-    `dbg:${snapshot.isDebuggedMode ? 1 : 0}`,
-    `devsup:${snapshot.developerModeSupported ? 1 : 0}`,
-  ].join('|');
+/**
+ * Mapea el estado nativo de React Native a etiquetas de primer/segundo plano para el backend.
+ */
+export function mapAppStateStatusToDeviceState(status: AppStateStatus): string {
+  switch (status) {
+    case 'active':
+      return 'foreground';
+    case 'background':
+      return 'background';
+    case 'inactive':
+      return 'inactive';
+    default:
+      return String(status);
+  }
+}
+
+/**
+ * Control de ciclo de vida: primer plano (`foreground`) vs segundo plano (`background`) / transición (`inactive`).
+ */
+export function getAppLifecycleDeviceState(): string {
+  return mapAppStateStatusToDeviceState(AppState.currentState);
 }
 
 export function buildInfoFingerprintModelFromSnapshot(
   snapshot: DeviceSecuritySnapshot,
 ): InfoFingerprintModel {
   return {
-    deviceState: encodeDeviceState(snapshot),
+    deviceState: getAppLifecycleDeviceState(),
     isRoot: snapshot.isRootedOrJailbroken,
     isDebugger: snapshot.isDebuggedMode,
-    isDevelopment: __DEV__,
+    isDevelopment: snapshot.isDeveloperModeEnabled,
     isPhysicalDevice: !snapshot.isEmulator,
-    isDeveloperModeEnabled: snapshot.isDeveloperModeEnabled,
   };
 }
 
@@ -41,6 +52,5 @@ export function infoFingerprintModelToJson(model: InfoFingerprintModel): string 
     isDebugger: model.isDebugger,
     isDevelopment: model.isDevelopment,
     isPhysicalDevice: model.isPhysicalDevice,
-    isDeveloperModeEnabled: model.isDeveloperModeEnabled,
   });
 }

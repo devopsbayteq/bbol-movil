@@ -1,5 +1,5 @@
-import JailMonkey from 'jail-monkey';
+import {getDebuggedModeFromNative} from './jailMonkeyBridge';
 
 export function getDebuggedMode(): Promise<boolean> {
-  return JailMonkey.isDebuggedMode();
+  return getDebuggedModeFromNative();
 }

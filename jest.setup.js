@@ -32,14 +32,14 @@ jest.mock('react-native-device-info', () => ({
   isEmulator: jest.fn(() => Promise.resolve(false)),
 }));
 
-jest.mock('jail-monkey', () => ({
-  __esModule: true,
-  default: {
-    isJailBroken: jest.fn(() => false),
+const ReactNative = require('react-native');
+if (ReactNative.NativeModules.JailMonkey == null) {
+  ReactNative.NativeModules.JailMonkey = {
+    isJailBroken: false,
     isDevelopmentSettingsMode: jest.fn(() => Promise.resolve(false)),
     isDebuggedMode: jest.fn(() => Promise.resolve(false)),
-  },
-}));
+  };
+}
 
 jest.mock('react-native-keychain', () => ({
   setGenericPassword: jest.fn(() => Promise.resolve({service: 's', storage: 'k'})),
