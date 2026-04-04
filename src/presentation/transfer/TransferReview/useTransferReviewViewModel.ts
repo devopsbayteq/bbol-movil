@@ -77,7 +77,7 @@ export function useTransferReviewViewModel(
 
     const transferDateLabel = useMemo(() => formatReviewDate(new Date()), []);
 
-    const doTransacction = async () => {
+    const doTransacction = useCallback(async () => {
         setConfirmError(null);
         const amount = Math.round(amountCents) / 100;
         setConfirmLoading(true);
@@ -108,7 +108,8 @@ export function useTransferReviewViewModel(
             setConfirmLoading(false)
         }
 
-    }
+    },[accountId, amountCents, beneficiary, concept, displayAmount, executeTransferUseCase, fromAccountLine, fromHolderName, onTransferSuccess])
+
     const onConfirm = useCallback(async () => {
         setConfirmError(null);
 

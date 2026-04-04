@@ -8,4 +8,7 @@ export type TransferReviewRouteParams = {
   fromAccountLine: string;
   accountId: string;
   concept: string;
+  resultFromOtp?:{
+    otpValidated:boolean
+  }
 };
