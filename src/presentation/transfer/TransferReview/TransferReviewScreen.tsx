@@ -6,9 +6,9 @@ import {
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
-    Platform,
+    Platform, BackHandler,
 } from 'react-native';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -33,7 +33,7 @@ import {
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
 const LABEL_MUTED = '#3E494B';
-//type PantallaARouteProp = RouteProp<TransferStackParamList, 'OtpValidationTransfer'>;
+
 export function TransferReviewScreen() {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();

@@ -1,6 +1,6 @@
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {BackHandler, Platform, ScrollView, StyleSheet, Text, View} from "react-native";
 import {ThemeColors, useTheme} from "../../../providers";
-import React, { useMemo, useRef} from "react";
+import React, {useCallback, useMemo, useRef} from "react";
 import {ToolbarApp} from "../components/ToolbarApp.tsx";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {CardViewContainer} from "../components/CardViewContainer.tsx";
@@ -15,6 +15,7 @@ import ViewShot from 'react-native-view-shot';
 import Share from 'react-native-share';
 import {Lexend} from "../../../theme/lexend.ts";
 import {SpacerView} from "../../components/SpacerView.tsx";
+import {useFocusEffect} from "@react-navigation/native";
 const shareIcon = require('../../../../assets/images/share-nodes.png');
 
 type TransferVoucherRouteProp = RouteProp<TransferStackParamList, "TransferVoucher">;
@@ -51,6 +52,26 @@ export const TransferVoucherScreen = () => {
 
         console.log(uri);
     };
+
+
+    useFocusEffect(
+        useCallback(() => {
+            if (Platform.OS !== 'android') return;
+            const onBackPress = () => {
+                navigation.reset({
+                    index:0,
+                    routes:[{name:'TransferMain'}]
+                })
+                return true;
+            };
+            const sub = BackHandler.addEventListener(
+                'hardwareBackPress',
+                onBackPress
+            );
+            return () => sub.remove();
+        }, [navigation])
+    );
+
 
     return (
         <View style={styles.root} testID="transfer-main-screen">
