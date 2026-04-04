@@ -1,5 +1,4 @@
 import {AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig} from 'axios';
-import DeviceInfo from 'react-native-device-info';
 import {devLog} from './devLog';
 import {generateHMacForContentHeaderFromAxios} from '../../security/http/generateHMacContentHeader';
 import {rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64} from '../../security/certificate/rsaUtils';
@@ -11,9 +10,10 @@ import {
   type DeviceHeaderSnapshot,
 } from './loadDeviceHeaderSnapshot';
 import {
+  buildInfoFingerprintModelFromSnapshot,
   infoFingerprintModelToJson,
-  type InfoFingerprintModel,
 } from './infoFingerprintModel';
+import type {DeviceSecurityService} from '../../domain/services/DeviceSecurityService';
 
 const LOG = 'ApiHeaders/interceptor';
 
@@ -22,22 +22,16 @@ export type ApiHeadersInterceptorDeps = {
   secretKey: string;
   requestId: string;
   secureStorage: SecureStorageService;
-  serverPublicPemBase64: string;  
-  getDeviceState: () => string;
+  serverPublicPemBase64: string;
+  deviceSecurityService: DeviceSecurityService;
 };
 
 async function buildEncryptedFingerprint(
   serverPublicPemBase64: string,
-  getDeviceState: () => string,
+  deviceSecurityService: DeviceSecurityService,
 ): Promise<string> {
-  const isEmu = await DeviceInfo.isEmulator();
-  const model: InfoFingerprintModel = {
-    deviceState: getDeviceState(),
-    isRoot: false,
-    isDebugger: false,
-    isDevelopment: __DEV__,
-    isPhysicalDevice: !isEmu,
-  };
+  const snapshot = await deviceSecurityService.getSnapshot();
+  const model = buildInfoFingerprintModelFromSnapshot(snapshot);
   const json = infoFingerprintModelToJson(model);
   return rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
     serverPublicPemBase64,
@@ -83,7 +77,7 @@ export function attachApiHeadersInterceptor(
           ),
           buildEncryptedFingerprint(
             deps.serverPublicPemBase64,
-            deps.getDeviceState,
+            deps.deviceSecurityService,
           ),
           loadSnapshot(),
         ]);

@@ -5,6 +5,7 @@ import {RunCertificateHandshakeUseCase} from '../domain/usecases/RunCertificateH
 import {GetPublicKeyUseCase} from '../domain/usecases/GetPublicKeyUseCase';
 import {SecureStorageService} from '../domain/services/SecureStorageService';
 import {BiometricAuthService} from '../domain/services/BiometricAuthService';
+import type {DeviceSecurityService} from '../domain/services/DeviceSecurityService';
 
 import {API_BASE_URL} from '../config/apiEnvironment';
 import {AxiosHttpClient} from '../data/api/apiClient';
@@ -19,6 +20,7 @@ import {TransactionListRemoteDataSource} from '../data/datasources/transaction/T
 import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
+import {DeviceSecurityServiceImpl} from '../data/services/DeviceSecurityServiceImpl';
 import {createApiSecretKey} from '../security/http/apiSecretKey';
 import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../security/certificate/keys.constants';
 import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
@@ -53,10 +55,12 @@ export interface AppContainer {
   validateTransactionAmountUseCase: ValidateTransactionAmountUseCase;
   executeTransferUseCase: ExecuteTransferUseCase;
   biometricRSAAuthOrchestrator: BiometricRSAAuthOrchestrator;
+  deviceSecurityService: DeviceSecurityService;
 }
 
 export function createContainer(): AppContainer {
   const secureStorageService = new SecureStorageServiceImpl();
+  const deviceSecurityService = new DeviceSecurityServiceImpl();
   const secretKey = createApiSecretKey();
   const requestId = uuidv4();
 
@@ -66,7 +70,7 @@ export function createContainer(): AppContainer {
     requestId,
     secureStorage: secureStorageService,
     serverPublicPemBase64: SERVER_PUBLIC_KEY_PEM_BASE64,
-    getDeviceState: () => 'unknown',
+    deviceSecurityService,
   });
 
   const biometricAuthService = new BiometricAuthServiceImpl();
@@ -169,5 +173,6 @@ export function createContainer(): AppContainer {
     validateTransactionAmountUseCase,
     executeTransferUseCase,
     biometricRSAAuthOrchestrator,
+    deviceSecurityService,
   };
 }
