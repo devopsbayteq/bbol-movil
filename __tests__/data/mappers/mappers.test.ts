@@ -1,8 +1,8 @@
 import {mapPublicKeyContentToEntity} from '../../../src/data/mappers/PublicKeyMapper';
 import {
-  mapTransactionModelToEntity,
-  mapTransactionModelsToEntities,
-} from '../../../src/data/mappers/TransactionMapper';
+  mapTransactionListItemToEntity,
+  mapTransactionListItemsToEntities,
+} from '../../../src/data/mappers/accountMovementMapper';
 import {mapLoginResponseToUser} from '../../../src/data/mappers/UserMapper';
 
 describe('data mappers', () => {
@@ -26,71 +26,84 @@ describe('data mappers', () => {
     ).toEqual({value: '-----BEGIN PUBLIC KEY-----'});
   });
 
-  test('mapTransactionModelToEntity keeps transaction business fields', () => {
+  test('mapTransactionListItemToEntity maps API fields to AccountMovement', () => {
     const model = {
-      id: 'tx-1',
-      description: 'Transferencia recibida',
-      amount: 250.5,
-      date: '2026-03-25',
-      type: 'income' as const,
-      category: 'transfer',
-      status: 'completed' as const,
-      createdAt: '2026-03-25T11:00:00Z',
-      updatedAt: '2026-03-25T11:05:00Z',
-      userId: 'usr-1',
-      reference: 'SPEI-123',
-      metadata: {channel: 'mobile'},
+      transactionGuid: 'g1',
+      transactionIdentifier: 'id-1',
+      beneficiaryName: 'Juan',
+      beneficiaryAccountType: 1,
+      beneficiaryAccountTypeLabel: 'Ahorros',
+      beneficiaryAccountNumber: '****1111',
+      ownerAccountType: 1,
+      ownerAccountLabel: 'Propia',
+      accountNumber: '****2222',
+      accountType: 1,
+      accountTypeLabel: 'Ahorros',
+      destinationLastFourDigits: '1111',
+      amount: -25,
+      transferDate: '2026-03-25T11:00:00Z',
+      transactionTypeLabel: 'Transferencia',
+      transactionType: 2,
+      balanceAfterTransaction: 100,
     };
 
-    expect(mapTransactionModelToEntity(model)).toEqual({
-      id: 'tx-1',
-      description: 'Transferencia recibida',
-      amount: 250.5,
-      date: '2026-03-25',
-      type: 'income',
-      category: 'transfer',
-      status: 'completed',
+    expect(mapTransactionListItemToEntity(model)).toEqual({
+      transactionGuid: 'g1',
+      transactionIdentifier: 'id-1',
+      beneficiaryName: 'Juan',
+      beneficiaryAccountTypeLabel: 'Ahorros',
+      beneficiaryAccountNumber: '****1111',
+      amount: -25,
+      transferDate: '2026-03-25T11:00:00Z',
+      transactionTypeLabel: 'Transferencia',
+      transactionType: 2,
+      balanceAfterTransaction: 100,
     });
   });
 
-  test('mapTransactionModelsToEntities maps every transaction in the collection', () => {
-    const result = mapTransactionModelsToEntities([
+  test('mapTransactionListItemsToEntities maps every item', () => {
+    const result = mapTransactionListItemsToEntities([
       {
-        id: 'tx-1',
-        description: 'Ingreso',
-        amount: 10,
-        date: '2026-03-25',
-        type: 'income',
-        category: 'salary',
-        status: 'completed',
-        createdAt: '2026-03-25T11:00:00Z',
-        updatedAt: '2026-03-25T11:05:00Z',
-        userId: 'usr-1',
-        reference: 'ref-1',
-        metadata: null,
+        transactionGuid: 'a',
+        transactionIdentifier: '',
+        beneficiaryName: 'A',
+        beneficiaryAccountType: 1,
+        beneficiaryAccountTypeLabel: '',
+        beneficiaryAccountNumber: '',
+        ownerAccountType: 1,
+        ownerAccountLabel: '',
+        accountNumber: '',
+        accountType: 1,
+        accountTypeLabel: '',
+        destinationLastFourDigits: '',
+        amount: 1,
+        transferDate: '2026-03-25T11:00:00Z',
+        transactionTypeLabel: '',
+        transactionType: 0,
+        balanceAfterTransaction: 0,
       },
       {
-        id: 'tx-2',
-        description: 'Compra',
-        amount: 5,
-        date: '2026-03-24',
-        type: 'expense',
-        category: 'shopping',
-        status: 'pending',
-        createdAt: '2026-03-24T11:00:00Z',
-        updatedAt: '2026-03-24T11:05:00Z',
-        userId: 'usr-1',
-        reference: 'ref-2',
-        metadata: null,
+        transactionGuid: 'b',
+        transactionIdentifier: '',
+        beneficiaryName: 'B',
+        beneficiaryAccountType: 1,
+        beneficiaryAccountTypeLabel: '',
+        beneficiaryAccountNumber: '',
+        ownerAccountType: 1,
+        ownerAccountLabel: '',
+        accountNumber: '',
+        accountType: 1,
+        accountTypeLabel: '',
+        destinationLastFourDigits: '',
+        amount: 2,
+        transferDate: '2026-03-24T11:00:00Z',
+        transactionTypeLabel: '',
+        transactionType: 0,
+        balanceAfterTransaction: 0,
       },
     ]);
 
     expect(result).toHaveLength(2);
-    expect(result[1]).toMatchObject({
-      id: 'tx-2',
-      type: 'expense',
-      category: 'shopping',
-      status: 'pending',
-    });
+    expect(result[1].beneficiaryName).toBe('B');
   });
 });

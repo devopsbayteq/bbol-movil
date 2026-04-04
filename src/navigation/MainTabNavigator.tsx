@@ -1,6 +1,9 @@
-import React from 'react';
-import {Platform, StyleSheet} from 'react-native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React, {useCallback} from 'react';
+import {Platform, Pressable, StyleSheet} from 'react-native';
+import {
+  createBottomTabNavigator,
+  type BottomTabBarButtonProps,
+} from '@react-navigation/bottom-tabs';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeScreen} from '../presentation/home/HomeScreen';
 import {TransferStackNavigator} from './TransferStackNavigator';
@@ -15,7 +18,8 @@ export type MainTabParamList = {
   /** `refreshHome`: timestamp para forzar recarga al volver desde transferencia (opcional). */
   Home: {refreshHome?: number};
   Transfer: undefined;
-  Movements: undefined;
+  /** `accountGuid`: cuenta a consultar; si no se envía (tab), se usa la primera cuenta del home. */
+  Movements: {accountGuid?: string} | undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -40,12 +44,33 @@ export function MainTabNavigator() {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
 
+  const tabBarButton = useCallback(
+    (props: BottomTabBarButtonProps) => {
+      const focused = props.accessibilityState?.selected;
+      return (
+        <Pressable
+          {...props}
+          style={({pressed}) => [
+            props.style,
+            focused && {
+              borderTopWidth: 3,
+              borderTopColor: colors.primary,
+            },
+            pressed && {opacity: 0.88},
+          ]}
+        />
+      );
+    },
+    [colors.primary],
+  );
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: '#9CA3AF',
+        tabBarButton,
         tabBarStyle: {
           backgroundColor: colors.white,
           borderTopWidth: StyleSheet.hairlineWidth,

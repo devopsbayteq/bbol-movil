@@ -1,9 +1,9 @@
 appId: com.bbapp
 ---
-# Si ya hay sesión, la pantalla de movimientos aparece sin pedir credenciales.
+# Si ya hay sesión, el inicio aparece sin pedir credenciales.
 - extendedWaitUntil:
     visible:
-      id: "transactions-screen"
+      id: "home-screen"
     timeout: 8000
     optional: true
 
@@ -11,7 +11,7 @@ appId: com.bbapp
 - runFlow:
     when:
       notVisible:
-        id: "transactions-screen"
+        id: "home-screen"
     commands:
       - extendedWaitUntil:
           visible:

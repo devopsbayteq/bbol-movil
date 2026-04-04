@@ -23,5 +23,5 @@ appId: com.bbapp
 
 - extendedWaitUntil:
     visible:
-      id: "transactions-screen"
+      id: "home-screen"
     timeout: 30000

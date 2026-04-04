@@ -1,95 +1,411 @@
-import React, {useMemo} from 'react';
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useMemo, useCallback} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  SectionList,
+  RefreshControl,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useTransactionsViewModel} from './useTransactionsViewModel';
-import {useAuth} from '../../providers';
+import {
+  useNavigation,
+  useRoute,
+  type RouteProp,
+} from '@react-navigation/native';
+import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import Svg, {Path} from 'react-native-svg';
+import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
-import {TransactionItem, formatCurrency} from './TransactionItem';
-import {Button, LoadingState, EmptyState, ErrorMessage} from '../components';
+import {Lexend} from '../../theme/lexend';
+import type {AccountKind} from '../../domain/entities/ContractBalance';
+import type {AccountMovement} from '../../domain/entities/AccountMovement';
+import {useAccountMovementsViewModel} from './useAccountMovementsViewModel';
+import {formatCurrency} from './TransactionItem';
+import {Button, EmptyState, ErrorMessage} from '../components';
+
+const QUICK_ACTION_BG = '#D0F0F6';
+
+function accountKindLabel(kind: AccountKind): string {
+  if (kind === 'savings') {
+    return 'Cuenta de ahorros';
+  }
+  if (kind === 'checking') {
+    return 'Cuenta corriente';
+  }
+  return 'Cuenta';
+}
+
+function sectionTitleForDate(d: Date, now: Date): string {
+  const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const t1 = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diffDays = Math.round((t0 - t1) / 864e5);
+  if (diffDays === 0) {
+    return 'HOY';
+  }
+  if (diffDays === 1) {
+    return 'AYER';
+  }
+  return d.toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function buildSections(
+  movements: AccountMovement[],
+): SectionListData<AccountMovement>[] {
+  const now = new Date();
+  const map = new Map<string, AccountMovement[]>();
+  const order: string[] = [];
+  for (const item of movements) {
+    const d = new Date(item.transferDate);
+    const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    if (!map.has(key)) {
+      map.set(key, []);
+      order.push(key);
+    }
+    map.get(key)!.push(item);
+  }
+  return order.map(key => {
+    const list = map.get(key)!;
+    const d = new Date(list[0].transferDate);
+    return {
+      title: sectionTitleForDate(d, now),
+      data: list,
+    };
+  });
+}
+
+function BackIcon({color}: {color: string}) {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+      />
+    </Svg>
+  );
+}
+
+function ShareIcon({color}: {color: string}) {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"
+      />
+    </Svg>
+  );
+}
+
+function EyeIcon({color}: {color: string}) {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+      />
+    </Svg>
+  );
+}
+
+function EyeSlashIcon({color}: {color: string}) {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-2.76-2.24-5-5-5l-.17.01z"
+      />
+    </Svg>
+  );
+}
+
+function ChevronRightIcon({color}: {color: string}) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
+      />
+    </Svg>
+  );
+}
+
+function ArrowOutIcon({color}: {color: string}) {
+  return (
+    <Svg width={22} height={22} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z"
+      />
+    </Svg>
+  );
+}
+
+function ArrowInIcon({color}: {color: string}) {
+  return (
+    <Svg width={22} height={22} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M19 9h-2v6.59L5.41 4 4 5.41 15.59 17H9v2h10z"
+      />
+    </Svg>
+  );
+}
 
 export function TransactionsScreen() {
-  const {user, logout} = useAuth();
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
+  const navigation =
+    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Movements'>>();
+  const route = useRoute<RouteProp<MainTabParamList, 'Movements'>>();
+  const accountGuid = route.params?.accountGuid;
+
+  const [balanceVisible, setBalanceVisible] = React.useState(true);
+
+  const vm = useAccountMovementsViewModel(accountGuid);
+
   const styles = useStyles(colors);
+  const width = Dimensions.get('window').width;
 
-  const {transactions, isLoading, error, balance, income, expenses, retry} =
-    useTransactionsViewModel();
+  const sections = useMemo(
+    () => buildSections(vm.items),
+    [vm.items],
+  );
 
-  const handleLogout = async () => {
-    await logout();
-  };
+  const onBack = useCallback(() => {
+    navigation.navigate('Home', {});
+  }, [navigation]);
 
-  const renderHeader = () => (
+  const renderMovementRow = useCallback(
+    ({item}: {item: AccountMovement}) => {
+      const incoming = item.amount > 0;
+      const amountColor = incoming ? colors.success : colors.textPrimary;
+      const amountPrefix = incoming ? '' : '-';
+      const displayAbs = formatCurrency(Math.abs(item.amount));
+      return (
+        <View style={styles.movementCard}>
+          <View style={styles.movementIconWrap}>
+            {incoming ? (
+              <ArrowInIcon color={colors.success} />
+            ) : (
+              <ArrowOutIcon color={colors.textPrimary} />
+            )}
+          </View>
+          <View style={styles.movementCenter}>
+            <Text style={styles.movementName} numberOfLines={1}>
+              {item.beneficiaryName}
+            </Text>
+            <Text style={styles.movementSub} numberOfLines={1}>
+              {item.transactionTypeLabel}
+            </Text>
+          </View>
+          <View style={styles.movementRight}>
+            <Text style={[styles.movementAmount, {color: amountColor}]}>
+              {amountPrefix}
+              {displayAbs}
+            </Text>
+            <Text style={styles.movementBalance}>
+              {formatCurrency(item.balanceAfterTransaction)}
+            </Text>
+          </View>
+          <ChevronRightIcon color={colors.textTertiary} />
+        </View>
+      );
+    },
+    [colors, styles],
+  );
+
+  const listHeader = (
     <View>
-      <View style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Saldo disponible</Text>
-        <Text style={styles.balanceAmount}>{formatCurrency(balance)}</Text>
-        <View style={styles.balanceRow}>
-          <View style={styles.balanceStat}>
-            <Text style={styles.balanceStatLabel}>Ingresos</Text>
-            <Text style={[styles.balanceStatValue, {color: colors.success}]}>
-              +{formatCurrency(income)}
+      <View style={[styles.hero, {paddingTop: insets.top + 8}]}>
+        <View style={styles.heroTop}>
+          <TouchableOpacity
+            onPress={onBack}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Volver al inicio">
+            <BackIcon color={colors.white} />
+          </TouchableOpacity>
+          <Text style={styles.heroTitle}>MOVIMIENTOS</Text>
+          <View style={styles.heroTopSpacer} />
+        </View>
+
+        {vm.selectedAccount ? (
+          <View style={styles.accountBlock}>
+            <View style={styles.accountRow}>
+              <View>
+                <Text style={styles.accountKind}>
+                  {accountKindLabel(vm.selectedAccount.accountKind)}
+                </Text>
+                <Text style={styles.accountMask}>
+                  {vm.selectedAccount.maskedAccountNumber}
+                </Text>
+              </View>
+              <View style={styles.accountActions}>
+                <TouchableOpacity accessibilityLabel="Compartir">
+                  <ShareIcon color={colors.white} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.eyeBox}
+                  onPress={() => setBalanceVisible(v => !v)}
+                  accessibilityLabel={
+                    balanceVisible ? 'Ocultar saldo' : 'Mostrar saldo'
+                  }>
+                  {balanceVisible ? (
+                    <EyeIcon color={colors.white} />
+                  ) : (
+                    <EyeSlashIcon color={colors.white} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+            <Text style={styles.balanceBig}>
+              {balanceVisible
+                ? formatCurrency(vm.selectedAccount.balance)
+                : '$**.**'}
             </Text>
+            <Text style={styles.balanceLbl}>Saldo</Text>
           </View>
-          <View style={styles.balanceDivider} />
-          <View style={styles.balanceStat}>
-            <Text style={styles.balanceStatLabel}>Gastos</Text>
-            <Text style={[styles.balanceStatValue, {color: colors.error}]}>
-              -{formatCurrency(expenses)}
-            </Text>
-          </View>
+        ) : null}
+
+        <Svg
+          width={width}
+          height={20}
+          style={styles.wave}
+          viewBox={`0 0 ${width} 20`}
+          preserveAspectRatio="none">
+          <Path
+            d={`M0,10 Q${width * 0.25},20 ${width * 0.5},10 T${width},10 L${width},0 L0,0 Z`}
+            fill={colors.background}
+          />
+        </Svg>
+      </View>
+
+      <View style={styles.quickRow}>
+        <TouchableOpacity
+          style={styles.quickCard}
+          onPress={() => navigation.navigate('Transfer', undefined)}
+          accessibilityRole="button"
+          accessibilityLabel="Transferir">
+          <Text style={styles.quickIcon}>⇅</Text>
+          <Text style={styles.quickLabel}>Transferir</Text>
+        </TouchableOpacity>
+        <View style={styles.quickCard}>
+          <Text style={styles.quickIcon}>💡</Text>
+          <Text style={styles.quickLabel}>Pagar servicio</Text>
+        </View>
+        <View style={styles.quickCard}>
+          <Text style={styles.quickIcon}>▦</Text>
+          <Text style={styles.quickLabel}>Cobrar con QR</Text>
+        </View>
+        <View style={styles.quickCard}>
+          <Text style={styles.quickIcon}>📅</Text>
+          <Text style={styles.quickLabel}>Programadas</Text>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Movimientos recientes</Text>
+      <Text style={styles.sectionHeading}>Movimientos</Text>
+      <View style={styles.searchWrap}>
+        <Text style={styles.searchIcon}>🔍</Text>
+        <TextInput
+          testID="movements-search-input"
+          style={styles.searchInput}
+          placeholder="Buscar por nombre"
+          placeholderTextColor={colors.textTertiary}
+          value={vm.searchQuery}
+          onChangeText={vm.setSearchQuery}
+        />
+      </View>
+      <View style={styles.chipsRow}>
+        <TouchableOpacity
+          style={styles.chip}
+          onPress={vm.cycleDatePreset}
+          accessibilityRole="button">
+          <Text style={styles.chipText}>{vm.datePresetLabel}</Text>
+          <Text style={styles.chipChevron}>▼</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.chip} onPress={vm.cycleTypeFilter}>
+          <Text style={styles.chipText}>{vm.typeFilterLabel}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.chip} onPress={vm.cycleAmountSort}>
+          <Text style={styles.chipText}>{vm.amountSortLabel}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
-  const renderEmpty = () => {
-    if (isLoading) {
-      return <LoadingState message="Cargando transacciones..." />;
-    }
+  if (vm.isLoadingAccount) {
+    return (
+      <View
+        testID="transactions-screen"
+        style={[styles.root, {paddingTop: insets.top}]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
-    if (error) {
-      return (
-        <View style={styles.errorBlock}>
-          <ErrorMessage message={error} />
-          <Button title="Reintentar" onPress={retry} style={styles.retryButton} />
-        </View>
-      );
-    }
-
-    return <EmptyState message="No hay transacciones" />;
-  };
+  if (vm.accountError) {
+    return (
+      <View
+        testID="transactions-screen"
+        style={[styles.root, {paddingTop: insets.top}]}>
+        <ErrorMessage message={vm.accountError} />
+        <Button title="Reintentar" onPress={() => void vm.refresh()} />
+      </View>
+    );
+  }
 
   return (
-    <View
-      testID="transactions-screen"
-      style={[styles.root, {paddingTop: insets.top}]}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Hola, {user?.name}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
-        
-        </View>
-        <TouchableOpacity
-          testID="logout-button"
-          style={styles.logoutButton}
-          onPress={handleLogout}
-          activeOpacity={0.7}>
-          <Text style={styles.logoutText}>Salir</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={transactions}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => <TransactionItem item={item} />}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmpty}
+    <View testID="transactions-screen" style={styles.root}>
+      <SectionList
+        sections={sections}
+        keyExtractor={item => item.transactionGuid}
+        renderItem={renderMovementRow}
+        renderSectionHeader={({section: {title}}) => (
+          <Text style={styles.groupHeader}>{title}</Text>
+        )}
+        ListHeaderComponent={listHeader}
+        stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
+        onEndReachedThreshold={0.4}
+        onEndReached={() => void vm.loadMore()}
+        refreshControl={
+          <RefreshControl
+            refreshing={vm.isRefreshing}
+            onRefresh={() => void vm.refresh()}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+        ListEmptyComponent={
+          vm.isLoadingMovements ? (
+            <View style={styles.emptyPad}>
+              <ActivityIndicator color={colors.primary} />
+            </View>
+          ) : vm.movementsError ? (
+            <View style={styles.emptyPad}>
+              <ErrorMessage message={vm.movementsError} />
+              <Button
+                title="Reintentar"
+                onPress={() => void vm.refresh()}
+                style={styles.retryBtn}
+              />
+            </View>
+          ) : (
+            <EmptyState message="No hay movimientos" />
+          )
+        }
+        ListFooterComponent={
+          vm.isLoadingMore ? (
+            <ActivityIndicator style={styles.footerLoader} color={colors.primary} />
+          ) : null
+        }
       />
     </View>
   );
@@ -103,92 +419,219 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           backgroundColor: colors.background,
         },
-        header: {
+        hero: {
+          backgroundColor: colors.primary,
+          paddingHorizontal: 20,
+          paddingBottom: 0,
+        },
+        heroTop: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 20,
+        },
+        heroTitle: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
+          letterSpacing: 1,
+          color: colors.white,
+        },
+        heroTopSpacer: {
+          width: 24,
+        },
+        accountBlock: {
+          marginBottom: 4,
+        },
+        accountRow: {
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingHorizontal: 20,
-          paddingVertical: 16,
+          alignItems: 'flex-start',
         },
-        greeting: {
-          fontSize: 20,
-          fontWeight: '700',
+        accountKind: {
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          color: colors.white,
+        },
+        accountMask: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          color: colors.white,
+          marginTop: 4,
+        },
+        accountActions: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+        },
+        eyeBox: {
+          backgroundColor: 'rgba(255,255,255,0.2)',
+          borderRadius: 8,
+          padding: 6,
+        },
+        balanceBig: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 32,
+          color: colors.white,
+          marginTop: 16,
+        },
+        balanceLbl: {
+          fontFamily: Lexend.regular,
+          fontSize: 13,
+          color: colors.white,
+          opacity: 0.9,
+          marginTop: 4,
+          marginBottom: 8,
+        },
+        wave: {
+          marginHorizontal: -20,
+        },
+        quickRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 16,
+          marginTop: -4,
+          marginBottom: 20,
+          gap: 8,
+        },
+        quickCard: {
+          flex: 1,
+          backgroundColor: QUICK_ACTION_BG,
+          borderRadius: 12,
+          paddingVertical: 12,
+          paddingHorizontal: 4,
+          alignItems: 'center',
+          minHeight: 72,
+          justifyContent: 'center',
+        },
+        quickIcon: {
+          fontSize: 18,
+          marginBottom: 4,
+          color: colors.primary,
+        },
+        quickLabel: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 10,
+          color: colors.primary,
+          textAlign: 'center',
+        },
+        sectionHeading: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 18,
+          color: colors.textPrimary,
+          paddingHorizontal: 20,
+          marginBottom: 12,
+        },
+        searchWrap: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.white,
+          marginHorizontal: 20,
+          borderRadius: 24,
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          marginBottom: 12,
+        },
+        searchIcon: {
+          marginRight: 8,
+          opacity: 0.5,
+        },
+        searchInput: {
+          flex: 1,
+          fontFamily: Lexend.regular,
+          fontSize: 15,
+          color: colors.textPrimary,
+          paddingVertical: 0,
+        },
+        chipsRow: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 8,
+          paddingHorizontal: 20,
+          marginBottom: 16,
+        },
+        chip: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.white,
+          paddingHorizontal: 14,
+          paddingVertical: 8,
+          borderRadius: 20,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.borderLight,
+        },
+        chipText: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 13,
           color: colors.textPrimary,
         },
-        email: {
-          fontSize: 13,
+        chipChevron: {
+          fontSize: 10,
+          color: colors.textTertiary,
+          marginLeft: 4,
+        },
+        listContent: {
+          paddingBottom: 32,
+        },
+        groupHeader: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 12,
+          letterSpacing: 0.8,
+          color: colors.textTertiary,
+          paddingHorizontal: 20,
+          marginTop: 8,
+          marginBottom: 8,
+        },
+        movementCard: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.white,
+          marginHorizontal: 20,
+          marginBottom: 8,
+          padding: 14,
+          borderRadius: 12,
+          gap: 10,
+        },
+        movementIconWrap: {
+          width: 28,
+          alignItems: 'center',
+        },
+        movementCenter: {
+          flex: 1,
+          minWidth: 0,
+        },
+        movementName: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 15,
+          color: colors.textPrimary,
+        },
+        movementSub: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
           color: colors.textTertiary,
           marginTop: 2,
         },
-        logoutButton: {
-          backgroundColor: colors.surface,
-          borderWidth: 1,
-          borderColor: colors.borderLight,
-          borderRadius: 10,
-          paddingHorizontal: 16,
-          paddingVertical: 8,
+        movementRight: {
+          alignItems: 'flex-end',
         },
-        logoutText: {
-          color: colors.error,
-          fontSize: 14,
-          fontWeight: '600',
+        movementAmount: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 15,
         },
-        listContent: {
+        movementBalance: {
+          fontFamily: Lexend.regular,
+          fontSize: 11,
+          color: colors.textTertiary,
+          marginTop: 2,
+        },
+        emptyPad: {
+          paddingVertical: 40,
           paddingHorizontal: 20,
-          paddingBottom: 32,
         },
-        balanceCard: {
-          backgroundColor: colors.primary,
-          borderRadius: 20,
-          padding: 24,
-          marginBottom: 24,
+        retryBtn: {
+          marginTop: 12,
         },
-        balanceLabel: {
-          fontSize: 14,
-          color: colors.primaryLight,
-          marginBottom: 4,
-        },
-        balanceAmount: {
-          fontSize: 34,
-          fontWeight: '800',
-          color: colors.white,
-          marginBottom: 20,
-        },
-        balanceRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-        },
-        balanceStat: {
-          flex: 1,
-        },
-        balanceStatLabel: {
-          fontSize: 12,
-          color: colors.primaryLight,
-          marginBottom: 2,
-        },
-        balanceStatValue: {
-          fontSize: 16,
-          fontWeight: '700',
-        },
-        balanceDivider: {
-          width: 1,
-          height: 32,
-          backgroundColor: colors.balanceDivider,
-          marginHorizontal: 16,
-        },
-        sectionTitle: {
-          fontSize: 17,
-          fontWeight: '700',
-          color: colors.textPrimary,
-          marginBottom: 14,
-        },
-        errorBlock: {
-          alignItems: 'center',
-          paddingVertical: 48,
-          gap: 12,
-        },
-        retryButton: {
-          marginTop: 4,
+        footerLoader: {
+          paddingVertical: 16,
         },
       }),
     [colors],

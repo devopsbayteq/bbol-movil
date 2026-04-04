@@ -1,6 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 import {LoginUseCase} from '../domain/usecases/LoginUseCase';
-import {GetTransactionsUseCase} from '../domain/usecases/GetTransactionsUseCase';
+import {GetAccountMovementsUseCase} from '../domain/usecases/GetAccountMovementsUseCase';
 import {RunCertificateHandshakeUseCase} from '../domain/usecases/RunCertificateHandshakeUseCase';
 import {GetPublicKeyUseCase} from '../domain/usecases/GetPublicKeyUseCase';
 import {SecureStorageService} from '../domain/services/SecureStorageService';
@@ -9,15 +9,13 @@ import {BiometricAuthService} from '../domain/services/BiometricAuthService';
 import {API_BASE_URL} from '../config/apiEnvironment';
 import {AxiosHttpClient} from '../data/api/apiClient';
 import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
-import {TransactionRepositoryImpl} from '../data/repositories/TransactionRepositoryImpl';
+import {AccountMovementRepositoryImpl} from '../data/repositories/AccountMovementRepositoryImpl';
 import {TransferRepositoryImpl} from '../data/repositories/TransferRepositoryImpl';
 import {SecurityRepositoryImpl} from '../data/repositories/SecurityRepositoryImpl';
 import {AuthRemoteDataSource} from '../data/datasources/auth';
 import {SecurityRemoteDataSource} from '../data/datasources/security/SecurityRemoteDataSource';
-import {
-  MockTransactionDataSource,
-  TransferRemoteDataSource,
-} from '../data/datasources/transaction';
+import {TransferRemoteDataSource} from '../data/datasources/transaction';
+import {TransactionListRemoteDataSource} from '../data/datasources/transaction/TransactionListRemoteDataSource';
 import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
@@ -42,7 +40,7 @@ import {
 
 export interface AppContainer {
   loginUseCase: LoginUseCase;
-  getTransactionsUseCase: GetTransactionsUseCase;
+  getAccountMovementsUseCase: GetAccountMovementsUseCase;
   runCertificateHandshakeUseCase: RunCertificateHandshakeUseCase;
   getPublicKeyUseCase: GetPublicKeyUseCase;
   secureStorageService: SecureStorageService;
@@ -81,8 +79,10 @@ export function createContainer(): AppContainer {
     httpClient,
   );
   const transferRemoteDataSource = new TransferRemoteDataSource(httpClient);
+  const transactionListRemoteDataSource = new TransactionListRemoteDataSource(
+    httpClient,
+  );
   const biometricRemoteDataSource = new BiometricRemoteDataSource(httpClient);
-  const transactionDataSource = new MockTransactionDataSource();
 
   const authRepository = new AuthRepositoryImpl(authRemoteDataSource);
   const securityRepository = new SecurityRepositoryImpl(securityRemoteDataSource);
@@ -92,8 +92,8 @@ export function createContainer(): AppContainer {
   const beneficiaryRepository = new BeneficiaryRepositoryImpl(
     beneficiaryRemoteDataSource,
   );
-  const transactionRepository = new TransactionRepositoryImpl(
-    transactionDataSource,
+  const accountMovementRepository = new AccountMovementRepositoryImpl(
+    transactionListRemoteDataSource,
   );
   const transferRepository = new TransferRepositoryImpl(transferRemoteDataSource);
 
@@ -116,8 +116,8 @@ export function createContainer(): AppContainer {
     SecureStorageKeys.USER_LOGIN_DATA,
   );
 
-  const getTransactionsUseCase = new GetTransactionsUseCase(
-    transactionRepository,
+  const getAccountMovementsUseCase = new GetAccountMovementsUseCase(
+    accountMovementRepository,
   );
 
   const cryptoService = new CryptoService();
@@ -156,7 +156,7 @@ export function createContainer(): AppContainer {
 
   return {
     loginUseCase,
-    getTransactionsUseCase,
+    getAccountMovementsUseCase,
     runCertificateHandshakeUseCase,
     getPublicKeyUseCase,
     secureStorageService,

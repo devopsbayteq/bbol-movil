@@ -84,7 +84,7 @@ const CARD_GAP = 12;
 const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
 
 export function HomeScreen() {
-  const {user} = useAuth();
+  const {user, logout} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [filter, setFilter] = useState<string>('Todos');
@@ -129,25 +129,43 @@ export function HomeScreen() {
           items.push({
             key: k,
             node: (
-              <CheckingAccountCard
+              <TouchableOpacity
                 key={k}
+                activeOpacity={0.92}
                 style={styles.productCard}
-                maskedAccountNumber={acc.maskedAccountNumber}
-                balance={acc.balance}
-              />
+                onPress={() =>
+                  navigation.navigate('Movements', {accountGuid: acc.accountGuid})
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Ver movimientos de cuenta corriente">
+                <CheckingAccountCard
+                  style={{flex: 1}}
+                  maskedAccountNumber={acc.maskedAccountNumber}
+                  balance={acc.balance}
+                />
+              </TouchableOpacity>
             ),
           });
         } else {
           items.push({
             key: k,
             node: (
-              <SavingsAccountCard
+              <TouchableOpacity
                 key={k}
+                activeOpacity={0.92}
                 style={styles.productCard}
-                title={accountTitle(acc.accountKind)}
-                maskedAccountNumber={acc.maskedAccountNumber}
-                balance={acc.balance}
-              />
+                onPress={() =>
+                  navigation.navigate('Movements', {accountGuid: acc.accountGuid})
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
+                <SavingsAccountCard
+                  style={{flex: 1}}
+                  title={accountTitle(acc.accountKind)}
+                  maskedAccountNumber={acc.maskedAccountNumber}
+                  balance={acc.balance}
+                />
+              </TouchableOpacity>
             ),
           });
         }
@@ -209,7 +227,7 @@ export function HomeScreen() {
     }
 
     return items;
-  }, [data, filter, styles.productCard]);
+  }, [data, filter, navigation, styles.productCard]);
 
   // Ensure one Animated.Value per card, resetting when list changes.
   if (scaleAnims.length !== productItems.length) {
@@ -245,10 +263,27 @@ export function HomeScreen() {
 
   const frequentPayments = data?.frequentPayments ?? [];
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
-    <View style={styles.root}>
+    <View testID="home-screen" style={styles.root}>
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
-        <HomeHeader userName={user?.name} />
+        <View style={styles.headerRow}>
+          <View style={styles.headerMain}>
+            <HomeHeader userName={user?.name} />
+          </View>
+          <TouchableOpacity
+            testID="logout-button"
+            onPress={handleLogout}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar sesión"
+            style={styles.logoutBtn}
+            activeOpacity={0.7}>
+            <Text style={styles.logoutText}>Salir</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
 
       <ScrollView
@@ -360,6 +395,28 @@ function useStyles(colors: ThemeColors) {
         },
         headerSafe: {
           backgroundColor: colors.surface,
+        },
+        headerRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 24,
+          gap: 12,
+        },
+        headerMain: {
+          flex: 1,
+          minWidth: 0,
+        },
+        logoutBtn: {
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 10,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.borderLight,
+        },
+        logoutText: {
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.error,
         },
         scroll: {
           flex: 1,
