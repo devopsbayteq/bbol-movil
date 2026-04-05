@@ -87,14 +87,21 @@ export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
+
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const iconColor = colors.primary;
   const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
-  const navigation =
-    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
-  const {data, isLoading, isRefreshing, error, refresh, retry} =
-    useHomeViewModel();
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+
+  const {
+      data,
+      isLoading,
+      isRefreshing,
+      error,
+      refresh,
+      retry} = useHomeViewModel();
+
   const scaleAnims = useRef<Animated.Value[]>([]).current;
 
   useFocusEffect(
