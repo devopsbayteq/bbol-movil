@@ -97,8 +97,7 @@ export function useTransferViewModel() {
 
   const onConceptChange = useCallback((text: string) => {
     const sanitized = sanitizeTransferConceptInput(text);
-    setConceptState(sanitized);
-    setValidationMessage(null);
+    setConcept(sanitized);
   }, []);
 
   const openAccountPicker = useCallback(() => {
@@ -181,7 +180,6 @@ export function useTransferViewModel() {
     onAmountChange,
     concept,
     onConceptChange,
-    conceptError,
     amountFieldError,
     validationMessage,
     setValidationMessage,

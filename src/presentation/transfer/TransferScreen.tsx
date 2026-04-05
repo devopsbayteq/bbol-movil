@@ -70,7 +70,7 @@ export function TransferScreen() {
         accountModalVisible,
         setAccountModalVisible,
         concept,
-        setConcept,
+        onConceptChange,
         user,
         validationMessage,
         prepareTransferReview,
@@ -87,7 +87,7 @@ export function TransferScreen() {
     const onBack = () => {
         const tabNav =
             navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate('Home');
+        tabNav?.navigate('Home',{});
     };
 
     return (
@@ -204,7 +204,7 @@ export function TransferScreen() {
                             <TextInput
                                 style={styles.conceptInput}
                                 value={concept}
-                                onChangeText={setConcept}
+                                onChangeText={onConceptChange}
                                 placeholder="Ej. Pago zapatos"
                                 placeholderTextColor={colors.placeholder}
                                 maxLength={120}
