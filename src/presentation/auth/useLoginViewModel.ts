@@ -7,6 +7,8 @@ import {BiometricRSAError} from '../../security/biometric';
 import {
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
+  LOGIN_PASSWORD_MAX_LENGTH,
+  LOGIN_USERNAME_MAX_LENGTH,
   loginValidationMessages,
   sanitizeLoginPasswordInput,
   sanitizeLoginUsernameInput,
@@ -91,6 +93,17 @@ export function useLoginViewModel(
 
   const setEmail = useCallback((email: string) => {
     const sanitizedEmail = sanitizeLoginUsernameInput(email);
+
+    if (sanitizedEmail.length > LOGIN_USERNAME_MAX_LENGTH) {
+      setState(prev => ({
+        ...prev,
+        email: sanitizedEmail.slice(0, LOGIN_USERNAME_MAX_LENGTH),
+        emailError: loginValidationMessages.usernameTooLong,
+        error: null,
+      }));
+      return;
+    }
+
     const emailError = hasDisallowedLoginUsernameCharacters(email)
       ? loginValidationMessages.usernameInvalidCharacters
       : getLiveUsernameError(sanitizedEmail);
@@ -105,6 +118,17 @@ export function useLoginViewModel(
 
   const setPassword = useCallback((password: string) => {
     const sanitizedPassword = sanitizeLoginPasswordInput(password);
+
+    if (sanitizedPassword.length > LOGIN_PASSWORD_MAX_LENGTH) {
+      setState(prev => ({
+        ...prev,
+        password: sanitizedPassword.slice(0, LOGIN_PASSWORD_MAX_LENGTH),
+        passwordError: loginValidationMessages.passwordTooLong,
+        error: null,
+      }));
+      return;
+    }
+
     const passwordError = hasDisallowedLoginPasswordCharacters(password)
       ? loginValidationMessages.passwordInvalidCharacters
       : getLivePasswordError(sanitizedPassword);

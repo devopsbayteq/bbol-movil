@@ -26,7 +26,6 @@ import {
   OrSeparator,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
-import {LOGIN_USERNAME_MAX_LENGTH, LOGIN_PASSWORD_MAX_LENGTH} from '../../domain/validation';
 import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
 
 
@@ -121,7 +120,6 @@ export function LoginScreen() {
               autoCorrect={false}
               editable={!isBusy}
               autoComplete="username"
-              maxLength={LOGIN_USERNAME_MAX_LENGTH}
             />
 
             <LoginPasswordField
@@ -135,7 +133,6 @@ export function LoginScreen() {
               errorTestID="login-password-error"
               editable={!isBusy}
               autoComplete="password"
-              maxLength={LOGIN_PASSWORD_MAX_LENGTH}
             />
           </View>
 
