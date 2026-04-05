@@ -21,7 +21,7 @@ import {
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../../providers';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
 import {HomeAlertBanner} from './components/HomeAlertBanner';
@@ -103,7 +103,7 @@ export function HomeScreen() {
       if (token === undefined) {
         return;
       }
-      void refresh();
+      refresh().catch();
       navigation.setParams({refreshHome: undefined});
     }, [navigation, refresh, route.params?.refreshHome]),
   );
@@ -139,7 +139,7 @@ export function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Ver movimientos de cuenta corriente">
                 <CheckingAccountCard
-                  style={{flex: 1}}
+                  style={styles.checkingAccountCard}
                   maskedAccountNumber={acc.maskedAccountNumber}
                   balance={acc.balance}
                 />
@@ -160,7 +160,7 @@ export function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
                 <SavingsAccountCard
-                  style={{flex: 1}}
+                  style={styles.checkingAccountCard}
                   title={accountTitle(acc.accountKind)}
                   maskedAccountNumber={acc.maskedAccountNumber}
                   balance={acc.balance}
@@ -227,7 +227,7 @@ export function HomeScreen() {
     }
 
     return items;
-  }, [data, filter, navigation, styles.productCard]);
+  }, [data, filter, navigation, styles.checkingAccountCard, styles.productCard]);
 
   // Ensure one Animated.Value per card, resetting when list changes.
   if (scaleAnims.length !== productItems.length) {
@@ -478,6 +478,7 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           paddingVertical: 16,
         },
+          checkingAccountCard:{flex: 1}
       }),
     [colors],
   );

@@ -4,15 +4,13 @@ import {
   Text,
   Image,
   StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {useAuth} from '../../providers';
 import {useDI} from '../../di';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Button, ErrorMessage} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
@@ -54,47 +52,44 @@ export function BiometricOfferScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']} testID="biometric-offer-screen">
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.contentColumn}>
-            <Text style={styles.title}>Acceso biométrico</Text>
-            <Text style={styles.subtitle}>
-              ¿Deseas registrar tu huella o Face ID para iniciar sesión más rápido la próxima vez?
-            </Text>
-            <Image
-              source={fingerprintIcon}
-              style={styles.icon}
-              resizeMode="contain"
-              accessibilityLabel="Biometría"
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.contentColumn}>
+          <Text style={styles.title}>Acceso biométrico</Text>
+          <Text style={styles.subtitle}>
+            ¿Deseas registrar tu huella o Face ID para iniciar sesión más rápido la próxima vez?
+          </Text>
+          <Image
+            source={fingerprintIcon}
+            style={styles.icon}
+            resizeMode="contain"
+            accessibilityLabel="Biometría"
+          />
+          {error ? (
+            <ErrorMessage message={error} style={styles.errorBanner} />
+          ) : null}
+          <View style={styles.actions}>
+            <Button
+              testID="biometric-offer-accept"
+              title="Aceptar"
+              onPress={() =>  handleAccept().catch()}
+              loading={isLoadingAccept}
+              disabled={isLoadingAccept}
+              variant="loginPrimary"
             />
-            {error ? (
-              <ErrorMessage message={error} style={styles.errorBanner} />
-            ) : null}
-            <View style={styles.actions}>
-              <Button
-                testID="biometric-offer-accept"
-                title="Aceptar"
-                onPress={() => void handleAccept()}
-                loading={isLoadingAccept}
-                disabled={isLoadingAccept}
-                variant="loginPrimary"
-              />
-              <Button
-                testID="biometric-offer-skip"
-                title="Omitir"
-                onPress={() => void handleSkip()}
-                disabled={isLoadingAccept}
-                variant="outline"
-              />
-            </View>
+            <Button
+              testID="biometric-offer-skip"
+              title="Omitir"
+              onPress={() =>  handleSkip().catch()}
+              disabled={isLoadingAccept}
+              variant="outline"
+            />
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

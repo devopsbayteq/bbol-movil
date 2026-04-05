@@ -3,16 +3,16 @@ import {
     View,
     Text,
     StyleSheet,
-    ScrollView,
     TouchableOpacity,
     TextInput,
     Modal,
-    FlatList,
+    ScrollView,
     Pressable,
     ActivityIndicator,
     Keyboard,
     Platform,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -103,7 +103,7 @@ export function TransferScreen() {
                     <Text style={styles.errorText}>{error}</Text>
                     <TouchableOpacity
                         onPress={() => {
-                            retry();
+                            retry().catch();
                         }}>
                         <Text style={styles.retryText}>Reintentar</Text>
                     </TouchableOpacity>
@@ -115,7 +115,7 @@ export function TransferScreen() {
                     <ActivityIndicator size="large" color={colors.primary}/>
                 </View>
             ) : (
-                <ScrollView
+                <KeyboardAwareScrollView
                     style={styles.scroll}
                     contentContainerStyle={[
                         styles.scrollContent,
@@ -236,7 +236,7 @@ export function TransferScreen() {
                             <Text style={styles.primaryCtaText}>Continuar</Text>
                         </TouchableOpacity>
                     </View>
-                </ScrollView>
+                </KeyboardAwareScrollView>
             )}
 
             <Modal
@@ -266,16 +266,15 @@ export function TransferScreen() {
                                 <TransferIconClose color={colors.iconPrimary} size={20}/>
                             </TouchableOpacity>
                         </View>
-                        <FlatList
-                            data={accounts}
-                            keyExtractor={item => item.accountGuid}
+                        <ScrollView
                             scrollEnabled={accounts.length > 4}
-                            contentContainerStyle={styles.modalListContent}
-                            renderItem={({item, index}) => {
+                            contentContainerStyle={styles.modalListContent}>
+                            {accounts.map((item, index) => {
                                 const isSelected = index === accountIndex;
                                 const isDisabled = item.balance <= 0;
                                 return (
                                     <TouchableOpacity
+                                        key={item.accountGuid}
                                         style={[
                                             styles.accountPickCard,
                                             isSelected &&
@@ -314,8 +313,8 @@ export function TransferScreen() {
                                         </View>
                                     </TouchableOpacity>
                                 );
-                            }}
-                        />
+                            })}
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>

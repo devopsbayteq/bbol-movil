@@ -115,7 +115,7 @@ export function useTransferReviewViewModel(
 
         if (beneficiary.kind === 'own_account') {
             setConfirmError(
-                'Esta validación aplica a transferencias a contactos. Para cuentas propias, el flujo se habilitará próximamente.',
+                'Las transferencias entre cuentas propias serán habilitadas próximamente.',
             );
             return;
         }
