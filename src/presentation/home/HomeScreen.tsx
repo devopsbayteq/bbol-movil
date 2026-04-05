@@ -35,7 +35,6 @@ import {
 } from './components/ProductCarouselCards';
 import {QuickActionsRow} from './components/QuickActionsRow';
 import {PromotionalBanner} from './components/PromotionalBanner';
-import {HomeAlertBanner} from './components/HomeAlertBanner';
 import {FrequentPaymentRow} from './components/FrequentPaymentRow';
 import {
   PaymentLightbulbIcon,
@@ -285,11 +284,6 @@ export function HomeScreen() {
         <View style={styles.darkHeaderZone}>
           <SafeAreaView edges={['top']} />
           <HomeHeader userName={user?.name} onLogout={handleLogout} />
-          <HomeAlertBanner
-            title="Nueva tarjeta en camino"
-            subtitle="Llegará el 24 de Octubre"
-            onPress={() => setDevModalVisible(true)}
-          />
           <ProductFilterTabs
             filters={PRODUCT_FILTERS}
             selectedFilter={filter}
