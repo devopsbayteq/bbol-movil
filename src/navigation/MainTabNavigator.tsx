@@ -6,10 +6,17 @@ import {
   type BottomTabBarButtonProps,
 } from '@react-navigation/bottom-tabs';
 import {useIsFocused} from '@react-navigation/core';
+import {
+  getFocusedRouteNameFromRoute,
+  type NavigatorScreenParams,
+} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeScreen} from '../presentation/home/HomeScreen';
 import {TransferStackNavigator} from './TransferStackNavigator';
-import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
+import {
+  MovementsStackNavigator,
+  type MovementsStackParamList,
+} from './MovementsStackNavigator';
 import {useTheme} from '../providers/theme';
 import {Lexend} from '../theme/lexend';
 import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './tabIcons';
@@ -20,8 +27,8 @@ export type MainTabParamList = {
   /** `refreshHome`: timestamp para forzar recarga al volver desde transferencia (opcional). */
   Home: {refreshHome?: number};
   Transfer: undefined;
-  /** `accountGuid`: cuenta a consultar; si no se envía (tab), se usa la primera cuenta del home. */
-  Movements: {accountGuid?: string} | undefined;
+  /** Stack: lista + detalle. Params iniciales van a `MovementsList`. */
+  Movements: NavigatorScreenParams<MovementsStackParamList> | undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -131,10 +138,25 @@ export function MainTabNavigator() {
       />
       <Tab.Screen
         name="Movements"
-        component={TransactionsScreen}
-        options={{
-          title: 'Movimientos',
-          tabBarIcon: tabBarIconMovements,
+        component={MovementsStackNavigator}
+        options={({route}) => {
+          const focused =
+            getFocusedRouteNameFromRoute(route) ?? 'MovementsList';
+          const hideTabBar = focused === 'MovementDetail';
+          return {
+            title: 'Movimientos',
+            tabBarIcon: tabBarIconMovements,
+            tabBarStyle: hideTabBar
+              ? {display: 'none'}
+              : {
+                  backgroundColor: colors.white,
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                  borderTopColor: colors.borderLight,
+                  height: TAB_BAR_HEIGHT + insets.bottom,
+                  paddingBottom: Math.max(insets.bottom, 4),
+                  paddingTop: 4,
+                },
+          };
         }}
       />
     </Tab.Navigator>

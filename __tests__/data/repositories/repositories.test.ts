@@ -157,6 +157,9 @@ describe('data repositories', () => {
     expect(result.items).toHaveLength(1);
     expect(result.items[0]).toMatchObject({
       beneficiaryName: 'Ana Pérez',
+      ownerAccountLabel: 'Propia',
+      accountNumber: '****5678',
+      destinationLastFourDigits: '1234',
       amount: -50,
       balanceAfterTransaction: 900,
     });

@@ -136,7 +136,10 @@ export function HomeScreen() {
                 activeOpacity={0.92}
                 style={styles.productCard}
                 onPress={() =>
-                  navigation.navigate('Movements', {accountGuid: acc.accountGuid})
+                  navigation.navigate('Movements', {
+                    screen: 'MovementsList',
+                    params: {accountGuid: acc.accountGuid},
+                  })
                 }
                 accessibilityRole="button"
                 accessibilityLabel="Ver movimientos de cuenta corriente">
@@ -157,7 +160,10 @@ export function HomeScreen() {
                 activeOpacity={0.92}
                 style={styles.productCard}
                 onPress={() =>
-                  navigation.navigate('Movements', {accountGuid: acc.accountGuid})
+                  navigation.navigate('Movements', {
+                    screen: 'MovementsList',
+                    params: {accountGuid: acc.accountGuid},
+                  })
                 }
                 accessibilityRole="button"
                 accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>

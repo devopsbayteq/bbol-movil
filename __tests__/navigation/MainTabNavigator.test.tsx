@@ -2,6 +2,14 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {MainTabNavigator} from '../../src/navigation/MainTabNavigator';
 
+jest.mock('@react-navigation/native', () => {
+  const actual = jest.requireActual('@react-navigation/native');
+  return {
+    ...actual,
+    getFocusedRouteNameFromRoute: jest.fn(() => 'MovementsList'),
+  };
+});
+
 jest.mock('@react-navigation/bottom-tabs', () => ({
   createBottomTabNavigator: () => {
     const React = require('react');
@@ -16,14 +24,20 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
       }: {
         name: string;
         component: React.ComponentType;
-        options?: {title?: string};
-      }) =>
-        React.createElement(
+        options?: {title?: string} | ((args: {route: {name: string}}) => {title?: string});
+      }) => {
+        const resolved =
+          typeof options === 'function'
+            ? options({route: {name: 'Movements'} as never})
+            : options;
+        const label = resolved?.title ?? name;
+        return React.createElement(
           View,
           {key: name, testID: `tab-screen-${name}`},
-          React.createElement(Text, null, options?.title ?? name),
+          React.createElement(Text, null, label),
           Comp ? React.createElement(Comp) : null,
-        ),
+        );
+      },
     };
   },
 }));
@@ -46,11 +60,11 @@ jest.mock('../../src/navigation/TransferStackNavigator', () => {
   };
 });
 
-jest.mock('../../src/presentation/transactions/TransactionsScreen', () => {
+jest.mock('../../src/navigation/MovementsStackNavigator', () => {
   const React = require('react');
   const {Text} = require('react-native');
   return {
-    TransactionsScreen: () =>
+    MovementsStackNavigator: () =>
       React.createElement(Text, {testID: 'screen-movements'}, 'Movements'),
   };
 });

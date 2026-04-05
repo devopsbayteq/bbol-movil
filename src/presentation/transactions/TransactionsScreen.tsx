@@ -10,6 +10,7 @@ import {
   Dimensions,
   ActivityIndicator,
   SectionListData,
+  Pressable,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
@@ -18,8 +19,10 @@ import {
   type RouteProp,
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import Svg, {Path} from 'react-native-svg';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
+import type {MovementsStackParamList} from '../../navigation/MovementsStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
@@ -163,8 +166,12 @@ export function TransactionsScreen() {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
   const navigation =
-    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Movements'>>();
-  const route = useRoute<RouteProp<MainTabParamList, 'Movements'>>();
+    useNavigation<
+      NativeStackNavigationProp<MovementsStackParamList, 'MovementsList'>
+    >();
+  const tabNavigation =
+    navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+  const route = useRoute<RouteProp<MovementsStackParamList, 'MovementsList'>>();
   const accountGuid = route.params?.accountGuid;
 
   const [balanceVisible, setBalanceVisible] = React.useState(true);
@@ -181,8 +188,8 @@ export function TransactionsScreen() {
   );
 
   const onBack = useCallback(() => {
-    navigation.navigate('Home', {});
-  }, [navigation]);
+    tabNavigation?.navigate('Home', {});
+  }, [tabNavigation]);
 
   const renderMovementRow = useCallback(
     ({item}: {item: AccountMovement}) => {
@@ -191,7 +198,17 @@ export function TransactionsScreen() {
       const amountPrefix = incoming ? '' : '-';
       const displayAbs = formatCurrency(Math.abs(item.amount));
       return (
-        <View style={styles.movementCard}>
+        <Pressable
+          testID="movement-row"
+          style={({pressed}) => [
+            styles.movementCard,
+            pressed && styles.movementCardPressed,
+          ]}
+          onPress={() =>
+            navigation.navigate('MovementDetail', {movement: item})
+          }
+          accessibilityRole="button"
+          accessibilityLabel={`Movimiento ${item.beneficiaryName}`}>
           <View style={styles.movementIconWrap}>
             {incoming ? (
               <ArrowInIcon color={colors.success} />
@@ -217,10 +234,10 @@ export function TransactionsScreen() {
             </Text>
           </View>
           <ChevronRightIcon color={colors.textTertiary} />
-        </View>
+        </Pressable>
       );
     },
-    [colors, styles],
+    [colors, styles, navigation],
   );
 
   const listHeader = (
@@ -294,7 +311,7 @@ export function TransactionsScreen() {
       <View style={styles.quickRow}>
         <TouchableOpacity
           style={styles.quickCard}
-          onPress={() => navigation.navigate('Transfer', undefined)}
+          onPress={() => tabNavigation?.navigate('Transfer')}
           accessibilityRole="button"
           accessibilityLabel="Transferir">
           <Text style={styles.quickIcon}>⇅</Text>
@@ -615,6 +632,9 @@ function useStyles(colors: ThemeColors) {
           padding: 14,
           borderRadius: 12,
           gap: 10,
+        },
+        movementCardPressed: {
+          opacity: 0.92,
         },
         movementIconWrap: {
           width: 28,
