@@ -18,6 +18,9 @@ describe('AxiosHttpClient', () => {
       request: {
         use: jest.fn(),
       },
+      response: {
+        use: jest.fn(),
+      },
     },
   };
 
@@ -27,7 +30,7 @@ describe('AxiosHttpClient', () => {
   });
 
   test('creates the axios instance with banking default headers', () => {
-    new AxiosHttpClient({
+    const _client = new AxiosHttpClient({
       baseURL: 'https://api.bank.test',
       secretKey: 'secret',
       requestId: 'req-1',
@@ -35,6 +38,7 @@ describe('AxiosHttpClient', () => {
       serverPublicPemBase64: 'PUBLIC_KEY_B64',
       getDeviceState: () => 'secure',
     });
+    expect(_client).toBeDefined();
 
     expect(mockedAxios.create).toHaveBeenCalledWith({
       baseURL: 'https://api.bank.test',

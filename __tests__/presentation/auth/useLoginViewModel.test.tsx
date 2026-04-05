@@ -179,12 +179,17 @@ describe('useLoginViewModel', () => {
     });
 
     expect(loginWithBiometric).toHaveBeenCalled();
-    expect(onBiometricLoginSuccess).toHaveBeenCalledWith({
-      id: 'cliente@banco.com',
-      email: 'cliente@banco.com',
-      name: 'cliente',
-      token: 'bio-token',
-    });
+    expect(onBiometricLoginSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'cliente@banco.com',
+        email: 'cliente@banco.com',
+        name: 'cliente',
+        token: 'bio-token',
+        inactivityTimeoutSeconds: 300,
+      }),
+    );
+    const bioUser = onBiometricLoginSuccess.mock.calls[0][0];
+    expect(bioUser.sessionExpiresAt).toEqual(expect.any(Number));
     expect(onCredentialLoginSuccess).not.toHaveBeenCalled();
   });
 });
