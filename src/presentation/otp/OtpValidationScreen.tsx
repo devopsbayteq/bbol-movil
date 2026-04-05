@@ -13,7 +13,8 @@ import {
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-import {useTheme, type ThemeColors} from '../../providers';
+import {useTheme, type ThemeColors, useAuth} from '../../providers';
+import {useDI} from '../../di';
 import {
   ErrorMessage,
   OtpCodeInput,
@@ -49,6 +50,8 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
 
   const {colors} = useTheme();
   const styles = useStyles(colors);
+  const {login} = useAuth();
+  const {biometricRSAAuthOrchestrator} = useDI();
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList | TransferStackParamList>
   >();
@@ -62,6 +65,12 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
     handleValidate,
   } = useOtpValidationViewModel(async () => {
     if (params.mode === 'login') {
+      const hasBio =
+        await biometricRSAAuthOrchestrator.hasBiometricRegistration();
+      if (hasBio) {
+        await login(params.user);
+        return;
+      }
       (
         navigation as NativeStackNavigationProp<RootStackParamList>
       ).replace('BiometricOffer', {
