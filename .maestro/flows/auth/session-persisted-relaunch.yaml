@@ -1,5 +1,5 @@
 appId: com.bbapp
-name: Sesión persistida — al reabrir la app no pide credenciales
+name: Tras reinicio — login obligatorio (sin restaurar sesión)
 ---
 
 - launchApp
@@ -18,13 +18,13 @@ name: Sesión persistida — al reabrir la app no pide credenciales
 
 - launchApp
 
+# Cold start no hidrata sesión; debe mostrarse login (tras splash / clave pública).
 - extendedWaitUntil:
     visible:
-      id: "home-screen"
-    timeout: 40000
+      id: "login-email-input"
+    timeout: 45000
 
-- assertVisible: "Bienvenido de vuelta"
-- assertVisible: "Mis Productos"
-- assertNotVisible: "Ingresar"
-- assertNotVisible:
+- assertVisible:
     id: "login-email-input"
+- assertNotVisible:
+    id: "home-screen"

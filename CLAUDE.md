@@ -113,7 +113,7 @@ El borrado usa `accessibilityLabel`: `"Borrar"`.
 │   │   ├── login-otp-invalid.yaml           # PIN incorrecto muestra error
 │   │   ├── login-validation-fields.yaml     # Validaciones de campo impiden envío
 │   │   ├── logout.yaml                      # Cierre de sesión
-│   │   └── session-persisted-relaunch.yaml  # Sesión persiste al relanzar
+│   │   └── session-persisted-relaunch.yaml  # Tras relanzar, login obligatorio
 │   ├── transactions/
 │   │   └── transactions-list-visible.yaml   # Lista y estados de transacciones
 │   └── transfers/

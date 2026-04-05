@@ -49,19 +49,9 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
 
   async function restoreSession() {
     try {
-      const sessionJson = await secureStorage.get(
-        SecureStorageKeys.USER_SESSION,
-      );
-      if (sessionJson) {
-        const user: User = JSON.parse(sessionJson);
-        if (user.sessionExpiresAt && Date.now() < user.sessionExpiresAt) {
-          setState({user, isAuthenticated: true, isLoading: false});
-          return;
-        }
-        // Sesión expirada mientras la app estaba cerrada — limpiar silenciosamente
-        await secureStorage.remove(SecureStorageKeys.USER_SESSION);
-        await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
-      }
+      // Banca: no restaurar sesión tras reinicio en frío — siempre pantalla de login.
+      await secureStorage.remove(SecureStorageKeys.USER_SESSION);
+      await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
     } catch {
       await secureStorage.clear();
     }

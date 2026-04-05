@@ -75,7 +75,7 @@ npm run ios
       login-otp-invalid.yaml          # PIN incorrecto en OTP
       login-invalid-credentials.yaml  # Credenciales invalidas
       logout.yaml                     # Logout y retorno a login
-      session-persisted-relaunch.yaml # Sesion restaurada al reabrir
+      session-persisted-relaunch.yaml # Tras reinicio, pantalla de login
     transactions/
       transactions-list-visible.yaml  # Verificar pantalla de transacciones
   subflows/
