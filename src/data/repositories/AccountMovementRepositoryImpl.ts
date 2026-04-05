@@ -24,7 +24,7 @@ export class AccountMovementRepositoryImpl implements AccountMovementRepository 
       AccountGuid: params.accountGuid,
       DateFrom: params.dateFrom,
       DateTo: params.dateTo,
-      enumType: params.enumType,
+      TransactionType: params.transactionType,
       MinAmount:
         params.minAmount !== undefined
           ? amountToQueryString(params.minAmount)

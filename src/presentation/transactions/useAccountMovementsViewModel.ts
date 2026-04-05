@@ -74,13 +74,13 @@ function rangeKeysToQuery(range: {from: string; to: string} | null): {
 function buildMovementsQuery(
   dateKeys: {from: string; to: string} | null,
   amountRange: AppliedAmountRange | null,
-  enumType: MovementTransactionEnumType | null,
+  movementTransactionType: MovementTransactionEnumType | null,
 ): {
   dateFrom?: string;
   dateTo?: string;
   minAmount?: number;
   maxAmount?: number;
-  enumType?: string;
+  transactionType?: string;
 } {
   const dates = rangeKeysToQuery(dateKeys);
   let base: {
@@ -88,7 +88,7 @@ function buildMovementsQuery(
     dateTo?: string;
     minAmount?: number;
     maxAmount?: number;
-    enumType?: string;
+    transactionType?: string;
   } = {...dates};
   if (amountRange) {
     base = {
@@ -97,8 +97,8 @@ function buildMovementsQuery(
       maxAmount: amountRange.max,
     };
   }
-  if (enumType) {
-    base = {...base, enumType};
+  if (movementTransactionType) {
+    base = {...base, transactionType: movementTransactionType};
   }
   return base;
 }
@@ -237,7 +237,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
         dateTo?: string;
         minAmount?: number;
         maxAmount?: number;
-        enumType?: string;
+        transactionType?: string;
       },
       mode: 'replace' | 'append',
     ) => {

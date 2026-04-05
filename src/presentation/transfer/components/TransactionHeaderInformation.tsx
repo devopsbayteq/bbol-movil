@@ -7,15 +7,17 @@ interface TransactionHeaderInformationProps{
     transferResume:TransferDataResume
 }
 export const TransactionHeaderInformation = ({transferResume}:TransactionHeaderInformationProps) => {
-    const formattedDate = useMemo(
-        () =>
-            new Date().toLocaleDateString('es-EC', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-            }),
-        [],
-    );
+    const formattedDate = useMemo(() => {
+        const override = transferResume.voucherDisplayDate?.trim();
+        if (override) {
+            return override;
+        }
+        return new Date().toLocaleDateString('es-EC', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    }, [transferResume.voucherDisplayDate]);
     const {colors} = useTheme();
     const styles = useStyles(colors);
     return (
@@ -110,5 +112,5 @@ function useStyles(colors: ThemeColors) {
                     color: colors.textTertiary,
                     textAlign: 'center',
                 },
-            }), [])
+            }), [colors])
 }

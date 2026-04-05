@@ -31,6 +31,8 @@ export interface TransferDataResume {
     accountId: string;
     concept: string;
     transactionIdentifier: string;
+    /** Fecha mostrada en el comprobante; si no se envía, se usa la fecha actual. */
+    voucherDisplayDate?: string;
 }
 
 export const TransferModalSuccess = ({

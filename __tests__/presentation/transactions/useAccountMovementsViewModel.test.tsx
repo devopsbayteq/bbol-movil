@@ -54,17 +54,21 @@ describe('useAccountMovementsViewModel', () => {
               transactionGuid: 't1',
               transactionIdentifier: 'x',
               beneficiaryName: 'Ricardo Gomez',
+              beneficiaryAccountType: 'Savings',
               beneficiaryAccountTypeLabel: 'Ahorros',
-              beneficiaryAccountNumber: '',
+              beneficiaryAccountNumber: '****1234',
+              ownerAccountType: 'Savings',
               ownerAccountLabel: 'Cuenta propia',
               accountNumber: '****8829',
+              accountType: 'Savings',
               accountTypeLabel: 'Cta. ahorros',
-              destinationLastFourDigits: '1234',
               amount: -91.02,
               transferDate: '2026-04-04T15:00:00.000Z',
               transactionTypeLabel: 'Transferencia realizada',
-              transactionType: 1,
+              transactionType: 'SentTransfers',
+              concept: null,
               balanceAfterTransaction: 12450.8,
+              allowedShared: true,
             },
           ],
         }),
@@ -233,7 +237,7 @@ describe('useAccountMovementsViewModel', () => {
     expect(withAmount?.[0].accountGuid).toBe('acc-1');
   });
 
-  test('applyTransactionEnumType passes enumType to the use case', async () => {
+  test('applyTransactionEnumType passes transactionType to the use case', async () => {
     const executeMovements = jest.fn().mockResolvedValue({
       totalCount: 0,
       pageNumber: 1,
@@ -274,7 +278,7 @@ describe('useAccountMovementsViewModel', () => {
     });
 
     const withEnum = executeMovements.mock.calls.find(
-      args => args[0].enumType === 'SentTransfers',
+      args => args[0].transactionType === 'SentTransfers',
     );
     expect(withEnum).toBeDefined();
     expect(withEnum?.[0].accountGuid).toBe('acc-1');

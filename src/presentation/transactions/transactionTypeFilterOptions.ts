@@ -1,18 +1,14 @@
-export type MovementTransactionEnumType =
-  | 'ReceivedTransfers'
-  | 'SentTransfers'
-  | 'Withdrawals'
-  | 'ServicePayments'
-  | 'Deposits'
-  | 'CardPurchases'
-  | 'Other';
+import type {AccountMovementTransactionType} from '../../domain/entities/AccountMovementTransactionType';
+
+/** Alias de dominio para filtros UI / query `TransactionType`. */
+export type MovementTransactionEnumType = AccountMovementTransactionType;
 
 export type TransactionTypeFilterOption = {
   enumValue: MovementTransactionEnumType;
   label: string;
 };
 
-/** Orden UI + valores enviados en query `enumType`. */
+/** Orden UI + valores enviados en query `TransactionType`. */
 export const MOVEMENT_TRANSACTION_TYPE_OPTIONS: TransactionTypeFilterOption[] =
   [
     {

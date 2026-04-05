@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Share,
   Alert,
   Platform,
 } from 'react-native';
+import ViewShot from 'react-native-view-shot';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
   useNavigation,
@@ -21,6 +21,9 @@ import type {MovementsStackParamList} from '../../navigation/MovementsStackNavig
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 import {formatCurrency} from './TransactionItem';
+import {TransferVoucherShareableCard} from '../transfer/components/TransferVoucherShareableCard';
+import {useTransferVoucherCaptureShare} from '../transfer/useTransferVoucherCaptureShare';
+import {accountMovementToTransferDataResume} from './accountMovementToTransferDataResume';
 
 type Nav = NativeStackNavigationProp<
   MovementsStackParamList,
@@ -103,34 +106,36 @@ export function MovementDetailScreen() {
   }, [m.accountNumber, m.accountTypeLabel]);
 
   const paraSubtitle = useMemo(() => {
-    const last = m.destinationLastFourDigits?.trim();
-    if (last) {
-      return `${m.beneficiaryAccountTypeLabel} **** ${last}`;
-    }
-    return m.beneficiaryAccountNumber || m.beneficiaryAccountTypeLabel;
-  }, [m]);
+    const parts = [m.beneficiaryAccountTypeLabel, m.beneficiaryAccountNumber].filter(
+      Boolean,
+    );
+    const joined = parts.join(' ').trim();
+    return joined || '—';
+  }, [m.beneficiaryAccountNumber, m.beneficiaryAccountTypeLabel]);
 
-  const shareMessage = useMemo(() => {
-    const amt = `${amountPrefix}${formatCurrency(Math.abs(m.amount))}`;
-    return [
-      `Movimiento: ${amt}`,
-      `Desde: ${m.ownerAccountLabel} — ${desdeSubtitle}`,
-      `Para: ${m.beneficiaryName} — ${paraSubtitle}`,
-      `Fecha: ${formatDetailDate(m.transferDate)}`,
-      `Concepto: ${m.transactionTypeLabel}`,
-    ].join('\n');
-  }, [amountPrefix, desdeSubtitle, m, paraSubtitle]);
+  const canShareTransferVoucher =
+    m.transactionType === 'SentTransfers' && m.allowedShared;
 
-  const onShare = useCallback(async () => {
-    try {
-      await Share.share({
-        title: 'Detalle del movimiento',
-        message: shareMessage,
-      });
-    } catch {
-      // user dismissed
-    }
-  }, [shareMessage]);
+  const voucherDisplayDate = useMemo(
+    () => formatDetailDate(m.transferDate),
+    [m.transferDate],
+  );
+
+  const transferResume = useMemo(
+    () => accountMovementToTransferDataResume(m, voucherDisplayDate),
+    [m, voucherDisplayDate],
+  );
+
+  const {viewShotRef, shareVoucher} = useTransferVoucherCaptureShare();
+
+  const onShareVoucher = useCallback(() => {
+    shareVoucher().catch(() => {});
+  }, [shareVoucher]);
+
+  const conceptDisplay = useMemo(() => {
+    const c = m.concept?.trim();
+    return c ? c : '—';
+  }, [m.concept]);
 
   const onReport = useCallback(() => {
     Alert.alert(
@@ -212,20 +217,27 @@ export function MovementDetailScreen() {
           </View>
           <View style={styles.divider} />
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Concepto</Text>
+            <Text style={styles.detailLabel}>Tipo de operación</Text>
             <Text style={styles.detailValue}>{m.transactionTypeLabel}</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Concepto</Text>
+            <Text style={styles.detailValue}>{conceptDisplay}</Text>
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.shareBtn}
-          onPress={onShare}
-          activeOpacity={0.85}
-          accessibilityRole="button"
-          accessibilityLabel="Compartir movimiento">
-          <Text style={styles.shareBtnText}>Compartir</Text>
-          <ShareIcon color={colors.white} />
-        </TouchableOpacity>
+        {canShareTransferVoucher ? (
+          <TouchableOpacity
+            style={styles.shareBtn}
+            onPress={onShareVoucher}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Compartir comprobante">
+            <Text style={styles.shareBtnText}>Compartir</Text>
+            <ShareIcon color={colors.white} />
+          </TouchableOpacity>
+        ) : null}
 
         <Text style={styles.reportWrap}>
           <Text style={styles.reportMuted}>
@@ -239,6 +251,18 @@ export function MovementDetailScreen() {
           </Text>
         </Text>
       </ScrollView>
+
+      {canShareTransferVoucher ? (
+        <View
+          pointerEvents="none"
+          style={styles.offscreenCapture}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants">
+          <ViewShot ref={viewShotRef} options={{format: 'png', quality: 1}}>
+            <TransferVoucherShareableCard transferResume={transferResume} />
+          </ViewShot>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -386,6 +410,13 @@ function useStyles(colors: ThemeColors) {
           fontSize: 13,
           color: colors.linkPrimary,
           textDecorationLine: 'underline',
+        },
+        offscreenCapture: {
+          position: 'absolute',
+          left: -3000,
+          top: 0,
+          width: 400,
+          opacity: 1,
         },
       }),
     [colors],
