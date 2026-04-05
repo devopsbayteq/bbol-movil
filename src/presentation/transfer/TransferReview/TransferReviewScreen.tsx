@@ -33,7 +33,7 @@ import {
 const HERO_ICON = '#0B515C';
 const ICON_CHIP_BG = '#D0F0F6';
 const LABEL_MUTED = '#3E494B';
-//type PantallaARouteProp = RouteProp<TransferStackParamList, 'OtpValidationTransfer'>;
+
 export function TransferReviewScreen() {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
@@ -43,7 +43,7 @@ export function TransferReviewScreen() {
         NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
 
-    const router = useRoute<RouteProp<TransferStackParamList,'TransferReview'>>()
+    const router = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>()
 
 
     const [showTransferSuccessModal, setTransferSuccessModal] = useState(false);
@@ -90,15 +90,16 @@ export function TransferReviewScreen() {
     }, {onTransferSuccess});
 
     useEffect(() => {
-        if(router.params?.resultFromOtp?.otpValidated){
-            navigation.setParams({resultFromOtp:undefined})
+        if (router.params?.resultFromOtp?.otpValidated) {
+            navigation.setParams({resultFromOtp: undefined})
             doTransacction().catch()
         }
-    },[
+    }, [
         doTransacction,
         navigation,
         router.params?.resultFromOtp
     ])
+
 
     return (
         <View style={styles.root} testID="transfer-review-screen">
@@ -199,7 +200,8 @@ export function TransferReviewScreen() {
                         ]}
                         onPress={() => {
                             setConfirmError(null);
-                            onConfirm().catch(() => {});
+                            onConfirm().catch(() => {
+                            });
                         }}
                         disabled={confirmLoading}
                         activeOpacity={0.9}
@@ -238,13 +240,18 @@ export function TransferReviewScreen() {
                     }}
                     transactionData={successTransactionData}
                     visible={showTransferSuccessModal}
-                    onClose={resetTransferSuccessUi}
-                    navigateToTransfer={() => {
-                        resetTransferSuccessUi();
-                        //navigation.popToTop();
+                    onClose={() => {
+                        resetTransferSuccessUi()
                         navigation.reset({
                             index: 0,
-                            routes: [{ name: 'TransferMain' }],
+                            routes: [{name: 'TransferMain'}]
+                        })
+                    }}
+                    navigateToTransfer={() => {
+                        resetTransferSuccessUi();
+                        navigation.reset({
+                            index: 0,
+                            routes: [{name: 'TransferMain'}],
                         });
                     }}
                     navigateToHome={() => {

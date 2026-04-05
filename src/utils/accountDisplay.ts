@@ -1,6 +1,5 @@
 import type {AccountBalance} from '../domain/entities/ContractBalance';
 
-/** Product label aligned with transfer / Figma (e.g. "Cuenta de Ahorros"). */
 export function accountProductTitle(account: AccountBalance): string {
   if (account.accountKind === 'savings') {
     return 'Cuenta de Ahorros';
@@ -11,7 +10,6 @@ export function accountProductTitle(account: AccountBalance): string {
   return 'Cuenta';
 }
 
-/** Account type for origin modal (Figma 125:1585). */
 export function accountTypeModalLabel(account: AccountBalance): string {
   if (account.accountKind === 'savings') {
     return 'Cuenta de ahorros';

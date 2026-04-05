@@ -3,10 +3,8 @@ import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import {
   balanceDollarsToCents,
   getLiveTransferAmountError,
-  hasDisallowedTransferConceptCharacters,
   MAX_TRANSFER_CENTS,
   sanitizeTransferConceptInput,
-  transferConceptMessages,
   validateTransferAmountForSubmit,
   validateTransferConcept,
 } from '../../domain/validation';
@@ -30,15 +28,19 @@ export function useTransferViewModel() {
   const {data, isLoading, error, retry} = useHomeViewModel();
 
   const [amountCents, setAmountCents] = useState(0);
+
+  const [beneficiarySelectorVisible, setBeneficiarySelectorVisible] = useState(false);
   const [accountIndex, setAccountIndex] = useState(0);
   const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
-  const [concept, setConcept] = useState('');
-  const [conceptError, setConceptError] = useState<string | null>(null);
-  const [accountModalVisible, setAccountModalVisible] = useState(false);
-  const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
+  const [accountModalVisible, setAccountModalVisible] = useState(false);
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
   const defaultIdx = useMemo(() => defaultAccountIndex(accounts), [accounts]);
+
+  const [concept, setConcept] = useState('');
+
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+
 
   const accountsInitializedRef = useRef(false);
 
@@ -95,13 +97,7 @@ export function useTransferViewModel() {
 
   const onConceptChange = useCallback((text: string) => {
     const sanitized = sanitizeTransferConceptInput(text);
-    const nextError = hasDisallowedTransferConceptCharacters(text)
-      ? transferConceptMessages.invalidCharacters
-      : validateTransferConcept(sanitized);
-
     setConcept(sanitized);
-    setConceptError(nextError);
-    setValidationMessage(null);
   }, []);
 
   const openAccountPicker = useCallback(() => {
@@ -176,13 +172,14 @@ export function useTransferViewModel() {
     fromAccountDescription,
     accountModalVisible,
     setAccountModalVisible,
+    beneficiarySelectorVisible,
+    setBeneficiarySelectorVisible,
     beneficiary,
     amountCents,
     displayAmount,
     onAmountChange,
     concept,
     onConceptChange,
-    conceptError,
     amountFieldError,
     validationMessage,
     setValidationMessage,

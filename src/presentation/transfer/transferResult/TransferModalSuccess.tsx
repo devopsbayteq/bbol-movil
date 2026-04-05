@@ -3,15 +3,18 @@ import {
     Text,
     StyleSheet,
     View,
-    TouchableOpacity,
+    TouchableOpacity, Platform, BackHandler,
 } from 'react-native';
 import {ThemeColors, useTheme} from '../../../providers';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {CardAccountItem} from '../components/CardAccountItem.tsx';
 import {BeneficiaryOption} from '../../beneficiary/transferTypes.ts';
 import {Lexend} from '../../../theme/lexend.ts';
 import {TransactionHeaderInformation} from "../components/TransactionHeaderInformation.tsx";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {TransferStackParamList} from "../../../navigation/TransferStackNavigator.tsx";
 
 interface TransferModalSuccessProps {
     visible: boolean;

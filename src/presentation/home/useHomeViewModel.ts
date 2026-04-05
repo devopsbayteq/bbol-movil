@@ -1,68 +1,30 @@
-import {useState, useCallback, useEffect} from 'react';
-import {ContractBalance} from '../../domain/entities/ContractBalance';
+import {useCallback} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {useDI} from '../../di';
 
-type LoadMode = 'initial' | 'refresh';
-
-interface HomeState {
-  data: ContractBalance | null;
-  isLoading: boolean;
-  isRefreshing: boolean;
-  error: string | null;
-}
+const HOME_BALANCE_KEY = ['homeContractBalance'] as const;
 
 export function useHomeViewModel() {
-  const [state, setState] = useState<HomeState>({
-    data: null,
-    isLoading: true,
-    isRefreshing: false,
-    error: null,
-  });
-
   const {getHomeContractBalanceUseCase} = useDI();
 
-  const load = useCallback(
-    async (mode: LoadMode = 'initial') => {
-      if (mode === 'initial') {
-        setState(prev => ({...prev, isLoading: true, error: null}));
-      } else {
-        setState(prev => ({...prev, isRefreshing: true, error: null}));
-      }
+  const query = useQuery({
+    queryKey: HOME_BALANCE_KEY,
+    queryFn: () => getHomeContractBalanceUseCase.execute(),
+  });
 
-      try {
-        const data = await getHomeContractBalanceUseCase.execute();
-        setState({
-          data,
-          isLoading: false,
-          isRefreshing: false,
-          error: null,
-        });
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Error al cargar el inicio';
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          isRefreshing: false,
-          error: message,
-        }));
-      }
-    },
-    [getHomeContractBalanceUseCase],
-  );
+  const refresh = useCallback(async () => {
+    await query.refetch();
+  }, [query]);
 
-  useEffect(() => {
-    void load('initial');
-  }, [load]);
-
-  const refresh = useCallback(() => load('refresh'), [load]);
-  const retry = useCallback(() => load('initial'), [load]);
+  const retry = useCallback(async () => {
+    await query.refetch();
+  }, [query]);
 
   return {
-    data: state.data,
-    isLoading: state.isLoading,
-    isRefreshing: state.isRefreshing,
-    error: state.error,
+    data: query.data ?? null,
+    isLoading: query.isLoading,
+    isRefreshing: query.isRefetching,
+    error: query.error?.message ?? "",
     refresh,
     retry,
   };

@@ -21,20 +21,22 @@ import {
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../../providers';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
-import type {AccountKind} from '../../domain/entities/ContractBalance';
+import {useTheme, type ThemeColors} from '../../providers';
+import type {AccountKind, FrequentPayment} from '../../domain/entities/ContractBalance';
+import {HOME_HEADER_BG} from './homeConstants';
 import {HomeHeader} from './components/HomeHeader';
-import {HomeAlertBanner} from './components/HomeAlertBanner';
+import {ProductFilterTabs} from './components/ProductFilterTabs';
 import {HomeSectionTitle} from './components/HomeSectionTitle';
-import {FilterChip} from './components/FilterChip';
 import {
   SavingsAccountCard,
   CheckingAccountCard,
   CreditCardPreview,
   LoanCard,
-  InvestmentCard,
 } from './components/ProductCarouselCards';
-import {FrequentPaymentCard} from './components/FrequentPaymentCard';
+import {QuickActionsRow} from './components/QuickActionsRow';
+import {PromotionalBanner} from './components/PromotionalBanner';
+import {HomeAlertBanner} from './components/HomeAlertBanner';
+import {FrequentPaymentRow} from './components/FrequentPaymentRow';
 import {
   PaymentLightbulbIcon,
   PaymentPersonIcon,
@@ -44,11 +46,9 @@ import {useHomeViewModel} from './useHomeViewModel';
 import {DevelopmentNoticeModal} from '../components';
 
 const PRODUCT_FILTERS = [
-  'Todos',
   'Cuentas',
   'Tarjetas',
   'Préstamos',
-  'Inversiones',
 ] as const;
 
 function accountTitle(kind: AccountKind): string {
@@ -80,7 +80,7 @@ function iconForFrequentPayment(
   return <PaymentPersonIcon color={color} />;
 }
 
-const CARD_WIDTH = 200;
+const CARD_WIDTH = 205;
 const CARD_GAP = 12;
 const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
 
@@ -88,15 +88,19 @@ export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
-  const [filter, setFilter] = useState<string>('Todos');
+
+  const [filter, setFilter] = useState<string>('Cuentas');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
-  const iconColor = colors.primary;
+  const iconColor = colors.textTertiary;
   const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
   const navigation =
     useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+
   const {data, isLoading, isRefreshing, error, refresh, retry} =
     useHomeViewModel();
+
+  const carouselRef = useRef<ScrollView>(null);
   const scaleAnims = useRef<Animated.Value[]>([]).current;
 
   useFocusEffect(
@@ -105,9 +109,19 @@ export function HomeScreen() {
       if (token === undefined) {
         return;
       }
-      void refresh();
+      refresh().catch();
       navigation.setParams({refreshHome: undefined});
     }, [navigation, refresh, route.params?.refreshHome]),
+  );
+
+  const handleFilterChange = useCallback(
+    (newFilter: string) => {
+      setFilter(newFilter);
+      setSelectedIdx(0);
+      carouselRef.current?.scrollTo({x: 0, animated: false});
+      scaleAnims.length = 0;
+    },
+    [scaleAnims],
   );
 
   type ProductItem = {key: string; node: React.ReactNode};
@@ -117,10 +131,9 @@ export function HomeScreen() {
       return [];
     }
 
-    const showAccounts = filter === 'Todos' || filter === 'Cuentas';
-    const showCards = filter === 'Todos' || filter === 'Tarjetas';
-    const showLoans = filter === 'Todos' || filter === 'Préstamos';
-    const showInvestments = filter === 'Todos' || filter === 'Inversiones';
+    const showAccounts = filter === 'Cuentas';
+    const showCards = filter === 'Tarjetas';
+    const showLoans = filter === 'Préstamos';
 
     const items: ProductItem[] = [];
 
@@ -144,7 +157,7 @@ export function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Ver movimientos de cuenta corriente">
                 <CheckingAccountCard
-                  style={{flex: 1}}
+                  style={styles.cardFill}
                   maskedAccountNumber={acc.maskedAccountNumber}
                   balance={acc.balance}
                 />
@@ -168,7 +181,7 @@ export function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
                 <SavingsAccountCard
-                  style={{flex: 1}}
+                  style={styles.cardFill}
                   title={accountTitle(acc.accountKind)}
                   maskedAccountNumber={acc.maskedAccountNumber}
                   balance={acc.balance}
@@ -216,28 +229,9 @@ export function HomeScreen() {
       }
     }
 
-    if (showInvestments) {
-      for (const inv of data.investments) {
-        const k = `inv-${inv.investmentGuid}`;
-        items.push({
-          key: k,
-          node: (
-            <InvestmentCard
-              key={k}
-              style={styles.productCard}
-              productName={inv.productName}
-              currentValue={inv.currentValue}
-              currency={inv.currency}
-            />
-          ),
-        });
-      }
-    }
-
     return items;
-  }, [data, filter, navigation, styles.productCard]);
+  }, [data, filter, navigation, styles.cardFill, styles.productCard]);
 
-  // Ensure one Animated.Value per card, resetting when list changes.
   if (scaleAnims.length !== productItems.length) {
     scaleAnims.length = 0;
     productItems.forEach((_, i) => {
@@ -269,7 +263,7 @@ export function HomeScreen() {
     }
   };
 
-  const frequentPayments = data?.frequentPayments ?? [];
+  const frequentPayments: FrequentPayment[] = data?.frequentPayments ?? [];
 
   const handleLogout = async () => {
     await logout();
@@ -277,56 +271,30 @@ export function HomeScreen() {
 
   return (
     <View testID="home-screen" style={styles.root}>
-      <SafeAreaView edges={['top']} style={styles.headerSafe}>
-        <View style={styles.headerRow}>
-          <View style={styles.headerMain}>
-            <HomeHeader userName={user?.name} />
-          </View>
-          <TouchableOpacity
-            testID="logout-button"
-            onPress={handleLogout}
-            accessibilityRole="button"
-            accessibilityLabel="Cerrar sesión"
-            style={styles.logoutBtn}
-            activeOpacity={0.7}>
-            <Text style={styles.logoutText}>Salir</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={refresh}
-            tintColor={colors.primary}
+            tintColor={colors.white}
             colors={[colors.primary]}
           />
         }>
-        <HomeAlertBanner
-          title="Nueva tarjeta en camino"
-          subtitle="Llegará el 24 de Octubre"
-          onPress={() => setDevModalVisible(true)}
-        />
-
-        <View style={styles.section}>
-          <HomeSectionTitle>Mis Productos</HomeSectionTitle>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipsRow}>
-            {PRODUCT_FILTERS.map(label => (
-              <FilterChip
-                key={label}
-                label={label}
-                selected={filter === label}
-                onPress={() => setFilter(label)}
-              />
-            ))}
-          </ScrollView>
+        <View style={styles.darkHeaderZone}>
+          <SafeAreaView edges={['top']} />
+          <HomeHeader userName={user?.name} onLogout={handleLogout} />
+          <HomeAlertBanner
+            title="Nueva tarjeta en camino"
+            subtitle="Llegará el 24 de Octubre"
+            onPress={() => setDevModalVisible(true)}
+          />
+          <ProductFilterTabs
+            filters={PRODUCT_FILTERS}
+            selectedFilter={filter}
+            onFilterChange={handleFilterChange}
+          />
 
           {error ? (
             <View style={styles.inlineMessage}>
@@ -339,10 +307,11 @@ export function HomeScreen() {
 
           {isLoading ? (
             <View style={styles.loadingBox}>
-              <ActivityIndicator size="small" color={colors.primary} />
+              <ActivityIndicator size="small" color={colors.white} />
             </View>
           ) : productItems.length > 0 ? (
             <ScrollView
+              ref={carouselRef}
               horizontal
               showsHorizontalScrollIndicator={false}
               snapToInterval={CARD_SNAP_INTERVAL}
@@ -355,40 +324,49 @@ export function HomeScreen() {
                   key={item.key}
                   style={[
                     styles.carouselItem,
-                    {transform: [{scale: scaleAnims[i] ?? new Animated.Value(1)}]},
+                    {
+                      transform: [
+                        {scale: scaleAnims[i] ?? new Animated.Value(1)},
+                      ],
+                    },
                   ]}>
                   {item.node}
                 </Animated.View>
               ))}
             </ScrollView>
           ) : (
-            <Text style={styles.emptyProducts}>
+            <Text style={styles.emptyProductsDark}>
               No hay productos en esta categoría.
             </Text>
           )}
         </View>
 
-        <View style={styles.section}>
-          <HomeSectionTitle>Pagos frecuentes</HomeSectionTitle>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.paymentsRow}>
+        {/* --- Light content area --- */}
+        <View style={styles.contentArea}>
+          <QuickActionsRow />
+          <PromotionalBanner />
+
+          <View style={styles.frequentPaymentsSection}>
+            <HomeSectionTitle>Pagos frecuentes</HomeSectionTitle>
             {frequentPayments.length > 0 ? (
-              frequentPayments.map((fp, i) => (
-                <FrequentPaymentCard
-                  key={`${fp.beneficiaryName}-${i}`}
-                  label={fp.beneficiaryName}
-                  icon={iconForFrequentPayment(fp.beneficiaryType, iconColor)}
-                  onPress={() => setDevModalVisible(true)}
-                />
-              ))
+              <View>
+                {frequentPayments.map((fp, i) => (
+                  <FrequentPaymentRow
+                    key={`${fp.beneficiaryName}-${i}`}
+                    label={fp.beneficiaryName}
+                    icon={iconForFrequentPayment(fp.beneficiaryType, iconColor)}
+                    isFirst={i === 0}
+                    isLast={i === frequentPayments.length - 1}
+                    onPress={() => setDevModalVisible(true)}
+                  />
+                ))}
+              </View>
             ) : (
               <Text style={styles.emptyProducts}>
                 No hay pagos frecuentes registrados.
               </Text>
             )}
-          </ScrollView>
+          </View>
         </View>
       </ScrollView>
       <DevelopmentNoticeModal
@@ -407,68 +385,41 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           backgroundColor: colors.background,
         },
-        headerSafe: {
-          backgroundColor: colors.surface,
-        },
-        headerRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 24,
-          gap: 12,
-        },
-        headerMain: {
-          flex: 1,
-          minWidth: 0,
-        },
-        logoutBtn: {
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 10,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.borderLight,
-        },
-        logoutText: {
-          fontSize: 14,
-          fontWeight: '600',
-          color: colors.error,
-        },
         scroll: {
           flex: 1,
         },
-        scrollContent: {
-          paddingHorizontal: 24,
-          paddingTop: 24,
-          paddingBottom: 32,
+        darkHeaderZone: {
+          backgroundColor: HOME_HEADER_BG,
+          paddingBottom: 24,
           gap: 24,
         },
-        section: {
+        contentArea: {
+          paddingHorizontal: 24,
+          paddingTop: 16,
+          paddingBottom: 32,
           gap: 16,
-        },
-        chipsRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-          paddingRight: 8,
         },
         carouselRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: 8,
+          paddingTop: 24,
+          paddingHorizontal: 24,
           paddingRight: 24,
           gap: CARD_GAP,
         },
         carouselItem: {
           width: CARD_WIDTH,
-          height: 160,
+          height: 130,
         },
         productCard: {
           width: CARD_WIDTH,
-          height: 160,
+          height: 130,
         },
-        paymentsRow: {
-          flexDirection: 'row',
-          gap: 12,
-          paddingRight: 8,
+        cardFill: {
+          flex: 1,
+        },
+        frequentPaymentsSection: {
+          gap: 16,
         },
         loadingBox: {
           paddingVertical: 24,
@@ -476,16 +427,23 @@ function useStyles(colors: ThemeColors) {
         },
         inlineMessage: {
           gap: 8,
-          marginBottom: 4,
+          marginHorizontal: 24,
         },
         errorText: {
-          color: colors.error,
+          color: colors.errorBg,
           fontSize: 13,
         },
         retryText: {
-          color: colors.primary,
+          color: colors.white,
           fontSize: 14,
           fontWeight: '600',
+        },
+        emptyProductsDark: {
+          color: colors.white,
+          fontSize: 14,
+          paddingVertical: 16,
+          paddingHorizontal: 24,
+          opacity: 0.7,
         },
         emptyProducts: {
           color: colors.textSecondary,

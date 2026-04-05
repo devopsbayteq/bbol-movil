@@ -1,15 +1,21 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {BackHandler, Platform, ScrollView, StyleSheet, View} from 'react-native';
 import {ThemeColors, useTheme} from '../../../providers';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Button, SecondaryIconButton, TertiaryLinkButton} from '../../components';
-import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
+import {
+  useRoute,
+  RouteProp,
+  useNavigation,
+  useFocusEffect,
+} from '@react-navigation/native';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator.tsx';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ViewShot from 'react-native-view-shot';
 import {TransferVoucherShareableCard} from '../components/TransferVoucherShareableCard';
 import {useTransferVoucherCaptureShare} from '../useTransferVoucherCaptureShare';
+
 const shareIcon = require('../../../../assets/images/share-nodes.png');
 
 type TransferVoucherRouteProp = RouteProp<TransferStackParamList, 'TransferVoucher'>;
@@ -29,6 +35,23 @@ export const TransferVoucherScreen = () => {
 
   const {viewShotRef, shareVoucher} = useTransferVoucherCaptureShare();
 
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'android') {
+        return;
+      }
+      const onBackPress = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'TransferMain'}],
+        });
+        return true;
+      };
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [navigation]),
+  );
+
   return (
     <View style={styles.root} testID="transfer-voucher-screen">
       <ToolbarApp title="COMPROBANTE" />
@@ -42,9 +65,7 @@ export const TransferVoucherScreen = () => {
         showsVerticalScrollIndicator={false}>
         <View style={styles.containerForm}>
           <View style={styles.contentColumn}>
-            <ViewShot
-              ref={viewShotRef}
-              options={{format: 'png', quality: 1}}>
+            <ViewShot ref={viewShotRef} options={{format: 'png', quality: 1}}>
               <TransferVoucherShareableCard transferResume={transactionData} />
             </ViewShot>
             <View style={styles.actionsGroup}>

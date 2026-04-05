@@ -1,5 +1,10 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
+import {
+  QueryClient,
+  QueryClientProvider,
+  notifyManager,
+} from '@tanstack/react-query';
 import {useDI} from '../../../src/di';
 import {useHomeViewModel} from '../../../src/presentation/home/useHomeViewModel';
 
@@ -13,17 +18,42 @@ function flushPromises(): Promise<void> {
   return new Promise(resolve => setImmediate(resolve));
 }
 
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+}
+
 describe('useHomeViewModel', () => {
   let latest: ReturnType<typeof useHomeViewModel> | undefined;
+  let queryClient: QueryClient;
+
+  const originalScheduler = notifyManager.setScheduler;
 
   function Harness() {
     latest = useHomeViewModel();
     return null;
   }
 
+  function Wrapper({children}: {children: React.ReactNode}) {
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+  }
+
   beforeEach(() => {
     latest = undefined;
+    queryClient = createTestQueryClient();
+    notifyManager.setScheduler(cb => cb());
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    queryClient.clear();
   });
 
   test('loads contract balance on mount', async () => {
@@ -41,7 +71,11 @@ describe('useHomeViewModel', () => {
     } as never);
 
     await act(async () => {
-      ReactTestRenderer.create(<Harness />);
+      ReactTestRenderer.create(
+        <Wrapper>
+          <Harness />
+        </Wrapper>,
+      );
       await flushPromises();
     });
 
@@ -66,7 +100,11 @@ describe('useHomeViewModel', () => {
     } as never);
 
     await act(async () => {
-      ReactTestRenderer.create(<Harness />);
+      ReactTestRenderer.create(
+        <Wrapper>
+          <Harness />
+        </Wrapper>,
+      );
       await flushPromises();
     });
 
@@ -99,7 +137,11 @@ describe('useHomeViewModel', () => {
     } as never);
 
     await act(async () => {
-      ReactTestRenderer.create(<Harness />);
+      ReactTestRenderer.create(
+        <Wrapper>
+          <Harness />
+        </Wrapper>,
+      );
       await flushPromises();
     });
 

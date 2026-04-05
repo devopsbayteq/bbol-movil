@@ -1,18 +1,18 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {
     View,
     Text,
     StyleSheet,
-    ScrollView,
     TouchableOpacity,
     TextInput,
     Modal,
-    FlatList,
+    ScrollView,
     Pressable,
     ActivityIndicator,
     Keyboard,
     Platform,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -44,28 +44,50 @@ const ICON_CHIP_BG = '#D0F0F6';
 const CONCEPT_INPUT_BG = '#EFF0F4';
 
 export function TransferScreen() {
+
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
-    const navigation =
-        useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
     const styles = useStyles(colors);
 
-    const transferViewModel = useTransferViewModel();
+    const navigation = useNavigation<NativeStackNavigationProp<
+        TransferStackParamList,
+        'TransferMain'>>();
 
-    const {selectBeneficiary} = transferViewModel;
+    const {
+        displayAmount,
+        onAmountChange,
+        amountFieldError,
+        selectBeneficiary,
+        beneficiarySelectorVisible,
+        setBeneficiarySelectorVisible,
+        beneficiary,
+        accounts,
+        openAccountPicker,
+        selectedAccount,
+        accountIndex,
+        selectAccount,
+        fromAccountDescription,
+        accountModalVisible,
+        setAccountModalVisible,
+        concept,
+        onConceptChange,
+        user,
+        validationMessage,
+        prepareTransferReview,
+        setValidationMessage,
+        error,
+        isLoading,
+        retry
+    } = useTransferViewModel();
 
-    const [beneficiarySelectorVisible, setBeneficiarySelectorVisible] = useState(false);
 
-    const holderName = transferViewModel.user?.name?.trim() || 'Titular';
-
-    const beneficiaryTitle = transferViewModel.beneficiary
-        ? transferViewModel.beneficiary.name
-        : 'Selecciona el beneficiario';
+    const holderName = user?.name?.trim() || 'Titular';
+    const beneficiaryTitle = beneficiary ? beneficiary.name : 'Selecciona el beneficiario';
 
     const onBack = () => {
         const tabNav =
             navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate({name: 'Home', params: {}});
+        tabNav?.navigate('Home',{});
     };
 
     return (
@@ -76,24 +98,24 @@ export function TransferScreen() {
                     onBack()
                 }}/>
 
-            {transferViewModel.error ? (
+            {error ? (
                 <View style={styles.errorBanner}>
-                    <Text style={styles.errorText}>{transferViewModel.error}</Text>
+                    <Text style={styles.errorText}>{error}</Text>
                     <TouchableOpacity
                         onPress={() => {
-                            transferViewModel.retry();
+                            retry().catch();
                         }}>
                         <Text style={styles.retryText}>Reintentar</Text>
                     </TouchableOpacity>
                 </View>
             ) : null}
 
-            {transferViewModel.isLoading ? (
+            {isLoading ? (
                 <View style={styles.loadingWrap}>
                     <ActivityIndicator size="large" color={colors.primary}/>
                 </View>
             ) : (
-                <ScrollView
+                <KeyboardAwareScrollView
                     style={styles.scroll}
                     contentContainerStyle={[
                         styles.scrollContent,
@@ -108,8 +130,8 @@ export function TransferScreen() {
                         <View style={styles.amountWrap}>
                             <TextInput
                                 style={styles.amountInput}
-                                value={transferViewModel.displayAmount}
-                                onChangeText={transferViewModel.onAmountChange}
+                                value={displayAmount}
+                                onChangeText={onAmountChange}
                                 keyboardType="number-pad"
                                 returnKeyType="done"
                                 onSubmitEditing={() => Keyboard.dismiss()}
@@ -119,8 +141,8 @@ export function TransferScreen() {
                                 underlineColorAndroid="transparent"
                                 testID="transfer-amount-input"
                             />
-                            {transferViewModel.amountFieldError ? (
-                                <Text style={styles.amountFieldError}>{transferViewModel.amountFieldError}</Text>
+                            {amountFieldError ? (
+                                <Text style={styles.amountFieldError}>{amountFieldError}</Text>
                             ) : null}
                         </View>
 
@@ -144,10 +166,10 @@ export function TransferScreen() {
                         <TouchableOpacity
                             style={styles.card}
                             onPress={
-                                transferViewModel.accounts.length > 1 ? transferViewModel.openAccountPicker : undefined
+                                accounts.length > 1 ? openAccountPicker : undefined
                             }
-                            activeOpacity={transferViewModel.accounts.length > 1 ? 0.9 : 1}
-                            disabled={transferViewModel.accounts.length <= 1}>
+                            activeOpacity={accounts.length > 1 ? 0.9 : 1}
+                            disabled={accounts.length <= 1}>
                             <View style={styles.iconChip}>
                                 <TransferIconWallet color={HERO_BG} size={16}/>
                             </View>
@@ -156,15 +178,15 @@ export function TransferScreen() {
                                 <Text style={styles.cardTitle} numberOfLines={1}>
                                     {holderName}
                                 </Text>
-                                {transferViewModel.selectedAccount ? (
+                                {selectedAccount ? (
                                     <Text style={styles.cardSub} numberOfLines={1}>
-                                        {transferViewModel.fromAccountDescription}
+                                        {fromAccountDescription}
                                     </Text>
                                 ) : (
                                     <Text style={styles.cardSub}>Sin cuenta disponible</Text>
                                 )}
                             </View>
-                            {transferViewModel.accounts.length > 1 ? (
+                            {accounts.length > 1 ? (
                                 <TransferIconArrowUp color={colors.iconPrimary} size={16}/>
                             ) : (
                                 <View style={styles.cardChevronSpacer}/>
@@ -180,39 +202,29 @@ export function TransferScreen() {
                                 <Text style={styles.conceptLabelMuted}>(Opcional)</Text>
                             </Text>
                             <TextInput
-                                style={[
-                                    styles.conceptInput,
-                                    transferViewModel.conceptError ? styles.conceptInputError : null,
-                                ]}
-                                value={transferViewModel.concept}
-                                onChangeText={transferViewModel.onConceptChange}
+                                style={styles.conceptInput}
+                                value={concept}
+                                onChangeText={onConceptChange}
                                 placeholder="Ej. Pago zapatos"
                                 placeholderTextColor={colors.placeholder}
                                 maxLength={120}
                                 testID="transfer-concept-input"
                             />
-                            {transferViewModel.conceptError ? (
-                                <Text
-                                    style={styles.validationText}
-                                    testID="transfer-concept-error">
-                                    {transferViewModel.conceptError}
-                                </Text>
-                            ) : null}
-                            {!transferViewModel.conceptError && transferViewModel.validationMessage ? (
-                                <Text style={styles.validationText}>{transferViewModel.validationMessage}</Text>
+                            {validationMessage ? (
+                                <Text style={styles.validationText}>{validationMessage}</Text>
                             ) : null}
                         </View>
 
                         <TouchableOpacity
                             style={styles.primaryCta}
                             onPress={() => {
-                                const result = transferViewModel.prepareTransferReview();
+                                const result = prepareTransferReview();
 
                                 if (!result.ok) {
-                                    transferViewModel.setValidationMessage(result.message);
+                                    setValidationMessage(result.message);
                                     return;
                                 }
-                                transferViewModel.setValidationMessage(null);
+                                setValidationMessage(null);
                                 navigation.navigate('TransferReview', result.params);
                             }}
                             activeOpacity={0.9}
@@ -224,18 +236,18 @@ export function TransferScreen() {
                             <Text style={styles.primaryCtaText}>Continuar</Text>
                         </TouchableOpacity>
                     </View>
-                </ScrollView>
+                </KeyboardAwareScrollView>
             )}
 
             <Modal
-                visible={transferViewModel.accountModalVisible}
+                visible={accountModalVisible}
                 transparent
                 animationType="fade"
-                onRequestClose={() => transferViewModel.setAccountModalVisible(false)}>
+                onRequestClose={() => setAccountModalVisible(false)}>
                 <View style={styles.modalRoot}>
                     <Pressable
                         style={StyleSheet.absoluteFill}
-                        onPress={() => transferViewModel.setAccountModalVisible(false)}
+                        onPress={() => setAccountModalVisible(false)}
                         accessibilityLabel="Cerrar"
                     />
                     <View
@@ -248,22 +260,21 @@ export function TransferScreen() {
                             <Text style={styles.modalHeaderTitle}>CUENTAS</Text>
                             <TouchableOpacity
                                 style={styles.modalCloseBtn}
-                                onPress={() => transferViewModel.setAccountModalVisible(false)}
+                                onPress={() => setAccountModalVisible(false)}
                                 accessibilityRole="button"
                                 accessibilityLabel="Cerrar selección de cuentas">
                                 <TransferIconClose color={colors.iconPrimary} size={20}/>
                             </TouchableOpacity>
                         </View>
-                        <FlatList
-                            data={transferViewModel.accounts}
-                            keyExtractor={item => item.accountGuid}
-                            scrollEnabled={transferViewModel.accounts.length > 4}
-                            contentContainerStyle={styles.modalListContent}
-                            renderItem={({item, index}) => {
-                                const isSelected = index === transferViewModel.accountIndex;
+                        <ScrollView
+                            scrollEnabled={accounts.length > 4}
+                            contentContainerStyle={styles.modalListContent}>
+                            {accounts.map((item, index) => {
+                                const isSelected = index === accountIndex;
                                 const isDisabled = item.balance <= 0;
                                 return (
                                     <TouchableOpacity
+                                        key={item.accountGuid}
                                         style={[
                                             styles.accountPickCard,
                                             isSelected &&
@@ -271,7 +282,7 @@ export function TransferScreen() {
                                             styles.accountPickCardSelected,
                                             isDisabled && styles.accountPickCardDisabled,
                                         ]}
-                                        onPress={() => transferViewModel.selectAccount(index)}
+                                        onPress={() => selectAccount(index)}
                                         activeOpacity={isDisabled ? 1 : 0.88}
                                         disabled={isDisabled}
                                         accessibilityState={{
@@ -302,8 +313,8 @@ export function TransferScreen() {
                                         </View>
                                     </TouchableOpacity>
                                 );
-                            }}
-                        />
+                            })}
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>

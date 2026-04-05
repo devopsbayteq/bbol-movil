@@ -4,18 +4,16 @@ import {
   Text,
   Image,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Alert,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginViewModel} from './useLoginViewModel';
 import {useAuth} from '../../providers';
 import {useDI} from '../../di';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {
   Button,
   ErrorMessage,
@@ -42,7 +40,7 @@ export function LoginScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    void biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
+     biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
       if (!cancelled) {
         setShowBiometricLogin(has);
       }
@@ -74,7 +72,7 @@ export function LoginScreen() {
       });
     },
     user => {
-      void login(user);
+       login(user).catch();
     },
   );
 
@@ -84,14 +82,12 @@ export function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.contentColumn}>
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.contentColumn}>
           <Image
             source={require('../../../assets/images/BBBanner.png')}
             style={styles.bankLogo}
@@ -173,9 +169,8 @@ export function LoginScreen() {
             onPress={onHelp}
             style={styles.helpLink}
           />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
