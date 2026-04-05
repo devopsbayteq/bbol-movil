@@ -1,9 +1,31 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
+import type {ReactTestRendererJSON} from 'react-test-renderer';
 import {ActivityIndicator} from 'react-native';
 import {HomeScreen} from '../../../src/presentation/home/HomeScreen';
 
 const mockUseHomeViewModel = jest.fn();
+
+/** Evita JSON.stringify sobre el árbol (p. ej. RefreshControl puede introducir referencias circulares). */
+function renderedText(
+  node: ReactTestRendererJSON | ReactTestRendererJSON[] | string | number | null | undefined,
+): string {
+  if (node == null || typeof node === 'boolean') {
+    return '';
+  }
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(renderedText).join('');
+  }
+  if (typeof node === 'object' && node && 'children' in node) {
+    return renderedText(
+      node.children as ReactTestRendererJSON | ReactTestRendererJSON[],
+    );
+  }
+  return '';
+}
 
 jest.mock('../../../src/presentation/home/useHomeViewModel', () => ({
   useHomeViewModel: () => mockUseHomeViewModel(),
@@ -18,6 +40,18 @@ jest.mock('../../../src/providers/theme', () => ({
     colors: require('../../../src/providers/theme/colors').LightColors,
   }),
 }));
+
+jest.mock('@react-navigation/native', () => {
+  const actual = jest.requireActual('@react-navigation/native');
+  return {
+    ...actual,
+    useRoute: () => ({params: undefined}),
+    useNavigation: () => ({setParams: jest.fn()}),
+    useFocusEffect: jest.fn(fn => {
+      fn();
+    }),
+  };
+});
 
 jest.mock('react-native-safe-area-context', () => {
   const React = require('react');
@@ -45,7 +79,9 @@ describe('HomeScreen', () => {
     mockUseHomeViewModel.mockReturnValue({
       data: null,
       isLoading: true,
+      isRefreshing: false,
       error: null,
+      refresh: jest.fn(),
       retry: jest.fn(),
     });
 
@@ -64,7 +100,9 @@ describe('HomeScreen', () => {
     mockUseHomeViewModel.mockReturnValue({
       data: emptyBalance,
       isLoading: false,
+      isRefreshing: false,
       error: 'Error de red',
+      refresh: jest.fn(),
       retry,
     });
 
@@ -73,7 +111,7 @@ describe('HomeScreen', () => {
       root = ReactTestRenderer.create(<HomeScreen />);
     });
 
-    const flat = JSON.stringify(root!.toJSON());
+    const flat = renderedText(root!.toJSON());
     expect(flat).toContain('Error de red');
     expect(flat).toContain('Reintentar');
   });
@@ -97,7 +135,9 @@ describe('HomeScreen', () => {
         ],
       },
       isLoading: false,
+      isRefreshing: false,
       error: null,
+      refresh: jest.fn(),
       retry: jest.fn(),
     });
 
@@ -106,7 +146,7 @@ describe('HomeScreen', () => {
       root = ReactTestRenderer.create(<HomeScreen />);
     });
 
-    const flat = JSON.stringify(root!.toJSON());
+    const flat = renderedText(root!.toJSON());
     expect(flat).toContain('Mis Productos');
     expect(flat).toContain('Pagos frecuentes');
     expect(flat).toContain('****4242');
@@ -117,7 +157,9 @@ describe('HomeScreen', () => {
     mockUseHomeViewModel.mockReturnValue({
       data: emptyBalance,
       isLoading: false,
+      isRefreshing: false,
       error: null,
+      refresh: jest.fn(),
       retry: jest.fn(),
     });
 
@@ -126,7 +168,7 @@ describe('HomeScreen', () => {
       root = ReactTestRenderer.create(<HomeScreen />);
     });
 
-    expect(JSON.stringify(root!.toJSON())).toContain(
+    expect(renderedText(root!.toJSON())).toContain(
       'No hay productos en esta categoría',
     );
   });

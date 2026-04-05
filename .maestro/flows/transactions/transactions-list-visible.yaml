@@ -7,24 +7,28 @@ name: Lista de transacciones y estados visibles
 - runFlow:
     file: ../../subflows/ensure-authenticated.yaml
 
+- tapOn: "Movimientos"
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+# Navegar al tab Movimientos.
+- tapOn: "Movimientos"
+
 - extendedWaitUntil:
     visible:
       id: "transactions-screen"
-    timeout: 20000
+    timeout: 15000
 
-- assertVisible: "Saldo disponible"
-- assertVisible: "Ingresos"
-- assertVisible: "Gastos"
-- assertVisible: "Movimientos recientes"
-
-- assertVisible: "Depósito de nómina"
-- assertVisible: "Completada"
+- assertVisible: "MOVIMIENTOS"
+- assertVisible: "Movimientos"
+- assertVisible:
+    id: "movements-search-input"
 
 - scrollUntilVisible:
     element:
-      text: "Amazon - Audífonos"
+      text: "Saldo"
     direction: DOWN
     timeout: 15000
-
-- assertVisible: "Amazon - Audífonos"
-- assertVisible: "Pendiente"

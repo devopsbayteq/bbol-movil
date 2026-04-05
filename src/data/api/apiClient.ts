@@ -3,6 +3,7 @@ import {
   attachApiHeadersInterceptor,
   type ApiHeadersInterceptorDeps,
 } from './apiHeadersInterceptor';
+import {attachHttpLoggingInterceptor} from './httpLoggingInterceptor';
 import {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {HttpClient, HttpResponse, RequestConfig} from './HttpClient';
 
@@ -23,6 +24,7 @@ export class AxiosHttpClient implements HttpClient {
       timeout,
     });
     attachApiHeadersInterceptor(this.client, interceptorDeps);
+    attachHttpLoggingInterceptor(this.client);
   }
 
   async get<T>(

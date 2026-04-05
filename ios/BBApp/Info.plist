@@ -33,12 +33,20 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>"Esta aplicación necesita acceder a tu galería para que puedas almacenar y compartir tus transacciones.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Usamos Face ID para iniciar sesión de forma segura.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Lexend_400Regular.ttf</string>
+		<string>Lexend_600SemiBold.ttf</string>
+		<string>Lexend_700Bold.ttf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -58,11 +66,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Lexend_400Regular.ttf</string>
-		<string>Lexend_600SemiBold.ttf</string>
-		<string>Lexend_700Bold.ttf</string>
-	</array>
 </dict>
 </plist>

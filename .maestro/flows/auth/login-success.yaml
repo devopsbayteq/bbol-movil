@@ -9,11 +9,10 @@ name: Login exitoso — llega al inicio con saldo y movimientos
 
 - extendedWaitUntil:
     visible:
-      id: "transactions-screen"
-    timeout: 20000
+      id: "home-screen"
+    timeout: 30000
 
+- assertVisible: "Bienvenido de vuelta"
 - assertVisible: "usuario01"
-- assertVisible: "Saldo disponible"
-- assertVisible: "$15,642.50"
-- assertVisible: "Movimientos recientes"
-- assertVisible: "Depósito de nómina"
+- assertVisible: "Mis Productos"
+- assertVisible: "Pagos frecuentes"

@@ -14,7 +14,6 @@ import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {useTheme, type ThemeColors} from '../../providers';
-import {useAuth} from '../../providers';
 import {
   ErrorMessage,
   OtpCodeInput,
@@ -23,9 +22,8 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
-import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
-import {TransferStackParamList} from "../../navigation/TransferStackNavigator.tsx";
-import {TransferReviewRouteParams} from "../transfer/TransferReview/transferReviewTypes.ts";
+import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
+import {TransferStackParamList} from '../../navigation/TransferStackNavigator.tsx';
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
@@ -51,8 +49,9 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
 
   const {colors} = useTheme();
   const styles = useStyles(colors);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList|TransferStackParamList>>();
-  const {login} = useAuth();
+  const navigation = useNavigation<
+    NativeStackNavigationProp<RootStackParamList | TransferStackParamList>
+  >();
   const params = route.params;
 
   const {
@@ -62,15 +61,24 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
     onChangeCode,
     handleValidate,
   } = useOtpValidationViewModel(async () => {
-      if (params.mode === 'login') {
-        await login(params.user);
-        return;
-      }
-      if (params.mode === 'transfer') {
-           navigation.dispatch(StackActions.popTo('TransferReview',
-              { resultFromOtp: { otpValidated: true } },
-              {merge:true}));
-      }
+    if (params.mode === 'login') {
+      (
+        navigation as NativeStackNavigationProp<RootStackParamList>
+      ).replace('BiometricOffer', {
+        user: params.user,
+        email: params.email,
+      });
+      return;
+    }
+    if (params.mode === 'transfer') {
+      navigation.dispatch(
+        StackActions.popTo(
+          'TransferReview',
+          {resultFromOtp: {otpValidated: true}},
+          {merge: true},
+        ),
+      );
+    }
   });
 
   const lastSubmitted = useRef<string | null>(null);

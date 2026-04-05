@@ -2,7 +2,7 @@ import {AuthRepositoryImpl} from '../../../src/data/repositories/AuthRepositoryI
 import {BeneficiaryRepositoryImpl} from '../../../src/data/repositories/BeneficiaryRepositoryImpl';
 import {ContractBalanceRepositoryImpl} from '../../../src/data/repositories/ContractBalanceRepositoryImpl';
 import {SecurityRepositoryImpl} from '../../../src/data/repositories/SecurityRepositoryImpl';
-import {TransactionRepositoryImpl} from '../../../src/data/repositories/TransactionRepositoryImpl';
+import {AccountMovementRepositoryImpl} from '../../../src/data/repositories/AccountMovementRepositoryImpl';
 
 describe('data repositories', () => {
   test('AuthRepositoryImpl maps datasource login response to a user entity', async () => {
@@ -11,11 +11,15 @@ describe('data repositories', () => {
     };
     const repository = new AuthRepositoryImpl(dataSource);
 
-    const result = await repository.login('cliente@banco.com', '123456');
+    const result = await repository.login(
+      'cliente@banco.com',
+      'encrypted-user',
+      'encrypted-pass',
+    );
 
     expect(dataSource.login).toHaveBeenCalledWith({
-      username: 'cliente@banco.com',
-      password: '123456',
+      username: 'encrypted-user',
+      password: 'encrypted-pass',
     });
     expect(result).toMatchObject({
       id: 'cliente@banco.com',
@@ -108,39 +112,53 @@ describe('data repositories', () => {
     });
   });
 
-  test('TransactionRepositoryImpl maps datasource transactions to entities', async () => {
+  test('AccountMovementRepositoryImpl maps paginated transaction list', async () => {
     const dataSource = {
-      getTransactions: jest.fn().mockResolvedValue([
-        {
-          id: 'tx-1',
-          description: 'Pago de servicio',
-          amount: 42,
-          date: '2026-03-24',
-          type: 'expense',
-          category: 'services',
-          status: 'completed',
-          createdAt: '2026-03-24T09:30:00Z',
-          updatedAt: '2026-03-24T09:35:00Z',
-          userId: 'usr-1',
-          reference: 'CFE-001',
-          metadata: null,
-        },
-      ]),
+      getTransactionPage: jest.fn().mockResolvedValue({
+        totalCount: 1,
+        pageNumber: 1,
+        pageSize: 20,
+        items: [
+          {
+            transactionGuid: 'g1',
+            transactionIdentifier: 'id-1',
+            beneficiaryName: 'Ana Pérez',
+            beneficiaryAccountType: 1,
+            beneficiaryAccountTypeLabel: 'Ahorros',
+            beneficiaryAccountNumber: '****1234',
+            ownerAccountType: 1,
+            ownerAccountLabel: 'Propia',
+            accountNumber: '****5678',
+            accountType: 1,
+            accountTypeLabel: 'Ahorros',
+            destinationLastFourDigits: '1234',
+            amount: -50,
+            transferDate: '2026-04-04T12:00:00.000Z',
+            transactionTypeLabel: 'Transferencia',
+            transactionType: 1,
+            balanceAfterTransaction: 900,
+          },
+        ],
+      }),
     };
-    const repository = new TransactionRepositoryImpl(dataSource);
+    const repository = new AccountMovementRepositoryImpl(dataSource);
 
-    const result = await repository.getTransactions();
+    const result = await repository.getMovements({
+      accountGuid: 'acc-1',
+      pageNumber: 1,
+      pageSize: 20,
+    });
 
-    expect(result).toEqual([
-      {
-        id: 'tx-1',
-        description: 'Pago de servicio',
-        amount: 42,
-        date: '2026-03-24',
-        type: 'expense',
-        category: 'services',
-        status: 'completed',
-      },
-    ]);
+    expect(dataSource.getTransactionPage).toHaveBeenCalledWith({
+      AccountGuid: 'acc-1',
+      PageNumber: 1,
+      PageSize: 20,
+    });
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0]).toMatchObject({
+      beneficiaryName: 'Ana Pérez',
+      amount: -50,
+      balanceAfterTransaction: 900,
+    });
   });
 });

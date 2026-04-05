@@ -4,9 +4,6 @@ import {useDI} from '../../di';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
 import {BiometricRSAError} from '../../security/biometric';
 
-/** Pruebas: tras login con clave se llama a `registerBiometricForUser`. Desactivar cuando el flujo pase a una pantalla dedicada. */
-const TEMP_AUTO_REGISTER_BIOMETRIC_AFTER_LOGIN = true;
-
 import {
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
@@ -24,11 +21,10 @@ interface LoginState {
   passwordError: string | null;
   isLoadingLogin: boolean;
   isLoadingBiometric: boolean;
-  isLoadingRegisterBiometric: boolean;
   error: string | null;
 }
 
-function mapBiometricError(err: unknown): string | null {
+export function mapBiometricError(err: unknown): string | null {
   if (err instanceof BiometricRSAError) {
     if (err.code === 'user_cancelled') {
       return null;
@@ -77,7 +73,10 @@ function getLivePasswordError(password: string): string | null {
   return password ? validateLoginPassword(password) : null;
 }
 
-export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
+export function useLoginViewModel(
+  onCredentialLoginSuccess: (user: User) => void,
+  onBiometricLoginSuccess: (user: User) => void,
+) {
   const [state, setState] = useState<LoginState>({
     email: '',
     password: '',
@@ -85,7 +84,6 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
     passwordError: null,
     isLoadingLogin: false,
     isLoadingBiometric: false,
-    isLoadingRegisterBiometric: false,
     error: null,
   });
 
@@ -149,12 +147,13 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
 
     try {
       const user = await loginUseCase.execute(trimmedEmail, trimmedPassword);
-      if (TEMP_AUTO_REGISTER_BIOMETRIC_AFTER_LOGIN) {
-        await biometricRSAAuthOrchestrator.registerBiometricForUser(trimmedEmail);
-      }
-      setState(prev => ({...prev, isLoadingLogin: false, emailError: null,
-        passwordError: null,}));
-      onLoginSuccess(user);
+      setState(prev => ({
+        ...prev,
+        isLoadingLogin: false,
+        emailError: null,
+        passwordError: null,
+      }));
+      onCredentialLoginSuccess(user);
     } catch (err) {
       const message = mapBiometricError(err);
       setState(prev => ({
@@ -165,43 +164,9 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
     }
   }, [
     loginUseCase,
-    biometricRSAAuthOrchestrator,
     state.email,
     state.password,
-    onLoginSuccess,
-  ]);
-
-  /**
-   * Inicia sesión con usuario/contraseña y registra el dispositivo para acceso biométrico (RSA + servidor).
-   */
-  const handleRegisterBiometric = useCallback(async () => {
-    setState(prev => ({
-      ...prev,
-      isLoadingRegisterBiometric: true,
-      error: null,
-    }));
-
-    try {
-      const trimmedEmail = state.email.trim();
-      const trimmedPassword = state.password.trim();
-      const user = await loginUseCase.execute(trimmedEmail, trimmedPassword);
-      await biometricRSAAuthOrchestrator.registerBiometricForUser(trimmedEmail);
-      setState(prev => ({...prev, isLoadingRegisterBiometric: false}));
-      onLoginSuccess(user);
-    } catch (err) {
-      const message = mapBiometricError(err);
-      setState(prev => ({
-        ...prev,
-        isLoadingRegisterBiometric: false,
-        ...(message ? {error: message} : {}),
-      }));
-    }
-  }, [
-    loginUseCase,
-    biometricRSAAuthOrchestrator,
-    state.email,
-    state.password,
-    onLoginSuccess,
+    onCredentialLoginSuccess,
   ]);
 
   const handleBiometricLogin = useCallback(async () => {
@@ -216,7 +181,7 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
         token: result.accessToken,
       };
       setState(prev => ({...prev, isLoadingBiometric: false}));
-      onLoginSuccess(user);
+      onBiometricLoginSuccess(user);
     } catch (err) {
       const message = mapBiometricError(err);
       setState(prev => ({
@@ -225,12 +190,9 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
         ...(message ? {error: message} : {}),
       }));
     }
-  }, [biometricRSAAuthOrchestrator, onLoginSuccess]);
+  }, [biometricRSAAuthOrchestrator, onBiometricLoginSuccess]);
 
-  const isBusy =
-    state.isLoadingLogin ||
-    state.isLoadingBiometric ||
-    state.isLoadingRegisterBiometric;
+  const isBusy = state.isLoadingLogin || state.isLoadingBiometric;
 
   return {
     email: state.email,
@@ -239,13 +201,11 @@ export function useLoginViewModel(onLoginSuccess: (user: User) => void) {
     passwordError: state.passwordError,
     isLoadingLogin: state.isLoadingLogin,
     isLoadingBiometric: state.isLoadingBiometric,
-    isLoadingRegisterBiometric: state.isLoadingRegisterBiometric,
     isBusy,
     error: state.error,
     setEmail,
     setPassword,
     handleLogin,
-    handleRegisterBiometric,
     handleBiometricLogin,
   };
 }

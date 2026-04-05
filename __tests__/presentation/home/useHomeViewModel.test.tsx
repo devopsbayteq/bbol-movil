@@ -47,7 +47,39 @@ describe('useHomeViewModel', () => {
 
     expect(latest?.data).toEqual(homeBalance);
     expect(latest?.isLoading).toBe(false);
+    expect(latest?.isRefreshing).toBe(false);
     expect(latest?.error).toBeNull();
+  });
+
+  test('refresh vuelve a pedir saldo sin activar isLoading inicial', async () => {
+    const homeBalance = {
+      accounts: [],
+      creditCards: [],
+      loans: [],
+      investments: [],
+      frequentPayments: [],
+    };
+    const execute = jest.fn().mockResolvedValue(homeBalance);
+
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {execute},
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    expect(execute).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await latest?.refresh();
+      await flushPromises();
+    });
+
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(latest?.isRefreshing).toBe(false);
+    expect(latest?.isLoading).toBe(false);
   });
 
   test('surfaces errors and supports retry', async () => {

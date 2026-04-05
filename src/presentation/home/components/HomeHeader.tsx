@@ -15,7 +15,7 @@ export function HomeHeader({userName}: Props) {
   const displayName = userName?.trim() || 'Usuario';
 
   return (
-    <View style={styles.row}>
+    <View style={styles.row} >
       <Image
         source={bbIcon}
         style={styles.logoMark}

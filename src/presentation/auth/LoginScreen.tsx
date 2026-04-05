@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginViewModel} from './useLoginViewModel';
+import {useAuth} from '../../providers';
+import {useDI} from '../../di';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {
   Button,
@@ -31,32 +33,50 @@ const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
 
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const {login} = useAuth();
+  const {biometricRSAAuthOrchestrator} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
+
+  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
+      if (!cancelled) {
+        setShowBiometricLogin(has);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [biometricRSAAuthOrchestrator]);
 
   const {
     email,
     password,
+    emailError,
+    passwordError,
     isLoadingLogin,
     isLoadingBiometric,
-    isLoadingRegisterBiometric,
     isBusy,
     error,
     setEmail,
     setPassword,
     handleLogin,
-    handleRegisterBiometric,
     handleBiometricLogin,
-  } = useLoginViewModel(async user => {
-    navigation.navigate('OtpValidation', {
-      mode: 'login',
-      user,
-      email: user.email,
-    });
-  });
-
-  const hasFieldError = (fieldEmpty: boolean) =>
-    !!error && fieldEmpty;
+  } = useLoginViewModel(
+    user => {
+      navigation.navigate('OtpValidation', {
+        mode: 'login',
+        user,
+        email: user.email,
+      });
+    },
+    user => {
+      void login(user);
+    },
+  );
 
   const onHelp = () => {
     Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
@@ -93,7 +113,9 @@ export function LoginScreen() {
               placeholder="Usuario"
               value={email}
               onChangeText={setEmail}
-              hasError={hasFieldError(!email)}
+              hasError={!!emailError}
+              errorMessage={emailError ?? undefined}
+              errorTestID="login-username-error"
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isBusy}
@@ -106,7 +128,9 @@ export function LoginScreen() {
               placeholder="Contraseña"
               value={password}
               onChangeText={setPassword}
-              hasError={hasFieldError(!password)}
+              hasError={!!passwordError}
+              errorMessage={passwordError ?? undefined}
+              errorTestID="login-password-error"
               editable={!isBusy}
               autoComplete="password"
             />
@@ -130,21 +154,18 @@ export function LoginScreen() {
               disabled={isBusy}
               variant="loginPrimary"
             />
-            <Button
-              title="Activar biometría"
-              onPress={handleRegisterBiometric}
-              loading={isLoadingRegisterBiometric}
-              disabled={isBusy}
-              variant="outline"
-            />
-            <OrSeparator />
-            <SecondaryIconButton
-              title="Huella/FaceID"
-              iconSource={loginFingerprintIcon}
-              onPress={handleBiometricLogin}
-              disabled={isBusy}
-              loading={isLoadingBiometric}
-            />
+            {showBiometricLogin ? (
+              <>
+                <OrSeparator />
+                <SecondaryIconButton
+                  title="Huella/FaceID"
+                  iconSource={loginFingerprintIcon}
+                  onPress={handleBiometricLogin}
+                  disabled={isBusy}
+                  loading={isLoadingBiometric}
+                />
+              </>
+            ) : null}
           </View>
 
           <TertiaryLinkButton

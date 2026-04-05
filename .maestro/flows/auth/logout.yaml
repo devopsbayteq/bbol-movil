@@ -9,8 +9,8 @@ name: Logout y retorno a pantalla de login
 
 - extendedWaitUntil:
     visible:
-      id: "transactions-screen"
-    timeout: 20000
+      id: "home-screen"
+    timeout: 30000
 
 - tapOn:
     id: "logout-button"

@@ -1,7 +1,7 @@
 import {GetBeneficiaryContactsUseCase} from '../../../src/domain/usecases/GetBeneficiaryContactsUseCase';
 import {GetHomeContractBalanceUseCase} from '../../../src/domain/usecases/GetHomeContractBalanceUseCase';
 import {GetPublicKeyUseCase} from '../../../src/domain/usecases/GetPublicKeyUseCase';
-import {GetTransactionsUseCase} from '../../../src/domain/usecases/GetTransactionsUseCase';
+import {GetAccountMovementsUseCase} from '../../../src/domain/usecases/GetAccountMovementsUseCase';
 import {GetUserLoggedUseCase} from '../../../src/domain/usecases/GetUserLoggedUseCase';
 import {LoginUseCase} from '../../../src/domain/usecases/LoginUseCase';
 import {ValidateOtpUseCase} from '../../../src/domain/usecases/ValidateOtpUseCase';
@@ -14,6 +14,8 @@ describe('domain use cases', () => {
       email: 'usuario01',
       name: 'Usuario Demo',
       token: 'jwt-token',
+      sessionExpiresAt: Date.now() + 3600 * 1000,
+      inactivityTimeoutSeconds: 300,
     };
     const authRepository = {
       login: jest.fn().mockResolvedValue(user),
@@ -35,13 +37,14 @@ describe('domain use cases', () => {
       '@auth_token',
     );
 
-    const result = await useCase.execute('  usuario01  ', '  123456  ');
+    const result = await useCase.execute('  usuario01  ', '  12345678  ');
 
     expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
       'usuario01',
-      '123456',
+      'enc-blob',
+      'enc-blob',
     );
     expect(secureStorage.save).toHaveBeenCalledWith(
       '@bb_user_session',
@@ -86,8 +89,8 @@ describe('domain use cases', () => {
     );
 
     await expect(
-      useCase.execute('usuario01', '12345'),
-    ).rejects.toThrow('La contraseña debe tener al menos 6 caracteres');
+      useCase.execute('usuario01', '1234567'),
+    ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
   });
@@ -131,27 +134,39 @@ describe('domain use cases', () => {
     expect(secureStorage.save).not.toHaveBeenCalled();
   });
 
-  test('GetTransactionsUseCase returns repository transactions', async () => {
-    const transactionRepository = {
-      getTransactions: jest.fn().mockResolvedValue([
-        {
-          id: '1',
-          description: 'Depósito',
-          amount: 100,
-          date: '2026-03-28',
-          type: 'income' as const,
-          category: 'salary' as const,
-          status: 'completed' as const,
-        },
-      ]),
+  test('GetAccountMovementsUseCase returns paginated movements', async () => {
+    const repository = {
+      getMovements: jest.fn().mockResolvedValue({
+        totalCount: 1,
+        pageNumber: 1,
+        pageSize: 20,
+        items: [
+          {
+            transactionGuid: 'g1',
+            transactionIdentifier: 'x',
+            beneficiaryName: 'Depósito',
+            beneficiaryAccountTypeLabel: 'Ahorros',
+            beneficiaryAccountNumber: '',
+            amount: 100,
+            transferDate: '2026-03-28T00:00:00.000Z',
+            transactionTypeLabel: 'Abono',
+            transactionType: 0,
+            balanceAfterTransaction: 500,
+          },
+        ],
+      }),
     };
-    const useCase = new GetTransactionsUseCase(transactionRepository);
+    const useCase = new GetAccountMovementsUseCase(repository);
 
-    const result = await useCase.execute();
+    const result = await useCase.execute({
+      accountGuid: 'acc-1',
+      pageNumber: 1,
+      pageSize: 20,
+    });
 
-    expect(transactionRepository.getTransactions).toHaveBeenCalledTimes(1);
-    expect(result).toHaveLength(1);
-    expect(result[0].description).toBe('Depósito');
+    expect(repository.getMovements).toHaveBeenCalledTimes(1);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].beneficiaryName).toBe('Depósito');
   });
 
   test('ValidateOtpUseCase encrypts OTP with server public key then delegates to repository', async () => {

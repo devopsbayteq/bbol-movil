@@ -1,0 +1,60 @@
+appId: com.bbapp
+name: Login — Validación de campos
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 30000
+
+# --- 1. Usuario demasiado corto (< 6 chars) muestra error de campo ---
+- tapOn:
+    id: "login-email-input"
+- inputText: "usr"
+- tapOn:
+    id: "login-password-input"
+- assertVisible: "El usuario debe tener al menos 6 caracteres"
+
+# --- 2. Usuario demasiado largo (> 20 chars) muestra error de campo ---
+- clearState
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuarioconmasde20caracteres"
+- tapOn:
+    id: "login-password-input"
+- assertVisible: "El usuario no puede superar 20 caracteres"
+
+# --- 3. Contraseña demasiado corta (< 8 chars) muestra error de campo ---
+- clearState
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario01"
+- tapOn:
+    id: "login-password-input"
+- inputText: "1234567"
+- tapOn:
+    id: "login-email-input"
+- assertVisible: "La contraseña debe tener al menos 8 caracteres"
+
+# --- 4. Contraseña demasiado larga (> 16 chars) muestra error de campo ---
+- clearState
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario01"
+- tapOn:
+    id: "login-password-input"
+- inputText: "contrasenamuylar1"
+- tapOn:
+    id: "login-email-input"
+- assertVisible: "La contraseña no puede superar 16 caracteres"
+
+# --- 5. Submit sin datos muestra error de campo de usuario ---
+- clearState
+- tapOn:
+    id: "login-submit"
+- assertVisible: "El usuario es requerido"

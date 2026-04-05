@@ -64,7 +64,8 @@ export const TransferModalSuccess = ({
                     style={[
                         styles.sheet,
                         {paddingBottom: Math.max(insets.bottom, 12)},
-                    ]}>
+                    ]}
+                    testID="transfer-success-modal">
                     <View style={styles.sheetInner}>
                         <View style={styles.cardInfoContainer}>
                             <TransactionHeaderInformation transferResume={transactionData}/>
@@ -97,7 +98,8 @@ export const TransferModalSuccess = ({
                                 onPress={openVoucher}
                                 activeOpacity={0.85}
                                 accessibilityRole="button"
-                                accessibilityLabel="Voucher">
+                                accessibilityLabel="Voucher"
+                                testID="transfer-voucher-button">
                                 <Text style={styles.tertiaryButtonText}>Voucher</Text>
                             </TouchableOpacity>
 

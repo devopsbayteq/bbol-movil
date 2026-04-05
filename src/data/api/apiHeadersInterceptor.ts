@@ -1,5 +1,4 @@
 import {AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig} from 'axios';
-import DeviceInfo from 'react-native-device-info';
 import {devLog} from './devLog';
 import {generateHMacForContentHeaderFromAxios} from '../../security/http/generateHMacContentHeader';
 import {rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64} from '../../security/certificate/rsaUtils';
@@ -11,33 +10,63 @@ import {
   type DeviceHeaderSnapshot,
 } from './loadDeviceHeaderSnapshot';
 import {
+  buildInfoFingerprintModelFromSnapshot,
   infoFingerprintModelToJson,
-  type InfoFingerprintModel,
 } from './infoFingerprintModel';
+import type {DeviceSecurityService} from '../../domain/services/DeviceSecurityService';
 
 const LOG = 'ApiHeaders/interceptor';
+
+/** Misma ruta que `SecurityRemoteDataSource.getPublicKey` — ahí aún no aplica enviar huella cifrada. */
+const PUBLIC_KEY_PATH_SEGMENT = 'Security/public-key';
+
+function isPublicKeyRequest(config: InternalAxiosRequestConfig): boolean {
+  const pathOnly = (config.url ?? '').split('?')[0] ?? '';
+  if (pathOnly.includes(PUBLIC_KEY_PATH_SEGMENT)) {
+    return true;
+  }
+  const absolute = `${config.baseURL ?? ''}${pathOnly}`;
+  return absolute.includes(PUBLIC_KEY_PATH_SEGMENT);
+}
 
 export type ApiHeadersInterceptorDeps = {
   baseURL: string;
   secretKey: string;
   requestId: string;
   secureStorage: SecureStorageService;
-  serverPublicPemBase64: string;  
-  getDeviceState: () => string;
+  /**
+   * Clave pública embebida (bootstrap). Si ya existe la guardada por
+   * `GetPublicKeyUseCase` en `SecureStorageKeys.SERVER_PUBLIC_KEY`, se usa esa
+   * — misma fuente que `LoginUseCase` tras `getPublicKeyUseCase.execute()`.
+   */
+  serverPublicPemBase64: string;
+  deviceSecurityService: DeviceSecurityService;
 };
 
+/** Misma lógica de material que el login: PEM del servicio persistido, o fallback embebido. */
+async function resolveServerPublicKeyPemBase64ForHeaders(
+  secureStorage: SecureStorageService,
+  embeddedFallbackPemBase64: string,
+): Promise<string> {
+  const stored = await secureStorage.get(SecureStorageKeys.SERVER_PUBLIC_KEY);
+  const trimmed = stored?.trim() ?? '';
+  if (trimmed) {
+    return trimmed;
+  }
+  return embeddedFallbackPemBase64;
+}
+
+/**
+ * Cifrado del fingerprint: mismo esquema que `X-Secret` y que las credenciales en
+ * `LoginUseCase` (RSA-OAEP SHA-1 + doble Base64 con la clave pública del servicio);
+ * el texto plano es el JSON UTF-8 del modelo de huella.
+ */
 async function buildEncryptedFingerprint(
   serverPublicPemBase64: string,
-  getDeviceState: () => string,
+  deviceSecurityService: DeviceSecurityService,
 ): Promise<string> {
-  const isEmu = await DeviceInfo.isEmulator();
-  const model: InfoFingerprintModel = {
-    deviceState: getDeviceState(),
-    isRoot: false,
-    isDebugger: false,
-    isDevelopment: __DEV__,
-    isPhysicalDevice: !isEmu,
-  };
+  const snapshot = await deviceSecurityService.getSnapshot();
+  const model = buildInfoFingerprintModelFromSnapshot(snapshot);
   const json = infoFingerprintModelToJson(model);
   return rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
     serverPublicPemBase64,
@@ -62,6 +91,13 @@ export function attachApiHeadersInterceptor(
       try {
         config.baseURL = deps.baseURL;
         const timeStamp = String(Math.floor(Date.now() / 1000));
+        const skipFingerprint = isPublicKeyRequest(config);
+
+        const serverPublicKeyPemBase64 =
+          await resolveServerPublicKeyPemBase64ForHeaders(
+            deps.secureStorage,
+            deps.serverPublicPemBase64,
+          );
 
         const [
           authorization,
@@ -77,14 +113,16 @@ export function attachApiHeadersInterceptor(
           
           Promise.resolve(
             rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
-              deps.serverPublicPemBase64,
+              serverPublicKeyPemBase64,
               deps.secretKey,
             ),
           ),
-          buildEncryptedFingerprint(
-            deps.serverPublicPemBase64,
-            deps.getDeviceState,
-          ),
+          skipFingerprint
+            ? Promise.resolve('')
+            : buildEncryptedFingerprint(
+                serverPublicKeyPemBase64,
+                deps.deviceSecurityService,
+              ),
           loadSnapshot(),
         ]);
 

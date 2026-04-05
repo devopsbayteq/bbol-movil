@@ -149,7 +149,8 @@ export function TransferScreen() {
                         <TouchableOpacity
                             style={styles.card}
                             onPress={() => setBeneficiarySelectorVisible(true)}
-                            activeOpacity={0.9}>
+                            activeOpacity={0.9}
+                            testID="transfer-beneficiary-picker">
                             <View style={styles.iconChip}>
                                 <TransferIconUser color={HERO_BG} size={16}/>
                             </View>

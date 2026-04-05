@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -7,11 +7,20 @@ import {
   Text,
   TouchableOpacity,
   Animated,
+  RefreshControl,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+  type RouteProp,
+} from '@react-navigation/native';
+import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../../providers';
+import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
@@ -75,14 +84,29 @@ const CARD_GAP = 12;
 const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
 
 export function HomeScreen() {
-  const {user} = useAuth();
+  const {user, logout} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const iconColor = colors.primary;
-  const {data, isLoading, error, retry} = useHomeViewModel();
+  const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
+  const navigation =
+    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+  const {data, isLoading, isRefreshing, error, refresh, retry} =
+    useHomeViewModel();
   const scaleAnims = useRef<Animated.Value[]>([]).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      const token = route.params?.refreshHome;
+      if (token === undefined) {
+        return;
+      }
+      void refresh();
+      navigation.setParams({refreshHome: undefined});
+    }, [navigation, refresh, route.params?.refreshHome]),
+  );
 
   type ProductItem = {key: string; node: React.ReactNode};
 
@@ -105,25 +129,43 @@ export function HomeScreen() {
           items.push({
             key: k,
             node: (
-              <CheckingAccountCard
+              <TouchableOpacity
                 key={k}
+                activeOpacity={0.92}
                 style={styles.productCard}
-                maskedAccountNumber={acc.maskedAccountNumber}
-                balance={acc.balance}
-              />
+                onPress={() =>
+                  navigation.navigate('Movements', {accountGuid: acc.accountGuid})
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Ver movimientos de cuenta corriente">
+                <CheckingAccountCard
+                  style={{flex: 1}}
+                  maskedAccountNumber={acc.maskedAccountNumber}
+                  balance={acc.balance}
+                />
+              </TouchableOpacity>
             ),
           });
         } else {
           items.push({
             key: k,
             node: (
-              <SavingsAccountCard
+              <TouchableOpacity
                 key={k}
+                activeOpacity={0.92}
                 style={styles.productCard}
-                title={accountTitle(acc.accountKind)}
-                maskedAccountNumber={acc.maskedAccountNumber}
-                balance={acc.balance}
-              />
+                onPress={() =>
+                  navigation.navigate('Movements', {accountGuid: acc.accountGuid})
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
+                <SavingsAccountCard
+                  style={{flex: 1}}
+                  title={accountTitle(acc.accountKind)}
+                  maskedAccountNumber={acc.maskedAccountNumber}
+                  balance={acc.balance}
+                />
+              </TouchableOpacity>
             ),
           });
         }
@@ -185,7 +227,7 @@ export function HomeScreen() {
     }
 
     return items;
-  }, [data, filter, styles.productCard]);
+  }, [data, filter, navigation, styles.productCard]);
 
   // Ensure one Animated.Value per card, resetting when list changes.
   if (scaleAnims.length !== productItems.length) {
@@ -221,16 +263,41 @@ export function HomeScreen() {
 
   const frequentPayments = data?.frequentPayments ?? [];
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
-    <View style={styles.root}>
+    <View testID="home-screen" style={styles.root}>
       <SafeAreaView edges={['top']} style={styles.headerSafe}>
-        <HomeHeader userName={user?.name} />
+        <View style={styles.headerRow}>
+          <View style={styles.headerMain}>
+            <HomeHeader userName={user?.name} />
+          </View>
+          <TouchableOpacity
+            testID="logout-button"
+            onPress={handleLogout}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar sesión"
+            style={styles.logoutBtn}
+            activeOpacity={0.7}>
+            <Text style={styles.logoutText}>Salir</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }>
         <HomeAlertBanner
           title="Nueva tarjeta en camino"
           subtitle="Llegará el 24 de Octubre"
@@ -328,6 +395,28 @@ function useStyles(colors: ThemeColors) {
         },
         headerSafe: {
           backgroundColor: colors.surface,
+        },
+        headerRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 24,
+          gap: 12,
+        },
+        headerMain: {
+          flex: 1,
+          minWidth: 0,
+        },
+        logoutBtn: {
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 10,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.borderLight,
+        },
+        logoutText: {
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.error,
         },
         scroll: {
           flex: 1,

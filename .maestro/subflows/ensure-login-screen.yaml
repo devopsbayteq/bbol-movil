@@ -1,11 +1,37 @@
 appId: com.bbapp
 ---
-# Garantiza estar en login: si hay sesión activa, cierra sesión primero.
+# Garantiza estar en la pantalla de login.
+# Maneja: splash, OTP, sesión activa (home-screen).
+
+# Esperar a que pase el splash.
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 30000
+    optional: true
+
+# Si estamos en OTP, volvemos al login.
 - runFlow:
     when:
       visible:
-        id: "transactions-screen"
+        id: "otp-screen"
     commands:
+      - pressKey: Back
+      - extendedWaitUntil:
+          visible:
+            id: "login-email-input"
+          timeout: 20000
+
+# Si hay sesión activa (home-screen), ir a Movimientos y cerrar sesión.
+- runFlow:
+    when:
+      visible:
+        id: "home-screen"
+    commands:
+      - tapOn: "Movimientos"
+      - extendedWaitUntil:
+          visible:
+            id: "transactions-screen"
+          timeout: 15000
       - tapOn:
           id: "logout-button"
       - extendedWaitUntil:

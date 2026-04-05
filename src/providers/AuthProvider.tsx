@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
+import {AppState} from 'react-native';
 import {User} from '../domain/entities/User';
 import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
 import {useDI} from '../di';
@@ -37,6 +38,15 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'background' || nextState === 'inactive') {
+        void secureStorage.remove(SecureStorageKeys.USER_LOGIN_DATA);
+      }
+    });
+    return () => subscription.remove();
+  }, [secureStorage]);
+
   async function restoreSession() {
     try {
       const sessionJson = await secureStorage.get(
@@ -44,8 +54,13 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       );
       if (sessionJson) {
         const user: User = JSON.parse(sessionJson);
-        setState({user, isAuthenticated: true, isLoading: false});
-        return;
+        if (user.sessionExpiresAt && Date.now() < user.sessionExpiresAt) {
+          setState({user, isAuthenticated: true, isLoading: false});
+          return;
+        }
+        // Sesión expirada mientras la app estaba cerrada — limpiar silenciosamente
+        await secureStorage.remove(SecureStorageKeys.USER_SESSION);
+        await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
       }
     } catch {
       await secureStorage.clear();

@@ -1,7 +1,10 @@
 import {
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
+  LOGIN_USERNAME_MIN_LENGTH,
   LOGIN_USERNAME_MAX_LENGTH,
+  LOGIN_PASSWORD_MIN_LENGTH,
+  LOGIN_PASSWORD_MAX_LENGTH,
   loginValidationMessages,
   sanitizeLoginPasswordInput,
   sanitizeLoginUsernameInput,
@@ -17,9 +20,17 @@ describe('loginCredentials validation', () => {
     expect(hasDisallowedLoginUsernameCharacters(raw)).toBe(true);
   });
 
-  test('accepts plain text username without email format', () => {
+  test('accepts plain text username within valid length range', () => {
+    expect(validateLoginUsername('usuario1')).toBeNull();
     expect(validateLoginUsername('usuario123')).toBeNull();
-    expect(validateLoginUsername('mi-usuario_sin_correo')).toBeNull();
+  });
+
+  test('rejects usernames shorter than the minimum length', () => {
+    const shortUsername = 'a'.repeat(LOGIN_USERNAME_MIN_LENGTH - 1);
+
+    expect(validateLoginUsername(shortUsername)).toBe(
+      loginValidationMessages.usernameTooShort,
+    );
   });
 
   test('rejects usernames longer than the allowed maximum', () => {
@@ -38,16 +49,23 @@ describe('loginCredentials validation', () => {
   });
 
   test('requires the minimum password length', () => {
-    expect(validateLoginPassword('12345')).toBe(
+    const shortPassword = 'a'.repeat(LOGIN_PASSWORD_MIN_LENGTH - 1);
+
+    expect(validateLoginPassword(shortPassword)).toBe(
       loginValidationMessages.passwordTooShort,
     );
   });
 
   test('rejects passwords longer than the allowed maximum', () => {
-    const longPassword = 'a'.repeat(129);
+    const longPassword = 'a'.repeat(LOGIN_PASSWORD_MAX_LENGTH + 1);
 
     expect(validateLoginPassword(longPassword)).toBe(
       loginValidationMessages.passwordTooLong,
     );
+  });
+
+  test('accepts a password within the valid length range', () => {
+    expect(validateLoginPassword('12345678')).toBeNull();
+    expect(validateLoginPassword('a'.repeat(LOGIN_PASSWORD_MAX_LENGTH))).toBeNull();
   });
 });

@@ -74,7 +74,7 @@ export const TransferVoucherScreen = () => {
 
 
     return (
-        <View style={styles.root} testID="transfer-main-screen">
+        <View style={styles.root} testID="transfer-voucher-screen">
             <ToolbarApp
                 title={"COMPROBANTE"}
                 />

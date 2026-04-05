@@ -95,7 +95,7 @@ export function useTransferViewModel() {
     setAmountCents(Math.min(n, MAX_TRANSFER_CENTS));
   }, []);
 
-  const setConceptState = useCallback((text: string) => {
+  const onConceptChange = useCallback((text: string) => {
     const sanitized = sanitizeTransferConceptInput(text);
     setConceptState(sanitized);
     setValidationMessage(null);
@@ -180,7 +180,8 @@ export function useTransferViewModel() {
     displayAmount,
     onAmountChange,
     concept,
-    setConcept,
+    onConceptChange,
+    conceptError,
     amountFieldError,
     validationMessage,
     setValidationMessage,
