@@ -179,6 +179,8 @@ export function useLoginViewModel(
         email: result.email,
         name: result.email.split('@')[0] || 'User',
         token: result.accessToken,
+        sessionExpiresAt: Date.now() + 3600 * 1000,
+        inactivityTimeoutSeconds: 300,
       };
       setState(prev => ({...prev, isLoadingBiometric: false}));
       onBiometricLoginSuccess(user);

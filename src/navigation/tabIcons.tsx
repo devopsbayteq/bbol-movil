@@ -14,33 +14,33 @@ type TabIconProps = {
   size?: number;
 };
 
-export function TabHomeIcon({focused, size = 24}: TabIconProps) {
+export function TabHomeIcon({focused, color, size = 24}: TabIconProps) {
   return (
     <Image
       source={focused ? homeActive : homeInactive}
-      style={[styles.icon, {width: size, height: size}]}
+      style={[styles.icon, {width: size, height: size, tintColor: color}]}
       resizeMode="contain"
       accessibilityLabel="Inicio"
     />
   );
 }
 
-export function TabTransferIcon({focused, size = 24}: TabIconProps) {
+export function TabTransferIcon({focused, color, size = 24}: TabIconProps) {
   return (
     <Image
       source={focused ? transferActive : transferInactive}
-      style={[styles.icon, {width: size, height: size}]}
+      style={[styles.icon, {width: size, height: size, tintColor: color}]}
       resizeMode="contain"
       accessibilityLabel="Transferir"
     />
   );
 }
 
-export function TabMovementsIcon({focused, size = 24}: TabIconProps) {
+export function TabMovementsIcon({focused, color, size = 24}: TabIconProps) {
   return (
     <Image
       source={focused ? movementsActive : movementsInactive}
-      style={[styles.icon, {width: size, height: size}]}
+      style={[styles.icon, {width: size, height: size, tintColor: color}]}
       resizeMode="contain"
       accessibilityLabel="Movimientos"
     />

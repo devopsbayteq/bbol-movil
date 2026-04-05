@@ -13,3 +13,4 @@ export {OtpNumericKeypad} from './OtpNumericKeypad';
 export type {OtpKeypadKey} from './OtpNumericKeypad';
 export {SessionTimeoutWarningModal} from './SessionTimeoutWarningModal';
 export {SessionExpiredModal} from './SessionExpiredModal';
+export {DevelopmentNoticeModal} from './DevelopmentNoticeModal';

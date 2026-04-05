@@ -10,7 +10,7 @@ export function mapLoginResponseToUser(
     email,
     name: email.split('@')[0] || 'User',
     token: model.accessToken,
-    sessionExpiresAt: Date.now() + (model.sessionTimeSeconds/100) * 1000,
+    sessionExpiresAt: Date.now() + model.sessionTimeSeconds * 1000,
     inactivityTimeoutSeconds: model.inactivityTimeoutSeconds,
   };
 }

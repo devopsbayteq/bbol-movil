@@ -41,6 +41,7 @@ import {
   PaymentSchoolIcon,
 } from './components/PaymentRowIcons';
 import {useHomeViewModel} from './useHomeViewModel';
+import {DevelopmentNoticeModal} from '../components';
 
 const PRODUCT_FILTERS = [
   'Todos',
@@ -89,6 +90,7 @@ export function HomeScreen() {
   const styles = useStyles(colors);
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [devModalVisible, setDevModalVisible] = useState(false);
   const iconColor = colors.primary;
   const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
   const navigation =
@@ -301,6 +303,7 @@ export function HomeScreen() {
         <HomeAlertBanner
           title="Nueva tarjeta en camino"
           subtitle="Llegará el 24 de Octubre"
+          onPress={() => setDevModalVisible(true)}
         />
 
         <View style={styles.section}>
@@ -371,6 +374,7 @@ export function HomeScreen() {
                   key={`${fp.beneficiaryName}-${i}`}
                   label={fp.beneficiaryName}
                   icon={iconForFrequentPayment(fp.beneficiaryType, iconColor)}
+                  onPress={() => setDevModalVisible(true)}
                 />
               ))
             ) : (
@@ -381,6 +385,10 @@ export function HomeScreen() {
           </ScrollView>
         </View>
       </ScrollView>
+      <DevelopmentNoticeModal
+        visible={devModalVisible}
+        onClose={() => setDevModalVisible(false)}
+      />
     </View>
   );
 }

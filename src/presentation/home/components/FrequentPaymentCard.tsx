@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
 import {HOME_BORDER_SOFT, HOME_PRIMARY_LAYER} from '../homeConstants';
@@ -7,19 +7,20 @@ import {HOME_BORDER_SOFT, HOME_PRIMARY_LAYER} from '../homeConstants';
 type Props = {
   label: string;
   icon: React.ReactNode;
+  onPress?: () => void;
 };
 
-export function FrequentPaymentCard({label, icon}: Props) {
+export function FrequentPaymentCard({label, icon, onPress}: Props) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.iconWrap}>{icon}</View>
       <Text style={styles.label} numberOfLines={2}>
         {label}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 

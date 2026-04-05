@@ -26,7 +26,7 @@ import type {AccountKind} from '../../domain/entities/ContractBalance';
 import type {AccountMovement} from '../../domain/entities/AccountMovement';
 import {useAccountMovementsViewModel} from './useAccountMovementsViewModel';
 import {formatCurrency} from './TransactionItem';
-import {Button, EmptyState, ErrorMessage} from '../components';
+import {Button, EmptyState, ErrorMessage, DevelopmentNoticeModal} from '../components';
 
 const QUICK_ACTION_BG = '#D0F0F6';
 
@@ -168,6 +168,7 @@ export function TransactionsScreen() {
   const accountGuid = route.params?.accountGuid;
 
   const [balanceVisible, setBalanceVisible] = React.useState(true);
+  const [devModalVisible, setDevModalVisible] = React.useState(false);
 
   const vm = useAccountMovementsViewModel(accountGuid);
 
@@ -249,7 +250,9 @@ export function TransactionsScreen() {
                 </Text>
               </View>
               <View style={styles.accountActions}>
-                <TouchableOpacity accessibilityLabel="Compartir">
+                <TouchableOpacity
+                  onPress={() => setDevModalVisible(true)}
+                  accessibilityLabel="Compartir">
                   <ShareIcon color={colors.white} />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -297,18 +300,30 @@ export function TransactionsScreen() {
           <Text style={styles.quickIcon}>⇅</Text>
           <Text style={styles.quickLabel}>Transferir</Text>
         </TouchableOpacity>
-        <View style={styles.quickCard}>
+        <TouchableOpacity
+          style={styles.quickCard}
+          onPress={() => setDevModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Pagar servicio">
           <Text style={styles.quickIcon}>💡</Text>
           <Text style={styles.quickLabel}>Pagar servicio</Text>
-        </View>
-        <View style={styles.quickCard}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickCard}
+          onPress={() => setDevModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Cobrar con QR">
           <Text style={styles.quickIcon}>▦</Text>
           <Text style={styles.quickLabel}>Cobrar con QR</Text>
-        </View>
-        <View style={styles.quickCard}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickCard}
+          onPress={() => setDevModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Programadas">
           <Text style={styles.quickIcon}>📅</Text>
           <Text style={styles.quickLabel}>Programadas</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.sectionHeading}>Movimientos</Text>
@@ -412,6 +427,10 @@ export function TransactionsScreen() {
             <ActivityIndicator style={styles.footerLoader} color={colors.primary} />
           ) : null
         }
+      />
+      <DevelopmentNoticeModal
+        visible={devModalVisible}
+        onClose={() => setDevModalVisible(false)}
       />
     </View>
   );
