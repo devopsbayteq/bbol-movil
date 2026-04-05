@@ -4,7 +4,9 @@ export type GetAccountMovementsParams = {
   accountGuid: string;
   dateFrom?: string;
   dateTo?: string;
-  transactionType?: string;
+  enumType?: string;
+  minAmount?: number;
+  maxAmount?: number;
   pageNumber: number;
   pageSize: number;
 };

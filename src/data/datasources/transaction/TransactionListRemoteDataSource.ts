@@ -6,7 +6,9 @@ export type TransactionListQueryParams = {
   AccountGuid: string;
   DateFrom?: string;
   DateTo?: string;
-  TransactionType?: string;
+  enumType?: string;
+  MinAmount?: string;
+  MaxAmount?: string;
   PageNumber: number;
   PageSize: number;
 };
@@ -28,8 +30,14 @@ export class TransactionListRemoteDataSource {
     if (params.DateTo) {
       query.DateTo = params.DateTo;
     }
-    if (params.TransactionType) {
-      query.TransactionType = params.TransactionType;
+    if (params.enumType) {
+      query.enumType = params.enumType;
+    }
+    if (params.MinAmount !== undefined) {
+      query.MinAmount = params.MinAmount;
+    }
+    if (params.MaxAmount !== undefined) {
+      query.MaxAmount = params.MaxAmount;
     }
 
     try {

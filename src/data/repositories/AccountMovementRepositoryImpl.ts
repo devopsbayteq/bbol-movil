@@ -6,6 +6,14 @@ import type {
 import {TransactionListRemoteDataSource} from '../datasources/transaction/TransactionListRemoteDataSource';
 import {mapTransactionListItemsToEntities} from '../mappers/accountMovementMapper';
 
+/** Representación decimal sin separadores de miles para query string. */
+function amountToQueryString(value: number): string {
+  if (!Number.isFinite(value)) {
+    return '0';
+  }
+  return String(value);
+}
+
 export class AccountMovementRepositoryImpl implements AccountMovementRepository {
   constructor(
     private readonly remoteDataSource: TransactionListRemoteDataSource,
@@ -16,7 +24,15 @@ export class AccountMovementRepositoryImpl implements AccountMovementRepository 
       AccountGuid: params.accountGuid,
       DateFrom: params.dateFrom,
       DateTo: params.dateTo,
-      TransactionType: params.transactionType,
+      enumType: params.enumType,
+      MinAmount:
+        params.minAmount !== undefined
+          ? amountToQueryString(params.minAmount)
+          : undefined,
+      MaxAmount:
+        params.maxAmount !== undefined
+          ? amountToQueryString(params.maxAmount)
+          : undefined,
       PageNumber: params.pageNumber,
       PageSize: params.pageSize,
     });

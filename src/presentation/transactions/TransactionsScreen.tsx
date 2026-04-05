@@ -29,6 +29,9 @@ import type {AccountKind} from '../../domain/entities/ContractBalance';
 import type {AccountMovement} from '../../domain/entities/AccountMovement';
 import {useAccountMovementsViewModel} from './useAccountMovementsViewModel';
 import {formatCurrency} from './TransactionItem';
+import {MovementsDateFilterModal} from './components/MovementsDateFilterModal';
+import {MovementsAmountFilterModal} from './components/MovementsAmountFilterModal';
+import {MovementsTypeFilterModal} from './components/MovementsTypeFilterModal';
 import {Button, EmptyState, ErrorMessage, DevelopmentNoticeModal} from '../components';
 
 const QUICK_ACTION_BG = '#D0F0F6';
@@ -176,6 +179,12 @@ export function TransactionsScreen() {
 
   const [balanceVisible, setBalanceVisible] = React.useState(true);
   const [devModalVisible, setDevModalVisible] = React.useState(false);
+  const [dateFilterModalVisible, setDateFilterModalVisible] =
+    React.useState(false);
+  const [amountFilterModalVisible, setAmountFilterModalVisible] =
+    React.useState(false);
+  const [typeFilterModalVisible, setTypeFilterModalVisible] =
+    React.useState(false);
 
   const vm = useAccountMovementsViewModel(accountGuid);
 
@@ -357,17 +366,34 @@ export function TransactionsScreen() {
       </View>
       <View style={styles.chipsRow}>
         <TouchableOpacity
+          testID="movements-date-filter-chip"
           style={styles.chip}
-          onPress={vm.cycleDatePreset}
+          onPress={() => setDateFilterModalVisible(true)}
           accessibilityRole="button">
-          <Text style={styles.chipText}>{vm.datePresetLabel}</Text>
+          <Text style={styles.chipText} numberOfLines={1}>
+            {vm.dateFilterLabel}
+          </Text>
           <Text style={styles.chipChevron}>▼</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.chip} onPress={vm.cycleTypeFilter}>
-          <Text style={styles.chipText}>{vm.typeFilterLabel}</Text>
+        <TouchableOpacity
+          testID="movements-type-filter-chip"
+          style={styles.chip}
+          onPress={() => setTypeFilterModalVisible(true)}
+          accessibilityRole="button">
+          <Text style={styles.chipText} numberOfLines={1}>
+            {vm.typeFilterLabel}
+          </Text>
+          <Text style={styles.chipChevron}>▼</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.chip} onPress={vm.cycleAmountSort}>
-          <Text style={styles.chipText}>{vm.amountSortLabel}</Text>
+        <TouchableOpacity
+          testID="movements-amount-filter-chip"
+          style={styles.chip}
+          onPress={() => setAmountFilterModalVisible(true)}
+          accessibilityRole="button">
+          <Text style={styles.chipText} numberOfLines={1}>
+            {vm.amountFilterLabel}
+          </Text>
+          <Text style={styles.chipChevron}>▼</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -448,6 +474,39 @@ export function TransactionsScreen() {
       <DevelopmentNoticeModal
         visible={devModalVisible}
         onClose={() => setDevModalVisible(false)}
+      />
+      <MovementsDateFilterModal
+        visible={dateFilterModalVisible}
+        onClose={() => setDateFilterModalVisible(false)}
+        initialRange={vm.appliedDateRange}
+        onApply={(from, to) => {
+          vm.applyDateRange(from, to);
+        }}
+        onClear={() => {
+          vm.clearDateRange();
+        }}
+      />
+      <MovementsAmountFilterModal
+        visible={amountFilterModalVisible}
+        onClose={() => setAmountFilterModalVisible(false)}
+        initialRange={vm.appliedAmountRange}
+        onApply={(min, max) => {
+          vm.applyAmountRange(min, max);
+        }}
+        onClear={() => {
+          vm.clearAmountRange();
+        }}
+      />
+      <MovementsTypeFilterModal
+        visible={typeFilterModalVisible}
+        onClose={() => setTypeFilterModalVisible(false)}
+        initialEnumType={vm.appliedEnumType}
+        onApply={value => {
+          vm.applyTransactionEnumType(value);
+        }}
+        onClear={() => {
+          vm.clearTransactionEnumType();
+        }}
       />
     </View>
   );
@@ -602,6 +661,7 @@ function useStyles(colors: ThemeColors) {
           borderColor: colors.borderLight,
         },
         chipText: {
+          flexShrink: 1,
           fontFamily: Lexend.semiBold,
           fontSize: 13,
           color: colors.textPrimary,

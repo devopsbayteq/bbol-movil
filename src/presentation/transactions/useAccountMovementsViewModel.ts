@@ -2,14 +2,47 @@ import {useState, useCallback, useEffect, useMemo} from 'react';
 import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import type {AccountMovement} from '../../domain/entities/AccountMovement';
 import {useDI} from '../../di';
+import {formatCurrency} from './TransactionItem';
+import {
+  labelForMovementEnumType,
+  type MovementTransactionEnumType,
+} from './transactionTypeFilterOptions';
+
+export type {MovementTransactionEnumType} from './transactionTypeFilterOptions';
 
 const PAGE_SIZE = 20;
 
-export type DateRangePreset = 'all' | 'week' | 'month';
+/** Máximo absoluto alineado con reglas de transferencia (README). */
+export const MAX_MOVEMENTS_FILTER_AMOUNT = 999_999_999.99;
 
-export type MovementTypeFilter = 'all' | 'in' | 'out';
+/** Rango aplicado al API (fechas locales normalizadas a medianoche). */
+export type AppliedDateRange = {
+  from: Date;
+  to: Date;
+};
 
-export type AmountSort = 'none' | 'asc' | 'desc';
+export type AppliedAmountRange = {
+  min: number;
+  max: number;
+};
+
+export function localDateKey(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export function parseLocalDateKey(key: string): Date {
+  const [ys, ms, ds] = key.split('-');
+  return new Date(Number(ys), Number(ms) - 1, Number(ds));
+}
+
+function normalizeDateOnly(d: Date): Date {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
 
 function isoStartOfDay(d: Date): string {
   const x = new Date(d);
@@ -21,6 +54,68 @@ function isoEndOfDay(d: Date): string {
   const x = new Date(d);
   x.setHours(23, 59, 59, 999);
   return x.toISOString();
+}
+
+function rangeKeysToQuery(range: {from: string; to: string} | null): {
+  dateFrom?: string;
+  dateTo?: string;
+} {
+  if (!range) {
+    return {};
+  }
+  const fromD = parseLocalDateKey(range.from);
+  const toD = parseLocalDateKey(range.to);
+  return {
+    dateFrom: isoStartOfDay(fromD),
+    dateTo: isoEndOfDay(toD),
+  };
+}
+
+function buildMovementsQuery(
+  dateKeys: {from: string; to: string} | null,
+  amountRange: AppliedAmountRange | null,
+  enumType: MovementTransactionEnumType | null,
+): {
+  dateFrom?: string;
+  dateTo?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  enumType?: string;
+} {
+  const dates = rangeKeysToQuery(dateKeys);
+  let base: {
+    dateFrom?: string;
+    dateTo?: string;
+    minAmount?: number;
+    maxAmount?: number;
+    enumType?: string;
+  } = {...dates};
+  if (amountRange) {
+    base = {
+      ...base,
+      minAmount: amountRange.min,
+      maxAmount: amountRange.max,
+    };
+  }
+  if (enumType) {
+    base = {...base, enumType};
+  }
+  return base;
+}
+
+export function isValidMovementsAmountRange(min: number, max: number): boolean {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min > max) {
+    return false;
+  }
+  if (
+    min < -MAX_MOVEMENTS_FILTER_AMOUNT ||
+    min > MAX_MOVEMENTS_FILTER_AMOUNT ||
+    max < -MAX_MOVEMENTS_FILTER_AMOUNT ||
+    max > MAX_MOVEMENTS_FILTER_AMOUNT
+  ) {
+    return false;
+  }
+  return true;
 }
 
 /** Evita filas duplicadas (misma respuesta o solapamiento al paginar). */
@@ -36,24 +131,6 @@ function dedupeAccountMovements(items: AccountMovement[]): AccountMovement[] {
     }
   }
   return [...map.values()];
-}
-
-function dateRangeFromPreset(preset: DateRangePreset): {
-  dateFrom?: string;
-  dateTo?: string;
-} {
-  const now = new Date();
-  if (preset === 'all') {
-    return {};
-  }
-  const end = isoEndOfDay(now);
-  const startBase = new Date(now);
-  if (preset === 'week') {
-    startBase.setDate(startBase.getDate() - 7);
-  } else {
-    startBase.setDate(startBase.getDate() - 30);
-  }
-  return {dateFrom: isoStartOfDay(startBase), dateTo: end};
 }
 
 export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
@@ -72,9 +149,50 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [movementsError, setMovementsError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [datePreset, setDatePreset] = useState<DateRangePreset>('all');
-  const [typeFilter, setTypeFilter] = useState<MovementTypeFilter>('all');
-  const [amountSort, setAmountSort] = useState<AmountSort>('none');
+  const [appliedRangeKeys, setAppliedRangeKeys] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
+  const [appliedAmountRange, setAppliedAmountRange] =
+    useState<AppliedAmountRange | null>(null);
+  const [appliedEnumType, setAppliedEnumType] =
+    useState<MovementTransactionEnumType | null>(null);
+
+  const appliedDateRange = useMemo((): AppliedDateRange | null => {
+    if (!appliedRangeKeys) {
+      return null;
+    }
+    return {
+      from: parseLocalDateKey(appliedRangeKeys.from),
+      to: parseLocalDateKey(appliedRangeKeys.to),
+    };
+  }, [appliedRangeKeys]);
+
+  const dateFilterLabel = useMemo(() => {
+    if (!appliedRangeKeys) {
+      return 'Fecha';
+    }
+    const fmt = new Intl.DateTimeFormat('es-EC', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    return `${fmt.format(parseLocalDateKey(appliedRangeKeys.from))} - ${fmt.format(parseLocalDateKey(appliedRangeKeys.to))}`;
+  }, [appliedRangeKeys]);
+
+  const amountFilterLabel = useMemo(() => {
+    if (!appliedAmountRange) {
+      return 'Monto';
+    }
+    return `${formatCurrency(appliedAmountRange.min)} - ${formatCurrency(appliedAmountRange.max)}`;
+  }, [appliedAmountRange]);
+
+  const typeFilterLabel = useMemo(() => {
+    if (!appliedEnumType) {
+      return 'Tipo';
+    }
+    return labelForMovementEnumType(appliedEnumType);
+  }, [appliedEnumType]);
 
   const resolveAccount = useCallback(
     async (guidParam?: string) => {
@@ -114,7 +232,13 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     async (
       account: AccountBalance,
       page: number,
-      range: {dateFrom?: string; dateTo?: string},
+      range: {
+        dateFrom?: string;
+        dateTo?: string;
+        minAmount?: number;
+        maxAmount?: number;
+        enumType?: string;
+      },
       mode: 'replace' | 'append',
     ) => {
       if (page === 1 && mode === 'replace') {
@@ -158,22 +282,70 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     if (!selectedAccount || isLoadingAccount) {
       return;
     }
-    const range = dateRangeFromPreset(datePreset);
+    const range = buildMovementsQuery(
+      appliedRangeKeys,
+      appliedAmountRange,
+      appliedEnumType,
+    );
     void fetchPage(selectedAccount, 1, range, 'replace');
-  }, [selectedAccount, isLoadingAccount, datePreset, fetchPage]);
+  }, [
+    selectedAccount,
+    isLoadingAccount,
+    appliedRangeKeys,
+    appliedAmountRange,
+    appliedEnumType,
+    fetchPage,
+  ]);
+
+  const applyDateRange = useCallback((from: Date, to: Date) => {
+    let f = normalizeDateOnly(from);
+    let t = normalizeDateOnly(to);
+    if (t < f) {
+      const tmp = f;
+      f = t;
+      t = tmp;
+    }
+    setAppliedRangeKeys({from: localDateKey(f), to: localDateKey(t)});
+  }, []);
+
+  const clearDateRange = useCallback(() => {
+    setAppliedRangeKeys(null);
+  }, []);
+
+  const applyAmountRange = useCallback((min: number, max: number) => {
+    if (!isValidMovementsAmountRange(min, max)) {
+      return;
+    }
+    setAppliedAmountRange({min, max});
+  }, []);
+
+  const clearAmountRange = useCallback(() => {
+    setAppliedAmountRange(null);
+  }, []);
 
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
       const acc = await resolveAccount(accountGuidFromRoute);
       if (acc) {
-        const range = dateRangeFromPreset(datePreset);
+        const range = buildMovementsQuery(
+          appliedRangeKeys,
+          appliedAmountRange,
+          appliedEnumType,
+        );
         await fetchPage(acc, 1, range, 'replace');
       }
     } finally {
       setIsRefreshing(false);
     }
-  }, [accountGuidFromRoute, datePreset, resolveAccount, fetchPage]);
+  }, [
+    accountGuidFromRoute,
+    appliedRangeKeys,
+    appliedAmountRange,
+    appliedEnumType,
+    resolveAccount,
+    fetchPage,
+  ]);
 
   const loadMore = useCallback(async () => {
     if (!selectedAccount || isLoadingMore || isLoadingMovements) {
@@ -183,7 +355,11 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
       return;
     }
     const nextPage = pageNumber + 1;
-    const range = dateRangeFromPreset(datePreset);
+    const range = buildMovementsQuery(
+      appliedRangeKeys,
+      appliedAmountRange,
+      appliedEnumType,
+    );
     await fetchPage(selectedAccount, nextPage, range, 'append');
   }, [
     selectedAccount,
@@ -192,44 +368,21 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     items.length,
     totalCount,
     pageNumber,
-    datePreset,
+    appliedRangeKeys,
+    appliedAmountRange,
+    appliedEnumType,
     fetchPage,
   ]);
 
-  const cycleDatePreset = useCallback(() => {
-    setDatePreset(prev => {
-      if (prev === 'all') {
-        return 'week';
-      }
-      if (prev === 'week') {
-        return 'month';
-      }
-      return 'all';
-    });
-  }, []);
+  const applyTransactionEnumType = useCallback(
+    (value: MovementTransactionEnumType | null) => {
+      setAppliedEnumType(value);
+    },
+    [],
+  );
 
-  const cycleTypeFilter = useCallback(() => {
-    setTypeFilter(prev => {
-      if (prev === 'all') {
-        return 'in';
-      }
-      if (prev === 'in') {
-        return 'out';
-      }
-      return 'all';
-    });
-  }, []);
-
-  const cycleAmountSort = useCallback(() => {
-    setAmountSort(prev => {
-      if (prev === 'none') {
-        return 'desc';
-      }
-      if (prev === 'desc') {
-        return 'asc';
-      }
-      return 'none';
-    });
+  const clearTransactionEnumType = useCallback(() => {
+    setAppliedEnumType(null);
   }, []);
 
   const displayItems = useMemo(() => {
@@ -240,35 +393,8 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
         t.beneficiaryName.toLowerCase().includes(q),
       );
     }
-    if (typeFilter === 'in') {
-      list = list.filter(t => t.amount > 0);
-    } else if (typeFilter === 'out') {
-      list = list.filter(t => t.amount <= 0);
-    }
-    if (amountSort === 'asc') {
-      list.sort((a, b) => a.amount - b.amount);
-    } else if (amountSort === 'desc') {
-      list.sort((a, b) => b.amount - a.amount);
-    }
     return list;
-  }, [items, searchQuery, typeFilter, amountSort]);
-
-  const datePresetLabel =
-    datePreset === 'all'
-      ? 'Fecha'
-      : datePreset === 'week'
-        ? '7 días'
-        : '30 días';
-
-  const typeFilterLabel =
-    typeFilter === 'all'
-      ? 'Tipo'
-      : typeFilter === 'in'
-        ? 'Entradas'
-        : 'Salidas';
-
-  const amountSortLabel =
-    amountSort === 'none' ? 'Monto' : amountSort === 'desc' ? 'Monto ↓' : 'Monto ↑';
+  }, [items, searchQuery]);
 
   return {
     selectedAccount,
@@ -283,15 +409,18 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     movementsError,
     searchQuery,
     setSearchQuery,
-    datePreset,
-    datePresetLabel,
-    cycleDatePreset,
-    typeFilter,
+    appliedDateRange,
+    dateFilterLabel,
+    applyDateRange,
+    clearDateRange,
+    appliedAmountRange,
+    amountFilterLabel,
+    applyAmountRange,
+    clearAmountRange,
+    appliedEnumType,
     typeFilterLabel,
-    cycleTypeFilter,
-    amountSort,
-    amountSortLabel,
-    cycleAmountSort,
+    applyTransactionEnumType,
+    clearTransactionEnumType,
     refresh,
     loadMore,
     hasMore: selectedAccount !== null && items.length < totalCount,

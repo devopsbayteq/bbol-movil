@@ -131,4 +131,152 @@ describe('useAccountMovementsViewModel', () => {
     expect(latest?.movementsError).toBeNull();
     expect(executeMovements).toHaveBeenCalledTimes(2);
   });
+
+  test('applyDateRange passes DateFrom and DateTo as ISO date-time to the use case', async () => {
+    const executeMovements = jest.fn().mockResolvedValue({
+      totalCount: 0,
+      pageNumber: 1,
+      pageSize: 20,
+      items: [],
+    });
+
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 314.78,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: executeMovements,
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    const from = new Date(2026, 1, 10);
+    const to = new Date(2026, 1, 13);
+
+    await act(async () => {
+      latest?.applyDateRange(from, to);
+      await flushPromises();
+    });
+
+    const withRange = executeMovements.mock.calls.find(
+      args =>
+        args[0].dateFrom !== undefined && args[0].dateTo !== undefined,
+    );
+    expect(withRange).toBeDefined();
+    expect(withRange?.[0].dateFrom).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    expect(withRange?.[0].dateTo).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    expect(withRange?.[0].accountGuid).toBe('acc-1');
+  });
+
+  test('applyAmountRange passes minAmount and maxAmount to the use case', async () => {
+    const executeMovements = jest.fn().mockResolvedValue({
+      totalCount: 0,
+      pageNumber: 1,
+      pageSize: 20,
+      items: [],
+    });
+
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 314.78,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: executeMovements,
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    await act(async () => {
+      latest?.applyAmountRange(10.5, 500);
+      await flushPromises();
+    });
+
+    const withAmount = executeMovements.mock.calls.find(
+      args =>
+        args[0].minAmount === 10.5 && args[0].maxAmount === 500,
+    );
+    expect(withAmount).toBeDefined();
+    expect(withAmount?.[0].accountGuid).toBe('acc-1');
+  });
+
+  test('applyTransactionEnumType passes enumType to the use case', async () => {
+    const executeMovements = jest.fn().mockResolvedValue({
+      totalCount: 0,
+      pageNumber: 1,
+      pageSize: 20,
+      items: [],
+    });
+
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 314.78,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: executeMovements,
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    await act(async () => {
+      latest?.applyTransactionEnumType('SentTransfers');
+      await flushPromises();
+    });
+
+    const withEnum = executeMovements.mock.calls.find(
+      args => args[0].enumType === 'SentTransfers',
+    );
+    expect(withEnum).toBeDefined();
+    expect(withEnum?.[0].accountGuid).toBe('acc-1');
+  });
 });
