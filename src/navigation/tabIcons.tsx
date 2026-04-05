@@ -1,23 +1,19 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
 
-const homeActive = require('../../assets/images/Home.png');
-const homeInactive = require('../../assets/images/house.png');
-const transferActive = require('../../assets/images/ArrowUpArrowDownSelected.png');
-const transferInactive = require('../../assets/images/ArrowUpArrowDown.png');
-const movementsActive = require('../../assets/images/clock-rotate-left-selected.png');
-const movementsInactive = require('../../assets/images/clock-rotate-left.png');
+const home = require('../../assets/images/house.png');
+const transfer = require('../../assets/images/ArrowUpArrowDown.png');
+const movements = require('../../assets/images/clock-rotate-left.png');
 
 type TabIconProps = {
-  focused: boolean;
   color: string;
   size?: number;
 };
 
-export function TabHomeIcon({focused, color, size = 24}: TabIconProps) {
+export function TabHomeIcon({color, size = 24}: TabIconProps) {
   return (
     <Image
-      source={focused ? homeActive : homeInactive}
+      source={home}
       style={[styles.icon, {width: size, height: size, tintColor: color}]}
       resizeMode="contain"
       accessibilityLabel="Inicio"
@@ -25,10 +21,10 @@ export function TabHomeIcon({focused, color, size = 24}: TabIconProps) {
   );
 }
 
-export function TabTransferIcon({focused, color, size = 24}: TabIconProps) {
+export function TabTransferIcon({color, size = 24}: TabIconProps) {
   return (
     <Image
-      source={focused ? transferActive : transferInactive}
+      source={transfer}
       style={[styles.icon, {width: size, height: size, tintColor: color}]}
       resizeMode="contain"
       accessibilityLabel="Transferir"
@@ -36,10 +32,10 @@ export function TabTransferIcon({focused, color, size = 24}: TabIconProps) {
   );
 }
 
-export function TabMovementsIcon({focused, color, size = 24}: TabIconProps) {
+export function TabMovementsIcon({color, size = 24}: TabIconProps) {
   return (
     <Image
-      source={focused ? movementsActive : movementsInactive}
+      source={movements}
       style={[styles.icon, {width: size, height: size, tintColor: color}]}
       resizeMode="contain"
       accessibilityLabel="Movimientos"

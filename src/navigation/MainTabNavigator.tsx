@@ -28,18 +28,16 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 type TabBarIconProps = {color: string; size?: number};
 
-type TabBarIconPropsWithFocused = TabBarIconProps & {focused: boolean};
-
-const tabBarIconHome = ({color, size, focused}: TabBarIconPropsWithFocused) => (
-  <TabHomeIcon focused={focused} color={color} size={size ?? 24} />
+const tabBarIconHome = ({color, size}: TabBarIconProps) => (
+  <TabHomeIcon color={color} size={size ?? 24} />
 );
 
-const tabBarIconTransfer = ({color, size, focused}: TabBarIconPropsWithFocused) => (
-  <TabTransferIcon focused={focused} color={color} size={size ?? 24} />
+const tabBarIconTransfer = ({color, size}: TabBarIconProps) => (
+  <TabTransferIcon color={color} size={size ?? 24} />
 );
 
-const tabBarIconMovements = ({color, size, focused}: TabBarIconPropsWithFocused) => (
-  <TabMovementsIcon focused={focused} color={color} size={size ?? 24} />
+const tabBarIconMovements = ({color, size}: TabBarIconProps) => (
+  <TabMovementsIcon color={color} size={size ?? 24} />
 );
 
 function UnmountOnBlur({children}: {children: React.ReactNode}) {
@@ -70,8 +68,9 @@ export function MainTabNavigator() {
           style={[
             props.style,
             focused && {
-              borderTopWidth: 3,
-              borderTopColor: colors.primary,
+              backgroundColor: colors.primary,
+              borderRadius: 10,
+              marginHorizontal: 4,
             },
           ]}
         />
@@ -85,7 +84,7 @@ export function MainTabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarInactiveTintColor: colors.textTertiary,
         tabBarButton,
         tabBarStyle: {
           backgroundColor: colors.white,

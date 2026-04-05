@@ -77,6 +77,8 @@ function EyeSlashIcon({color, size = 16}: {color: string; size?: number}) {
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
   title?: string;
+  backgroundColor?: string;
+  borderColor?: string;
   maskedAccountNumber: string;
   balance: number;
 };
@@ -84,6 +86,8 @@ type SavingsCardProps = {
 export function SavingsAccountCard({
   style,
   title = 'Cta. ahorros',
+  backgroundColor = "#008292",
+  borderColor = "#008292",
   maskedAccountNumber,
   balance,
 }: SavingsCardProps) {
@@ -92,7 +96,7 @@ export function SavingsAccountCard({
   const [masked, setMasked] = useState(true);
 
   return (
-    <View style={[styles.card, style]}>
+    <View style={[styles.card, style, {backgroundColor, borderColor}]}>
       <View style={styles.topRow}>
         <View>
           <Text style={styles.title}>{title}</Text>
@@ -197,98 +201,15 @@ export function CheckingAccountCard({
   balance,
 }: CheckingCardProps) {
   const {colors} = useTheme();
-  const styles = useCheckingStyles(colors);
-  const [visible, setVisible] = useState(true);
-
   return (
-    <View style={[styles.card, style]} accessibilityLabel={title}>
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{maskedAccountNumber}</Text>
-        </View>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir">
-          <ShareIcon color={colors.white} size={13} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.bottomRow}>
-        <View>
-          <Text style={styles.balanceLabel}>Saldo</Text>
-          <Text style={styles.balanceValue}>
-            {visible ? formatCurrency(balance) : '$**.**'}
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={styles.eyeBtn}
-          onPress={() => setVisible(v => !v)}
-          accessibilityRole="button">
-          {visible ? (
-            <EyeIcon color={colors.primary} size={13} />
-          ) : (
-            <EyeSlashIcon color={colors.primary} size={13} />
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-function useCheckingStyles(colors: ThemeColors) {
-  return useMemo(
-    () =>
-      StyleSheet.create({
-        card: {
-          flex: 1,
-          padding: 10,
-          borderRadius: 7,
-          backgroundColor: HOME_INFO_BLUE,
-          borderWidth: 0.8,
-          borderColor: HOME_INFO_BORDER,
-          opacity: 0.92,
-        },
-        topRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        },
-        title: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.white,
-        },
-        subtitle: {
-          fontFamily: Lexend.regular,
-          fontSize: 11,
-          lineHeight: 16,
-          color: colors.white,
-          opacity: 0.95,
-        },
-        bottomRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          marginTop: 'auto',
-        },
-        balanceLabel: {
-          fontFamily: Lexend.regular,
-          fontSize: 9.9,
-          lineHeight: 16,
-          color: colors.white,
-        },
-        balanceValue: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 11.5,
-          lineHeight: 18,
-          color: colors.white,
-        },
-        eyeBtn: {
-          backgroundColor: HOME_PRIMARY_LAYER,
-          borderRadius: 3,
-          padding: 3,
-        },
-      }),
-    [colors],
+    <SavingsAccountCard
+      style={style}
+      title={title}
+      backgroundColor={"#22D3EE"}
+      borderColor={"#22D3EE"}
+      maskedAccountNumber={maskedAccountNumber}
+      balance={balance}
+    />
   );
 }
 
