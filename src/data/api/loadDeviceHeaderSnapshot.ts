@@ -1,8 +1,10 @@
 import {Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import {formatAppVersionHeader} from '../../utils/appVersion';
 
 export interface DeviceHeaderSnapshot {
   platform: string;
+  /** Valor para `X-Version`: marketing + build, p. ej. `1.0.0.1`. */
   version: string;
   model: string;
   brand: string;
@@ -15,12 +17,16 @@ export function alphanumericDeviceField(value: string): string {
 }
 
 export async function loadDeviceHeaderSnapshot(): Promise<DeviceHeaderSnapshot> {
-  const [version, model, brand, systemVersion] = await Promise.all([
-    DeviceInfo.getVersion(),
-    DeviceInfo.getModel(),
-    DeviceInfo.getBrand(),
-    DeviceInfo.getSystemVersion(),
-  ]);
+  const [marketingVersion, buildNumber, model, brand, systemVersion] =
+    await Promise.all([
+      DeviceInfo.getVersion(),
+      DeviceInfo.getBuildNumber(),
+      DeviceInfo.getModel(),
+      DeviceInfo.getBrand(),
+      DeviceInfo.getSystemVersion(),
+    ]);
+
+  const version = formatAppVersionHeader(marketingVersion, buildNumber);
 
   return {
     platform: Platform.OS === 'android' ? 'ANDROID' : 'IOS',
