@@ -18,9 +18,9 @@ function useStyles(colors: ThemeColors) {
     () =>
       StyleSheet.create({
         title: {
-          fontFamily: Lexend.bold,
-          fontSize: 18,
-          lineHeight: 26,
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          lineHeight: 20,
           color: colors.textPrimary,
         },
       }),
