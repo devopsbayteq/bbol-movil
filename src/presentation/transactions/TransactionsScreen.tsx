@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
+  useFocusEffect,
   useNavigation,
   useRoute,
   type RouteProp,
@@ -187,6 +188,18 @@ export function TransactionsScreen() {
     React.useState(false);
 
   const vm = useAccountMovementsViewModel(accountGuid);
+  const {refresh: refreshMovements} = vm;
+
+  const isFirstListFocus = React.useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstListFocus.current) {
+        isFirstListFocus.current = false;
+        return;
+      }
+      refreshMovements().catch(() => {});
+    }, [refreshMovements]),
+  );
 
   const styles = useStyles(colors);
   const width = Dimensions.get('window').width;
