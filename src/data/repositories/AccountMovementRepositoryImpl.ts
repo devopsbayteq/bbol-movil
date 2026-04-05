@@ -33,6 +33,7 @@ export class AccountMovementRepositoryImpl implements AccountMovementRepository 
         params.maxAmount !== undefined
           ? amountToQueryString(params.maxAmount)
           : undefined,
+      TextSearch: params.textSearch,
       PageNumber: params.pageNumber,
       PageSize: params.pageSize,
     });

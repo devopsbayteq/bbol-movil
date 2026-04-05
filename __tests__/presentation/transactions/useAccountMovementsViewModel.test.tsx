@@ -283,4 +283,66 @@ describe('useAccountMovementsViewModel', () => {
     expect(withEnum).toBeDefined();
     expect(withEnum?.[0].accountGuid).toBe('acc-1');
   });
+
+  test('debounced search passes textSearch to getAccountMovementsUseCase', async () => {
+    const executeMovements = jest.fn().mockResolvedValue({
+      totalCount: 0,
+      pageNumber: 1,
+      pageSize: 20,
+      items: [],
+    });
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 314.78,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: executeMovements,
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    executeMovements.mockClear();
+
+    jest.useFakeTimers();
+
+    await act(async () => {
+      latest?.setSearchQuery('María');
+    });
+
+    await act(() => {
+      jest.advanceTimersByTime(400);
+    });
+
+    jest.useRealTimers();
+
+    await act(async () => {
+      await flushPromises();
+    });
+
+    expect(executeMovements).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountGuid: 'acc-1',
+        textSearch: 'María',
+        pageNumber: 1,
+        pageSize: 20,
+      }),
+    );
+  });
 });

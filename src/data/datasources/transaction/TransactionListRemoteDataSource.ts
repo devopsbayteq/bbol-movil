@@ -9,6 +9,7 @@ export type TransactionListQueryParams = {
   TransactionType?: string;
   MinAmount?: string;
   MaxAmount?: string;
+  TextSearch?: string;
   PageNumber: number;
   PageSize: number;
 };
@@ -38,6 +39,9 @@ export class TransactionListRemoteDataSource {
     }
     if (params.MaxAmount !== undefined) {
       query.MaxAmount = params.MaxAmount;
+    }
+    if (params.TextSearch) {
+      query.TextSearch = params.TextSearch;
     }
 
     try {

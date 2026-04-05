@@ -7,6 +7,8 @@ export type GetAccountMovementsParams = {
   transactionType?: string;
   minAmount?: number;
   maxAmount?: number;
+  /** Búsqueda de texto (query `TextSearch` en el API). */
+  textSearch?: string;
   pageNumber: number;
   pageSize: number;
 };

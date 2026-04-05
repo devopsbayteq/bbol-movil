@@ -12,6 +12,9 @@ export type {MovementTransactionEnumType} from './transactionTypeFilterOptions';
 
 const PAGE_SIZE = 20;
 
+/** Retraso antes de consultar el API al escribir en el buscador (evita ráfagas). */
+const MOVEMENTS_SEARCH_DEBOUNCE_MS = 400;
+
 /** Máximo absoluto alineado con reglas de transferencia (README). */
 export const MAX_MOVEMENTS_FILTER_AMOUNT = 999_999_999.99;
 
@@ -75,12 +78,14 @@ function buildMovementsQuery(
   dateKeys: {from: string; to: string} | null,
   amountRange: AppliedAmountRange | null,
   movementTransactionType: MovementTransactionEnumType | null,
+  textSearch: string,
 ): {
   dateFrom?: string;
   dateTo?: string;
   minAmount?: number;
   maxAmount?: number;
   transactionType?: string;
+  textSearch?: string;
 } {
   const dates = rangeKeysToQuery(dateKeys);
   let base: {
@@ -89,6 +94,7 @@ function buildMovementsQuery(
     minAmount?: number;
     maxAmount?: number;
     transactionType?: string;
+    textSearch?: string;
   } = {...dates};
   if (amountRange) {
     base = {
@@ -99,6 +105,10 @@ function buildMovementsQuery(
   }
   if (movementTransactionType) {
     base = {...base, transactionType: movementTransactionType};
+  }
+  const trimmedSearch = textSearch.trim();
+  if (trimmedSearch) {
+    base = {...base, textSearch: trimmedSearch};
   }
   return base;
 }
@@ -149,6 +159,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [movementsError, setMovementsError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchText, setDebouncedSearchText] = useState('');
   const [appliedRangeKeys, setAppliedRangeKeys] = useState<{
     from: string;
     to: string;
@@ -194,6 +205,13 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     return labelForMovementEnumType(appliedEnumType);
   }, [appliedEnumType]);
 
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setDebouncedSearchText(searchQuery.trim());
+    }, MOVEMENTS_SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
   const resolveAccount = useCallback(
     async (guidParam?: string) => {
       setIsLoadingAccount(true);
@@ -238,6 +256,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
         minAmount?: number;
         maxAmount?: number;
         transactionType?: string;
+        textSearch?: string;
       },
       mode: 'replace' | 'append',
     ) => {
@@ -286,6 +305,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
       appliedRangeKeys,
       appliedAmountRange,
       appliedEnumType,
+      debouncedSearchText,
     );
     void fetchPage(selectedAccount, 1, range, 'replace');
   }, [
@@ -294,6 +314,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     appliedRangeKeys,
     appliedAmountRange,
     appliedEnumType,
+    debouncedSearchText,
     fetchPage,
   ]);
 
@@ -332,6 +353,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
           appliedRangeKeys,
           appliedAmountRange,
           appliedEnumType,
+          debouncedSearchText,
         );
         await fetchPage(acc, 1, range, 'replace');
       }
@@ -343,6 +365,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     appliedRangeKeys,
     appliedAmountRange,
     appliedEnumType,
+    debouncedSearchText,
     resolveAccount,
     fetchPage,
   ]);
@@ -359,6 +382,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
       appliedRangeKeys,
       appliedAmountRange,
       appliedEnumType,
+      debouncedSearchText,
     );
     await fetchPage(selectedAccount, nextPage, range, 'append');
   }, [
@@ -371,6 +395,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     appliedRangeKeys,
     appliedAmountRange,
     appliedEnumType,
+    debouncedSearchText,
     fetchPage,
   ]);
 
@@ -385,22 +410,11 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     setAppliedEnumType(null);
   }, []);
 
-  const displayItems = useMemo(() => {
-    let list = [...items];
-    const q = searchQuery.trim().toLowerCase();
-    if (q) {
-      list = list.filter(t =>
-        t.beneficiaryName.toLowerCase().includes(q),
-      );
-    }
-    return list;
-  }, [items, searchQuery]);
-
   return {
     selectedAccount,
     accountError,
     isLoadingAccount,
-    items: displayItems,
+    items,
     rawCount: items.length,
     totalCount,
     isLoadingMovements,
