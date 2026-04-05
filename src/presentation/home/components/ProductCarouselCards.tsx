@@ -198,7 +198,7 @@ export function CheckingAccountCard({
 }: CheckingCardProps) {
   const {colors} = useTheme();
   const styles = useCheckingStyles(colors);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   return (
     <View style={[styles.card, style]} accessibilityLabel={title}>
@@ -307,6 +307,7 @@ export function CreditCardPreview({
 }: CreditCardPreviewProps) {
   const {colors} = useTheme();
   const styles = useCreditStyles(colors);
+  const [masked, setMasked] = useState(true);
 
   return (
     <View style={[styles.card, style]}>
@@ -330,10 +331,20 @@ export function CreditCardPreview({
               </Text>
             </View>
           </View>
-          <Text style={styles.amount}>{formatCurrency(totalDue)}</Text>
+          <Text style={styles.amount}>
+            {masked ? '$**.**' : formatCurrency(totalDue)}
+          </Text>
         </View>
-        <TouchableOpacity style={styles.eyeBtn} accessibilityRole="button">
-          <EyeIcon color={colors.primary} size={13} />
+        <TouchableOpacity
+          style={styles.eyeBtn}
+          onPress={() => setMasked(m => !m)}
+          accessibilityRole="button"
+          accessibilityLabel={masked ? 'Mostrar saldo' : 'Ocultar saldo'}>
+          {masked ? (
+            <EyeSlashIcon color={colors.primary} size={13} />
+          ) : (
+            <EyeIcon color={colors.primary} size={13} />
+          )}
         </TouchableOpacity>
       </View>
     </View>
