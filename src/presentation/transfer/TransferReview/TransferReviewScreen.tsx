@@ -6,9 +6,9 @@ import {
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
-    Platform, BackHandler,
+    Platform,
 } from 'react-native';
-import {RouteProp, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
