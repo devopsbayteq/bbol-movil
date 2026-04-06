@@ -37,9 +37,6 @@ jest.mock('../src/providers', () => ({
   AuthProvider: ({children}: {children: React.ReactNode}) => children,
   SecurityProvider: ({children}: {children: React.ReactNode}) => children,
   SessionTimeoutProvider: ({children}: {children: React.ReactNode}) => children,
-}));
-
-jest.mock('../src/providers/theme', () => ({
   ThemeProvider: ({children}: {children: React.ReactNode}) => children,
 }));
 

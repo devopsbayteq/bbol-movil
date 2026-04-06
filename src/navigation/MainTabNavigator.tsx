@@ -139,6 +139,15 @@ export function MainTabNavigator() {
       <Tab.Screen
         name="Movements"
         component={MovementsStackNavigator}
+        listeners={({navigation}) => ({
+          tabPress: e => {
+            e.preventDefault();
+            navigation.navigate('Movements', {
+              screen: 'MovementsList',
+              params: {resetFilters: Date.now()},
+            });
+          },
+        })}
         options={({route}) => {
           const focused =
             getFocusedRouteNameFromRoute(route) ?? 'MovementsList';

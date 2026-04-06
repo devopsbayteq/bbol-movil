@@ -243,7 +243,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
   );
 
   useEffect(() => {
-    void resolveAccount(accountGuidFromRoute);
+    resolveAccount(accountGuidFromRoute).catch(() => {});
   }, [accountGuidFromRoute, resolveAccount]);
 
   const fetchPage = useCallback(
@@ -307,7 +307,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
       appliedEnumType,
       debouncedSearchText,
     );
-    void fetchPage(selectedAccount, 1, range, 'replace');
+    fetchPage(selectedAccount, 1, range, 'replace').catch(() => {});
   }, [
     selectedAccount,
     isLoadingAccount,
@@ -410,6 +410,34 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     setAppliedEnumType(null);
   }, []);
 
+  const clearAllFilters = useCallback(() => {
+    setAppliedRangeKeys(null);
+    setAppliedAmountRange(null);
+    setAppliedEnumType(null);
+    setSearchQuery('');
+  }, []);
+
+  const hasActiveFilters = useMemo(() => {
+    if (searchQuery.trim()) {
+      return true;
+    }
+    if (appliedRangeKeys !== null) {
+      return true;
+    }
+    if (appliedAmountRange !== null) {
+      return true;
+    }
+    if (appliedEnumType !== null) {
+      return true;
+    }
+    return false;
+  }, [
+    searchQuery,
+    appliedRangeKeys,
+    appliedAmountRange,
+    appliedEnumType,
+  ]);
+
   return {
     selectedAccount,
     accountError,
@@ -435,6 +463,8 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     typeFilterLabel,
     applyTransactionEnumType,
     clearTransactionEnumType,
+    clearAllFilters,
+    hasActiveFilters,
     refresh,
     loadMore,
     hasMore: selectedAccount !== null && items.length < totalCount,

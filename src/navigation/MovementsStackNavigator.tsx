@@ -5,7 +5,13 @@ import {TransactionsScreen} from '../presentation/transactions/TransactionsScree
 import {MovementDetailScreen} from '../presentation/transactions/MovementDetailScreen';
 
 export type MovementsStackParamList = {
-  MovementsList: {accountGuid?: string} | undefined;
+  MovementsList:
+    | {
+        accountGuid?: string;
+        /** Dispara reset de filtros al cambiar (p. ej. entrada desde tab o Inicio). */
+        resetFilters?: number;
+      }
+    | undefined;
   MovementDetail: {movement: AccountMovement};
 };
 

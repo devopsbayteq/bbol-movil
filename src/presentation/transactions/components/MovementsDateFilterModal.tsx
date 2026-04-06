@@ -79,7 +79,6 @@ export type MovementsDateFilterModalProps = {
   onClose: () => void;
   initialRange: AppliedDateRange | null;
   onApply: (from: Date, to: Date) => void;
-  onClear: () => void;
 };
 
 function buildMarkedDates(
@@ -131,7 +130,6 @@ export function MovementsDateFilterModal({
   onClose,
   initialRange,
   onApply,
-  onClear,
 }: MovementsDateFilterModalProps) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
@@ -222,11 +220,6 @@ export function MovementsDateFilterModal({
     onClose();
   }, [draft.from, draft.to, onApply, onClose]);
 
-  const handleClear = useCallback(() => {
-    onClear();
-    onClose();
-  }, [onClear, onClose]);
-
   return (
     <Modal
       testID="movements-date-filter-modal"
@@ -260,13 +253,6 @@ export function MovementsDateFilterModal({
           <Text style={styles.subtitle}>
             Selecciona una fecha de inicio y fin
           </Text>
-          <TouchableOpacity
-            onPress={handleClear}
-            accessibilityRole="button"
-            accessibilityLabel="Quitar filtro de fechas"
-            testID="movements-date-filter-clear">
-            <Text style={styles.clearLink}>Quitar filtro</Text>
-          </TouchableOpacity>
 
           <View style={[styles.calendarWrap, {maxHeight: listMaxHeight}]}>
             <CalendarList
@@ -343,13 +329,6 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
           textAlign: 'left',
           marginBottom: 8,
-        },
-        clearLink: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          color: colors.linkPrimary,
-          textAlign: 'center',
-          marginBottom: 12,
         },
         calendarWrap: {
           marginHorizontal: -8,

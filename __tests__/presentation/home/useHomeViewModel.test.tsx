@@ -82,7 +82,7 @@ describe('useHomeViewModel', () => {
     expect(latest?.data).toEqual(homeBalance);
     expect(latest?.isLoading).toBe(false);
     expect(latest?.isRefreshing).toBe(false);
-    expect(latest?.error).toBeNull();
+    expect(latest?.error).toBe('');
   });
 
   test('refresh vuelve a pedir saldo sin activar isLoading inicial', async () => {
@@ -152,7 +152,7 @@ describe('useHomeViewModel', () => {
       await flushPromises();
     });
 
-    expect(latest?.error).toBeNull();
+    expect(latest?.error).toBe('');
     expect(execute).toHaveBeenCalledTimes(2);
   });
 });

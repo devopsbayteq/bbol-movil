@@ -31,15 +31,13 @@ jest.mock('../../../src/presentation/home/useHomeViewModel', () => ({
   useHomeViewModel: () => mockUseHomeViewModel(),
 }));
 
-jest.mock('../../../src/providers', () => ({
-  useAuth: () => ({user: {name: 'Usuario Demo', email: 'u@b.com'}}),
-}));
-
-jest.mock('../../../src/providers/theme', () => ({
-  useTheme: () => ({
-    colors: require('../../../src/providers/theme/colors').LightColors,
-  }),
-}));
+jest.mock('../../../src/providers', () => {
+  const {LightColors} = require('../../../src/providers/theme/colors');
+  return {
+    useAuth: () => ({user: {name: 'Usuario Demo', email: 'u@b.com'}}),
+    useTheme: () => ({colors: LightColors}),
+  };
+});
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
@@ -148,7 +146,7 @@ describe('HomeScreen', () => {
     });
 
     const flat = renderedText(root!.toJSON());
-    expect(flat).toContain('Mis Productos');
+    expect(flat).toContain('Cuentas');
     expect(flat).toContain('Pagos frecuentes');
     expect(flat).toContain('****4242');
     expect(flat).toContain('Pago luz');

@@ -1,7 +1,29 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
+import type {ReactTestRendererJSON} from 'react-test-renderer';
 import {ActivityIndicator, TouchableOpacity} from 'react-native';
 import {TransferScreen} from '../../../src/presentation/transfer/TransferScreen';
+
+/** Evita JSON.stringify sobre el árbol (referencias circulares en algunos nodos). */
+function renderedText(
+  node: ReactTestRendererJSON | ReactTestRendererJSON[] | string | number | null | undefined,
+): string {
+  if (node == null || typeof node === 'boolean') {
+    return '';
+  }
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(renderedText).join('');
+  }
+  if (typeof node === 'object' && node && 'children' in node) {
+    return renderedText(
+      node.children as ReactTestRendererJSON | ReactTestRendererJSON[],
+    );
+  }
+  return '';
+}
 
 // ── Módulos nativos ──────────────────────────────────────────────────────────
 jest.mock('react-native-encrypted-storage', () => ({
@@ -111,7 +133,7 @@ function baseVm(overrides: Record<string, unknown> = {}) {
     user: {name: 'Titular Demo'},
     isLoading: false,
     error: null,
-    retry: jest.fn(),
+    retry: jest.fn().mockResolvedValue(undefined),
     accounts: [],
     selectedAccount: null,
     fromAccountDescription: '',
@@ -148,7 +170,7 @@ describe('TransferScreen', () => {
     await act(async () => {
       root = ReactTestRenderer.create(<TransferScreen />);
     });
-    const flat = JSON.stringify(root!.toJSON());
+    const flat = renderedText(root!.toJSON());
     expect(flat).toContain('TRANSFERIR');
   });
 
@@ -165,7 +187,7 @@ describe('TransferScreen', () => {
   });
 
   test('muestra error y Reintentar; retry al pulsar', async () => {
-    const retry = jest.fn();
+    const retry = jest.fn().mockResolvedValue(undefined);
     mockUseTransferViewModel.mockReturnValue(
       baseVm({error: 'Sin conexión', retry}),
     );
@@ -175,8 +197,9 @@ describe('TransferScreen', () => {
       root = ReactTestRenderer.create(<TransferScreen />);
     });
 
-    expect(JSON.stringify(root!.toJSON())).toContain('Sin conexión');
-    expect(JSON.stringify(root!.toJSON())).toContain('Reintentar');
+    const flat = renderedText(root!.toJSON());
+    expect(flat).toContain('Sin conexión');
+    expect(flat).toContain('Reintentar');
 
     const retryBtn = findPressableByTextLabel(root!, 'Reintentar');
     expect(retryBtn).toBeTruthy();
@@ -196,10 +219,7 @@ describe('TransferScreen', () => {
     await act(async () => {
       back.props.onPress?.();
     });
-    expect(mockTabNavigate).toHaveBeenCalledWith({
-      name: 'Home',
-      params: {},
-    });
+    expect(mockTabNavigate).toHaveBeenCalledWith('Home', {});
   });
 
   test('Continuar con validación fallida llama setValidationMessage', async () => {

@@ -25,7 +25,6 @@ export type MovementsTypeFilterModalProps = {
   onClose: () => void;
   initialEnumType: MovementTransactionEnumType | null;
   onApply: (value: MovementTransactionEnumType) => void;
-  onClear: () => void;
 };
 
 export function MovementsTypeFilterModal({
@@ -33,7 +32,6 @@ export function MovementsTypeFilterModal({
   onClose,
   initialEnumType,
   onApply,
-  onClear,
 }: MovementsTypeFilterModalProps) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
@@ -65,11 +63,6 @@ export function MovementsTypeFilterModal({
     onApply(draft);
     onClose();
   }, [draft, onApply, onClose]);
-
-  const handleClear = useCallback(() => {
-    onClear();
-    onClose();
-  }, [onClear, onClose]);
 
   return (
     <Modal
@@ -105,13 +98,6 @@ export function MovementsTypeFilterModal({
             <Text style={styles.subtitle}>
               Selecciona por tipo de transacción
             </Text>
-            <TouchableOpacity
-              onPress={handleClear}
-              accessibilityRole="button"
-              accessibilityLabel="Quitar filtro de tipo"
-              testID="movements-type-filter-clear">
-              <Text style={styles.clearLink}>Quitar filtro</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.bodyArea}>
@@ -204,13 +190,6 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           color: colors.textTertiary,
           textAlign: 'left',
-          marginBottom: 8,
-        },
-        clearLink: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          color: colors.linkPrimary,
-          textAlign: 'center',
           marginBottom: 8,
         },
         bodyArea: {

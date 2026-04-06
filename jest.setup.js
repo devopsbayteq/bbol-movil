@@ -41,6 +41,15 @@ if (ReactNative.NativeModules.JailMonkey == null) {
   };
 }
 
+jest.mock('react-native-keyboard-controller', () => {
+  const React = require('react');
+  const {ScrollView} = require('react-native');
+  return {
+    KeyboardProvider: ({children}) => React.createElement(React.Fragment, null, children),
+    KeyboardAwareScrollView: ScrollView,
+  };
+});
+
 jest.mock('react-native-keychain', () => ({
   setGenericPassword: jest.fn(() => Promise.resolve({service: 's', storage: 'k'})),
   getGenericPassword: jest.fn(() => Promise.resolve(false)),

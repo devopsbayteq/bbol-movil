@@ -25,7 +25,6 @@ export type MovementsAmountFilterModalProps = {
   onClose: () => void;
   initialRange: AppliedAmountRange | null;
   onApply: (min: number, max: number) => void;
-  onClear: () => void;
 };
 
 function parseAmountInput(raw: string): number | null {
@@ -46,7 +45,6 @@ export function MovementsAmountFilterModal({
   onClose,
   initialRange,
   onApply,
-  onClear,
 }: MovementsAmountFilterModalProps) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
@@ -94,11 +92,6 @@ export function MovementsAmountFilterModal({
     onClose();
   }, [parsedMin, parsedMax, onApply, onClose]);
 
-  const handleClear = useCallback(() => {
-    onClear();
-    onClose();
-  }, [onClear, onClose]);
-
   return (
     <Modal
       testID="movements-amount-filter-modal"
@@ -133,13 +126,6 @@ export function MovementsAmountFilterModal({
             <Text style={styles.subtitle}>
               Selecciona un rango de min a max
             </Text>
-            <TouchableOpacity
-              onPress={handleClear}
-              accessibilityRole="button"
-              accessibilityLabel="Quitar filtro de monto"
-              testID="movements-amount-filter-clear">
-              <Text style={styles.clearLink}>Quitar filtro</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.bodyArea}>
@@ -237,13 +223,6 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
           textAlign: 'left',
           marginBottom: 8,
-        },
-        clearLink: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          color: colors.linkPrimary,
-          textAlign: 'center',
-          marginBottom: 12,
         },
         bodyArea: {
           backgroundColor: colors.background,

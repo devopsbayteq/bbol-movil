@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback} from 'react';
+import React, {useMemo, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -177,6 +177,7 @@ export function TransactionsScreen() {
     navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
   const route = useRoute<RouteProp<MovementsStackParamList, 'MovementsList'>>();
   const accountGuid = route.params?.accountGuid;
+  const resetFiltersToken = route.params?.resetFilters;
 
   const [balanceVisible, setBalanceVisible] = React.useState(true);
   const [devModalVisible, setDevModalVisible] = React.useState(false);
@@ -188,7 +189,29 @@ export function TransactionsScreen() {
     React.useState(false);
 
   const vm = useAccountMovementsViewModel(accountGuid);
-  const {refresh: refreshMovements} = vm;
+  const {
+    refresh: refreshMovements,
+    clearAllFilters,
+    hasActiveFilters,
+  } = vm;
+
+  const prevAccountGuidRef = React.useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (resetFiltersToken === undefined) {
+      return;
+    }
+    clearAllFilters();
+  }, [resetFiltersToken, clearAllFilters]);
+
+  useEffect(() => {
+    if (
+      prevAccountGuidRef.current !== undefined &&
+      prevAccountGuidRef.current !== accountGuid
+    ) {
+      clearAllFilters();
+    }
+    prevAccountGuidRef.current = accountGuid;
+  }, [accountGuid, clearAllFilters]);
 
   const isFirstListFocus = React.useRef(true);
   useFocusEffect(
@@ -377,37 +400,52 @@ export function TransactionsScreen() {
           onChangeText={vm.setSearchQuery}
         />
       </View>
-      <View style={styles.chipsRow}>
-        <TouchableOpacity
-          testID="movements-date-filter-chip"
-          style={styles.chip}
-          onPress={() => setDateFilterModalVisible(true)}
-          accessibilityRole="button">
-          <Text style={styles.chipText} numberOfLines={1}>
-            {vm.dateFilterLabel}
-          </Text>
-          <Text style={styles.chipChevron}>▼</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          testID="movements-type-filter-chip"
-          style={styles.chip}
-          onPress={() => setTypeFilterModalVisible(true)}
-          accessibilityRole="button">
-          <Text style={styles.chipText} numberOfLines={1}>
-            {vm.typeFilterLabel}
-          </Text>
-          <Text style={styles.chipChevron}>▼</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          testID="movements-amount-filter-chip"
-          style={styles.chip}
-          onPress={() => setAmountFilterModalVisible(true)}
-          accessibilityRole="button">
-          <Text style={styles.chipText} numberOfLines={1}>
-            {vm.amountFilterLabel}
-          </Text>
-          <Text style={styles.chipChevron}>▼</Text>
-        </TouchableOpacity>
+      <View style={styles.chipsSection}>
+        <View style={styles.chipsRowFirst}>
+          <View style={styles.chipsRowLeft}>
+            <TouchableOpacity
+              testID="movements-date-filter-chip"
+              style={styles.chip}
+              onPress={() => setDateFilterModalVisible(true)}
+              accessibilityRole="button">
+              <Text style={styles.chipText} numberOfLines={1}>
+                {vm.dateFilterLabel}
+              </Text>
+              <Text style={styles.chipChevron}>▼</Text>
+            </TouchableOpacity>
+          </View>
+          {hasActiveFilters ? (
+            <Pressable
+              testID="movements-clear-all-filters"
+              onPress={clearAllFilters}
+              accessibilityRole="button"
+              accessibilityLabel="Limpiar filtros">
+              <Text style={styles.chipsClearLink}>Limpiar filtros</Text>
+            </Pressable>
+          ) : null}
+        </View>
+        <View style={styles.chipsRow}>
+          <TouchableOpacity
+            testID="movements-type-filter-chip"
+            style={styles.chip}
+            onPress={() => setTypeFilterModalVisible(true)}
+            accessibilityRole="button">
+            <Text style={styles.chipText} numberOfLines={1}>
+              {vm.typeFilterLabel}
+            </Text>
+            <Text style={styles.chipChevron}>▼</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            testID="movements-amount-filter-chip"
+            style={styles.chip}
+            onPress={() => setAmountFilterModalVisible(true)}
+            accessibilityRole="button">
+            <Text style={styles.chipText} numberOfLines={1}>
+              {vm.amountFilterLabel}
+            </Text>
+            <Text style={styles.chipChevron}>▼</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -428,7 +466,12 @@ export function TransactionsScreen() {
         testID="transactions-screen"
         style={[styles.root, {paddingTop: insets.top}]}>
         <ErrorMessage message={vm.accountError} />
-        <Button title="Reintentar" onPress={() => void vm.refresh()} />
+        <Button
+          title="Reintentar"
+          onPress={() => {
+            vm.refresh().catch(() => {});
+          }}
+        />
       </View>
     );
   }
@@ -451,11 +494,15 @@ export function TransactionsScreen() {
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.listContent}
         onEndReachedThreshold={0.4}
-        onEndReached={() => void vm.loadMore()}
+        onEndReached={() => {
+          vm.loadMore().catch(() => {});
+        }}
         refreshControl={
           <RefreshControl
             refreshing={vm.isRefreshing}
-            onRefresh={() => void vm.refresh()}
+            onRefresh={() => {
+              vm.refresh().catch(() => {});
+            }}
             tintColor={colors.primary}
             colors={[colors.primary]}
           />
@@ -470,7 +517,9 @@ export function TransactionsScreen() {
               <ErrorMessage message={vm.movementsError} />
               <Button
                 title="Reintentar"
-                onPress={() => void vm.refresh()}
+                onPress={() => {
+                  vm.refresh().catch(() => {});
+                }}
                 style={styles.retryBtn}
               />
             </View>
@@ -495,9 +544,6 @@ export function TransactionsScreen() {
         onApply={(from, to) => {
           vm.applyDateRange(from, to);
         }}
-        onClear={() => {
-          vm.clearDateRange();
-        }}
       />
       <MovementsAmountFilterModal
         visible={amountFilterModalVisible}
@@ -506,9 +552,6 @@ export function TransactionsScreen() {
         onApply={(min, max) => {
           vm.applyAmountRange(min, max);
         }}
-        onClear={() => {
-          vm.clearAmountRange();
-        }}
       />
       <MovementsTypeFilterModal
         visible={typeFilterModalVisible}
@@ -516,9 +559,6 @@ export function TransactionsScreen() {
         initialEnumType={vm.appliedEnumType}
         onApply={value => {
           vm.applyTransactionEnumType(value);
-        }}
-        onClear={() => {
-          vm.clearTransactionEnumType();
         }}
       />
     </View>
@@ -656,12 +696,33 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
           paddingVertical: 0,
         },
+        chipsSection: {
+          paddingHorizontal: 20,
+          marginBottom: 16,
+          gap: 8,
+        },
+        chipsRowFirst: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 8,
+          gap: 8,
+        },
+        chipsRowLeft: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          flex: 1,
+          gap: 8,
+        },
+        chipsClearLink: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 13,
+          color: colors.linkPrimary,
+        },
         chipsRow: {
           flexDirection: 'row',
           flexWrap: 'wrap',
           gap: 8,
-          paddingHorizontal: 20,
-          marginBottom: 16,
         },
         chip: {
           flexDirection: 'row',

@@ -151,7 +151,10 @@ export function HomeScreen() {
                 onPress={() =>
                   navigation.navigate('Movements', {
                     screen: 'MovementsList',
-                    params: {accountGuid: acc.accountGuid},
+                    params: {
+                      accountGuid: acc.accountGuid,
+                      resetFilters: Date.now(),
+                    },
                   })
                 }
                 accessibilityRole="button"
@@ -175,7 +178,10 @@ export function HomeScreen() {
                 onPress={() =>
                   navigation.navigate('Movements', {
                     screen: 'MovementsList',
-                    params: {accountGuid: acc.accountGuid},
+                    params: {
+                      accountGuid: acc.accountGuid,
+                      resetFilters: Date.now(),
+                    },
                   })
                 }
                 accessibilityRole="button"
