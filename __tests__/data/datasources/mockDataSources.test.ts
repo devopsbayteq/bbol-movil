@@ -13,7 +13,7 @@ describe('mock data sources', () => {
   test('MockAuthDataSource resolves with the demo credentials', async () => {
     const dataSource = new MockAuthDataSource();
     const loginPromise = dataSource.login({
-      username: 'usuario01',
+      username: 'usuario-demo12',
       password: '123456',
     });
 
@@ -29,7 +29,7 @@ describe('mock data sources', () => {
   test('MockAuthDataSource rejects invalid credentials', async () => {
     const dataSource = new MockAuthDataSource();
     const loginPromise = dataSource.login({
-      username: 'usuario_invalido',
+      username: 'wrong-user-cred',
       password: 'bad-password',
     });
 

@@ -10,32 +10,43 @@ name: Login — Validación de campos
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 
-# --- 1. Usuario demasiado corto (< 6 chars) muestra error de campo ---
+# --- 1. Usuario demasiado corto (< 12 caracteres) ---
 - tapOn:
     id: "login-email-input"
 - inputText: "usr"
 - tapOn:
     id: "login-password-input"
-- assertVisible: "El usuario debe tener al menos 6 caracteres"
+- assertVisible: "El usuario debe tener al menos 12 caracteres"
 
-# --- 2. Usuario demasiado largo (> 20 chars) muestra error de campo ---
+# --- 2. Usuario demasiado largo (> 16 caracteres) ---
 - clearState
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
-- inputText: "usuarioconmasde20caracteres"
+- inputText: "abcdefghijklmnopq"
 - tapOn:
     id: "login-password-input"
-- assertVisible: "El usuario no puede superar 20 caracteres"
+- assertVisible: "El usuario no puede superar 16 caracteres"
 
-# --- 3. Contraseña demasiado corta (< 8 chars) muestra error de campo ---
+# --- 3. Usuario con caracter no permitido (ej. @) ---
 - clearState
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
-- inputText: "usuario01"
+- inputText: "user@invalid123"
+- tapOn:
+    id: "login-password-input"
+- assertVisible: "El usuario solo puede contener letras, números, punto (.), guion (-) y guion bajo (_)."
+
+# --- 4. Contraseña demasiado corta (< 8 caracteres) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario-demo12"
 - tapOn:
     id: "login-password-input"
 - inputText: "1234567"
@@ -43,13 +54,13 @@ name: Login — Validación de campos
     id: "login-email-input"
 - assertVisible: "La contraseña debe tener al menos 8 caracteres"
 
-# --- 4. Contraseña demasiado larga (> 16 chars) muestra error de campo ---
+# --- 5. Contraseña demasiado larga (> 16 caracteres) ---
 - clearState
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
-- inputText: "usuario01"
+- inputText: "usuario-demo12"
 - tapOn:
     id: "login-password-input"
 - inputText: "contrasenamuylar1"
@@ -57,7 +68,7 @@ name: Login — Validación de campos
     id: "login-email-input"
 - assertVisible: "La contraseña no puede superar 16 caracteres"
 
-# --- 5. Submit sin datos muestra error de campo de usuario ---
+# --- 6. Submit sin datos muestra error de usuario requerido ---
 - clearState
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml

@@ -61,7 +61,7 @@ npm run lint          # ESLint
 
 | Campo | Valor |
 |-------|-------|
-| Usuario | `usuario01` |
+| Usuario | `usuario-demo12` (12–16 caracteres: letras, números, `.`, `-`, `_`) |
 | Password | `123456` |
 | OTP/PIN | `123457` (siempre válido en modo demo) |
 | App ID | `com.bbapp` |

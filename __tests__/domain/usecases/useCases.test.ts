@@ -5,13 +5,15 @@ import {GetAccountMovementsUseCase} from '../../../src/domain/usecases/GetAccoun
 import {GetUserLoggedUseCase} from '../../../src/domain/usecases/GetUserLoggedUseCase';
 import {LoginUseCase} from '../../../src/domain/usecases/LoginUseCase';
 import {ValidateOtpUseCase} from '../../../src/domain/usecases/ValidateOtpUseCase';
+import {ValidateTransactionAmountUseCase} from '../../../src/domain/usecases/ValidateTransactionAmountUseCase';
+import {ExecuteTransferUseCase} from '../../../src/domain/usecases/ExecuteTransferUseCase';
 import * as rsaUtils from '../../../src/security/certificate/rsaUtils';
 
 describe('domain use cases', () => {
   test('LoginUseCase trims credentials, persists session and returns user', async () => {
     const user = {
-      id: 'usuario01',
-      email: 'usuario01',
+      id: 'usuario-demo12',
+      email: 'usuario-demo12',
       name: 'Usuario Demo',
       token: 'jwt-token',
       sessionExpiresAt: Date.now() + 3600 * 1000,
@@ -37,12 +39,12 @@ describe('domain use cases', () => {
       '@auth_token',
     );
 
-    const result = await useCase.execute('  usuario01  ', '  12345678  ');
+    const result = await useCase.execute('  usuario-demo12  ', '  12345678  ');
 
     expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
-      'usuario01',
+      'usuario-demo12',
       'enc-blob',
       'enc-blob',
     );
@@ -76,6 +78,25 @@ describe('domain use cases', () => {
     expect(secureStorage.save).not.toHaveBeenCalled();
   });
 
+  test('LoginUseCase rejects username shorter than minimum before calling repository', async () => {
+    const authRepository = {login: jest.fn()};
+    const secureStorage = {save: jest.fn()};
+    const getPublicKeyUseCase = {execute: jest.fn()};
+    const useCase = new LoginUseCase(
+      authRepository,
+      secureStorage as never,
+      '@bb_user_session',
+      getPublicKeyUseCase as never,
+      '@auth_token',
+    );
+
+    await expect(useCase.execute('usr', '1234567')).rejects.toThrow(
+      'El usuario debe tener al menos 12 caracteres',
+    );
+    expect(authRepository.login).not.toHaveBeenCalled();
+    expect(secureStorage.save).not.toHaveBeenCalled();
+  });
+
   test('LoginUseCase rejects invalid password before calling repository', async () => {
     const authRepository = {login: jest.fn()};
     const secureStorage = {save: jest.fn()};
@@ -89,7 +110,7 @@ describe('domain use cases', () => {
     );
 
     await expect(
-      useCase.execute('usuario01', '1234567'),
+      useCase.execute('usuario-demo12', '1234567'),
     ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
@@ -257,5 +278,58 @@ describe('domain use cases', () => {
     expect(beneficiaryRepository.getContacts).toHaveBeenCalledTimes(1);
     expect(result).toHaveLength(1);
     expect(result[0].contactName).toBe('Ana');
+  });
+
+  test('ValidateTransactionAmountUseCase delega al securityRepository', async () => {
+    const securityRepository = {
+      validateTransactionAmount: jest.fn().mockResolvedValue({isValid: true}),
+    };
+    const useCase = new ValidateTransactionAmountUseCase(securityRepository as never);
+
+    const input = {amount: 100, beneficiaryGuid: 'ben-001', accountGuid: 'acc-001', concept: 'Pago'};
+    const result = await useCase.execute(input);
+
+    expect(securityRepository.validateTransactionAmount).toHaveBeenCalledWith(input);
+    expect(result).toEqual({isValid: true});
+  });
+
+  test('ValidateTransactionAmountUseCase propaga errores del repositorio', async () => {
+    const securityRepository = {
+      validateTransactionAmount: jest.fn().mockRejectedValue(new Error('Error de validación')),
+    };
+    const useCase = new ValidateTransactionAmountUseCase(securityRepository as never);
+
+    await expect(
+      useCase.execute({amount: 0, beneficiaryGuid: 'b', accountGuid: 'a', concept: ''}),
+    ).rejects.toThrow('Error de validación');
+  });
+
+  test('ExecuteTransferUseCase delega al transferRepository', async () => {
+    const transferRepository = {
+      executeTransfer: jest.fn().mockResolvedValue({transactionIdentifier: 'TXN-123'}),
+    };
+    const useCase = new ExecuteTransferUseCase(transferRepository as never);
+
+    const params = {
+      amount: 200,
+      beneficiaryContactGuid: 'ben-002',
+      accountGuid: 'acc-002',
+      concept: 'Servicios',
+    };
+    const result = await useCase.execute(params);
+
+    expect(transferRepository.executeTransfer).toHaveBeenCalledWith(params);
+    expect(result).toEqual({transactionIdentifier: 'TXN-123'});
+  });
+
+  test('ExecuteTransferUseCase propaga errores del repositorio', async () => {
+    const transferRepository = {
+      executeTransfer: jest.fn().mockRejectedValue(new Error('Transferencia fallida')),
+    };
+    const useCase = new ExecuteTransferUseCase(transferRepository as never);
+
+    await expect(
+      useCase.execute({amount: 50, beneficiaryContactGuid: 'b', accountGuid: 'a', concept: ''}),
+    ).rejects.toThrow('Transferencia fallida');
   });
 });

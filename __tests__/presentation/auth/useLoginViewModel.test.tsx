@@ -7,6 +7,14 @@ import {
 } from '../../../src/presentation/auth/useLoginViewModel';
 import {BiometricRSAError} from '../../../src/security/biometric/errors';
 
+jest.mock('react-native-device-info', () => ({
+  __esModule: true,
+  default: {
+    getVersion: jest.fn(() => '1.0.0'),
+    getBuildNumber: jest.fn(() => '1'),
+  },
+}));
+
 jest.mock('../../../src/di', () => ({
   useDI: jest.fn(),
 }));
@@ -70,10 +78,10 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('usuario\u200B01');
+      latest?.setEmail('usuario\u200B-demo12');
     });
 
-    expect(latest?.email).toBe('usuario01');
+    expect(latest?.email).toBe('usuario-demo12');
     expect(latest?.emailError).toBe(
       'El usuario contiene caracteres no permitidos',
     );
@@ -97,7 +105,7 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('usuario01');
+      latest?.setEmail('usuario-demo12');
       latest?.setPassword('123');
     });
 
@@ -113,8 +121,8 @@ describe('useLoginViewModel', () => {
 
   test('submits trimmed credentials and invokes credential success callback', async () => {
     const execute = jest.fn().mockResolvedValue({
-      id: 'usuario01',
-      email: 'usuario01',
+      id: 'usuario-demo12',
+      email: 'usuario-demo12',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });
@@ -136,7 +144,7 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('  usuario01  ');
+      latest?.setEmail('  usuario-demo12  ');
       latest?.setPassword('  12345678  ');
     });
 
@@ -144,10 +152,10 @@ describe('useLoginViewModel', () => {
       await latest?.handleLogin();
     });
 
-    expect(execute).toHaveBeenCalledWith('usuario01', '12345678');
+    expect(execute).toHaveBeenCalledWith('usuario-demo12', '12345678');
     expect(onCredentialLoginSuccess).toHaveBeenCalledWith({
-      id: 'usuario01',
-      email: 'usuario01',
+      id: 'usuario-demo12',
+      email: 'usuario-demo12',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });
@@ -222,7 +230,7 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('usuario01');
+      latest?.setEmail('usuario-demo12');
       latest?.setPassword('12345678');
     });
 
@@ -236,8 +244,8 @@ describe('useLoginViewModel', () => {
 
   test('modo dispositivo vinculado ignora setEmail y fija usuario para envío', async () => {
     const execute = jest.fn().mockResolvedValue({
-      id: 'usuario01',
-      email: 'usuario01',
+      id: 'usuario-demo12',
+      email: 'usuario-demo12',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });
@@ -253,7 +261,7 @@ describe('useLoginViewModel', () => {
         <Harness
           onCredentialLoginSuccess={onCredentialLoginSuccess}
           onBiometricLoginSuccess={jest.fn()}
-          options={{deviceBoundLoginId: 'usuario01'}}
+          options={{deviceBoundLoginId: 'usuario-demo12'}}
         />,
       );
     });
@@ -261,7 +269,7 @@ describe('useLoginViewModel', () => {
     act(() => {
       latest?.setEmail('otro');
     });
-    expect(latest?.email).toBe('usuario01');
+    expect(latest?.email).toBe('usuario-demo12');
     expect(latest?.isDeviceBoundCompact).toBe(true);
 
     act(() => {
@@ -272,7 +280,7 @@ describe('useLoginViewModel', () => {
       await latest?.handleLogin();
     });
 
-    expect(execute).toHaveBeenCalledWith('usuario01', '12345678');
+    expect(execute).toHaveBeenCalledWith('usuario-demo12', '12345678');
     expect(onCredentialLoginSuccess).toHaveBeenCalled();
   });
 
@@ -287,7 +295,7 @@ describe('useLoginViewModel', () => {
         <Harness
           onCredentialLoginSuccess={jest.fn()}
           onBiometricLoginSuccess={jest.fn()}
-          options={{deviceBoundLoginId: 'usuario01'}}
+          options={{deviceBoundLoginId: 'usuario-demo12'}}
         />,
       );
     });
