@@ -1,5 +1,8 @@
 import type {CertificateEnvelopeResponse} from '../../../data/models/CertificateModels';
 import {Buffer} from 'buffer';
+import crypto from 'react-native-quick-crypto';
+import {aes256CbcEncrypt} from '../aesHelper';
+import * as rsaUtils from '../rsaUtils';
 import {
   buildCertificateRequest,
   deriveAes256KeyHexFromSecretMaterial,
@@ -77,6 +80,17 @@ describe('validateCertificateResponse', () => {
     ).toThrow('fallo');
   });
 
+  it('throws mensaje por defecto cuando Error sin message', () => {
+    const envelope: CertificateEnvelopeResponse = {
+      code: 1,
+      responseType: 'Error',
+      message: '',
+    };
+    expect(() =>
+      validateCertificateResponse(envelope, sessionFixture()),
+    ).toThrow('Error en validación de certificado');
+  });
+
   it('throws when content is missing', () => {
     const envelope: CertificateEnvelopeResponse = {
       code: 0,
@@ -102,4 +116,195 @@ describe('validateCertificateResponse', () => {
       expect(innerBase64).toMatch(/^[A-Za-z0-9+/=]+$/);
     }
   });
+
+  it('acepta envelope con data en lugar de content', () => {
+    const session = sessionFixture();
+    const key = deriveAes256KeyHexFromSecretMaterial(session.secretMaterial);
+    const iv = deriveIvHexFromIvMaterial(session.ivMaterial);
+    const plaintext = 'hash-desde-servidor';
+    const ciphertext = aes256CbcEncrypt(Buffer.from(plaintext, 'utf8'), key, iv);
+
+    const verifySpy = jest
+      .spyOn(rsaUtils, 'rsaVerifySha256PublicKeyPemBase64OnBase64')
+      .mockReturnValue(true);
+    const decryptSpy = jest
+      .spyOn(rsaUtils, 'rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToUtf8')
+      .mockReturnValue(ciphertext.toString('hex'));
+
+    const envelope: CertificateEnvelopeResponse = {
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      data: {
+        certificate: {hashEncrypt: 'enc', hashEncryptSign: 'sig'},
+        validateHash: false,
+        userMessage: 'Bienvenido',
+      },
+    };
+
+    const result = validateCertificateResponse(envelope, session);
+    expect(result.certificateHashHex).toBe(plaintext);
+    expect(result.userMessage).toBe('Bienvenido');
+    expect(result.pinningEnabled).toBe(false);
+
+    verifySpy.mockRestore();
+    decryptSpy.mockRestore();
+  });
+
+  it('acepta payload RSA como base64 del ciphertext AES (no solo hex)', () => {
+    const session = sessionFixture();
+    const key = deriveAes256KeyHexFromSecretMaterial(session.secretMaterial);
+    const iv = deriveIvHexFromIvMaterial(session.ivMaterial);
+    const plaintext = 'hash-base64-path';
+    const ciphertext = aes256CbcEncrypt(Buffer.from(plaintext, 'utf8'), key, iv);
+    const payload = ciphertext.toString('base64');
+
+    jest.spyOn(rsaUtils, 'rsaVerifySha256PublicKeyPemBase64OnBase64').mockReturnValue(true);
+    jest
+      .spyOn(rsaUtils, 'rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToUtf8')
+      .mockReturnValue(payload);
+
+    const envelope: CertificateEnvelopeResponse = {
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      content: {
+        certificate: {hashEncrypt: 'enc', hashEncryptSign: 'sig'},
+        validateHash: true,
+        userMessage: '',
+      },
+    };
+
+    expect(validateCertificateResponse(envelope, session).certificateHashHex).toBe(
+      plaintext,
+    );
+
+    jest.restoreAllMocks();
+  });
+
+  it('lanza si falta certificate en el contenido', () => {
+    const envelope = {
+      code: 0,
+      responseType: 'Success',
+      message: 'incompleto',
+      content: {
+        validateHash: true,
+        userMessage: 'x',
+      },
+    } as CertificateEnvelopeResponse;
+
+    expect(() =>
+      validateCertificateResponse(envelope, sessionFixture()),
+    ).toThrow('incompleto');
+  });
+
+  it('lanza si la firma RSA no verifica', () => {
+    jest.spyOn(rsaUtils, 'rsaVerifySha256PublicKeyPemBase64OnBase64').mockReturnValue(false);
+
+    const envelope: CertificateEnvelopeResponse = {
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      content: {
+        certificate: {hashEncrypt: 'enc', hashEncryptSign: 'sig'},
+        validateHash: true,
+        userMessage: '',
+      },
+    };
+
+    expect(() =>
+      validateCertificateResponse(envelope, sessionFixture()),
+    ).toThrow('Firma del servidor inválida (hashEncrypt)');
+
+    jest.restoreAllMocks();
+  });
+
+  it('propaga error si la verificación RSA lanza', () => {
+    jest
+      .spyOn(rsaUtils, 'rsaVerifySha256PublicKeyPemBase64OnBase64')
+      .mockImplementation(() => {
+        throw new Error('clave corrupta');
+      });
+
+    const envelope: CertificateEnvelopeResponse = {
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      content: {
+        certificate: {hashEncrypt: 'enc', hashEncryptSign: 'sig'},
+        validateHash: true,
+        userMessage: '',
+      },
+    };
+
+    expect(() =>
+      validateCertificateResponse(envelope, sessionFixture()),
+    ).toThrow('clave corrupta');
+
+    jest.restoreAllMocks();
+  });
+
+  it('lanza si tras AES-256 el material no alcanza 16 bytes para AES-128 directo', () => {
+    const session: CertificateSession = {
+      secretMaterial: 'exactly15chars!',
+      ivMaterial: 'abcdefghijklmnop',
+    };
+    jest.spyOn(rsaUtils, 'rsaVerifySha256PublicKeyPemBase64OnBase64').mockReturnValue(true);
+    jest
+      .spyOn(rsaUtils, 'rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToUtf8')
+      .mockReturnValue('ab'.repeat(16));
+
+    const envelope: CertificateEnvelopeResponse = {
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      content: {
+        certificate: {hashEncrypt: 'enc', hashEncryptSign: 'sig'},
+        validateHash: true,
+        userMessage: '',
+      },
+    };
+
+    expect(() => validateCertificateResponse(envelope, session)).toThrow(
+      'Material de sesión inválido para AES-128 directo',
+    );
+
+    jest.restoreAllMocks();
+  });
+
+  it('descifra vía AES-128 directo cuando AES-256 derivado falla', () => {
+    const session: CertificateSession = {
+      secretMaterial: '1234567890123456',
+      ivMaterial: 'abcdefghijklmnop',
+    };
+    const key16 = Buffer.from(session.secretMaterial, 'utf8').subarray(0, 16);
+    const iv16 = Buffer.from(session.ivMaterial, 'utf8').subarray(0, 16);
+    const cipher = crypto.createCipheriv('aes-128-cbc', key16, iv16);
+    const ciphertext = Buffer.concat([
+      cipher.update(Buffer.from('cert-aes128', 'utf8')),
+      cipher.final(),
+    ]);
+
+    jest.spyOn(rsaUtils, 'rsaVerifySha256PublicKeyPemBase64OnBase64').mockReturnValue(true);
+    jest
+      .spyOn(rsaUtils, 'rsaOaepDecryptPrivateKeyPemBase64CipherBase64ToUtf8')
+      .mockReturnValue(ciphertext.toString('hex'));
+
+    const envelope: CertificateEnvelopeResponse = {
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      content: {
+        certificate: {hashEncrypt: 'enc', hashEncryptSign: 'sig'},
+        validateHash: true,
+        userMessage: 'ok',
+      },
+    };
+
+    const result = validateCertificateResponse(envelope, session);
+    expect(result.certificateHashHex).toBe('cert-aes128');
+
+    jest.restoreAllMocks();
+  });
+
 });
