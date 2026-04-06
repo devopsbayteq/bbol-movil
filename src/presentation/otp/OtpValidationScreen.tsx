@@ -13,6 +13,7 @@ import {
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
+import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {useTheme, type ThemeColors, useAuth} from '../../providers';
 import {useDI} from '../../di';
 import {
@@ -51,7 +52,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const {login} = useAuth();
-  const {biometricRSAAuthOrchestrator} = useDI();
+  const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList | TransferStackParamList>
   >();
@@ -68,6 +69,13 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
       const hasBio =
         await biometricRSAAuthOrchestrator.hasBiometricRegistration();
       if (hasBio) {
+        await login(params.user);
+        return;
+      }
+      const declined = await secureStorageService.get(
+        SecureStorageKeys.BIOMETRIC_OFFER_DECLINED,
+      );
+      if (declined === 'true') {
         await login(params.user);
         return;
       }

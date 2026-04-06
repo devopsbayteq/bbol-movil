@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://btq-sdc-core.bayteq.com/api/v1';
+export const API_BASE_URL = 'https://dev4.bayteq.com:50114/api/v1';

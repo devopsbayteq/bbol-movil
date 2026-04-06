@@ -5,7 +5,8 @@ import {BiometricRSAError} from './errors';
 const KEYCHAIN_SERVICE = 'com.bbapp.biometric.rsa.private.v1';
 const KEYCHAIN_USERNAME = 'bb_biometric_rsa_private';
 
-function mapKeychainError(err: unknown): BiometricRSAError {
+/** Detecta cambio en huellas/Face ID (p. ej. BiometryCurrentSet invalidado). */
+export function mapKeychainError(err: unknown): BiometricRSAError {
   const msg = err instanceof Error ? err.message : String(err);
   const lower = msg.toLowerCase();
   if (
@@ -16,6 +17,28 @@ function mapKeychainError(err: unknown): BiometricRSAError {
     return new BiometricRSAError(
       'Autenticación biométrica cancelada',
       'user_cancelled',
+      err,
+    );
+  }
+  if (
+    lower.includes('enrollment') ||
+    (lower.includes('biometry') && lower.includes('chang')) ||
+    lower.includes('current set') ||
+    lower.includes('biometrycurrentset') ||
+    lower.includes('interactionnotallowed') ||
+    lower.includes('interaction not allowed') ||
+    lower.includes('errsecinteractionnotallowed') ||
+    lower.includes('-25308') ||
+    lower.includes('key permanently invalidated') ||
+    lower.includes('keypermanentlyinvalidated') ||
+    lower.includes('invalidatedbybiometricenrollment') ||
+    lower.includes('android.security.keystore') ||
+    lower.includes('biometric has been changed') ||
+    lower.includes('biometric changed')
+  ) {
+    return new BiometricRSAError(
+      'El conjunto biométrico del dispositivo cambió. Debes iniciar sesión con usuario y contraseña.',
+      'biometric_enrollment_changed',
       err,
     );
   }
@@ -38,12 +61,13 @@ function mapKeychainError(err: unknown): BiometricRSAError {
  */
 export class BiometricKeyStorageService {
   async savePrivateKey(privateKeyPem: string): Promise<void> {
+    await this.deletePrivateKey();
     const result = await Keychain.setGenericPassword(
       KEYCHAIN_USERNAME,
       privateKeyPem,
       {
         service: KEYCHAIN_SERVICE,
-        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         authenticationPrompt: {
           title: 'Proteger acceso biométrico',

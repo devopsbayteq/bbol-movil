@@ -14,5 +14,11 @@ export const SecureStorageKeys = {
   BIOMETRIC_CREDENTIALS: '@bb_biometric_credentials',
   /** Email/usuario para cifrado en challenge/login biométrico (sin contraseña) */
   BIOMETRIC_USERNAME: '@bb_biometric_username',
+  /** Snapshot iOS: `LAContext.evaluatedPolicyDomainState` en base64 (cambio de huellas/Face) */
+  BIOMETRIC_ENROLLMENT_SNAPSHOT: '@bb_biometric_enrollment_snapshot',
   USER_LOGIN_DATA: '@bb_user_login_data',
+  /** Primer login exitoso en este dispositivo (identificador de usuario / email de login) */
+  DEVICE_BOUND_LOGIN_ID: '@bb_device_bound_login_id',
+  /** Usuario rechazó registrar biometría en oferta post-OTP; no volver a mostrar BiometricOffer */
+  BIOMETRIC_OFFER_DECLINED: '@bb_biometric_offer_declined',
 } as const;

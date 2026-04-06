@@ -1,5 +1,9 @@
 import axios from 'axios';
 import {GetPublicKeyUseCase} from '../../domain/usecases/GetPublicKeyUseCase';
+import {
+  BiometricAuthError,
+  type BiometricAuthService,
+} from '../../domain/services/BiometricAuthService';
 import {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {BiometricRemoteDataSource} from '../../data/datasources/biometric/BiometricRemoteDataSource';
@@ -7,6 +11,7 @@ import {CryptoService} from './CryptoService';
 import {BiometricKeyStorageService} from './BiometricKeyStorageService';
 import {encryptUserIdentifierForBiometricApi} from './userEncryptHelper';
 import {BiometricRSAError} from './errors';
+import type {BiometricEnrollmentBinding} from './BiometricEnrollmentBinding';
 
 export interface BiometricLoginResult {
   accessToken: string;
@@ -21,6 +26,8 @@ export class BiometricRSAAuthOrchestrator {
     private readonly secureStorage: SecureStorageService,
     private readonly getPublicKeyUseCase: GetPublicKeyUseCase,
     private readonly serverPublicKeyStorageKey: string,
+    private readonly biometricAuth: BiometricAuthService,
+    private readonly enrollmentBinding: BiometricEnrollmentBinding,
   ) {}
 
   private async resolveServerPublicKeyPemBase64(): Promise<string> {
@@ -32,9 +39,37 @@ export class BiometricRSAAuthOrchestrator {
     return pk.value.trim();
   }
 
+  /** Limpia clave local y usuario biométrico tras cambio de enrolamiento en el dispositivo. */
+  private async clearBiometricRegistrationLocal(): Promise<void> {
+    try {
+      await this.keyStorage.deletePrivateKey();
+    } catch {
+      // best effort
+    }
+    try {
+      await this.secureStorage.remove(SecureStorageKeys.BIOMETRIC_USERNAME);
+    } catch {
+      // best effort
+    }
+    try {
+      await this.enrollmentBinding.clear();
+    } catch {
+      // best effort
+    }
+  }
+
   private mapUnknownError(e: unknown): BiometricRSAError {
     if (e instanceof BiometricRSAError) {
       return e;
+    }
+    if (e instanceof BiometricAuthError) {
+      const code =
+        e.code === 'user_cancelled'
+          ? 'user_cancelled'
+          : e.code === 'not_available'
+            ? 'not_available'
+            : 'prompt_failed';
+      return new BiometricRSAError(e.message, code, e);
     }
     if (axios.isAxiosError(e)) {
       return new BiometricRSAError(
@@ -61,6 +96,19 @@ export class BiometricRSAAuthOrchestrator {
     }
 
     try {
+      const availability = await this.biometricAuth.getAvailability();
+      if (!availability.available) {
+        throw new BiometricRSAError(
+          availability.error?.trim() ||
+            'La autenticación biométrica no está disponible en este dispositivo.',
+          'not_available',
+        );
+      }
+
+      await this.biometricAuth.authenticate(
+        'Confirma tu identidad para activar el acceso con huella o Face ID.',
+      );
+
       const serverPem = await this.resolveServerPublicKeyPemBase64();
       const userEncryptBase64 = encryptUserIdentifierForBiometricApi(
         serverPem,
@@ -91,6 +139,7 @@ export class BiometricRSAAuthOrchestrator {
         SecureStorageKeys.BIOMETRIC_USERNAME,
         trimmed,
       );
+      await this.enrollmentBinding.snapshot();
       this.cryptoService.clearMemoryKeys();
     } catch (e) {
       this.cryptoService.clearMemoryKeys();
@@ -115,11 +164,14 @@ export class BiometricRSAAuthOrchestrator {
 
       const hasKey = await this.keyStorage.hasPrivateKey();
       if (!hasKey) {
+        await this.clearBiometricRegistrationLocal();
         throw new BiometricRSAError(
-          'No hay clave biométrica en este dispositivo. Activa biometría tras iniciar sesión.',
-          'no_private_key',
+          'El conjunto biométrico del dispositivo cambió o la clave ya no está disponible.',
+          'biometric_enrollment_changed',
         );
       }
+
+      await this.enrollmentBinding.verify();
 
       const serverPem = await this.resolveServerPublicKeyPemBase64();
       const usernameEncryptBase64 = encryptUserIdentifierForBiometricApi(
@@ -131,7 +183,19 @@ export class BiometricRSAAuthOrchestrator {
         userEncryptBase64: usernameEncryptBase64,
       });
 
-      const privateKeyPem = await this.keyStorage.getPrivateKey();
+      let privateKeyPem: string;
+      try {
+        privateKeyPem = await this.keyStorage.getPrivateKey();
+      } catch (e) {
+        if (e instanceof BiometricRSAError && e.code === 'no_private_key') {
+          await this.clearBiometricRegistrationLocal();
+          throw new BiometricRSAError(
+            'El conjunto biométrico del dispositivo cambió o la clave ya no está disponible.',
+            'biometric_enrollment_changed',
+          );
+        }
+        throw e;
+      }
       const challengeSignBase64 = await this.cryptoService.signChallenge(
         challenge,
         privateKeyPem,
@@ -153,7 +217,11 @@ export class BiometricRSAAuthOrchestrator {
         email: emailStored.trim(),
       };
     } catch (e) {
-      throw this.mapUnknownError(e);
+      const mapped = this.mapUnknownError(e);
+      if (mapped.code === 'biometric_enrollment_changed') {
+        await this.clearBiometricRegistrationLocal();
+      }
+      throw mapped;
     }
   }
 

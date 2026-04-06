@@ -5,12 +5,17 @@ import {
   Image,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useLoginViewModel} from './useLoginViewModel';
+import {
+  useLoginViewModel,
+  BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE,
+} from './useLoginViewModel';
+import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {useAuth} from '../../providers';
 import {useDI} from '../../di';
 import {useTheme, type ThemeColors} from '../../providers';
@@ -32,15 +37,33 @@ const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
 export function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {login} = useAuth();
-  const {biometricRSAAuthOrchestrator} = useDI();
+  const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
   const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+  /** `null` = cargando almacén; string vacío = sin usuario vinculado; no vacío = modo compacto */
+  const [deviceBoundLoginId, setDeviceBoundLoginId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
-     biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
+    secureStorageService
+      .get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID)
+      .then(v => {
+        if (!cancelled) {
+          setDeviceBoundLoginId(v?.trim() ?? '');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [secureStorageService]);
+
+  useEffect(() => {
+    let cancelled = false;
+    biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
       if (!cancelled) {
         setShowBiometricLogin(has);
       }
@@ -59,6 +82,10 @@ export function LoginScreen() {
     isLoadingBiometric,
     isBusy,
     error,
+    biometricEnrollmentRevoked,
+    acknowledgeBiometricEnrollmentRevoked,
+    isDeviceBoundCompact,
+    resetForDifferentUser,
     setEmail,
     setPassword,
     handleLogin,
@@ -74,11 +101,46 @@ export function LoginScreen() {
     user => {
        login(user).catch();
     },
+    deviceBoundLoginId === null
+      ? undefined
+      : deviceBoundLoginId
+        ? {deviceBoundLoginId}
+        : undefined,
   );
+
+  useEffect(() => {
+    if (!biometricEnrollmentRevoked) {
+      return;
+    }
+    setShowBiometricLogin(false);
+    Alert.alert(
+      'Acceso biométrico desactualizado',
+      BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE,
+      [{text: 'Entendido', onPress: acknowledgeBiometricEnrollmentRevoked}],
+    );
+  }, [
+    biometricEnrollmentRevoked,
+    acknowledgeBiometricEnrollmentRevoked,
+  ]);
 
   const onHelp = () => {
     Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
   };
+
+  const handleChangeUser = async () => {
+    await secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID);
+    // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
+    await secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED);
+    setDeviceBoundLoginId('');
+    resetForDifferentUser();
+  };
+
+  const welcomeSubtitle =
+    deviceBoundLoginId === null
+      ? 'Ingresa con tu usuario y contraseña.'
+      : isDeviceBoundCompact && deviceBoundLoginId
+        ? `Bienvenido a tu banca móvil, ${deviceBoundLoginId}`
+        : 'Ingresa con tu usuario y contraseña.';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -97,39 +159,58 @@ export function LoginScreen() {
 
           <View style={styles.hero}>
             <Text style={styles.heroTitle}>Identidad Digital</Text>
-            <Text style={styles.heroSubtitle}>
-              Ingresa con tu usuario y contraseña.
-            </Text>
+            <Text style={styles.heroSubtitle}>{welcomeSubtitle}</Text>
           </View>
 
           <View style={styles.inputs}>
-            <LoginTextField
-              testID="login-email-input"
-              label="Ingresa tu usuario"
-              placeholder="Usuario"
-              value={email}
-              onChangeText={setEmail}
-              hasError={!!emailError}
-              errorMessage={emailError ?? undefined}
-              errorTestID="login-username-error"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isBusy}
-              autoComplete="username"
-            />
+            {deviceBoundLoginId === null ? (
+              <ActivityIndicator
+                accessibilityLabel="Cargando"
+                color={colors.primary}
+                style={styles.inputsLoading}
+              />
+            ) : (
+              <>
+                {isDeviceBoundCompact ? null : (
+                  <LoginTextField
+                    testID="login-email-input"
+                    label="Ingresa tu usuario"
+                    placeholder="Usuario"
+                    value={email}
+                    onChangeText={setEmail}
+                    hasError={!!emailError}
+                    errorMessage={emailError ?? undefined}
+                    errorTestID="login-username-error"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!isBusy}
+                    autoComplete="username"
+                  />
+                )}
 
-            <LoginPasswordField
-              testID="login-password-input"
-              label="Contraseña"
-              placeholder="Contraseña"
-              value={password}
-              onChangeText={setPassword}
-              hasError={!!passwordError}
-              errorMessage={passwordError ?? undefined}
-              errorTestID="login-password-error"
-              editable={!isBusy}
-              autoComplete="password"
-            />
+                <LoginPasswordField
+                  testID="login-password-input"
+                  label="Contraseña"
+                  placeholder="Contraseña"
+                  value={password}
+                  onChangeText={setPassword}
+                  hasError={!!passwordError}
+                  errorMessage={passwordError ?? undefined}
+                  errorTestID="login-password-error"
+                  editable={!isBusy}
+                  autoComplete="password"
+                />
+
+                {isDeviceBoundCompact ? (
+                  <TertiaryLinkButton
+                    testID="login-change-user"
+                    title="No soy yo / Cambiar usuario"
+                    onPress={handleChangeUser}
+                    style={styles.changeUserLink}
+                  />
+                ) : null}
+              </>
+            )}
           </View>
 
           {error ? (
@@ -147,7 +228,7 @@ export function LoginScreen() {
               onPress={handleLogin}
               iconSource={require('../../../assets/images/house.png')}
               loading={isLoadingLogin}
-              disabled={isBusy}
+              disabled={isBusy || deviceBoundLoginId === null}
               variant="loginPrimary"
             />
             {showBiometricLogin ? (
@@ -157,7 +238,7 @@ export function LoginScreen() {
                   title="Huella/FaceID"
                   iconSource={loginFingerprintIcon}
                   onPress={handleBiometricLogin}
-                  disabled={isBusy}
+                  disabled={isBusy || deviceBoundLoginId === null}
                   loading={isLoadingBiometric}
                 />
               </>
@@ -224,6 +305,14 @@ function useStyles(colors: ThemeColors) {
         inputs: {
           gap: 8,
           marginBottom: 16,
+        },
+        changeUserLink: {
+          alignSelf: 'flex-start',
+          marginTop: 4,
+        },
+        inputsLoading: {
+          alignSelf: 'center',
+          marginVertical: 24,
         },
         errorBanner: {
           marginBottom: 16,

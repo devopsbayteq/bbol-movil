@@ -36,6 +36,7 @@ import {BeneficiaryRepositoryImpl} from '../data/repositories/BeneficiaryReposit
 import {BiometricRemoteDataSource} from '../data/datasources/biometric';
 import {
   BiometricRSAAuthOrchestrator,
+  BiometricEnrollmentBinding,
   CryptoService,
   BiometricKeyStorageService,
 } from '../security/biometric';
@@ -126,6 +127,9 @@ export function createContainer(): AppContainer {
 
   const cryptoService = new CryptoService();
   const biometricKeyStorageService = new BiometricKeyStorageService();
+  const biometricEnrollmentBinding = new BiometricEnrollmentBinding(
+    secureStorageService,
+  );
   const biometricRSAAuthOrchestrator = new BiometricRSAAuthOrchestrator(
     biometricRemoteDataSource,
     cryptoService,
@@ -133,6 +137,8 @@ export function createContainer(): AppContainer {
     secureStorageService,
     getPublicKeyUseCase,
     SecureStorageKeys.SERVER_PUBLIC_KEY,
+    biometricAuthService,
+    biometricEnrollmentBinding,
   );
 
   const validateOtpUseCase = new ValidateOtpUseCase(

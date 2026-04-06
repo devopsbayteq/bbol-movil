@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useDI} from '../../../src/di';
-import {useLoginViewModel} from '../../../src/presentation/auth/useLoginViewModel';
+import {
+  useLoginViewModel,
+  type UseLoginViewModelOptions,
+} from '../../../src/presentation/auth/useLoginViewModel';
 import {BiometricRSAError} from '../../../src/security/biometric/errors';
 
 jest.mock('../../../src/di', () => ({
@@ -22,6 +25,7 @@ describe('useLoginViewModel', () => {
   function Harness({
     onCredentialLoginSuccess,
     onBiometricLoginSuccess,
+    options,
   }: {
     onCredentialLoginSuccess: (user: {
       id: string;
@@ -35,10 +39,12 @@ describe('useLoginViewModel', () => {
       name: string;
       token: string;
     }) => void;
+    options?: UseLoginViewModelOptions;
   }) {
     latest = useLoginViewModel(
       onCredentialLoginSuccess,
       onBiometricLoginSuccess,
+      options,
     );
     return null;
   }
@@ -226,6 +232,73 @@ describe('useLoginViewModel', () => {
 
     expect(latest?.error).toBe('Servidor caído');
     expect(latest?.isLoadingLogin).toBe(false);
+  });
+
+  test('modo dispositivo vinculado ignora setEmail y fija usuario para envío', async () => {
+    const execute = jest.fn().mockResolvedValue({
+      id: 'usuario01',
+      email: 'usuario01',
+      name: 'Usuario Demo',
+      token: 'jwt-token',
+    });
+    const onCredentialLoginSuccess = jest.fn();
+
+    mockedUseDI.mockReturnValue({
+      loginUseCase: {execute},
+      biometricRSAAuthOrchestrator: defaultOrchestrator,
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <Harness
+          onCredentialLoginSuccess={onCredentialLoginSuccess}
+          onBiometricLoginSuccess={jest.fn()}
+          options={{deviceBoundLoginId: 'usuario01'}}
+        />,
+      );
+    });
+
+    act(() => {
+      latest?.setEmail('otro');
+    });
+    expect(latest?.email).toBe('usuario01');
+    expect(latest?.isDeviceBoundCompact).toBe(true);
+
+    act(() => {
+      latest?.setPassword('12345678');
+    });
+
+    await act(async () => {
+      await latest?.handleLogin();
+    });
+
+    expect(execute).toHaveBeenCalledWith('usuario01', '12345678');
+    expect(onCredentialLoginSuccess).toHaveBeenCalled();
+  });
+
+  test('resetForDifferentUser limpia credenciales', async () => {
+    mockedUseDI.mockReturnValue({
+      loginUseCase: {execute: jest.fn()},
+      biometricRSAAuthOrchestrator: defaultOrchestrator,
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <Harness
+          onCredentialLoginSuccess={jest.fn()}
+          onBiometricLoginSuccess={jest.fn()}
+          options={{deviceBoundLoginId: 'usuario01'}}
+        />,
+      );
+    });
+
+    act(() => {
+      latest?.setPassword('12345678');
+      latest?.resetForDifferentUser();
+    });
+
+    expect(latest?.email).toBe('');
+    expect(latest?.password).toBe('');
   });
 
   test('contraseña demasiado larga muestra error de campo', async () => {

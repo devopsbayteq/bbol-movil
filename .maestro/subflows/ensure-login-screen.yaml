@@ -16,10 +16,8 @@ appId: com.bbapp
         id: "otp-screen"
     commands:
       - pressKey: Back
-      - extendedWaitUntil:
-          visible:
-            id: "login-email-input"
-          timeout: 20000
+      - runFlow:
+          file: ensure-login-email-field-visible.yaml
 
 # Si hay sesión activa (home-screen), ir a Movimientos y cerrar sesión.
 - runFlow:
@@ -34,7 +32,5 @@ appId: com.bbapp
           timeout: 15000
       - tapOn:
           id: "logout-button"
-      - extendedWaitUntil:
-          visible:
-            id: "login-email-input"
-          timeout: 20000
+      - runFlow:
+          file: ensure-login-email-field-visible.yaml

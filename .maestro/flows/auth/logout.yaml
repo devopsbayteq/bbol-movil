@@ -15,10 +15,8 @@ name: Logout y retorno a pantalla de login
 - tapOn:
     id: "logout-button"
 
-- extendedWaitUntil:
-    visible:
-      id: "login-email-input"
-    timeout: 20000
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 
 - assertVisible: "Identidad Digital"
 - assertVisible:

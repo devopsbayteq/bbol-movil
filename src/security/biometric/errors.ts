@@ -2,6 +2,7 @@ export type BiometricRSAErrorCode =
   | 'user_cancelled'
   | 'not_available'
   | 'prompt_failed'
+  | 'biometric_enrollment_changed'
   | 'keychain_error'
   | 'no_private_key'
   | 'no_server_public_key'

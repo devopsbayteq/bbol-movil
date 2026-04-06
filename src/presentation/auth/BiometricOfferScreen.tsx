@@ -8,6 +8,7 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RouteProp, useRoute} from '@react-navigation/native';
+import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {useAuth} from '../../providers';
 import {useDI} from '../../di';
 import {useTheme, type ThemeColors} from '../../providers';
@@ -22,7 +23,7 @@ export function BiometricOfferScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'BiometricOffer'>>();
   const {user, email} = route.params;
   const {login} = useAuth();
-  const {biometricRSAAuthOrchestrator} = useDI();
+  const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
@@ -33,8 +34,12 @@ export function BiometricOfferScreen() {
 
   const handleSkip = useCallback(async () => {
     setError(null);
+    await secureStorageService.save(
+      SecureStorageKeys.BIOMETRIC_OFFER_DECLINED,
+      'true',
+    );
     await login(user);
-  }, [login, user]);
+  }, [login, secureStorageService, user]);
 
   const handleAccept = useCallback(async () => {
     setIsLoadingAccept(true);

@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react';
+import {useState, useCallback, useEffect} from 'react';
 import {User} from '../../domain/entities/User';
 import {useDI} from '../../di';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
@@ -16,6 +16,14 @@ import {
   validateLoginUsername,
 } from '../../domain/validation';
 
+export const BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE =
+  'Detectamos un cambio en los registros biométricos de tu dispositivo. Por seguridad, inicia sesión con tu usuario y contraseña. Luego podrás volver a activar el acceso con huella o Face ID.';
+
+export interface UseLoginViewModelOptions {
+  /** Usuario ya vinculado al dispositivo: email fijo, sin edición del campo usuario. */
+  deviceBoundLoginId?: string;
+}
+
 interface LoginState {
   email: string;
   password: string;
@@ -24,12 +32,16 @@ interface LoginState {
   isLoadingLogin: boolean;
   isLoadingBiometric: boolean;
   error: string | null;
+  biometricEnrollmentRevoked: boolean;
 }
 
 export function mapBiometricError(err: unknown): string | null {
   if (err instanceof BiometricRSAError) {
     if (err.code === 'user_cancelled') {
       return null;
+    }
+    if (err.code === 'biometric_enrollment_changed') {
+      return BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE;
     }
     if (err.code === 'not_available') {
       return 'La autenticación biométrica no está disponible en este dispositivo.';
@@ -78,7 +90,11 @@ function getLivePasswordError(password: string): string | null {
 export function useLoginViewModel(
   onCredentialLoginSuccess: (user: User) => void,
   onBiometricLoginSuccess: (user: User) => void,
+  options?: UseLoginViewModelOptions,
 ) {
+  const deviceBoundLoginId = options?.deviceBoundLoginId?.trim() ?? '';
+  const isDeviceBoundCompact = deviceBoundLoginId.length > 0;
+
   const [state, setState] = useState<LoginState>({
     email: '',
     password: '',
@@ -87,11 +103,26 @@ export function useLoginViewModel(
     isLoadingLogin: false,
     isLoadingBiometric: false,
     error: null,
+    biometricEnrollmentRevoked: false,
   });
 
   const {loginUseCase, biometricRSAAuthOrchestrator} = useDI();
 
+  useEffect(() => {
+    if (!deviceBoundLoginId) {
+      return;
+    }
+    setState(prev => ({
+      ...prev,
+      email: deviceBoundLoginId,
+      emailError: null,
+    }));
+  }, [deviceBoundLoginId]);
+
   const setEmail = useCallback((email: string) => {
+    if (isDeviceBoundCompact) {
+      return;
+    }
     const sanitizedEmail = sanitizeLoginUsernameInput(email);
 
     if (sanitizedEmail.length > LOGIN_USERNAME_MAX_LENGTH) {
@@ -114,7 +145,7 @@ export function useLoginViewModel(
       emailError,
       error: null,
     }));
-  }, []);
+  }, [isDeviceBoundCompact]);
 
   const setPassword = useCallback((password: string) => {
     const sanitizedPassword = sanitizeLoginPasswordInput(password);
@@ -194,7 +225,12 @@ export function useLoginViewModel(
   ]);
 
   const handleBiometricLogin = useCallback(async () => {
-    setState(prev => ({...prev, isLoadingBiometric: true, error: null}));
+    setState(prev => ({
+      ...prev,
+      isLoadingBiometric: true,
+      error: null,
+      biometricEnrollmentRevoked: false,
+    }));
 
     try {
       const result = await biometricRSAAuthOrchestrator.loginWithBiometric();
@@ -206,17 +242,44 @@ export function useLoginViewModel(
         sessionExpiresAt: Date.now() + 3600 * 1000,
         inactivityTimeoutSeconds: 300,
       };
-      setState(prev => ({...prev, isLoadingBiometric: false}));
+      setState(prev => ({
+        ...prev,
+        isLoadingBiometric: false,
+        biometricEnrollmentRevoked: false,
+      }));
       onBiometricLoginSuccess(user);
     } catch (err) {
+      const revoked =
+        err instanceof BiometricRSAError &&
+        err.code === 'biometric_enrollment_changed';
       const message = mapBiometricError(err);
       setState(prev => ({
         ...prev,
         isLoadingBiometric: false,
-        ...(message ? {error: message} : {}),
+        biometricEnrollmentRevoked: revoked,
+        ...(revoked
+          ? {error: null}
+          : message
+            ? {error: message}
+            : {}),
       }));
     }
   }, [biometricRSAAuthOrchestrator, onBiometricLoginSuccess]);
+
+  const acknowledgeBiometricEnrollmentRevoked = useCallback(() => {
+    setState(prev => ({...prev, biometricEnrollmentRevoked: false}));
+  }, []);
+
+  const resetForDifferentUser = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      email: '',
+      password: '',
+      emailError: null,
+      passwordError: null,
+      error: null,
+    }));
+  }, []);
 
   const isBusy = state.isLoadingLogin || state.isLoadingBiometric;
 
@@ -229,6 +292,10 @@ export function useLoginViewModel(
     isLoadingBiometric: state.isLoadingBiometric,
     isBusy,
     error: state.error,
+    biometricEnrollmentRevoked: state.biometricEnrollmentRevoked,
+    acknowledgeBiometricEnrollmentRevoked,
+    isDeviceBoundCompact,
+    resetForDifferentUser,
     setEmail,
     setPassword,
     handleLogin,

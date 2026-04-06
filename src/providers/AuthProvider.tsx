@@ -40,7 +40,8 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextState => {
-      if (nextState === 'background' || nextState === 'inactive') {
+      // Solo background: en `inactive` aparece la UI de Face ID y no debe borrarse aquí.
+      if (nextState === 'background') {
         void secureStorage.remove(SecureStorageKeys.USER_LOGIN_DATA);
       }
     });
@@ -65,6 +66,15 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
         JSON.stringify(user),
       );
       await secureStorage.save(SecureStorageKeys.AUTH_TOKEN, user.token);
+      const existingBound = await secureStorage.get(
+        SecureStorageKeys.DEVICE_BOUND_LOGIN_ID,
+      );
+      if (!existingBound?.trim()) {
+        await secureStorage.save(
+          SecureStorageKeys.DEVICE_BOUND_LOGIN_ID,
+          user.email.trim(),
+        );
+      }
       setState({user, isAuthenticated: true, isLoading: false});
     },
     [secureStorage],

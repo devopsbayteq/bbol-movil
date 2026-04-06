@@ -16,6 +16,7 @@ interface TertiaryLinkButtonProps {
   iconUri?: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export function TertiaryLinkButton({
@@ -23,12 +24,14 @@ export function TertiaryLinkButton({
   iconUri,
   onPress,
   style,
+  testID,
 }: TertiaryLinkButtonProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
   return (
     <TouchableOpacity
+      testID={testID}
       style={[styles.root, style]}
       onPress={onPress}
       activeOpacity={0.8}

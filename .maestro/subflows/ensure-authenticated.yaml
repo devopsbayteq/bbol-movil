@@ -14,10 +14,8 @@ appId: com.bbapp
       notVisible:
         id: "home-screen"
     commands:
-      - extendedWaitUntil:
-          visible:
-            id: "login-email-input"
-          timeout: 30000
+      - runFlow:
+          file: ensure-login-email-field-visible.yaml
       - tapOn:
           id: "login-email-input"
       - inputText: "usuario01"

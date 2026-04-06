@@ -7,10 +7,8 @@ name: Login — Validación de campos
 - runFlow:
     file: ../../subflows/ensure-login-screen.yaml
 
-- extendedWaitUntil:
-    visible:
-      id: "login-email-input"
-    timeout: 30000
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 
 # --- 1. Usuario demasiado corto (< 6 chars) muestra error de campo ---
 - tapOn:
@@ -22,6 +20,8 @@ name: Login — Validación de campos
 
 # --- 2. Usuario demasiado largo (> 20 chars) muestra error de campo ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
 - inputText: "usuarioconmasde20caracteres"
@@ -31,6 +31,8 @@ name: Login — Validación de campos
 
 # --- 3. Contraseña demasiado corta (< 8 chars) muestra error de campo ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
 - inputText: "usuario01"
@@ -43,6 +45,8 @@ name: Login — Validación de campos
 
 # --- 4. Contraseña demasiado larga (> 16 chars) muestra error de campo ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
 - inputText: "usuario01"
@@ -55,6 +59,8 @@ name: Login — Validación de campos
 
 # --- 5. Submit sin datos muestra error de campo de usuario ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-submit"
 - assertVisible: "El usuario es requerido"

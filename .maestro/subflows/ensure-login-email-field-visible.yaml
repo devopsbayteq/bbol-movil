@@ -1,0 +1,10 @@
+appId: com.bbapp
+---
+# Tras un login previo en el mismo dispositivo la app puede ocultar el campo usuario (modo compacto).
+- tapOn:
+    id: "login-change-user"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 45000

@@ -1,6 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 import {Platform} from 'react-native';
-import {BiometricKeyStorageService} from '../BiometricKeyStorageService';
+import {BiometricKeyStorageService, mapKeychainError} from '../BiometricKeyStorageService';
 import {BiometricRSAError} from '../errors';
 
 describe('BiometricKeyStorageService', () => {
@@ -8,6 +8,15 @@ describe('BiometricKeyStorageService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('savePrivateKey elimina entrada previa antes de guardar', async () => {
+    (Keychain.setGenericPassword as jest.Mock).mockResolvedValueOnce(true);
+    await service.savePrivateKey('pem');
+    expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({
+      service: 'com.bbapp.biometric.rsa.private.v1',
+    });
+    expect(Keychain.setGenericPassword).toHaveBeenCalled();
   });
 
   it('savePrivateKey lanza si setGenericPassword devuelve false', async () => {
@@ -27,6 +36,7 @@ describe('BiometricKeyStorageService', () => {
       expect.any(String),
       'my-pem',
       expect.objectContaining({
+        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
         authenticationPrompt: expect.objectContaining({
           subtitle: expect.any(String),
         }),
@@ -91,6 +101,20 @@ describe('BiometricKeyStorageService', () => {
     await expect(service.getPrivateKey()).rejects.toMatchObject({
       code: 'keychain_error',
     });
+  });
+
+  it('getPrivateKey mapea cambio de conjunto biométrico', async () => {
+    (Keychain.getGenericPassword as jest.Mock).mockRejectedValueOnce(
+      new Error('Key permanently invalidated'),
+    );
+    await expect(service.getPrivateKey()).rejects.toMatchObject({
+      code: 'biometric_enrollment_changed',
+    });
+  });
+
+  it('mapKeychainError clasifica enrollment', () => {
+    const e = mapKeychainError(new Error('NSFaceIDUsageDescription errSecInteractionNotAllowed -25308'));
+    expect(e.code).toBe('biometric_enrollment_changed');
   });
 
   it('hasPrivateKey delega en Keychain', async () => {
