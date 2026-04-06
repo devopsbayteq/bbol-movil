@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import {
   TransferIconClose,
@@ -45,7 +45,7 @@ export function DevelopmentNoticeModal({
 
   const defaultIcon = (
     <View style={styles.iconBox}>
-      <TransferIconCodeBrackets color={colors.error} size={ICON_INNER} />
+      <Text>{"<>"}</Text>
     </View>
   );
 

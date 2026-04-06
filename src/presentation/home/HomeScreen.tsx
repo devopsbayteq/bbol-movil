@@ -268,6 +268,11 @@ export function HomeScreen() {
     await logout();
   };
 
+
+  const optionIsDeveloping=()=>{
+      setDevModalVisible(true)
+  }
+
   return (
     <View testID="home-screen" style={styles.root}>
       <ScrollView
@@ -283,7 +288,7 @@ export function HomeScreen() {
         }>
         <View style={styles.darkHeaderZone}>
           <SafeAreaView edges={['top']} />
-          <HomeHeader userName={user?.name} onLogout={handleLogout} />
+          <HomeHeader userName={user?.name} onLogout={handleLogout} onNotifications={optionIsDeveloping} />
           <ProductFilterTabs
             filters={PRODUCT_FILTERS}
             selectedFilter={filter}
@@ -337,7 +342,9 @@ export function HomeScreen() {
 
         {/* --- Light content area --- */}
         <View style={styles.contentArea}>
-          <QuickActionsRow />
+          <QuickActionsRow onPress={() => {
+              setDevModalVisible(true)
+          }} />
           <PromotionalBanner />
 
           <View style={styles.frequentPaymentsSection}>
@@ -367,6 +374,7 @@ export function HomeScreen() {
         visible={devModalVisible}
         onClose={() => setDevModalVisible(false)}
       />
+
     </View>
   );
 }
