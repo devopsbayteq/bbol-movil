@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "RN: Abrir Simulador iOS",
+      "type": "shell",
+      "command": "open -a Simulator && sleep 6",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "detail": "Evita SimError 405 (simulador apagado) antes de run-ios."
+    }
+  ]
+}
