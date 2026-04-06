@@ -49,9 +49,9 @@ export function TransferScreen() {
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
 
-    const navigation = useNavigation<NativeStackNavigationProp<
-        TransferStackParamList,
-        'TransferMain'>>();
+    const navigation = useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
+
+    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList,'ConsolidatedPosition'>>()
 
     const {
         displayAmount,
@@ -86,8 +86,8 @@ export function TransferScreen() {
 
     const onBack = () => {
         const tabNav =
-            navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate('Home',{});
+            navigationTab.getParent<BottomTabNavigationProp<MainTabParamList>>();
+        tabNav?.navigate('ConsolidatedPosition',{});
     };
 
     return (

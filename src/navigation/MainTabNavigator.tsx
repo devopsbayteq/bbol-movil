@@ -11,23 +11,21 @@ import {
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {HomeScreen} from '../presentation/home/HomeScreen';
 import {TransferStackNavigator} from './TransferStackNavigator';
 import {
   MovementsStackNavigator,
   type MovementsStackParamList,
 } from './MovementsStackNavigator';
-import {useTheme} from '../providers/theme';
+import {useTheme} from '../providers';
 import {Lexend} from '../theme/lexend';
 import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './tabIcons';
+import {HomeStackNavigator} from "./HomeStackNavigator.tsx";
 
 const TAB_BAR_HEIGHT = 60;
 
 export type MainTabParamList = {
-  /** `refreshHome`: timestamp para forzar recarga al volver desde transferencia (opcional). */
-  Home: {refreshHome?: number};
+  ConsolidatedPosition: {refreshHome?: number};
   Transfer: undefined;
-  /** Stack: lista + detalle. Params iniciales van a `MovementsList`. */
   Movements: NavigatorScreenParams<MovementsStackParamList> | undefined;
 };
 
@@ -119,8 +117,8 @@ export function MainTabNavigator() {
         },
       }}>
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+        name="ConsolidatedPosition"
+        component={HomeStackNavigator}
         options={{
           title: 'Inicio',
           tabBarIcon: tabBarIconHome,
