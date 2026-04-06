@@ -1,0 +1,31 @@
+appId: com.bbapp
+---
+# Espera a que el splash (5s) y el fetch de clave pública terminen.
+# Si ya hay sesión, la app aterriza en home-screen (tab Inicio).
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+    optional: true
+
+# Si no estamos en home, hay que hacer login.
+- runFlow:
+    when:
+      notVisible:
+        id: "home-screen"
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "login-email-input"
+          timeout: 30000
+      - tapOn:
+          id: "login-email-input"
+      - inputText: "usuario01"
+      - tapOn:
+          id: "login-password-input"
+      - inputText: "123456"
+      - hideKeyboard
+      - tapOn:
+          id: "login-submit"
+      - runFlow:
+          file: complete-demo-otp.yaml
