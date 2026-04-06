@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react';
+import {useState, useCallback, useMemo} from 'react';
 import {User} from '../../domain/entities/User';
 import {useDI} from '../../di';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
@@ -15,6 +15,7 @@ import {
   validateLoginPassword,
   validateLoginUsername,
 } from '../../domain/validation';
+import DeviceInfo from "react-native-device-info";
 
 interface LoginState {
   email: string;
@@ -79,6 +80,15 @@ export function useLoginViewModel(
   onCredentialLoginSuccess: (user: User) => void,
   onBiometricLoginSuccess: (user: User) => void,
 ) {
+
+  const appVersion = DeviceInfo.getVersion();
+  const buildNumber = DeviceInfo.getBuildNumber();
+
+  const version = `Versión: ${appVersion} (${buildNumber})`;
+
+  const [showDevelopMode, setShowDevelopMode] = useState(false);
+  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+
   const [state, setState] = useState<LoginState>({
     email: '',
     password: '',
@@ -220,6 +230,11 @@ export function useLoginViewModel(
 
   const isBusy = state.isLoadingLogin || state.isLoadingBiometric;
 
+  const isCredentialLoginEnabled = useMemo(
+      () =>
+          state.email.trim().length > 0 && state.password.trim().length > 0,
+      [state.email, state.password],
+  );
   return {
     email: state.email,
     password: state.password,
@@ -228,10 +243,16 @@ export function useLoginViewModel(
     isLoadingLogin: state.isLoadingLogin,
     isLoadingBiometric: state.isLoadingBiometric,
     isBusy,
+    isCredentialLoginEnabled,
     error: state.error,
     setEmail,
     setPassword,
     handleLogin,
     handleBiometricLogin,
+    showDevelopMode,
+    setShowDevelopMode,
+    showBiometricLogin,
+    setShowBiometricLogin,
+    version
   };
 }
