@@ -20,7 +20,7 @@ import {useTheme} from '../providers';
 import {Lexend} from '../theme/lexend';
 import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './components/tabIcons.tsx';
 import {HomeStackNavigator} from "./HomeStackNavigator.tsx";
-import {MyProfileScreen} from "../presentation/MyProfile/MyProfileScreen.tsx";
+import {MyProfileScreen} from "../presentation/myProfile/MyProfileScreen.tsx";
 
 const TAB_BAR_HEIGHT = 60;
 

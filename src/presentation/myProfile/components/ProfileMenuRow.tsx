@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from "react-native";
+import {Pressable, StyleSheet, Text, View} from "react-native";
 import {ChevronRightIcon} from "../../home/components/HomeIcons.tsx";
 import {ReactNode, useMemo} from "react";
 import {ThemeColors} from "../../../providers";
@@ -12,6 +12,7 @@ type ProfileMenuRowProps = {
     colors: ThemeColors;
     isFirst?: boolean;
     isLast?: boolean;
+    onPress: () => void;
 };
 
 
@@ -21,10 +22,12 @@ export const ProfileMenuRow = ({
                                    colors,
                                    isFirst,
                                    isLast,
+                                   onPress
                                }: ProfileMenuRowProps) => {
 
     const styles = useRowStyles(colors, isFirst, isLast);
     return (
+        <Pressable onPress={onPress}>
         <View
             style={styles.row}
             accessibilityRole="text"
@@ -35,6 +38,7 @@ export const ProfileMenuRow = ({
             </Text>
             <ChevronRightIcon color={colors.textTertiary} size={16}/>
         </View>
+        </Pressable>
     );
 }
 

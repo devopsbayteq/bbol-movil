@@ -36,8 +36,10 @@ function firstGraphemeUpper(name: string): string {
 }
 
 export function useMyProfileViewModel() {
+
   const {user} = useAuth();
   const [connectionTime, setConnectionTime] = useState(() => new Date());
+  const [showDevelopmentMode,setShowDevelopmentMode] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -64,5 +66,7 @@ export function useMyProfileViewModel() {
     displayName,
     avatarInitial,
     lastConnectionLabel,
+    showDevelopmentMode,
+    setShowDevelopmentMode
   };
 }

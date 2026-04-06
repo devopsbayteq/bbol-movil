@@ -12,6 +12,7 @@ import {
 } from './ProfileMenuIcons';
 import {useMyProfileViewModel} from './useMyProfileViewModel';
 import {ProfileMenuRow} from "./components/ProfileMenuRow.tsx";
+import {DevelopmentNoticeModal} from "../components";
 
 export function MyProfileScreen() {
     const {colors} = useTheme();
@@ -19,7 +20,9 @@ export function MyProfileScreen() {
     const {
         displayName,
         avatarInitial,
-        lastConnectionLabel
+        lastConnectionLabel,
+        showDevelopmentMode,
+        setShowDevelopmentMode
     } =
         useMyProfileViewModel();
 
@@ -43,6 +46,7 @@ export function MyProfileScreen() {
                     <Text style={styles.sectionHeading}>Información personal</Text>
                     <View style={styles.card}>
                         <ProfileMenuRow
+                            onPress={()=>{setShowDevelopmentMode(true)}}
                             colors={colors}
                             isFirst
                             isLast
@@ -56,6 +60,7 @@ export function MyProfileScreen() {
                     <Text style={styles.sectionHeading}>Configuración</Text>
                     <View style={styles.card}>
                         <ProfileMenuRow
+                            onPress={()=>{setShowDevelopmentMode(true)}}
                             colors={colors}
                             isFirst
                             icon={<ProfileBankIcon color={colors.primary}/>}
@@ -63,6 +68,7 @@ export function MyProfileScreen() {
                         />
                         <View style={styles.cardDivider}/>
                         <ProfileMenuRow
+                            onPress={()=>{setShowDevelopmentMode(true)}}
                             colors={colors}
                             isLast
                             icon={<ProfileLockIcon color={colors.primary}/>}
@@ -75,6 +81,7 @@ export function MyProfileScreen() {
                     <Text style={styles.sectionHeading}>Salud financiera</Text>
                     <View style={styles.card}>
                         <ProfileMenuRow
+                            onPress={()=>{setShowDevelopmentMode(true)}}
                             colors={colors}
                             isFirst
                             isLast
@@ -88,6 +95,7 @@ export function MyProfileScreen() {
                     <Text style={styles.sectionHeading}>Experiencia en el app</Text>
                     <View style={styles.card}>
                         <ProfileMenuRow
+                            onPress={()=>{setShowDevelopmentMode(true)}}
                             colors={colors}
                             isFirst
                             isLast
@@ -98,6 +106,7 @@ export function MyProfileScreen() {
                         />
                     </View>
                 </View>
+                <DevelopmentNoticeModal visible={showDevelopmentMode} onClose={()=>{setShowDevelopmentMode(false)}}/>
             </ScrollView>
         </SafeAreaView>
     );
