@@ -11,24 +11,32 @@ import {QuickActionButton} from './QuickActionButton';
 
 const ICON_COLOR = HOME_PRIMARY_PRESSED;
 
-export function QuickActionsRow() {
+interface QuickActionsRowProps{
+    onPress:()=>void
+}
+
+export function QuickActionsRow({onPress}:QuickActionsRowProps) {
   return (
     <View style={styles.row}>
       <QuickActionButton
         icon={<TransferArrowsIcon color={ICON_COLOR} size={20} />}
         label="Transferir"
+        onPress={onPress}
       />
       <QuickActionButton
         icon={<LightbulbServiceIcon color={ICON_COLOR} size={20} />}
         label="Pagar servicios"
+        onPress={onPress}
       />
       <QuickActionButton
         icon={<QrCodeIcon color={ICON_COLOR} size={20} />}
         label="Cobrar QR"
+        onPress={onPress}
       />
       <QuickActionButton
         icon={<CalendarIcon color={ICON_COLOR} size={20} />}
         label="Programadas"
+        onPress={onPress}
       />
     </View>
   );
