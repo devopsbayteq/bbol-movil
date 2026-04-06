@@ -21,6 +21,9 @@ name: PIN incorrecto muestra error en pantalla OTP
 
 - hideKeyboard
 
+- runFlow:
+    file: ../../subflows/accept-login-terms.yaml
+
 - tapOn:
     id: "login-submit"
 

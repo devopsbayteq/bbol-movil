@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
@@ -55,22 +56,26 @@ function EyeOffIcon({color}: {color: string}) {
   );
 }
 
+type LoginPasswordFieldVariant = 'flat' | 'elevated';
+
 interface LoginPasswordFieldProps
   extends Omit<TextInputProps, 'style' | 'secureTextEntry'> {
-  label: string;
+  label?: string;
   hasError?: boolean;
   errorMessage?: string;
   eyeIconUri?: string;
   containerStyle?: StyleProp<ViewStyle>;
+  variant?: LoginPasswordFieldVariant;
   testID?: string;
   errorTestID?: string;
 }
 
 export function LoginPasswordField({
-  label,
+  label = '',
   hasError = false,
   errorMessage,
   containerStyle,
+  variant = 'flat',
   testID,
   errorTestID,
   ...textInputProps
@@ -78,13 +83,21 @@ export function LoginPasswordField({
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [visible, setVisible] = useState(false);
+  const showLabel = label.trim().length > 0;
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
-      <View style={styles.labelRow}>
-        <Text style={styles.label}>{label}</Text>
-      </View>
-      <View style={[styles.inputRow, (hasError || !!errorMessage) && styles.inputRowError]}>
+      {showLabel ? (
+        <View style={styles.labelRow}>
+          <Text style={styles.label}>{label}</Text>
+        </View>
+      ) : null}
+      <View
+        style={[
+          styles.inputRow,
+          variant === 'elevated' && styles.inputRowElevated,
+          (hasError || !!errorMessage) && styles.inputRowError,
+        ]}>
         <TextInput
           testID={testID}
           style={styles.input}
@@ -141,6 +154,17 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 14,
           borderWidth: 0,
         },
+        inputRowElevated:
+          Platform.OS === 'ios'
+            ? {
+                shadowColor: '#000000',
+                shadowOffset: {width: 0, height: 2},
+                shadowOpacity: 0.12,
+                shadowRadius: 6,
+              }
+            : {
+                elevation: 4,
+              },
         inputRowError: {
           borderWidth: 1,
           borderColor: colors.error,

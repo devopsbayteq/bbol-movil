@@ -24,6 +24,19 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function resolveDeviceBoundGreetingName(user: User): string {
+  const fromName = user.name.trim();
+  if (fromName) {
+    return fromName;
+  }
+  const email = user.email.trim();
+  const at = email.indexOf('@');
+  if (at > 0) {
+    return email.slice(0, at);
+  }
+  return email;
+}
+
 export function AuthProvider({children}: {children: React.ReactNode}) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -70,9 +83,15 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
         SecureStorageKeys.DEVICE_BOUND_LOGIN_ID,
       );
       if (!existingBound?.trim()) {
+        const loginId = user.email.trim();
         await secureStorage.save(
           SecureStorageKeys.DEVICE_BOUND_LOGIN_ID,
-          user.email.trim(),
+          loginId,
+        );
+        const greetingName = resolveDeviceBoundGreetingName(user);
+        await secureStorage.save(
+          SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
+          greetingName,
         );
       }
       setState({user, isAuthenticated: true, isLoading: false});

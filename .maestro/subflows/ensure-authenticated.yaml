@@ -23,6 +23,8 @@ appId: com.bbapp
           id: "login-password-input"
       - inputText: "123456"
       - hideKeyboard
+      - runFlow:
+          file: accept-login-terms.yaml
       - tapOn:
           id: "login-submit"
       - runFlow:

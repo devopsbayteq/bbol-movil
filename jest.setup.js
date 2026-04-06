@@ -25,7 +25,9 @@ jest.mock('react-native-encrypted-storage', () => ({
 }));
 
 jest.mock('react-native-device-info', () => ({
-  getVersion: jest.fn(() => Promise.resolve('0.0.1')),
+  /** API real es síncrona; valores por defecto para tests que importan el módulo. */
+  getVersion: jest.fn(() => '0.0.1'),
+  getBuildNumber: jest.fn(() => '1'),
   getModel: jest.fn(() => Promise.resolve('TestModel')),
   getBrand: jest.fn(() => Promise.resolve('TestBrand')),
   getSystemVersion: jest.fn(() => Promise.resolve('17.0')),

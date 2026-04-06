@@ -1,12 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import {View, StyleSheet, Alert, ActivityIndicator} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
@@ -15,27 +8,17 @@ import {
   useLoginViewModel,
   BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE,
 } from './useLoginViewModel';
+import {CompactLoginContent} from './CompactLoginContent';
+import {FirstLoginContent} from './FirstLoginContent';
 import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {useAuth} from '../../providers';
 import {useDI} from '../../di';
 import {useTheme, type ThemeColors} from '../../providers';
-import {
-  Button,
-  ErrorMessage,
-  LoginTextField,
-  LoginPasswordField,
-  SecondaryIconButton,
-  TertiaryLinkButton,
-  OrSeparator,
-} from '../components';
-import {Lexend} from '../../theme/lexend';
-import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
-
-
-const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
+import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 
 export function LoginScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {login} = useAuth();
   const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
@@ -46,16 +29,20 @@ export function LoginScreen() {
   const [deviceBoundLoginId, setDeviceBoundLoginId] = useState<string | null>(
     null,
   );
+  const [deviceBoundGreetingName, setDeviceBoundGreetingName] =
+    useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
-    secureStorageService
-      .get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID)
-      .then(v => {
-        if (!cancelled) {
-          setDeviceBoundLoginId(v?.trim() ?? '');
-        }
-      });
+    Promise.all([
+      secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
+      secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+    ]).then(([id, name]) => {
+      if (!cancelled) {
+        setDeviceBoundLoginId(id?.trim() ?? '');
+        setDeviceBoundGreetingName(name?.trim() ?? '');
+      }
+    });
     return () => {
       cancelled = true;
     };
@@ -99,7 +86,7 @@ export function LoginScreen() {
       });
     },
     user => {
-       login(user).catch();
+      login(user).catch();
     },
     deviceBoundLoginId === null
       ? undefined
@@ -123,24 +110,69 @@ export function LoginScreen() {
     acknowledgeBiometricEnrollmentRevoked,
   ]);
 
-  const onHelp = () => {
-    Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
+  const onContactUs = () => {
+    Alert.alert(
+      'Contáctate con nosotros',
+      'Contacta a soporte para recuperar tu acceso o consultas generales.',
+    );
+  };
+
+  const onForgotPassword = () => {
+    Alert.alert(
+      'Recuperar contraseña',
+      'Si no recuerdas tu contraseña, contacta a soporte para recuperar tu acceso.',
+    );
+  };
+
+  const onForgotUsername = () => {
+    Alert.alert(
+      'Recuperar usuario',
+      'Si no recuerdas tu usuario, contacta a soporte para recuperar tu acceso.',
+    );
+  };
+
+  const onOpenTerms = () => {
+    Alert.alert(
+      'Términos y condiciones',
+      'El documento estará disponible próximamente.',
+    );
+  };
+
+  const onStubCreateUser = () => {
+    Alert.alert(
+      'Crear usuario',
+      'Esta opción estará disponible próximamente.',
+    );
+  };
+
+  const onStubRequestProduct = () => {
+    Alert.alert(
+      'Solicitar producto',
+      'Esta opción estará disponible próximamente.',
+    );
   };
 
   const handleChangeUser = async () => {
     await secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID);
+    await secureStorageService.remove(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
+    );
     // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
     await secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED);
     setDeviceBoundLoginId('');
+    setDeviceBoundGreetingName('');
     resetForDifferentUser();
   };
 
-  const welcomeSubtitle =
-    deviceBoundLoginId === null
-      ? 'Ingresa con tu usuario y contraseña.'
-      : isDeviceBoundCompact && deviceBoundLoginId
-        ? `Bienvenido a tu banca móvil, ${deviceBoundLoginId}`
-        : 'Ingresa con tu usuario y contraseña.';
+  const compactGreetingName =
+    deviceBoundGreetingName.length > 0
+      ? deviceBoundGreetingName
+      : deviceBoundLoginId ?? '';
+
+  const showCompactLayout =
+    deviceBoundLoginId !== null &&
+    deviceBoundLoginId.length > 0 &&
+    isDeviceBoundCompact;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -150,106 +182,51 @@ export function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.contentColumn}>
-          <Image
-            source={require('../../../assets/images/BBBanner.png')}
-            style={styles.bankLogo}
-            resizeMode="contain"
-            accessibilityLabel="Banco Bolivariano"
-          />
-
-          <View style={styles.hero}>
-            <Text style={styles.heroTitle}>Identidad Digital</Text>
-            <Text style={styles.heroSubtitle}>{welcomeSubtitle}</Text>
-          </View>
-
-          <View style={styles.inputs}>
-            {deviceBoundLoginId === null ? (
-              <ActivityIndicator
-                accessibilityLabel="Cargando"
-                color={colors.primary}
-                style={styles.inputsLoading}
-              />
-            ) : (
-              <>
-                {isDeviceBoundCompact ? null : (
-                  <LoginTextField
-                    testID="login-email-input"
-                    label="Ingresa tu usuario"
-                    placeholder="Usuario"
-                    value={email}
-                    onChangeText={setEmail}
-                    hasError={!!emailError}
-                    errorMessage={emailError ?? undefined}
-                    errorTestID="login-username-error"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    editable={!isBusy}
-                    autoComplete="username"
-                  />
-                )}
-
-                <LoginPasswordField
-                  testID="login-password-input"
-                  label="Contraseña"
-                  placeholder="Contraseña"
-                  value={password}
-                  onChangeText={setPassword}
-                  hasError={!!passwordError}
-                  errorMessage={passwordError ?? undefined}
-                  errorTestID="login-password-error"
-                  editable={!isBusy}
-                  autoComplete="password"
-                />
-
-                {isDeviceBoundCompact ? (
-                  <TertiaryLinkButton
-                    testID="login-change-user"
-                    title="No soy yo / Cambiar usuario"
-                    onPress={handleChangeUser}
-                    style={styles.changeUserLink}
-                  />
-                ) : null}
-              </>
-            )}
-          </View>
-
-          {error ? (
-            <ErrorMessage
-              testID="login-error"
-              message={error}
-              style={styles.errorBanner}
+          {deviceBoundLoginId === null ? (
+            <ActivityIndicator
+              accessibilityLabel="Cargando"
+              color={colors.primary}
+              style={styles.inputsLoading}
             />
-          ) : null}
-
-          <View style={styles.actions}>
-            <Button
-              testID="login-submit"
-              title="Ingresar"
-              onPress={handleLogin}
-              iconSource={require('../../../assets/images/house.png')}
-              loading={isLoadingLogin}
-              disabled={isBusy || deviceBoundLoginId === null}
-              variant="loginPrimary"
+          ) : showCompactLayout ? (
+            <CompactLoginContent
+              greetingName={compactGreetingName}
+              password={password}
+              passwordError={passwordError}
+              onPasswordChange={setPassword}
+              isBusy={isBusy}
+              isLoadingLogin={isLoadingLogin}
+              isLoadingBiometric={isLoadingBiometric}
+              error={error}
+              showBiometricLogin={showBiometricLogin}
+              onLogin={handleLogin}
+              onBiometricLogin={handleBiometricLogin}
+              onForgotPassword={onForgotPassword}
+              onChangeUser={handleChangeUser}
+              onContactUs={onContactUs}
+              onStubCreateUser={onStubCreateUser}
+              onStubRequestProduct={onStubRequestProduct}
             />
-            {showBiometricLogin ? (
-              <>
-                <OrSeparator />
-                <SecondaryIconButton
-                  title="Huella/FaceID"
-                  iconSource={loginFingerprintIcon}
-                  onPress={handleBiometricLogin}
-                  disabled={isBusy || deviceBoundLoginId === null}
-                  loading={isLoadingBiometric}
-                />
-              </>
-            ) : null}
-          </View>
-
-          <TertiaryLinkButton
-            title="? Ayuda"
-            onPress={onHelp}
-            style={styles.helpLink}
-          />
+          ) : (
+            <FirstLoginContent
+              email={email}
+              password={password}
+              emailError={emailError}
+              passwordError={passwordError}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              isBusy={isBusy}
+              isLoadingLogin={isLoadingLogin}
+              error={error}
+              onLogin={handleLogin}
+              onForgotUsername={onForgotUsername}
+              onForgotPassword={onForgotPassword}
+              onOpenTerms={onOpenTerms}
+              onStubCreateUser={onStubCreateUser}
+              onStubRequestProduct={onStubRequestProduct}
+              onContactUs={onContactUs}
+            />
+          )}
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -277,54 +254,9 @@ function useStyles(colors: ThemeColors) {
           maxWidth: 400,
           alignSelf: 'center',
         },
-        bankLogo: {
-          width: 196,
-          height: 30,
-          marginTop: 8,
-          marginBottom: 24,
-          alignSelf: 'flex-start',
-        },
-        hero: {
-          marginBottom: 32,
-          marginTop: 16,
-          gap: 8,
-          alignSelf: 'stretch',
-        },
-        heroTitle: {
-          fontFamily: Lexend.bold,
-          fontSize: 34,
-          lineHeight: 44,
-          color: colors.textPrimary,
-        },
-        heroSubtitle: {
-          fontFamily: Lexend.regular,
-          fontSize: 16,
-          lineHeight: 26,
-          color: colors.textSecondary,
-        },
-        inputs: {
-          gap: 8,
-          marginBottom: 16,
-        },
-        changeUserLink: {
-          alignSelf: 'flex-start',
-          marginTop: 4,
-        },
         inputsLoading: {
           alignSelf: 'center',
           marginVertical: 24,
-        },
-        errorBanner: {
-          marginBottom: 16,
-        },
-        actions: {
-          marginTop: 26,
-          gap: 8,
-          marginBottom: 8,
-        },
-        helpLink: {
-          alignSelf: 'center',
-          marginBottom: 24,
         },
       }),
     [colors],

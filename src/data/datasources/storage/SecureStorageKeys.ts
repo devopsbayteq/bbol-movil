@@ -19,6 +19,8 @@ export const SecureStorageKeys = {
   USER_LOGIN_DATA: '@bb_user_login_data',
   /** Primer login exitoso en este dispositivo (identificador de usuario / email de login) */
   DEVICE_BOUND_LOGIN_ID: '@bb_device_bound_login_id',
+  /** Nombre para saludo en login compacto (típicamente `User.name`) */
+  DEVICE_BOUND_GREETING_NAME: '@bb_device_bound_greeting_name',
   /** Usuario rechazó registrar biometría en oferta post-OTP; no volver a mostrar BiometricOffer */
   BIOMETRIC_OFFER_DECLINED: '@bb_biometric_offer_declined',
 } as const;

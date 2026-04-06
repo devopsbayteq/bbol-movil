@@ -61,6 +61,8 @@ name: Login — Validación de campos
 - clearState
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
+- runFlow:
+    file: ../../subflows/accept-login-terms.yaml
 - tapOn:
     id: "login-submit"
 - assertVisible: "El usuario es requerido"

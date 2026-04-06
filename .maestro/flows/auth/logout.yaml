@@ -18,6 +18,6 @@ name: Logout y retorno a pantalla de login
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 
-- assertVisible: "Identidad Digital"
+- assertVisible: "Bienvenido a tu banca móvil"
 - assertVisible:
     id: "login-submit"
