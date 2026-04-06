@@ -1,0 +1,46 @@
+appId: com.bbapp
+name: PIN incorrecto muestra error en pantalla OTP
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+
+# Esperar a que el splash termine y aparezca el login.
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 30000
+
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario01"
+
+- tapOn:
+    id: "login-password-input"
+- inputText: "123456"
+
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+- extendedWaitUntil:
+    visible:
+      id: "otp-screen"
+    timeout: 30000
+
+# PIN inválido: 111111 (el servidor rechaza cualquier código distinto al correcto)
+- repeat:
+    times: 6
+    commands:
+    - tapOn:
+        label: "Digito 1"
+
+- extendedWaitUntil:
+    visible:
+      id: "otp-error"
+    timeout: 15000
+
+- assertVisible: "El código ingresado es incorrecto."

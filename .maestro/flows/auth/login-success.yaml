@@ -1,0 +1,18 @@
+appId: com.bbapp
+name: Login exitoso — llega al inicio con saldo y movimientos
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+- assertVisible: "Bienvenido de vuelta"
+- assertVisible: "usuario01"
+- assertVisible: "Mis Productos"
+- assertVisible: "Pagos frecuentes"
