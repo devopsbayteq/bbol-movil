@@ -1,0 +1,69 @@
+appId: com.bbapp
+name: Transferencia completa — formulario, revisión, OTP y éxito
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- runFlow:
+    file: ../../subflows/open-transfer-tab.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-amount-input"
+    timeout: 15000
+
+# Monto: 100 centavos = US$ 1,00 (no excede saldo típico demo)
+- tapOn:
+    id: "transfer-amount-input"
+- inputText: "100"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-modal"
+    timeout: 20000
+
+- assertVisible: "BENEFICIARIOS"
+- assertVisible: "Mis cuentas"
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "REVISAR TRANSFERENCIA"
+- assertVisible: "Monto a enviar"
+- assertVisible: "Confirmar"
+- assertVisible: "Modificar"
+
+# Confirmar abre pantalla OTP (mode: 'transfer')
+- tapOn: "Confirmar"
+
+- runFlow:
+    file: ../../subflows/complete-demo-otp-transfer.yaml
+
+# Alerta nativa de éxito
+- assertVisible: "Transferencia exitosa"
+- tapOn: "Aceptar"
+
+# Tras aceptar, la app navega a Home (popToTop + tab Home)
+- extendedWaitUntil:
+    visible: "Mis Productos"
+    timeout: 15000

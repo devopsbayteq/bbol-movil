@@ -1,0 +1,66 @@
+appId: com.bbapp
+name: Transferencias — validación al continuar sin datos
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- runFlow:
+    file: ../../subflows/open-transfer-tab.yaml
+
+- assertVisible: "TRANSFERIR"
+- assertVisible: "Ingresa el monto a transferir"
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible: "Ingresa un monto mayor a cero."
+    timeout: 10000
+
+- tapOn:
+    id: "transfer-amount-input"
+# 1 centavo; requiere saldo disponible > 0 en la cuenta de origen.
+- inputText: "1"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible: "Selecciona un beneficiario."
+    timeout: 10000
+
+# --- 3. Con beneficiario, el concepto válido no bloquea el envío ---
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-modal"
+    timeout: 20000
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+- tapOn:
+    id: "transfer-concept-input"
+- inputText: "Concepto valido"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "Concepto valido"
