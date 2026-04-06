@@ -13,10 +13,15 @@ import {
 import {useMyProfileViewModel} from './useMyProfileViewModel';
 import {ProfileMenuRow} from "./components/ProfileMenuRow.tsx";
 import {DevelopmentNoticeModal} from "../components";
+import {useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
 
 export function MyProfileScreen() {
     const {colors} = useTheme();
     const styles = useStyles(colors);
+
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList,'SecurityMenu'>>()
     const {
         displayName,
         avatarInitial,
@@ -68,7 +73,10 @@ export function MyProfileScreen() {
                         />
                         <View style={styles.cardDivider}/>
                         <ProfileMenuRow
-                            onPress={()=>{setShowDevelopmentMode(true)}}
+                            onPress={()=>{
+                                navigation.navigate('SecurityMenu')
+                            }
+                        }
                             colors={colors}
                             isLast
                             icon={<ProfileLockIcon color={colors.primary}/>}
