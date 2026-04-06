@@ -1,0 +1,30 @@
+appId: com.bbapp
+name: Tras reinicio — login obligatorio (sin restaurar sesión)
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+- assertVisible: "usuario01"
+
+- stopApp
+
+- launchApp
+
+# Cold start no hidrata sesión; debe mostrarse login (tras splash / clave pública).
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 45000
+
+- assertVisible:
+    id: "login-email-input"
+- assertNotVisible:
+    id: "home-screen"

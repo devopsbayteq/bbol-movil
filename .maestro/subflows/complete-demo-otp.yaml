@@ -1,0 +1,28 @@
+appId: com.bbapp
+---
+# PIN demo fijo: 123457
+- extendedWaitUntil:
+    visible:
+      id: "otp-screen"
+    timeout: 30000
+
+- tapOn: "Digito 1"
+- tapOn: "Digito 2"
+- tapOn: "Digito 3"
+- tapOn: "Digito 4"
+- tapOn: "Digito 5"
+- tapOn: "Digito 7"
+
+# Tras OTP exitoso en login: oferta biométrica (si aún no hay huella) o directo a Inicio.
+- runFlow:
+    when:
+      visible:
+        id: "biometric-offer-screen"
+    commands:
+      - tapOn:
+          id: "biometric-offer-skip"
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
