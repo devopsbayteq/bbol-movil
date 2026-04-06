@@ -10,6 +10,7 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
@@ -107,7 +108,10 @@ export function MovementsAmountFilterModal({
       animationType="slide"
       onRequestClose={onClose}
       statusBarTranslucent={Platform.OS === 'android'}>
-      <View
+      <KeyboardAvoidingView
+        behavior="padding"
+        automaticOffset
+        enabled={visible}
         style={[
           styles.root,
           {paddingTop: insets.top, paddingBottom: insets.bottom},
@@ -191,7 +195,7 @@ export function MovementsAmountFilterModal({
             <TransferIconBanknote color={colors.white} size={22} />
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
