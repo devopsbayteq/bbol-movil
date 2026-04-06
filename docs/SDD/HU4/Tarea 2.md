@@ -1,8 +1,8 @@
-# 2. Implementar validaciones de campo Usuario (8-15, sin especiales)
+# 2. Crear pruebas unitarias para flujo y servicios de biometría (front)
 
-**Prioridad**: Alta
+**Prioridad**: Media-Alta
 
-**Historia padre**: #29065
+**Historia padre**: #29250
 
 ## Descripción
-Agregar validación síncrona del input &quot;Usuario&quot;: longitud mínima 8 y máxima 15; restringir/validar que solo permita caracteres alfanuméricos (sin caracteres especiales). Mostrar mensajes de error inline y/o helper text según patrón del front. Asegurar trimming de espacios y normalización (p.ej. evitar espacios internos si aplica).
+<div>Agregar unit tests para:&nbsp; </div><div>(1) validación de disponibilidad/enrolamiento,&nbsp; </div><div>(2) activación post-login exitoso,&nbsp; </div><div>(3) persistencia segura del flag,&nbsp; </div><div>(4) manejo de errores (fallo/cancelación) y fallback a credenciales,&nbsp; </div><div>(5) caso de invalidación por cambio de biometría que obliga re-login (CA5). Mockear APIs nativas/secure storage y cubrir reducers/viewmodels/handlers del flujo. </div>

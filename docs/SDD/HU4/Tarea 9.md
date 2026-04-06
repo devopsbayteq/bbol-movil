@@ -1,8 +1,8 @@
-# 9. Crear cliente/servicio de Auth en Front (API layer) con manejo de errores
+# 9. En el flujo de login por primera vez; se debe pedir el ingreso de Alias
 
-**Prioridad**: Alta
+**Prioridad**: Media-Alta
 
-**Historia padre**: #29065
+**Historia padre**: #29250
 
 ## Descripción
-Implementar módulo de red para autenticación: método login(user, password) y verifyOtp(challengeId, otp) (y resendOtp si aplica). Incluir timeouts, parseo de errores, mapeo de códigos (credenciales inválidas, usuario bloqueado, OTP requerido, OTP inválido/expirado), y retorno de modelos tipados. Centralizar headers, baseURL y logging seguro (sin credenciales).
+<div>Pedir el ingreso del alias despues de la pantalla de OTP. </div>

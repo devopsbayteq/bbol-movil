@@ -338,6 +338,9 @@ describe('useAccountMovementsViewModel', () => {
         for (let i = 0; i < 40; i++) {
           await Promise.resolve();
         }
+      });
+
+      await act(async () => {
         jest.advanceTimersByTime(SEARCH_DEBOUNCE_MS);
         for (let i = 0; i < 40; i++) {
           await Promise.resolve();
@@ -346,8 +349,11 @@ describe('useAccountMovementsViewModel', () => {
 
       executeMovements.mockClear();
 
-      await act(async () => {
+      await act(() => {
         latest?.setSearchQuery('María');
+      });
+
+      await act(async () => {
         jest.advanceTimersByTime(SEARCH_DEBOUNCE_MS);
         for (let i = 0; i < 40; i++) {
           await Promise.resolve();
