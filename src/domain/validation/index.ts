@@ -1,8 +1,7 @@
 export {
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
-  LOGIN_PASSWORD_MAX_LENGTH,
-  LOGIN_PASSWORD_MIN_LENGTH,
+  LOGIN_USERNAME_ALLOWED_PATTERN,
   LOGIN_USERNAME_MAX_LENGTH,
   LOGIN_USERNAME_MIN_LENGTH,
   loginValidationMessages,

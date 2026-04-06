@@ -20,7 +20,7 @@ appId: com.bbapp
           timeout: 30000
       - tapOn:
           id: "login-email-input"
-      - inputText: "usuario01"
+      - inputText: "usuario-demo12"
       - tapOn:
           id: "login-password-input"
       - inputText: "123456"

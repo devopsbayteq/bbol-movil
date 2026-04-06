@@ -12,7 +12,7 @@ name: Tras reinicio — login obligatorio (sin restaurar sesión)
       id: "home-screen"
     timeout: 30000
 
-- assertVisible: "usuario01"
+- assertVisible: "usuario-demo12"
 
 - stopApp
 
