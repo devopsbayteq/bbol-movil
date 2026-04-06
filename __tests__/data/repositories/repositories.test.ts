@@ -3,6 +3,7 @@ import {BeneficiaryRepositoryImpl} from '../../../src/data/repositories/Benefici
 import {ContractBalanceRepositoryImpl} from '../../../src/data/repositories/ContractBalanceRepositoryImpl';
 import {SecurityRepositoryImpl} from '../../../src/data/repositories/SecurityRepositoryImpl';
 import {AccountMovementRepositoryImpl} from '../../../src/data/repositories/AccountMovementRepositoryImpl';
+import {TransferRepositoryImpl} from '../../../src/data/repositories/TransferRepositoryImpl';
 
 describe('data repositories', () => {
   test('AuthRepositoryImpl maps datasource login response to a user entity', async () => {
@@ -165,5 +166,27 @@ describe('data repositories', () => {
       balanceAfterTransaction: 900,
       allowedShared: true,
     });
+  });
+
+  test('TransferRepositoryImpl delega al dataSource y mapea transactionIdentifier', async () => {
+    const dataSource = {
+      transfer: jest.fn().mockResolvedValue({transactionIdentifier: 'TXN-XYZ'}),
+    };
+    const repository = new TransferRepositoryImpl(dataSource as never);
+
+    const result = await repository.executeTransfer({
+      amount: 100,
+      beneficiaryContactGuid: 'ben-001',
+      accountGuid: 'acc-001',
+      concept: 'Pago renta',
+    });
+
+    expect(dataSource.transfer).toHaveBeenCalledWith({
+      amount: 100,
+      beneficiaryContactGuid: 'ben-001',
+      accountGuid: 'acc-001',
+      concept: 'Pago renta',
+    });
+    expect(result).toEqual({transactionIdentifier: 'TXN-XYZ'});
   });
 });

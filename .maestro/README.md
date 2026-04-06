@@ -112,12 +112,12 @@ Maestro Studio abre una interfaz visual donde puedes explorar la jerarquia de el
 
 Usuario y contraseña (sin correo). En modo mock coinciden con `MockAuthDataSource`:
 
-| Campo     | Valor     |
-|-----------|-----------|
-| Usuario   | usuario01 |
-| Contraseña | 123456   |
+| Campo     | Valor            |
+|-----------|------------------|
+| Usuario   | usuario-demo12   |
+| Contraseña | 123456          |
 
-Otros usuarios de entorno (usuario02, etc.) pueden usarse en pruebas manuales; los flujos Maestro usan **usuario01** por defecto.
+El usuario debe tener entre **12 y 16** caracteres (letras, números, `.`, `-`, `_`). Los flujos Maestro usan **usuario-demo12** por defecto.
 
 ## Solucion de problemas
 

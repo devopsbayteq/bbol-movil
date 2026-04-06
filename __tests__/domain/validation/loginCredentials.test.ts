@@ -14,15 +14,16 @@ import {
 
 describe('loginCredentials validation', () => {
   test('sanitizes unsafe characters from login username input', () => {
-    const raw = ' test\u200Busuario\u0000id ';
+    const raw = ' usuario\u200B-demo12 ';
 
-    expect(sanitizeLoginUsernameInput(raw)).toBe(' testusuarioid ');
+    expect(sanitizeLoginUsernameInput(raw)).toBe(' usuario-demo12 ');
     expect(hasDisallowedLoginUsernameCharacters(raw)).toBe(true);
   });
 
-  test('accepts plain text username within valid length range', () => {
-    expect(validateLoginUsername('usuario1')).toBeNull();
-    expect(validateLoginUsername('usuario123')).toBeNull();
+  test('accepts username within length range with allowed characters', () => {
+    expect(validateLoginUsername('usuario-demo12')).toBeNull();
+    expect(validateLoginUsername('user.name_demo1')).toBeNull();
+    expect(validateLoginUsername('abcdefghijkl')).toBeNull();
   });
 
   test('rejects usernames shorter than the minimum length', () => {
@@ -38,6 +39,15 @@ describe('loginCredentials validation', () => {
 
     expect(validateLoginUsername(longUsername)).toBe(
       loginValidationMessages.usernameTooLong,
+    );
+  });
+
+  test('rejects usernames with characters outside the allowed set', () => {
+    expect(validateLoginUsername('user@invalid123')).toBe(
+      loginValidationMessages.usernameInvalidCharset,
+    );
+    expect(validateLoginUsername('user space12345')).toBe(
+      loginValidationMessages.usernameInvalidCharset,
     );
   });
 
@@ -67,5 +77,14 @@ describe('loginCredentials validation', () => {
   test('accepts a password within the valid length range', () => {
     expect(validateLoginPassword('12345678')).toBeNull();
     expect(validateLoginPassword('a'.repeat(LOGIN_PASSWORD_MAX_LENGTH))).toBeNull();
+  });
+
+  test('password still requires non-empty trimmed value', () => {
+    expect(validateLoginPassword('')).toBe(
+      loginValidationMessages.passwordRequired,
+    );
+    expect(validateLoginPassword('   ')).toBe(
+      loginValidationMessages.passwordRequired,
+    );
   });
 });

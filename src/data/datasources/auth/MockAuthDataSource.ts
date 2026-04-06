@@ -3,7 +3,7 @@ import {LoginResponseModel} from '../../models/LoginResponseModel';
 import {AuthDataSource} from './AuthDataSource';
 
 const MOCK_CREDENTIALS = {
-  username: 'usuario01',
+  username: 'usuario-demo12',
   password: '123456',
 };
 

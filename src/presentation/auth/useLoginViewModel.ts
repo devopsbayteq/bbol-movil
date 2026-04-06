@@ -1,4 +1,5 @@
-import {useState, useCallback, useEffect} from 'react';
+import {useState, useCallback, useEffect, useMemo} from 'react';
+import DeviceInfo from 'react-native-device-info';
 import {User} from '../../domain/entities/User';
 import {useDI} from '../../di';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
@@ -95,6 +96,12 @@ export function useLoginViewModel(
   const deviceBoundLoginId = options?.deviceBoundLoginId?.trim() ?? '';
   const isDeviceBoundCompact = deviceBoundLoginId.length > 0;
 
+  const appVersion = DeviceInfo.getVersion();
+  const buildNumber = DeviceInfo.getBuildNumber();
+  const version = `Versión: ${appVersion} (${buildNumber})`;
+
+  const [showDevelopMode, setShowDevelopMode] = useState(false);
+
   const [state, setState] = useState<LoginState>({
     email: '',
     password: '',
@@ -119,33 +126,36 @@ export function useLoginViewModel(
     }));
   }, [deviceBoundLoginId]);
 
-  const setEmail = useCallback((email: string) => {
-    if (isDeviceBoundCompact) {
-      return;
-    }
-    const sanitizedEmail = sanitizeLoginUsernameInput(email);
+  const setEmail = useCallback(
+    (email: string) => {
+      if (isDeviceBoundCompact) {
+        return;
+      }
+      const sanitizedEmail = sanitizeLoginUsernameInput(email);
 
-    if (sanitizedEmail.length > LOGIN_USERNAME_MAX_LENGTH) {
+      if (sanitizedEmail.length > LOGIN_USERNAME_MAX_LENGTH) {
+        setState(prev => ({
+          ...prev,
+          email: sanitizedEmail.slice(0, LOGIN_USERNAME_MAX_LENGTH),
+          emailError: loginValidationMessages.usernameTooLong,
+          error: null,
+        }));
+        return;
+      }
+
+      const emailError = hasDisallowedLoginUsernameCharacters(email)
+        ? loginValidationMessages.usernameInvalidCharacters
+        : getLiveUsernameError(sanitizedEmail);
+
       setState(prev => ({
         ...prev,
-        email: sanitizedEmail.slice(0, LOGIN_USERNAME_MAX_LENGTH),
-        emailError: loginValidationMessages.usernameTooLong,
+        email: sanitizedEmail,
+        emailError,
         error: null,
       }));
-      return;
-    }
-
-    const emailError = hasDisallowedLoginUsernameCharacters(email)
-      ? loginValidationMessages.usernameInvalidCharacters
-      : getLiveUsernameError(sanitizedEmail);
-
-    setState(prev => ({
-      ...prev,
-      email: sanitizedEmail,
-      emailError,
-      error: null,
-    }));
-  }, [isDeviceBoundCompact]);
+    },
+    [isDeviceBoundCompact],
+  );
 
   const setPassword = useCallback((password: string) => {
     const sanitizedPassword = sanitizeLoginPasswordInput(password);
@@ -257,11 +267,7 @@ export function useLoginViewModel(
         ...prev,
         isLoadingBiometric: false,
         biometricEnrollmentRevoked: revoked,
-        ...(revoked
-          ? {error: null}
-          : message
-            ? {error: message}
-            : {}),
+        ...(revoked ? {error: null} : message ? {error: message} : {}),
       }));
     }
   }, [biometricRSAAuthOrchestrator, onBiometricLoginSuccess]);
@@ -283,6 +289,14 @@ export function useLoginViewModel(
 
   const isBusy = state.isLoadingLogin || state.isLoadingBiometric;
 
+  const isCredentialLoginEnabled = useMemo(() => {
+    const pwdOk = state.password.trim().length > 0;
+    if (isDeviceBoundCompact) {
+      return pwdOk;
+    }
+    return state.email.trim().length > 0 && pwdOk;
+  }, [state.email, state.password, isDeviceBoundCompact]);
+
   return {
     email: state.email,
     password: state.password,
@@ -296,6 +310,10 @@ export function useLoginViewModel(
     acknowledgeBiometricEnrollmentRevoked,
     isDeviceBoundCompact,
     resetForDifferentUser,
+    isCredentialLoginEnabled,
+    showDevelopMode,
+    setShowDevelopMode,
+    version,
     setEmail,
     setPassword,
     handleLogin,

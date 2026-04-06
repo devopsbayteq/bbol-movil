@@ -10,7 +10,6 @@ import {SecureStorageKeys} from '../../../data/datasources/storage/SecureStorage
 import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../../certificate/keys.constants';
 import {BiometricRSAError} from '../errors';
 import type {BiometricEnrollmentBinding} from '../BiometricEnrollmentBinding';
-
 describe('BiometricRSAAuthOrchestrator', () => {
   const serverPem = SERVER_PUBLIC_KEY_PEM_BASE64;
 
@@ -63,8 +62,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
       mocks.getPk as unknown as GetPublicKeyUseCase,
       SecureStorageKeys.SERVER_PUBLIC_KEY,
       biometricAuth as unknown as BiometricAuthService,
-      enrollmentBinding as unknown as BiometricEnrollmentBinding,
-    );
+      enrollmentBinding as unknown as BiometricEnrollmentBinding,    );
   }
 
   beforeEach(() => {
@@ -106,7 +104,6 @@ describe('BiometricRSAAuthOrchestrator', () => {
       verify: jest.fn().mockResolvedValue(undefined),
       clear: jest.fn().mockResolvedValue(undefined),
     };
-
     const orchestrator = buildOrchestrator({
       remote,
       crypto,
@@ -114,15 +111,13 @@ describe('BiometricRSAAuthOrchestrator', () => {
       secure,
       getPk,
       biometricAuth: {getAvailability, authenticate},
-      enrollmentBinding,
-    });
+      enrollmentBinding,    });
 
     await orchestrator.registerBiometricForUser('user@test.com');
 
     expect(enrollmentBinding.snapshot).toHaveBeenCalled();
     expect(getAvailability).toHaveBeenCalled();
-    expect(authenticate).toHaveBeenCalled();
-    expect(remote.postBiometricChallenge).toHaveBeenCalled();
+    expect(authenticate).toHaveBeenCalled();    expect(remote.postBiometricChallenge).toHaveBeenCalled();
     expect(remote.postBiometricRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
         challenge: 'ch1',
@@ -171,7 +166,6 @@ describe('BiometricRSAAuthOrchestrator', () => {
       orchestrator.registerBiometricForUser('u@x.com'),
     ).rejects.toMatchObject({code: 'not_available'});
   });
-
   it('loginWithBiometric posts login with signed challenge', async () => {
     const remote = {
       postBiometricChallenge: jest.fn().mockResolvedValue({challenge: 'ch2'}),
@@ -209,20 +203,17 @@ describe('BiometricRSAAuthOrchestrator', () => {
       verify: jest.fn().mockResolvedValue(undefined),
       clear: jest.fn().mockResolvedValue(undefined),
     };
-
     const orchestrator = buildOrchestrator({
       remote,
       crypto,
       keyStorage,
       secure,
       getPk,
-      enrollmentBinding,
-    });
+      enrollmentBinding,    });
 
     const result = await orchestrator.loginWithBiometric();
 
-    expect(enrollmentBinding.verify).toHaveBeenCalled();
-    expect(result.accessToken).toBe('tok');
+    expect(enrollmentBinding.verify).toHaveBeenCalled();    expect(result.accessToken).toBe('tok');
     expect(result.email).toBe('user@test.com');
     expect(remote.postBiometricLogin).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -340,7 +331,6 @@ describe('BiometricRSAAuthOrchestrator', () => {
     expect(deletePrivateKey).toHaveBeenCalled();
     expect(remove).toHaveBeenCalledWith(SecureStorageKeys.BIOMETRIC_USERNAME);
   });
-
   it('registerBiometricForUser rechaza email vacío', async () => {
     const orchestrator = buildOrchestrator({
       remote: {
@@ -476,8 +466,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
 
   it('loginWithBiometric trata ausencia de clave (p. ej. ítem invalidado) como cambio biométrico', async () => {
     const deletePrivateKey = jest.fn().mockResolvedValue(undefined);
-    const remove = jest.fn().mockResolvedValue(undefined);
-    const orchestrator = buildOrchestrator({
+    const remove = jest.fn().mockResolvedValue(undefined);    const orchestrator = buildOrchestrator({
       remote: {
         postBiometricChallenge: jest.fn(),
         postBiometricRegistration: jest.fn(),
@@ -493,8 +482,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
         savePrivateKey: jest.fn(),
         getPrivateKey: jest.fn(),
         hasPrivateKey: jest.fn().mockResolvedValue(false),
-        deletePrivateKey,
-      },
+        deletePrivateKey,      },
       secure: {
         get: jest.fn((key: string) =>
           key === SecureStorageKeys.BIOMETRIC_USERNAME
@@ -502,8 +490,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
             : Promise.resolve(null),
         ),
         save: jest.fn(),
-        remove,
-      },
+        remove,      },
       getPk: {execute: jest.fn()},
     });
 
@@ -560,8 +547,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
       code: 'biometric_enrollment_changed',
     });
     expect(deletePrivateKey).toHaveBeenCalled();
-    expect(remove).toHaveBeenCalledWith(SecureStorageKeys.BIOMETRIC_USERNAME);
-  });
+    expect(remove).toHaveBeenCalledWith(SecureStorageKeys.BIOMETRIC_USERNAME);  });
 
   it('mapUnknownError convierte AxiosError en network_error con mensaje del body', async () => {
     const axiosErr = new axios.AxiosError('fail');

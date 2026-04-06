@@ -1,7 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 import {Platform} from 'react-native';
-import {BiometricKeyStorageService, mapKeychainError} from '../BiometricKeyStorageService';
-import {BiometricRSAError} from '../errors';
+import {BiometricKeyStorageService, mapKeychainError} from '../BiometricKeyStorageService';import {BiometricRSAError} from '../errors';
 
 describe('BiometricKeyStorageService', () => {
   const service = new BiometricKeyStorageService();
@@ -18,7 +17,6 @@ describe('BiometricKeyStorageService', () => {
     });
     expect(Keychain.setGenericPassword).toHaveBeenCalled();
   });
-
   it('savePrivateKey lanza si setGenericPassword devuelve false', async () => {
     (Keychain.setGenericPassword as jest.Mock).mockResolvedValueOnce(false);
     await expect(service.savePrivateKey('pem')).rejects.toMatchObject({
@@ -36,8 +34,7 @@ describe('BiometricKeyStorageService', () => {
       expect.any(String),
       'my-pem',
       expect.objectContaining({
-        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
-        authenticationPrompt: expect.objectContaining({
+        accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,        authenticationPrompt: expect.objectContaining({
           subtitle: expect.any(String),
         }),
       }),
@@ -116,7 +113,6 @@ describe('BiometricKeyStorageService', () => {
     const e = mapKeychainError(new Error('NSFaceIDUsageDescription errSecInteractionNotAllowed -25308'));
     expect(e.code).toBe('biometric_enrollment_changed');
   });
-
   it('hasPrivateKey delega en Keychain', async () => {
     (Keychain.hasGenericPassword as jest.Mock).mockResolvedValueOnce(true);
     await expect(service.hasPrivateKey()).resolves.toBe(true);

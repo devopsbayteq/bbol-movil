@@ -27,10 +27,10 @@ import {
   SecondaryIconButton,
   TertiaryLinkButton,
   OrSeparator,
+  DevelopmentNoticeModal,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
-import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
-
+import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
 
@@ -86,6 +86,10 @@ export function LoginScreen() {
     acknowledgeBiometricEnrollmentRevoked,
     isDeviceBoundCompact,
     resetForDifferentUser,
+    isCredentialLoginEnabled,
+    showDevelopMode,
+    setShowDevelopMode,
+    version,
     setEmail,
     setPassword,
     handleLogin,
@@ -99,7 +103,7 @@ export function LoginScreen() {
       });
     },
     user => {
-       login(user).catch();
+      login(user).catch();
     },
     deviceBoundLoginId === null
       ? undefined
@@ -124,7 +128,7 @@ export function LoginScreen() {
   ]);
 
   const onHelp = () => {
-    Alert.alert('Ayuda', 'Contacta a soporte para recuperar tu acceso.');
+    setShowDevelopMode(true);
   };
 
   const handleChangeUser = async () => {
@@ -228,7 +232,11 @@ export function LoginScreen() {
               onPress={handleLogin}
               iconSource={require('../../../assets/images/house.png')}
               loading={isLoadingLogin}
-              disabled={isBusy || deviceBoundLoginId === null}
+              disabled={
+                isBusy ||
+                deviceBoundLoginId === null ||
+                !isCredentialLoginEnabled
+              }
               variant="loginPrimary"
             />
             {showBiometricLogin ? (
@@ -246,12 +254,38 @@ export function LoginScreen() {
           </View>
 
           <TertiaryLinkButton
+            title="Crear usuario"
+            onPress={() => {
+              setShowDevelopMode(true);
+            }}
+          />
+          <TertiaryLinkButton
+            title="Solicitar Productos"
+            onPress={() => {
+              setShowDevelopMode(true);
+            }}
+          />
+          <Text style={styles.versionApp}>{version}</Text>
+          <TertiaryLinkButton
+            title="Contactos"
+            onPress={() => {
+              setShowDevelopMode(true);
+            }}
+          />
+
+          <TertiaryLinkButton
             title="? Ayuda"
             onPress={onHelp}
             style={styles.helpLink}
           />
         </View>
       </KeyboardAwareScrollView>
+      <DevelopmentNoticeModal
+        visible={showDevelopMode}
+        onClose={() => {
+          setShowDevelopMode(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -297,6 +331,13 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
         },
         heroSubtitle: {
+          fontFamily: Lexend.regular,
+          fontSize: 16,
+          lineHeight: 26,
+          color: colors.textSecondary,
+        },
+        versionApp: {
+          textAlign: 'center',
           fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 26,
