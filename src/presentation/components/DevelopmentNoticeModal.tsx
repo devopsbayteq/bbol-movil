@@ -13,12 +13,10 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import {
   TransferIconClose,
-  TransferIconCodeBrackets,
 } from '../transfer/components/transferIcons.tsx';
 
 const ALERT_CONTAINER_BG = '#FFE5E2';
 const ICON_BOX = 56;
-const ICON_INNER = 32;
 
 export type DevelopmentNoticeModalProps = {
   visible: boolean;
