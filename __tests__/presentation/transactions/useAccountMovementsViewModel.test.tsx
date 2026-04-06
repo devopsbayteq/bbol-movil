@@ -345,4 +345,325 @@ describe('useAccountMovementsViewModel', () => {
       }),
     );
   });
+
+  test('selecciona cuenta por guid de ruta cuando existe', async () => {
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-a',
+              maskedAccountNumber: '****1111',
+              accountKind: 'savings',
+              balance: 1,
+            },
+            {
+              accountGuid: 'acc-b',
+              maskedAccountNumber: '****2222',
+              accountKind: 'checking',
+              balance: 2,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          totalCount: 0,
+          pageNumber: 1,
+          pageSize: 20,
+          items: [],
+        }),
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness guid="acc-b" />);
+      await flushPromises();
+    });
+
+    expect(latest?.selectedAccount?.accountGuid).toBe('acc-b');
+  });
+
+  test('sin cuentas deja accountError y no movimientos', async () => {
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: jest.fn(),
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    expect(latest?.accountError).toBe('No hay cuentas disponibles');
+    expect(latest?.selectedAccount).toBeNull();
+    expect(latest?.items).toEqual([]);
+  });
+
+  test('error al cargar cuenta expone mensaje genérico si no es Error', async () => {
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockRejectedValue('fallo'),
+      },
+      getAccountMovementsUseCase: {
+        execute: jest.fn(),
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    expect(latest?.accountError).toBe('Error al cargar la cuenta');
+  });
+
+  test('loadMore pide la página siguiente y concatena ítems', async () => {
+    const executeMovements = jest
+      .fn()
+      .mockResolvedValueOnce({
+        totalCount: 3,
+        pageNumber: 1,
+        pageSize: 20,
+        items: [
+          {
+            transactionGuid: 'g1',
+            transactionIdentifier: 'i1',
+            beneficiaryName: 'A',
+            beneficiaryAccountType: 'Savings',
+            beneficiaryAccountTypeLabel: 'Ahorros',
+            beneficiaryAccountNumber: '****1',
+            ownerAccountType: 'Savings',
+            ownerAccountLabel: 'x',
+            accountNumber: '****9',
+            accountType: 'Savings',
+            accountTypeLabel: 'x',
+            amount: -1,
+            transferDate: '2026-01-01T00:00:00.000Z',
+            transactionTypeLabel: 'T',
+            transactionType: 'SentTransfers',
+            concept: null,
+            balanceAfterTransaction: 0,
+            allowedShared: true,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        totalCount: 3,
+        pageNumber: 2,
+        pageSize: 20,
+        items: [
+          {
+            transactionGuid: 'g2',
+            transactionIdentifier: 'i2',
+            beneficiaryName: 'B',
+            beneficiaryAccountType: 'Savings',
+            beneficiaryAccountTypeLabel: 'Ahorros',
+            beneficiaryAccountNumber: '****2',
+            ownerAccountType: 'Savings',
+            ownerAccountLabel: 'x',
+            accountNumber: '****9',
+            accountType: 'Savings',
+            accountTypeLabel: 'x',
+            amount: -2,
+            transferDate: '2026-01-02T00:00:00.000Z',
+            transactionTypeLabel: 'T',
+            transactionType: 'SentTransfers',
+            concept: null,
+            balanceAfterTransaction: 0,
+            allowedShared: true,
+          },
+        ],
+      });
+
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 1,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: executeMovements,
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    expect(latest?.items).toHaveLength(1);
+    expect(latest?.hasMore).toBe(true);
+
+    await act(async () => {
+      await latest?.loadMore();
+      await flushPromises();
+    });
+
+    expect(executeMovements).toHaveBeenLastCalledWith(
+      expect.objectContaining({pageNumber: 2, accountGuid: 'acc-1'}),
+    );
+    expect(latest?.items).toHaveLength(2);
+  });
+
+  test('clearAllFilters y hasActiveFilters', async () => {
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 1,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          totalCount: 0,
+          pageNumber: 1,
+          pageSize: 20,
+          items: [],
+        }),
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    await act(async () => {
+      latest?.applyDateRange(new Date(2026, 0, 1), new Date(2026, 0, 5));
+      await flushPromises();
+    });
+    expect(latest?.hasActiveFilters).toBe(true);
+
+    await act(async () => {
+      latest?.clearAllFilters();
+      await flushPromises();
+    });
+    expect(latest?.hasActiveFilters).toBe(false);
+  });
+
+  test('applyDateRange invierte fechas si to < from', async () => {
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 1,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          totalCount: 0,
+          pageNumber: 1,
+          pageSize: 20,
+          items: [],
+        }),
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    await act(async () => {
+      latest?.applyDateRange(new Date(2026, 5, 20), new Date(2026, 5, 10));
+      await flushPromises();
+    });
+
+    expect(latest?.dateFilterLabel).toMatch(/10/);
+    expect(latest?.dateFilterLabel).toMatch(/20/);
+  });
+
+  test('applyAmountRange ignora rangos inválidos', async () => {
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 1,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          totalCount: 0,
+          pageNumber: 1,
+          pageSize: 20,
+          items: [],
+        }),
+      },
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+      await flushPromises();
+    });
+
+    const execBefore = (
+      mockedUseDI().getAccountMovementsUseCase as {execute: jest.Mock}
+    ).execute.mock.calls.length;
+
+    await act(async () => {
+      latest?.applyAmountRange(100, 50);
+      await flushPromises();
+    });
+
+    const execAfter = (
+      mockedUseDI().getAccountMovementsUseCase as {execute: jest.Mock}
+    ).execute.mock.calls.length;
+    expect(execAfter).toBe(execBefore);
+  });
 });

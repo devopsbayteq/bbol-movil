@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useDI} from '../../../src/di';
 import {useLoginViewModel} from '../../../src/presentation/auth/useLoginViewModel';
+import {BiometricRSAError} from '../../../src/security/biometric/errors';
 
 jest.mock('../../../src/di', () => ({
   useDI: jest.fn(),
@@ -191,5 +192,63 @@ describe('useLoginViewModel', () => {
     const bioUser = onBiometricLoginSuccess.mock.calls[0][0];
     expect(bioUser.sessionExpiresAt).toEqual(expect.any(Number));
     expect(onCredentialLoginSuccess).not.toHaveBeenCalled();
+  });
+
+  test('handleLogin muestra error de red cuando loginUseCase lanza RSA network_error', async () => {
+    const execute = jest
+      .fn()
+      .mockRejectedValue(
+        new BiometricRSAError('Servidor caído', 'network_error'),
+      );
+
+    mockedUseDI.mockReturnValue({
+      loginUseCase: {execute},
+      biometricRSAAuthOrchestrator: defaultOrchestrator,
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <Harness
+          onCredentialLoginSuccess={jest.fn()}
+          onBiometricLoginSuccess={jest.fn()}
+        />,
+      );
+    });
+
+    act(() => {
+      latest?.setEmail('usuario01');
+      latest?.setPassword('12345678');
+    });
+
+    await act(async () => {
+      await latest?.handleLogin();
+    });
+
+    expect(latest?.error).toBe('Servidor caído');
+    expect(latest?.isLoadingLogin).toBe(false);
+  });
+
+  test('contraseña demasiado larga muestra error de campo', async () => {
+    mockedUseDI.mockReturnValue({
+      loginUseCase: {execute: jest.fn()},
+      biometricRSAAuthOrchestrator: defaultOrchestrator,
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <Harness
+          onCredentialLoginSuccess={jest.fn()}
+          onBiometricLoginSuccess={jest.fn()}
+        />,
+      );
+    });
+
+    const longPw = 'a'.repeat(30);
+    act(() => {
+      latest?.setPassword(longPw);
+    });
+
+    expect(latest?.passwordError).toBeTruthy();
+    expect(latest?.password?.length).toBe(16);
   });
 });

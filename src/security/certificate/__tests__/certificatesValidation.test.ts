@@ -2,7 +2,11 @@ import type {CertificateEnvelopeResponse} from '../../../data/models/Certificate
 import {Buffer} from 'buffer';
 import {
   buildCertificateRequest,
+  deriveAes256KeyHexFromSecretMaterial,
+  deriveIvHexFromIvMaterial,
+  generateCertificateSession,
   materialHex16FromUuidV4,
+  startCertificateValidation,
   validateCertificateResponse,
   type CertificateSession,
 } from '../certificatesValidation';
@@ -17,6 +21,47 @@ function sessionFixture(): CertificateSession {
 describe('materialHex16FromUuidV4', () => {
   it('produce base64 no vacío', () => {
     expect(materialHex16FromUuidV4()).toMatch(/^[A-Za-z0-9\-_]+$/);
+  });
+
+  it('devuelve exactamente 16 caracteres', () => {
+    expect(materialHex16FromUuidV4()).toHaveLength(16);
+  });
+});
+
+describe('derivación de clave e IV', () => {
+  it('deriveAes256KeyHexFromSecretMaterial produce 32 bytes', () => {
+    const key = deriveAes256KeyHexFromSecretMaterial('secret-material-16');
+    expect(key).toHaveLength(32);
+  });
+
+  it('deriveIvHexFromIvMaterial produce IV de 16 bytes', () => {
+    const iv = deriveIvHexFromIvMaterial('iv-material-16ch');
+    expect(iv).toHaveLength(16);
+  });
+});
+
+describe('generateCertificateSession y startCertificateValidation', () => {
+  it('generateCertificateSession incluye materiales de 16 caracteres', () => {
+    const s = generateCertificateSession();
+    expect(s.secretMaterial).toHaveLength(16);
+    expect(s.ivMaterial).toHaveLength(16);
+  });
+
+  it('startCertificateValidation invoca postCertificate y devuelve sesión', async () => {
+    const post = jest.fn().mockResolvedValue({
+      code: 0,
+      responseType: 'Success',
+      message: '',
+      content: {
+        certificate: {hashEncrypt: 'h', hashEncryptSign: 's'},
+        validateHash: true,
+        userMessage: 'ok',
+      },
+    });
+    const {response, session} = await startCertificateValidation(post);
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(session.secretMaterial).toHaveLength(16);
+    expect(response.responseType).toBe('Success');
   });
 });
 
