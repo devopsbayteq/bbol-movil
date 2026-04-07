@@ -35,6 +35,7 @@ import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {ToolbarApp} from "./components/ToolbarApp.tsx";
+import {ErrorBannerComponent} from "./transferInit/components/ErrorBannerComponent.tsx";
 
 
 const ZERO_DISPLAY = formatMoneyEc(0);
@@ -99,15 +100,12 @@ export function TransferScreen() {
                 }}/>
 
             {error ? (
-                <View style={styles.errorBanner}>
-                    <Text style={styles.errorText}>{error}</Text>
-                    <TouchableOpacity
-                        onPress={() => {
-                            retry().catch();
-                        }}>
-                        <Text style={styles.retryText}>Reintentar</Text>
-                    </TouchableOpacity>
-                </View>
+                <ErrorBannerComponent
+                    textRetry={"Reintentar"}
+                    errorText={error}
+                    onRetry={() => {
+                        retry().catch()
+                    }}/>
             ) : null}
 
             {isLoading ? (
@@ -366,21 +364,7 @@ function useStyles(colors: ThemeColors) {
                 headerRightSpacer: {
                     width: 44,
                 },
-                errorBanner: {
-                    paddingHorizontal: 24,
-                    paddingVertical: 12,
-                    gap: 8,
-                    backgroundColor: colors.errorBg,
-                },
-                errorText: {
-                    color: colors.error,
-                    fontSize: 13,
-                },
-                retryText: {
-                    color: colors.primary,
-                    fontSize: 14,
-                    fontFamily: Lexend.semiBold,
-                },
+
                 loadingWrap: {
                     flex: 1,
                     alignItems: 'center',

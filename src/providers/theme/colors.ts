@@ -3,6 +3,8 @@ export interface ThemeColors {
   surface: string;
   primary: string;
   primaryLight: string;
+  /** Fondo suave detrás de iconos en filas de acción (p. ej. transfer init). */
+  primaryIconContainerBg: string;
   textPrimary: string;
   textSecondary: string;
   textTertiary: string;
@@ -33,6 +35,7 @@ export const LightColors: ThemeColors = {
   surface: '#FFFFFF',
   primary: '#008292',
   primaryLight: '#B3E5EC',
+  primaryIconContainerBg: '#D0F0F6',
   textPrimary: '#1A1A1A',
   textSecondary: '#474747',
   textTertiary: '#757575',
@@ -62,6 +65,7 @@ export const DarkColors: ThemeColors = {
   surface: '#1F2937',
   primary: '#22D3EE',
   primaryLight: '#164E63',
+  primaryIconContainerBg: '#1E3A4A',
   textPrimary: '#F9FAFB',
   textSecondary: '#D1D5DB',
   textTertiary: '#9CA3AF',
