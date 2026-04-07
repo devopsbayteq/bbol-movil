@@ -43,7 +43,9 @@ export function Button({
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const isDisabled = disabled || loading;
+  const isPressDisabled = disabled || loading;
+  const loginPrimaryDisabledLook =
+    variant === 'loginPrimary' && disabled && !loading;
 
   return (
     <TouchableOpacity
@@ -53,11 +55,12 @@ export function Button({
         variant === 'primary' && styles.primary,
         variant === 'outline' && styles.outline,
         variant === 'loginPrimary' && styles.loginPrimary,
-        isDisabled && styles.disabled,
+        loginPrimaryDisabledLook && styles.loginPrimaryDisabled,
+        isPressDisabled && !loginPrimaryDisabledLook && styles.disabled,
         style,
       ]}
       onPress={onPress}
-      disabled={isDisabled}
+      disabled={isPressDisabled}
       activeOpacity={0.8}>
       {loading ? (
         <ActivityIndicator
@@ -120,6 +123,9 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 16,
           backgroundColor: colors.primary,
           width: '100%',
+        },
+        loginPrimaryDisabled: {
+          backgroundColor: colors.textTertiary,
         },
         disabled: {
           opacity: 0.7,

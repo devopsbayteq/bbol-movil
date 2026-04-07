@@ -1,22 +1,36 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Animated,
+  Dimensions,
   Easing,
-  Image,
   StyleSheet,
   View,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-const FIGMA_LOGO_URI =
-  'https://www.figma.com/api/mcp/asset/d202396e-2cbe-4dff-b7eb-77b2627080b8';
+import {useTheme} from '../../providers';
+import FondoSvg from '../../../assets/images/svg/fondo.svg';
+import LogoInitSvg from '../../../assets/images/svg/logo-init.svg';
 
-const SPLASH_GRADIENT = ['#005E6B', '#008292', '#4EC4D2'] as const;
+const LOGO_SIZE = 96;
+
+function getWindowSize() {
+  const {width, height} = Dimensions.get('window');
+  return {width, height};
+}
 
 export function SplashScreen() {
+  const {colors} = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.9)).current;
+  const [{width, height}, setWindowSize] = useState(getWindowSize);
+
+  useEffect(() => {
+    const sub = Dimensions.addEventListener('change', ({window}) => {
+      setWindowSize({width: window.width, height: window.height});
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -36,12 +50,14 @@ export function SplashScreen() {
   }, [opacity, scale]);
 
   return (
-    <LinearGradient
-      colors={[...SPLASH_GRADIENT]}
-      locations={[0, 0.42, 1]}
-      start={{x: 0.5, y: 0}}
-      end={{x: 0.5, y: 1}}
-      style={styles.gradient}>
+    <View style={[styles.root, {backgroundColor: colors.primary}]} testID="splash-screen">
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <FondoSvg
+          width={width}
+          height={height}
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </View>
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         <Animated.View
           style={[
@@ -51,17 +67,15 @@ export function SplashScreen() {
               transform: [{scale}],
             },
           ]}>
-          <View style={styles.decorativeRing}>
-            <Image source={{uri: FIGMA_LOGO_URI}} style={styles.logo} />
-          </View>
+          <LogoInitSvg width={LOGO_SIZE} height={LOGO_SIZE} />
         </Animated.View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
+  root: {
     flex: 1,
   },
   safe: {
@@ -70,23 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   centerWrapper: {
-    width: 172.8,
-    height: 172.8,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  decorativeRing: {
-    width: 172.8,
-    height: 172.8,
-    borderRadius: 86.4,
-    borderWidth: 1,
-    borderColor: '#EFF6F7',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 96,
-    height: 96,
-    borderRadius: 11,
   },
 });
