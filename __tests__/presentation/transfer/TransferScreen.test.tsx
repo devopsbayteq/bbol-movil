@@ -48,7 +48,15 @@ jest.mock('react-native-biometrics', () =>
 // ── Hooks usados por BeneficiarySelectModal ───────────────────────────────────
 jest.mock('../../../src/presentation/home/useHomeViewModel', () => ({
   useHomeViewModel: () => ({
-    data: {accounts: [], creditCards: [], loans: [], investments: [], frequentPayments: []},
+    data: {
+      accounts: [],
+      creditCards: [],
+      loans: [],
+      investments: [],
+      frequentPayments: [],
+      banners: [],
+      homeDashboardIcons: [],
+    },
     isLoading: false,
     error: null,
     retry: jest.fn(),

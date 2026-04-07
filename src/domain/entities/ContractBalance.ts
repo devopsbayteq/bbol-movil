@@ -32,10 +32,24 @@ export interface FrequentPayment {
   beneficiaryType: string;
 }
 
+export interface HomeBanner {
+  text: string;
+  buttonText: string;
+  buttonLink: string;
+  landscape: string;
+}
+
+export interface HomeDashboardIcon {
+  iconCode: string;
+  text: string;
+}
+
 export interface ContractBalance {
   accounts: AccountBalance[];
   creditCards: CreditCardBalance[];
   loans: LoanBalance[];
   investments: InvestmentBalance[];
   frequentPayments: FrequentPayment[];
+  banners: HomeBanner[];
+  homeDashboardIcons: HomeDashboardIcon[];
 }

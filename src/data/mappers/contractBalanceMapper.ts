@@ -4,6 +4,8 @@ import {
   ContractBalance,
   CreditCardBalance,
   FrequentPayment,
+  HomeBanner,
+  HomeDashboardIcon,
   InvestmentBalance,
   LoanBalance,
 } from '../../domain/entities/ContractBalance';
@@ -12,6 +14,8 @@ import {
   ContractBalanceContentModel,
   CreditCardBalanceModel,
   FrequentPaymentModel,
+  HomeBannerModel,
+  HomeDashboardIconModel,
   InvestmentBalanceModel,
   LoanBalanceModel,
 } from '../models/ContractBalanceContentModel';
@@ -72,6 +76,22 @@ function mapFrequentPayment(model: FrequentPaymentModel): FrequentPayment {
   };
 }
 
+function mapHomeBanner(model: HomeBannerModel): HomeBanner {
+  return {
+    text: model.text,
+    buttonText: model.buttonText,
+    buttonLink: model.buttonLink,
+    landscape: model.landscape,
+  };
+}
+
+function mapHomeDashboardIcon(model: HomeDashboardIconModel): HomeDashboardIcon {
+  return {
+    iconCode: model.iconCode,
+    text: model.text,
+  };
+}
+
 export function mapContractBalanceContentToEntity(
   model: ContractBalanceContentModel,
 ): ContractBalance {
@@ -81,5 +101,9 @@ export function mapContractBalanceContentToEntity(
     loans: (model.loans ?? []).map(mapLoan),
     investments: (model.investments ?? []).map(mapInvestment),
     frequentPayments: (model.frequentPayments ?? []).map(mapFrequentPayment),
+    banners: (model.banners ?? []).map(mapHomeBanner),
+    homeDashboardIcons: (model.homeDashboardIcons ?? []).map(
+      mapHomeDashboardIcon,
+    ),
   };
 }

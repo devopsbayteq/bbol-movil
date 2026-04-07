@@ -249,6 +249,8 @@ describe('domain use cases', () => {
         loans: [],
         investments: [],
         frequentPayments: [],
+        banners: [],
+        homeDashboardIcons: [],
       }),
     };
     const useCase = new GetHomeContractBalanceUseCase(contractBalanceRepository);

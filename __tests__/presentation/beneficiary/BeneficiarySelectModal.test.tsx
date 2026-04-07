@@ -91,6 +91,8 @@ const emptyContract: ContractBalance = {
   loans: [],
   investments: [],
   frequentPayments: [],
+  banners: [],
+  homeDashboardIcons: [],
 };
 
 const sampleAccount = {

@@ -23,10 +23,9 @@ import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../../providers';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
-import type {AccountKind, FrequentPayment} from '../../domain/entities/ContractBalance';
+import type {AccountKind} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
 import {ProductFilterTabs} from './components/ProductFilterTabs';
-import {HomeSectionTitle} from './components/HomeSectionTitle';
 import {
   SavingsAccountCard,
   CheckingAccountCard,
@@ -34,14 +33,11 @@ import {
   LoanCard,
   InvestmentCard,
 } from './components/ProductCarouselCards';
-import {QuickActionsRow} from './components/QuickActionsRow';
-import {PromotionalBanner} from './components/PromotionalBanner';
-import {FrequentPaymentRow} from './components/FrequentPaymentRow';
-import {
-  PaymentLightbulbIcon,
-  PaymentPersonIcon,
-  PaymentSchoolIcon,
-} from './components/PaymentRowIcons';
+import {RequestProductRow} from './components/RequestProductRow';
+import {HomeBannersCarousel} from './components/HomeBannersCarousel';
+import {FrequentActionsSection} from './components/FrequentActionsSection';
+import {UpcomingPaymentsRow} from './components/UpcomingPaymentsRow';
+import {RecentActivitySection} from './components/RecentActivitySection';
 import {useHomeViewModel} from './useHomeViewModel';
 import {DevelopmentNoticeModal} from '../components';
 
@@ -65,30 +61,10 @@ function accountTitle(kind: AccountKind): string {
   return 'Cuenta';
 }
 
-function iconForFrequentPayment(
-  beneficiaryType: string,
-  color: string,
-): React.ReactNode {
-  const t = beneficiaryType.toLowerCase();
-  if (t.includes('luz') || t.includes('servicio') || t.includes('light')) {
-    return <PaymentLightbulbIcon color={color} />;
-  }
-  if (
-    t.includes('edu') ||
-    t.includes('matricula') ||
-    t.includes('school') ||
-    t.includes('colegio')
-  ) {
-    return <PaymentSchoolIcon color={color} />;
-  }
-  return <PaymentPersonIcon color={color} />;
-}
-
 const CARD_WIDTH = 204;
 const CARD_HEIGHT = 130;
 const CARD_GAP = 12;
 const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
-const CAROUSEL_OVERLAP = Math.round(CARD_HEIGHT / 2);
 const MAIN_COLUMN_PADDING = 24;
 
 /** Altura aproximada de la imagen + franja teal bajo el header (fondo decorativo). */
@@ -102,13 +78,22 @@ export function HomeScreen() {
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
-  const iconColor = colors.textTertiary;
   const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
   const navigation =
     useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
 
-  const {data, isLoading, isRefreshing, error, refresh, retry} =
-    useHomeViewModel();
+  const {
+    data,
+    isLoading,
+    isRefreshing,
+    error,
+    refresh,
+    retry,
+    bannersForHome,
+    dashboardIconsForHome,
+    upcomingPaymentsSummary,
+    recentActivityItems,
+  } = useHomeViewModel();
 
   const carouselRef = useRef<ScrollView>(null);
   const scaleAnims = useRef<Animated.Value[]>([]).current;
@@ -299,8 +284,6 @@ export function HomeScreen() {
     }
   };
 
-  const frequentPayments: FrequentPayment[] = data?.frequentPayments ?? [];
-
   const handleLogout = async () => {
     await logout();
   };
@@ -412,35 +395,27 @@ export function HomeScreen() {
 
             
 
-            <View style={[styles.mainColumn, styles.contentArea]}>
-              <QuickActionsRow onPress={openDevelopmentModal} />
-              <PromotionalBanner />
-
-              <View style={styles.frequentPaymentsSection}>
-                <HomeSectionTitle>Pagos frecuentes</HomeSectionTitle>
-                {frequentPayments.length > 0 ? (
-                  <View>
-                    {frequentPayments.map((fp, i) => (
-                      <FrequentPaymentRow
-                        key={`${fp.beneficiaryName}-${i}`}
-                        label={fp.beneficiaryName}
-                        icon={iconForFrequentPayment(
-                          fp.beneficiaryType,
-                          iconColor,
-                        )}
-                        isFirst={i === 0}
-                        isLast={i === frequentPayments.length - 1}
-                        onPress={openDevelopmentModal}
-                      />
-                    ))}
-                  </View>
-                ) : (
-                  <Text style={styles.emptyProducts}>
-                    No hay pagos frecuentes registrados.
-                  </Text>
-                )}
+            {data ? (
+              <View style={[styles.mainColumn, styles.contentArea]}>
+                <View style={styles.dashboardColumn}>
+                  <RequestProductRow onPress={openDevelopmentModal} />
+                  <HomeBannersCarousel banners={bannersForHome} />
+                  <FrequentActionsSection
+                    items={dashboardIconsForHome}
+                    onItemPress={openDevelopmentModal}
+                  />
+                  <UpcomingPaymentsRow
+                    summary={upcomingPaymentsSummary}
+                    onPress={openDevelopmentModal}
+                  />
+                  <RecentActivitySection
+                    items={recentActivityItems}
+                    onPressListIcon={openDevelopmentModal}
+                    onPressCalendarIcon={openDevelopmentModal}
+                  />
+                </View>
               </View>
-            </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -508,8 +483,11 @@ function useStyles(colors: ThemeColors) {
         contentArea: {
           paddingTop: 16,
           paddingBottom: 32,
-  
+          paddingHorizontal: MAIN_COLUMN_PADDING,
           backgroundColor: colors.background,
+        },
+        dashboardColumn: {
+          gap: 20,
         },
         carouselRow: {
           flexDirection: 'row',
@@ -529,9 +507,6 @@ function useStyles(colors: ThemeColors) {
         },
         cardFill: {
           flex: 1,
-        },
-        frequentPaymentsSection: {
-          gap: 16,
         },
         loadingBox: {
           paddingVertical: 24,

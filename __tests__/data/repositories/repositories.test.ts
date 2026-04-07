@@ -111,6 +111,8 @@ describe('data repositories', () => {
       accountKind: 'savings',
       balance: 100,
     });
+    expect(result.banners).toEqual([]);
+    expect(result.homeDashboardIcons).toEqual([]);
   });
 
   test('AccountMovementRepositoryImpl maps paginated transaction list', async () => {
