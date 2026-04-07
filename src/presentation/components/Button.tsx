@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, type ReactNode} from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -21,6 +21,10 @@ interface ButtonProps {
   loading?: boolean;
   iconSource?: ImageSourcePropType;
   iconSourceRight?: ImageSourcePropType;
+  /** Si se define, sustituye a `iconSource` (p. ej. SVG). */
+  iconNodeLeft?: ReactNode;
+  /** Si se define, sustituye a `iconSourceRight` (p. ej. SVG). */
+  iconNodeRight?: ReactNode;
   iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
@@ -34,6 +38,8 @@ export function Button({
   loading = false,
   iconSource,
   iconSourceRight,
+  iconNodeLeft,
+  iconNodeRight,
   iconRightTintColor,
   variant = 'primary',
   disabled = false,
@@ -43,7 +49,9 @@ export function Button({
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const isDisabled = disabled || loading;
+  const isPressDisabled = disabled || loading;
+  const loginPrimaryDisabledLook =
+    variant === 'loginPrimary' && disabled && !loading;
 
   return (
     <TouchableOpacity
@@ -53,11 +61,12 @@ export function Button({
         variant === 'primary' && styles.primary,
         variant === 'outline' && styles.outline,
         variant === 'loginPrimary' && styles.loginPrimary,
-        isDisabled && styles.disabled,
+        loginPrimaryDisabledLook && styles.loginPrimaryDisabled,
+        isPressDisabled && !loginPrimaryDisabledLook && styles.disabled,
         style,
       ]}
       onPress={onPress}
-      disabled={isDisabled}
+      disabled={isPressDisabled}
       activeOpacity={0.8}>
       {loading ? (
         <ActivityIndicator
@@ -68,7 +77,9 @@ export function Button({
         />
       ) : (
         <View style={styles.contentRow}>
-          {iconSource ? (
+          {iconNodeLeft ? (
+            <View style={styles.iconLeadingWrap}>{iconNodeLeft}</View>
+          ) : iconSource ? (
             <Image source={iconSource} style={styles.iconLeading} resizeMode="contain" />
           ) : null}
           <Text
@@ -79,7 +90,9 @@ export function Button({
             ]}>
             {title}
           </Text>
-          {iconSourceRight ? (
+          {iconNodeRight ? (
+            <View style={styles.iconTrailingWrap}>{iconNodeRight}</View>
+          ) : iconSourceRight ? (
             <Image
               source={iconSourceRight}
               style={[
@@ -121,6 +134,9 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.primary,
           width: '100%',
         },
+        loginPrimaryDisabled: {
+          backgroundColor: colors.textTertiary,
+        },
         disabled: {
           opacity: 0.7,
         },
@@ -143,10 +159,20 @@ function useStyles(colors: ThemeColors) {
           height: 24,
           marginRight: 8,
         },
+        iconLeadingWrap: {
+          marginRight: 8,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         iconTrailing: {
           width: 24,
           height: 24,
           marginLeft: 8,
+        },
+        iconTrailingWrap: {
+          marginLeft: 8,
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         contentRow: {
           flexDirection: 'row',

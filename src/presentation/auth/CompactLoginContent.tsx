@@ -16,12 +16,17 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
+import UserPlusSvg from '../../../assets/images/svg/user-plus.svg';
+import MenuIconSvg from '../../../assets/images/svg/menu-icon.svg';
+import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
+
 const bankBanner = require('../../../assets/images/BBBanner.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
-const footerIconCreate = require('../../../assets/images/user-plus.png');
-const footerIconProduct = require('../../../assets/images/product_menu_icon.png');
+
+const FOOTER_SVG_SIZE = 28;
+const LOGIN_SUBMIT_ICON_SIZE = 24;
 
 export interface CompactLoginContentProps {
   greetingName: string;
@@ -80,9 +85,6 @@ export function CompactLoginContent({
           resizeMode="contain"
           accessibilityLabel="Banco Bolivariano"
         />
-        <Text style={styles.versionText} numberOfLines={1}>
-          {versionLabel}
-        </Text>
       </View>
 
       <View style={styles.heroCarousel}>
@@ -139,7 +141,12 @@ export function CompactLoginContent({
           testID="login-submit"
           title="Ingresar"
           onPress={onLogin}
-          iconSource={require('../../../assets/images/house.png')}
+          iconNodeRight={
+            <LoginSubmitArrowSvg
+              width={LOGIN_SUBMIT_ICON_SIZE}
+              height={LOGIN_SUBMIT_ICON_SIZE}
+            />
+          }
           loading={isLoadingLogin}
           disabled={isBusy}
           variant="loginPrimary"
@@ -165,11 +172,7 @@ export function CompactLoginContent({
           accessibilityRole="button"
           accessibilityLabel="Crear usuario">
           <View style={styles.footerQuickIconWrap}>
-            <Image
-              source={footerIconCreate}
-              style={styles.footerQuickIcon}
-              resizeMode="contain"
-            />
+            <UserPlusSvg width={FOOTER_SVG_SIZE} height={FOOTER_SVG_SIZE} />
           </View>
           <Text style={styles.footerQuickLabel}>Crear usuario</Text>
         </Pressable>
@@ -179,11 +182,7 @@ export function CompactLoginContent({
           accessibilityRole="button"
           accessibilityLabel="Solicitar producto">
           <View style={styles.footerQuickIconWrap}>
-            <Image
-              source={footerIconProduct}
-              style={styles.footerQuickIconInner}
-              resizeMode="contain"
-            />
+            <MenuIconSvg width={FOOTER_SVG_SIZE} height={FOOTER_SVG_SIZE} />
           </View>
           <Text style={styles.footerQuickLabel}>Solicitar producto</Text>
         </Pressable>
@@ -194,7 +193,12 @@ export function CompactLoginContent({
         title="Contáctate con nosotros"
         onPress={showDevelopmentNotice}
         style={styles.contactLink}
+        labelStyle={styles.contactLinkLabel}
       />
+
+      <Text style={styles.versionText} numberOfLines={1}>
+        {versionLabel}
+      </Text>
 
       <DevelopmentNoticeModal
         visible={devNoticeVisible}
@@ -223,15 +227,14 @@ function useStyles(colors: ThemeColors) {
         bankLogo: {
           width: 196,
           height: 30,
-          flexShrink: 0,
         },
         versionText: {
-          flex: 1,
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 18,
           color: colors.textTertiary,
-          textAlign: 'right',
+          textAlign: 'center',
+          marginBottom: 8,
         },
         heroCarousel: {
           alignSelf: 'stretch',
@@ -273,7 +276,7 @@ function useStyles(colors: ThemeColors) {
           fontFamily: Lexend.semiBold,
           fontSize: 14,
           lineHeight: 16,
-          color: colors.linkPrimary,
+          color: colors.textSecondary,
         },
         changeUserLink: {
           alignSelf: 'flex-start',
@@ -307,21 +310,6 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.surface,
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#000000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.1,
-          shadowRadius: 6,
-          elevation: 4,
-        },
-        footerQuickIcon: {
-          width: 28,
-          height: 28,
-          tintColor: colors.primary,
-        },
-        footerQuickIconInner: {
-          width: 28,
-          height: 28,
-          tintColor: colors.primary,
         },
         footerQuickLabel: {
           fontFamily: Lexend.regular,
@@ -332,9 +320,12 @@ function useStyles(colors: ThemeColors) {
         },
         contactLink: {
           alignSelf: 'center',
-          marginBottom: 8,
           marginTop: 16,
+          marginBottom: 8,
+        },
+        contactLinkLabel: {
           fontSize: 12,
+          lineHeight: 18,
           textDecorationLine: 'underline',
         },
       }),

@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
@@ -86,17 +85,8 @@ function useStyles(colors: ThemeColors) {
             : {paddingVertical: 14}),
           borderWidth: 0,
         },
-        inputElevated:
-          Platform.OS === 'ios'
-            ? {
-                shadowColor: '#000000',
-                shadowOffset: {width: 0, height: 2},
-                shadowOpacity: 0.12,
-                shadowRadius: 6,
-              }
-            : {
-                elevation: 4,
-              },
+        /** Misma apariencia base que `flat`; sin sombra (diseño login). */
+        inputElevated: {},
         inputError: {
           borderWidth: 1,
           borderColor: colors.error,

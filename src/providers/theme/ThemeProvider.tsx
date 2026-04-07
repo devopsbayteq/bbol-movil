@@ -18,7 +18,11 @@ export function ThemeProvider({children}: ThemeProviderProps) {
 
   return (
     <>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+      />
       {children}
     </>
   );

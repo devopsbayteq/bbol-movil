@@ -10,7 +10,13 @@ import {useAuth, useSecurity} from '../providers';
 import {User} from '../domain/entities/User';
 
 export type OtpValidationParams =
-  | {mode: 'login'; user: User; email: string}
+  | {
+      mode: 'login';
+      user: User;
+      email: string;
+      /** Login compacto (usuario ya vinculado): no volver a pedir alias tras OTP */
+      skipRegisterAlias?: boolean;
+    }
   | {mode: 'transfer'; email: string};
 
 export type RootStackParamList = {
