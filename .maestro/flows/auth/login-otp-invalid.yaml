@@ -33,11 +33,9 @@ name: PIN incorrecto muestra error en pantalla OTP
     timeout: 30000
 
 # PIN inválido: 111111 (el servidor rechaza cualquier código distinto al correcto)
-- repeat:
-    times: 6
-    commands:
-    - tapOn:
-        label: "Digito 1"
+- tapOn:
+    id: "otp-input"
+- inputText: "111111"
 
 - extendedWaitUntil:
     visible:

@@ -99,12 +99,6 @@ export function RegisterAliasScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-          <Image
-            source={aliasHero}
-            style={styles.hero}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
           <Text style={styles.title}>Configura tu alias</Text>
 
           <LoginTextField
@@ -130,7 +124,7 @@ export function RegisterAliasScreen() {
 
           <Button
             testID="register-alias-continue"
-            title="Continuar →"
+            title="Continuar "
             onPress={() => handleSubmit().catch(() => {})}
             loading={isLoading}
             disabled={isLoading}
@@ -203,16 +197,17 @@ function useStyles(colors: ThemeColors) {
         },
         title: {
           alignSelf: 'stretch',
-          fontFamily: Lexend.bold,
-          fontSize: 22,
-          lineHeight: 30,
+          fontFamily: Lexend.regular,
+          fontSize: 32,
+          lineHeight: 42,
           color: colors.textPrimary,
-          textAlign: 'center',
+          textAlign: 'left',
           marginBottom: 20,
+          paddingBottom: 24,
         },
         fieldWrap: {
           alignSelf: 'stretch',
-          marginBottom: 16,
+          marginBottom: 24,
         },
         submitError: {
           alignSelf: 'stretch',
@@ -222,7 +217,7 @@ function useStyles(colors: ThemeColors) {
         footerNote: {
           marginTop: 24,
           fontFamily: Lexend.regular,
-          fontSize: 13,
+          fontSize: 16,
           lineHeight: 20,
           color: colors.textTertiary,
           textAlign: 'center',

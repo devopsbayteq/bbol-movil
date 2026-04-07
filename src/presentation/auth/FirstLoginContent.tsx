@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getVersion, getBuildNumber} from 'react-native-device-info';
@@ -11,14 +11,15 @@ import {
   LoginTextField,
   LoginPasswordField,
   TertiaryLinkButton,
+  DevelopmentNoticeModal,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
 const arrowBack = require('../../../assets/images/arrow-left.png');
 const bankMark = require('../../../assets/images/BBIcon.png');
-const footerIconCreate = require('../../../assets/images/BBIcon.png');
-const footerIconProduct = require('../../../assets/images/share-nodes.png');
-const loginSubmitIcon = require('../../../assets/images/lock-keyhole-open.png');
+const footerIconCreate = require('../../../assets/images/user-plus.png');
+const footerIconProduct = require('../../../assets/images/product_menu_icon.png');
+const loginSubmitIcon = require('../../../assets/images/arrow-right-from-bracket.png');
 
 export interface FirstLoginContentProps {
   email: string;
@@ -31,12 +32,6 @@ export interface FirstLoginContentProps {
   isLoadingLogin: boolean;
   error: string | null;
   onLogin: () => void;
-  onForgotUsername: () => void;
-  onForgotPassword: () => void;
-  onOpenTerms: () => void;
-  onStubCreateUser: () => void;
-  onStubRequestProduct: () => void;
-  onContactUs: () => void;
 }
 
 export function FirstLoginContent({
@@ -50,17 +45,20 @@ export function FirstLoginContent({
   isLoadingLogin,
   error,
   onLogin,
-  onForgotUsername,
-  onForgotPassword,
-  onOpenTerms,
-  onStubCreateUser,
-  onStubRequestProduct,
-  onContactUs,
 }: FirstLoginContentProps) {
   const navigation = useNavigation();
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [devNoticeVisible, setDevNoticeVisible] = useState(false);
+
+  const showDevelopmentNotice = useCallback(() => {
+    setDevNoticeVisible(true);
+  }, []);
+
+  const closeDevelopmentNotice = useCallback(() => {
+    setDevNoticeVisible(false);
+  }, []);
 
   const versionLabel = useMemo(() => {
     return `Versión ${formatAppVersionDisplay(
@@ -96,13 +94,12 @@ export function FirstLoginContent({
       </View>
 
       <View style={styles.brandBlock}>
-        <View
-          style={styles.logoTile}
-          accessibilityLabel="Banco Bolivariano">
+        <View style={styles.logoTile} accessibilityLabel="Banco Bolivariano">
           <Image
             source={bankMark}
             style={styles.logoMark}
             resizeMode="contain"
+            accessibilityIgnoresInvertColors
           />
         </View>
         <Text style={styles.heroTitle}>Bienvenido a tu banca móvil</Text>
@@ -127,7 +124,7 @@ export function FirstLoginContent({
           variant="elevated"
         />
         <Pressable
-          onPress={onForgotUsername}
+          onPress={showDevelopmentNotice}
           style={styles.forgotRow}
           accessibilityRole="button"
           accessibilityLabel="¿Olvidaste tu usuario?">
@@ -147,7 +144,7 @@ export function FirstLoginContent({
           variant="elevated"
         />
         <Pressable
-          onPress={onForgotPassword}
+          onPress={showDevelopmentNotice}
           style={styles.forgotRow}
           accessibilityRole="button"
           accessibilityLabel="¿Olvidaste tu contraseña?">
@@ -176,7 +173,7 @@ export function FirstLoginContent({
         <View style={styles.termsTextWrap}>
           <Text style={styles.termsText}>
             Acepto los{' '}
-            <Text onPress={onOpenTerms} style={styles.termsLink}>
+            <Text onPress={showDevelopmentNotice} style={styles.termsLink}>
               términos y condiciones
             </Text>
           </Text>
@@ -206,7 +203,7 @@ export function FirstLoginContent({
 
       <View style={styles.footerQuickRow}>
         <Pressable
-          onPress={onStubCreateUser}
+          onPress={showDevelopmentNotice}
           style={styles.footerQuickItem}
           accessibilityRole="button"
           accessibilityLabel="Crear usuario">
@@ -220,7 +217,7 @@ export function FirstLoginContent({
           <Text style={styles.footerQuickLabel}>Crear usuario</Text>
         </Pressable>
         <Pressable
-          onPress={onStubRequestProduct}
+          onPress={showDevelopmentNotice}
           style={styles.footerQuickItem}
           accessibilityRole="button"
           accessibilityLabel="Solicitar producto">
@@ -238,8 +235,13 @@ export function FirstLoginContent({
       <TertiaryLinkButton
         testID="login-contact-us"
         title="Contáctate con nosotros"
-        onPress={onContactUs}
+        onPress={showDevelopmentNotice}
         style={styles.contactLink}
+      />
+
+      <DevelopmentNoticeModal
+        visible={devNoticeVisible}
+        onClose={closeDevelopmentNotice}
       />
     </View>
   );
@@ -268,7 +270,6 @@ function useStyles(colors: ThemeColors) {
         backIcon: {
           width: 24,
           height: 24,
-          tintColor: colors.iconPrimary,
         },
         backPlaceholder: {
           width: 40,
@@ -300,11 +301,14 @@ function useStyles(colors: ThemeColors) {
           tintColor: colors.white,
         },
         heroTitle: {
-          fontFamily: Lexend.bold,
-          fontSize: 22,
-          lineHeight: 30,
+          fontFamily: Lexend.regular,
+          fontSize: 32,
+          lineHeight: 42,
           color: colors.textPrimary,
           textAlign: 'center',
+          paddingTop: 24,
+          paddingBottom: 6,
+          width: '65%',
         },
         heroSubtitle: {
           fontFamily: Lexend.regular,
@@ -331,11 +335,12 @@ function useStyles(colors: ThemeColors) {
         },
         termsRow: {
           flexDirection: 'row',
-          alignItems: 'flex-start',
+        //  alignItems: 'flex-start',
           gap: 12,
           marginTop: 8,
           marginBottom: 16,
           paddingVertical: 4,
+          alignItems: 'center',
         },
         checkboxHit: {
           paddingVertical: 4,
@@ -397,9 +402,9 @@ function useStyles(colors: ThemeColors) {
           maxWidth: '45%',
         },
         footerQuickIconWrap: {
-          width: 56,
-          height: 56,
-          borderRadius: 28,
+          width: 48,
+          height: 48,
+          borderRadius: 60,
           backgroundColor: colors.surface,
           alignItems: 'center',
           justifyContent: 'center',
@@ -428,7 +433,10 @@ function useStyles(colors: ThemeColors) {
         },
         contactLink: {
           alignSelf: 'center',
-          marginBottom: 24,
+          marginBottom: 16,
+          marginTop: 24,
+          fontSize: 12,
+          textDecorationLine: 'underline',
         },
       }),
     [colors],

@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
 import {getVersion, getBuildNumber} from 'react-native-device-info';
 
@@ -11,12 +11,12 @@ import {
   SecondaryIconButton,
   TertiaryLinkButton,
   OrSeparator,
+  DevelopmentNoticeModal,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
-/** Banner login compacto (exportado desde el diseño; evita import SVG como componente en Metro). */
-const heroIllustration = require('../../../assets/images/login_compact_hero.png');
 const bankBanner = require('../../../assets/images/BBBanner.png');
+const welcomeBrandIcon = require('../../../assets/images/BBIcon.png');
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
 const footerIconCreate = require('../../../assets/images/BBIcon.png');
 const footerIconProduct = require('../../../assets/images/share-nodes.png');
@@ -33,11 +33,7 @@ export interface CompactLoginContentProps {
   showBiometricLogin: boolean;
   onLogin: () => void;
   onBiometricLogin: () => void;
-  onForgotPassword: () => void;
   onChangeUser: () => void;
-  onContactUs: () => void;
-  onStubCreateUser: () => void;
-  onStubRequestProduct: () => void;
 }
 
 export function CompactLoginContent({
@@ -52,14 +48,19 @@ export function CompactLoginContent({
   showBiometricLogin,
   onLogin,
   onBiometricLogin,
-  onForgotPassword,
   onChangeUser,
-  onContactUs,
-  onStubCreateUser,
-  onStubRequestProduct,
 }: CompactLoginContentProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
+  const [devNoticeVisible, setDevNoticeVisible] = useState(false);
+
+  const showDevelopmentNotice = useCallback(() => {
+    setDevNoticeVisible(true);
+  }, []);
+
+  const closeDevelopmentNotice = useCallback(() => {
+    setDevNoticeVisible(false);
+  }, []);
 
   const versionLabel = useMemo(() => {
     return `Versión ${formatAppVersionDisplay(
@@ -82,19 +83,16 @@ export function CompactLoginContent({
         </Text>
       </View>
 
-      <View style={styles.heroImageWrap}>
-        <Image
-          source={heroIllustration}
-          style={styles.heroImage}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-          accessibilityLabel="Ilustración de banca móvil"
-        />
+      <View style={styles.brandBlock}>
         <View
-          style={styles.carouselDots}
-          accessibilityLabel="Indicadores de contenido">
-          <View style={[styles.dot, styles.dotActive]} />
-          <View style={styles.dot} />
+          style={styles.logoTile}
+          accessibilityLabel="Banco Bolivariano">
+          <Image
+            source={welcomeBrandIcon}
+            style={styles.logoMark}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
         </View>
       </View>
 
@@ -117,7 +115,7 @@ export function CompactLoginContent({
           autoComplete="password"
         />
         <Pressable
-          onPress={onForgotPassword}
+          onPress={showDevelopmentNotice}
           style={styles.forgotRow}
           accessibilityRole="button"
           accessibilityLabel="¿Olvidaste tu contraseña?">
@@ -165,7 +163,7 @@ export function CompactLoginContent({
 
       <View style={styles.footerQuickRow}>
         <Pressable
-          onPress={onStubCreateUser}
+          onPress={showDevelopmentNotice}
           style={styles.footerQuickItem}
           accessibilityRole="button"
           accessibilityLabel="Crear usuario">
@@ -177,7 +175,7 @@ export function CompactLoginContent({
           <Text style={styles.footerQuickLabel}>Crear usuario</Text>
         </Pressable>
         <Pressable
-          onPress={onStubRequestProduct}
+          onPress={showDevelopmentNotice}
           style={styles.footerQuickItem}
           accessibilityRole="button"
           accessibilityLabel="Solicitar producto">
@@ -193,8 +191,13 @@ export function CompactLoginContent({
       <TertiaryLinkButton
         testID="login-contact-us"
         title="Contáctate con nosotros"
-        onPress={onContactUs}
+        onPress={showDevelopmentNotice}
         style={styles.contactLink}
+      />
+
+      <DevelopmentNoticeModal
+        visible={devNoticeVisible}
+        onClose={closeDevelopmentNotice}
       />
     </View>
   );
@@ -229,29 +232,22 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
           textAlign: 'right',
         },
-        heroImageWrap: {
+        brandBlock: {
           alignItems: 'center',
           marginBottom: 16,
         },
-        heroImage: {
-          width: '100%',
-          maxWidth: 320,
-          height: 200,
-        },
-        carouselDots: {
-          flexDirection: 'row',
-          gap: 8,
-          marginTop: 12,
+        logoTile: {
+          width: 72,
+          height: 72,
+          borderRadius: 12,
+          backgroundColor: colors.primary,
+          alignItems: 'center',
           justifyContent: 'center',
         },
-        dot: {
-          width: 8,
-          height: 8,
-          borderRadius: 4,
-          backgroundColor: colors.border,
-        },
-        dotActive: {
-          backgroundColor: colors.primary,
+        logoMark: {
+          width: 40,
+          height: 40,
+          tintColor: colors.white,
         },
         welcomeLine: {
           fontFamily: Lexend.regular,

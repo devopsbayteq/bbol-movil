@@ -6,8 +6,8 @@ import {
   StyleSheet,
   Pressable,
   Image,
-  Platform,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {useTheme, type ThemeColors} from '../../providers';
 import {Button} from '../components';
@@ -28,6 +28,7 @@ export function DeviceRegistrationSuccessModal({
   onContinue,
 }: DeviceRegistrationSuccessModalProps) {
   const {colors} = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
   const onContinueRef = useRef(onContinue);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,44 +67,54 @@ export function DeviceRegistrationSuccessModal({
   return (
     <Modal
       visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
+      transparent
+      animationType="fade"
+      statusBarTranslucent
       onRequestClose={runContinue}>
-      <View style={styles.root}>
-        <View style={styles.modalHeader}>
-          <View style={styles.headerSpacer} />
-          <Text style={styles.modalTitle} accessibilityRole="header">
-            ¡TODO LISTO!
-          </Text>
-          <Pressable
-            onPress={runContinue}
-            hitSlop={12}
-            style={styles.closeBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Cerrar">
-            <Text style={styles.closeIcon}>×</Text>
-          </Pressable>
-        </View>
+      <View
+        style={[
+          styles.overlay,
+          {
+            paddingTop: insets.top + 16,
+            paddingBottom: insets.bottom + 16,
+          },
+        ]}>
+        <View style={styles.card} accessibilityViewIsModal>
+          <View style={styles.modalHeader}>
+            <View style={styles.headerSpacer} />
+            <Text style={styles.modalTitle} accessibilityRole="header">
+              ¡TODO LISTO!
+            </Text>
+            <Pressable
+              onPress={runContinue}
+              hitSlop={12}
+              style={styles.closeBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar">
+              <Text style={styles.closeIcon}>×</Text>
+            </Pressable>
+          </View>
 
-        <View style={styles.body}>
-          <Image
-            source={successIllustration}
-            style={styles.hero}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-          <Text style={styles.bodyText}>
-            Tu nuevo dispositivo ha sido registrado, estás listo para ingresar a
-            tu Banca móvil.
-          </Text>
-          <Button
-            title="Iniciar sesión"
-            onPress={runContinue}
-            variant="loginPrimary"
-            iconSourceRight={shieldKeyholeIcon}
-            iconRightTintColor={colors.white}
-            testID="device-registration-success-continue"
-          />
+          <View style={styles.body}>
+            <Image
+              source={successIllustration}
+              style={styles.hero}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+            />
+            <Text style={styles.bodyText}>
+              Tu nuevo dispositivo ha sido registrado, estás listo para ingresar a
+              tu Banca móvil.
+            </Text>
+            <Button
+              title="Iniciar sesión"
+              onPress={runContinue}
+              variant="loginPrimary"
+              iconSourceRight={shieldKeyholeIcon}
+              iconRightTintColor={colors.white}
+              testID="device-registration-success-continue"
+            />
+          </View>
         </View>
       </View>
     </Modal>
@@ -114,16 +125,31 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        root: {
+        overlay: {
           flex: 1,
-          backgroundColor: colors.background,
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 24,
+        },
+        card: {
+          width: '100%',
+          maxWidth: 360,
+          backgroundColor: colors.surface,
+          borderRadius: 16,
+          overflow: 'hidden',
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: 4},
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 8,
         },
         modalHeader: {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: 16,
-          minHeight: 56,
+          minHeight: 52,
           backgroundColor: colors.white,
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: colors.borderLight,
@@ -151,10 +177,9 @@ function useStyles(colors: ThemeColors) {
           fontWeight: '400',
         },
         body: {
-          flex: 1,
           paddingHorizontal: 24,
-          paddingTop: 24,
-          paddingBottom: Platform.OS === 'ios' ? 32 : 24,
+          paddingTop: 20,
+          paddingBottom: 24,
         },
         hero: {
           width: '100%',

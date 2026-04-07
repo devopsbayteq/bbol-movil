@@ -9,17 +9,13 @@ import {
   Alert,
   Pressable,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {useTheme, type ThemeColors} from '../../providers';
-import {
-  ErrorMessage,
-  OtpCodeInput,
-  OtpNumericKeypad,
-  type OtpKeypadKey,
-} from '../components';
+import {ErrorMessage, OtpCodeInput} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
 import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
@@ -27,7 +23,6 @@ import {TransferStackParamList} from '../../navigation/TransferStackNavigator.ts
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
-const otpDelete = require('../../../assets/images/delete.png');
 const otpShield = require('../../../assets/images/icon_shell.png');
 const otpClock = require('../../../assets/images/clock-rotate-left.png');
 
@@ -88,6 +83,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   );
 
   const lastSubmitted = useRef<string | null>(null);
+  const otpInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (code.length < 6) {
@@ -106,15 +102,17 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
     handleValidate().catch(() => {});
   }, [code, isLoading, error, handleValidate]);
 
-  const handleKeypad = (key: OtpKeypadKey) => {
-    if (key === 'backspace') {
-      onChangeCode(code.slice(0, -1));
-      return;
-    }
-    if (code.length < 6) {
-      onChangeCode(code + key);
-    }
+  const handleOtpTextChange = (text: string) => {
+    const digits = text.replace(/\D/g, '').slice(0, 6);
+    onChangeCode(digits);
   };
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      otpInputRef.current?.focus();
+    }, 400);
+    return () => clearTimeout(id);
+  }, []);
 
   const handleForgotPin = () => {
     Alert.alert(
@@ -166,7 +164,11 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
               Enviamos un código de verificación de 6 dígitos a tu celular
               terminado en ****458.
             </Text>
-            <View style={styles.pinSection}>
+            <Pressable
+              style={styles.pinInputWrap}
+              onPress={() => otpInputRef.current?.focus()}
+              accessibilityRole="none"
+              accessibilityHint="Abre el teclado para ingresar el código">
               <OtpCodeInput
                 value={code}
                 hasError={!!error}
@@ -174,7 +176,23 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
                 length={6}
                 variant="boxed"
               />
-            </View>
+              <TextInput
+                ref={otpInputRef}
+                testID="otp-input"
+                value={code}
+                onChangeText={handleOtpTextChange}
+                keyboardType="number-pad"
+                inputMode="numeric"
+                maxLength={6}
+                editable={!isLoading}
+                caretHidden
+                style={styles.hiddenOtpInput}
+                accessibilityLabel="Código de verificación de 6 dígitos"
+                textContentType="oneTimeCode"
+                autoComplete="sms-otp"
+                importantForAutofill="yes"
+              />
+            </Pressable>
             <View style={styles.timerRow}>
               <Image
                 source={otpClock}
@@ -216,14 +234,32 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
               accessibilityIgnoresInvertColors
               accessibilityLabel="Candado abierto"
             />
-            <View style={styles.pinSection}>
+            <Pressable
+              style={styles.pinInputWrap}
+              onPress={() => otpInputRef.current?.focus()}
+              accessibilityRole="none"
+              accessibilityHint="Abre el teclado para ingresar el PIN">
               <OtpCodeInput
                 value={code}
                 hasError={!!error}
                 disabled={isLoading}
                 length={6}
               />
-            </View>
+              <TextInput
+                ref={otpInputRef}
+                testID="otp-input"
+                value={code}
+                onChangeText={handleOtpTextChange}
+                keyboardType="number-pad"
+                inputMode="numeric"
+                maxLength={6}
+                editable={!isLoading}
+                caretHidden
+                style={styles.hiddenOtpInput}
+                accessibilityLabel="PIN de 6 dígitos"
+                textContentType="oneTimeCode"
+              />
+            </Pressable>
           </>
         )}
 
@@ -234,16 +270,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
             style={styles.error}
           />
         ) : null}
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <OtpNumericKeypad
-          onKeyPress={handleKeypad}
-          disabled={isLoading}
-          deleteIconSource={otpDelete}
-        />
-
-        {isLogin ? null : (
+        {!isLogin ? (
           <TouchableOpacity
             onPress={handleForgotPin}
             activeOpacity={0.8}
@@ -251,8 +278,8 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
             accessibilityRole="button">
             <Text style={styles.forgotText}>¿Olvidaste tu PIN?</Text>
           </TouchableOpacity>
-        )}
-      </View>
+        ) : null}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -299,9 +326,9 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
         },
         sectionTitle: {
           alignSelf: 'stretch',
-          fontFamily: Lexend.bold,
-          fontSize: 22,
-          lineHeight: 30,
+          fontFamily: Lexend.regular,
+          fontSize: 32,
+          lineHeight: 42,
           color: colors.textPrimary,
           textAlign: 'left',
           marginBottom: 8,
@@ -317,11 +344,11 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           marginBottom: 8,
         },
         shieldIcon: {
-          width: 120,
-          height: 120,
+          width: 90,
+          height: 90,
           alignSelf: 'center',
-          marginTop: 8,
-          marginBottom: 8,
+          marginTop: 24,
+          marginBottom: 24,
         },
         timerRow: {
           flexDirection: 'row',
@@ -355,19 +382,22 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           marginTop: 28,
           marginBottom: 28,
         },
-        pinSection: {
+        pinInputWrap: {
           alignSelf: 'stretch',
           alignItems: 'center',
           marginTop: layout === 'login' ? 20 : 0,
+          position: 'relative',
+          minHeight: 52,
+        },
+        hiddenOtpInput: {
+          ...StyleSheet.absoluteFillObject,
+          opacity: 0.02,
+          color: 'transparent',
         },
         error: {
           alignSelf: 'stretch',
           marginTop: 12,
           marginBottom: 8,
-        },
-        footer: {
-          paddingHorizontal: 24,
-          paddingBottom: 8,
         },
         forgotWrap: {
           alignSelf: 'center',

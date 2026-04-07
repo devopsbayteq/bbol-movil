@@ -8,12 +8,9 @@ appId: com.bbapp
       id: "otp-screen"
     timeout: 30000
 
-- tapOn: "Digito 1"
-- tapOn: "Digito 2"
-- tapOn: "Digito 3"
-- tapOn: "Digito 4"
-- tapOn: "Digito 5"
-- tapOn: "Digito 7"
+- tapOn:
+    id: "otp-input"
+- inputText: "123457"
 
 - extendedWaitUntil:
     visible: "Transferencia exitosa"

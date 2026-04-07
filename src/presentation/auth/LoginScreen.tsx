@@ -110,48 +110,6 @@ export function LoginScreen() {
     acknowledgeBiometricEnrollmentRevoked,
   ]);
 
-  const onContactUs = () => {
-    Alert.alert(
-      'Contáctate con nosotros',
-      'Contacta a soporte para recuperar tu acceso o consultas generales.',
-    );
-  };
-
-  const onForgotPassword = () => {
-    Alert.alert(
-      'Recuperar contraseña',
-      'Si no recuerdas tu contraseña, contacta a soporte para recuperar tu acceso.',
-    );
-  };
-
-  const onForgotUsername = () => {
-    Alert.alert(
-      'Recuperar usuario',
-      'Si no recuerdas tu usuario, contacta a soporte para recuperar tu acceso.',
-    );
-  };
-
-  const onOpenTerms = () => {
-    Alert.alert(
-      'Términos y condiciones',
-      'El documento estará disponible próximamente.',
-    );
-  };
-
-  const onStubCreateUser = () => {
-    Alert.alert(
-      'Crear usuario',
-      'Esta opción estará disponible próximamente.',
-    );
-  };
-
-  const onStubRequestProduct = () => {
-    Alert.alert(
-      'Solicitar producto',
-      'Esta opción estará disponible próximamente.',
-    );
-  };
-
   const handleChangeUser = async () => {
     await secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID);
     await secureStorageService.remove(
@@ -201,11 +159,7 @@ export function LoginScreen() {
               showBiometricLogin={showBiometricLogin}
               onLogin={handleLogin}
               onBiometricLogin={handleBiometricLogin}
-              onForgotPassword={onForgotPassword}
               onChangeUser={handleChangeUser}
-              onContactUs={onContactUs}
-              onStubCreateUser={onStubCreateUser}
-              onStubRequestProduct={onStubRequestProduct}
             />
           ) : (
             <FirstLoginContent
@@ -219,12 +173,6 @@ export function LoginScreen() {
               isLoadingLogin={isLoadingLogin}
               error={error}
               onLogin={handleLogin}
-              onForgotUsername={onForgotUsername}
-              onForgotPassword={onForgotPassword}
-              onOpenTerms={onOpenTerms}
-              onStubCreateUser={onStubCreateUser}
-              onStubRequestProduct={onStubRequestProduct}
-              onContactUs={onContactUs}
             />
           )}
         </View>
