@@ -76,12 +76,14 @@ function useStyles(colors: ThemeColors) {
         input: {
           fontFamily: Lexend.regular,
           fontSize: 14,
-          lineHeight: 22,
+          ...(Platform.OS === 'android' ? {lineHeight: 22} : {}),
           color: colors.textPrimary,
           backgroundColor: colors.inputBg,
           borderRadius: 8,
           paddingHorizontal: 16,
-          paddingVertical: 14,
+          ...(Platform.OS === 'ios'
+            ? {paddingTop: 12, paddingBottom: 18}
+            : {paddingVertical: 14}),
           borderWidth: 0,
         },
         inputElevated:

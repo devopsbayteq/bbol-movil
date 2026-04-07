@@ -151,7 +151,10 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           paddingLeft: 16,
           paddingRight: 12,
-          paddingVertical: 14,
+          ...(Platform.OS === 'ios'
+            ? {paddingTop: 12, paddingBottom: 16}
+            : {paddingVertical: 14}),
+          minHeight: 50,
           borderWidth: 0,
         },
         inputRowElevated:
@@ -173,9 +176,11 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           fontFamily: Lexend.regular,
           fontSize: 14,
-          lineHeight: 22,
+          ...(Platform.OS === 'android' ? {lineHeight: 22} : {}),
           color: colors.textPrimary,
-          paddingVertical: 0,
+          ...(Platform.OS === 'ios'
+            ? {paddingTop: 0, paddingBottom: 3}
+            : {paddingVertical: 0}),
         },
         eyeButton: {
           padding: 4,
