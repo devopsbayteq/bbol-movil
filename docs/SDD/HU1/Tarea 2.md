@@ -1,8 +1,8 @@
-# 2. Frontend: Mostrar opción Transferencia en Home y navegar a módulo
+# 2. (NO ESTIMAR) Crear pruebas unitarias y de contrato para servicios backend de biometría
 
-**Prioridad**: Alta
+**Prioridad**: Media-Alta
 
-**Historia padre**: #29062
+**Historia padre**: #29222
 
 ## Descripción
-Agregar en Home el entrypoint 'Transferencia' visible post-login. Al tap, navegar al módulo de transferencias (ruta/pantalla inicial). Conectar Home a GET /home para poblar tarjetas/cuentas/pagos frecuentes sin romper layout existente. Manejar estados loading/error y reintento.
+Agregar unit tests para reglas: activación solo post-login, autenticación biométrica exitosa genera sesión válida, fallos biométricos no bloquean por sí solos (manejo de respuestas para reintento/fallback), revocación/invalidación requiere re-login y re-habilitación. Incluir pruebas de validación de entradas, autorizaciones y códigos HTTP; y contract tests básicos con los DTOs esperados por el front.

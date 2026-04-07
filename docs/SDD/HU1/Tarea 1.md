@@ -1,8 +1,8 @@
-# 1. Backend: Exponer endpoint GET /home para tarjetas, cuentas y pagos frecuentes
+# 1. (NO ESTIMAR) Aplicar controles de seguridad y cumplimiento en backend para biometría
 
-**Prioridad**: Alta
+**Prioridad**: Media-Alta
 
-**Historia padre**: #29062
+**Historia padre**: #29222
 
 ## Descripción
-Implementar en el servicio Home un endpoint GET /home que retorne: lista de cuentas origen elegibles (id, alias, numeroEnmascarado, moneda, disponible, saldo, tipo), tarjetas (id, alias, ultimos4, disponible) y pagos frecuentes (id, nombre, tipo, metadata mínima). Incluir contrato versionado, validación de sesión/autorización y trazas (correlation-id). Mockear orígenes si aún no existen integraciones.
+Asegurar que el backend no reciba/almacene datos biométricos; auditar payloads para solo manejar identificadores de dispositivo, llaves públicas/handles o referencias permitidas por seguridad del banco. Implementar rate limiting/anti-bruteforce para intentos de autenticación biométrica, logging seguro (sin secretos), y políticas de expiración/revocación de tokens asociados a biometría.

@@ -9,12 +9,41 @@ jest.mock('../../../src/di', () => ({
 
 const mockedUseDI = useDI as jest.MockedFunction<typeof useDI>;
 
-function flushPromises(): Promise<void> {
-  return new Promise(resolve => setImmediate(resolve));
-}
+const ASYNC_DRAIN_ROUNDS = 15;
+
+/** Debe coincidir con `MOVEMENTS_SEARCH_DEBOUNCE_MS` en el ViewModel. */
+const SEARCH_DEBOUNCE_MS = 400;
 
 describe('useAccountMovementsViewModel', () => {
   let latest: ReturnType<typeof useAccountMovementsViewModel> | undefined;
+  let testRenderer: ReactTestRenderer.ReactTestRenderer | undefined;
+
+  async function mountHarness(ui: React.ReactElement): Promise<void> {
+    await act(async () => {
+      testRenderer = ReactTestRenderer.create(ui);
+      for (let i = 0; i < ASYNC_DRAIN_ROUNDS; i++) {
+        await new Promise<void>(resolve => setImmediate(resolve));
+      }
+    });
+  }
+
+  async function actAndDrain(syncWork: () => void): Promise<void> {
+    await act(async () => {
+      syncWork();
+      for (let i = 0; i < ASYNC_DRAIN_ROUNDS; i++) {
+        await new Promise<void>(resolve => setImmediate(resolve));
+      }
+    });
+  }
+
+  async function actAndDrainAfter(asyncWork: () => Promise<void>): Promise<void> {
+    await act(async () => {
+      await asyncWork();
+      for (let i = 0; i < ASYNC_DRAIN_ROUNDS; i++) {
+        await new Promise<void>(resolve => setImmediate(resolve));
+      }
+    });
+  }
 
   function Harness({guid}: {guid?: string}) {
     latest = useAccountMovementsViewModel(guid);
@@ -23,7 +52,15 @@ describe('useAccountMovementsViewModel', () => {
 
   beforeEach(() => {
     latest = undefined;
+    testRenderer = undefined;
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    act(() => {
+      testRenderer?.unmount();
+      testRenderer = undefined;
+    });
   });
 
   test('loads home account and first page of movements', async () => {
@@ -75,10 +112,7 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     expect(latest?.selectedAccount?.accountGuid).toBe('acc-1');
     expect(latest?.items).toHaveLength(1);
@@ -120,16 +154,12 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     expect(latest?.movementsError).toBe('Sin conexión');
 
-    await act(async () => {
+    await actAndDrainAfter(async () => {
       await latest?.refresh();
-      await flushPromises();
     });
 
     expect(latest?.movementsError).toBeNull();
@@ -166,17 +196,13 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     const from = new Date(2026, 1, 10);
     const to = new Date(2026, 1, 13);
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.applyDateRange(from, to);
-      await flushPromises();
     });
 
     const withRange = executeMovements.mock.calls.find(
@@ -219,14 +245,10 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.applyAmountRange(10.5, 500);
-      await flushPromises();
     });
 
     const withAmount = executeMovements.mock.calls.find(
@@ -267,14 +289,10 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.applyTransactionEnumType('SentTransfers');
-      await flushPromises();
     });
 
     const withEnum = executeMovements.mock.calls.find(
@@ -285,65 +303,74 @@ describe('useAccountMovementsViewModel', () => {
   });
 
   test('debounced search passes textSearch to getAccountMovementsUseCase', async () => {
-    const executeMovements = jest.fn().mockResolvedValue({
-      totalCount: 0,
-      pageNumber: 1,
-      pageSize: 20,
-      items: [],
-    });
-    mockedUseDI.mockReturnValue({
-      getHomeContractBalanceUseCase: {
-        execute: jest.fn().mockResolvedValue({
-          accounts: [
-            {
-              accountGuid: 'acc-1',
-              maskedAccountNumber: '****8829',
-              accountKind: 'savings',
-              balance: 314.78,
-            },
-          ],
-          creditCards: [],
-          loans: [],
-          investments: [],
-          frequentPayments: [],
-        }),
-      },
-      getAccountMovementsUseCase: {
-        execute: executeMovements,
-      },
-    } as never);
-
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
-
-    executeMovements.mockClear();
-
     jest.useFakeTimers();
-
-    await act(async () => {
-      latest?.setSearchQuery('María');
-    });
-
-    await act(() => {
-      jest.advanceTimersByTime(400);
-    });
-
-    jest.useRealTimers();
-
-    await act(async () => {
-      await flushPromises();
-    });
-
-    expect(executeMovements).toHaveBeenCalledWith(
-      expect.objectContaining({
-        accountGuid: 'acc-1',
-        textSearch: 'María',
+    try {
+      const executeMovements = jest.fn().mockResolvedValue({
+        totalCount: 0,
         pageNumber: 1,
         pageSize: 20,
-      }),
-    );
+        items: [],
+      });
+      mockedUseDI.mockReturnValue({
+        getHomeContractBalanceUseCase: {
+          execute: jest.fn().mockResolvedValue({
+            accounts: [
+              {
+                accountGuid: 'acc-1',
+                maskedAccountNumber: '****8829',
+                accountKind: 'savings',
+                balance: 314.78,
+              },
+            ],
+            creditCards: [],
+            loans: [],
+            investments: [],
+            frequentPayments: [],
+          }),
+        },
+        getAccountMovementsUseCase: {
+          execute: executeMovements,
+        },
+      } as never);
+
+      await act(async () => {
+        testRenderer = ReactTestRenderer.create(<Harness />);
+        for (let i = 0; i < 40; i++) {
+          await Promise.resolve();
+        }
+      });
+
+      await act(async () => {
+        jest.advanceTimersByTime(SEARCH_DEBOUNCE_MS);
+        for (let i = 0; i < 40; i++) {
+          await Promise.resolve();
+        }
+      });
+
+      executeMovements.mockClear();
+
+      await act(() => {
+        latest?.setSearchQuery('María');
+      });
+
+      await act(async () => {
+        jest.advanceTimersByTime(SEARCH_DEBOUNCE_MS);
+        for (let i = 0; i < 40; i++) {
+          await Promise.resolve();
+        }
+      });
+
+      expect(executeMovements).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accountGuid: 'acc-1',
+          textSearch: 'María',
+          pageNumber: 1,
+          pageSize: 20,
+        }),
+      );
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   test('selecciona cuenta por guid de ruta cuando existe', async () => {
@@ -380,10 +407,7 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness guid="acc-b" />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness guid="acc-b" />);
 
     expect(latest?.selectedAccount?.accountGuid).toBe('acc-b');
   });
@@ -404,10 +428,7 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     expect(latest?.accountError).toBe('No hay cuentas disponibles');
     expect(latest?.selectedAccount).toBeNull();
@@ -424,10 +445,7 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     expect(latest?.accountError).toBe('Error al cargar la cuenta');
   });
@@ -512,17 +530,13 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     expect(latest?.items).toHaveLength(1);
     expect(latest?.hasMore).toBe(true);
 
-    await act(async () => {
+    await actAndDrainAfter(async () => {
       await latest?.loadMore();
-      await flushPromises();
     });
 
     expect(executeMovements).toHaveBeenLastCalledWith(
@@ -559,20 +573,15 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.applyDateRange(new Date(2026, 0, 1), new Date(2026, 0, 5));
-      await flushPromises();
     });
     expect(latest?.hasActiveFilters).toBe(true);
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.clearAllFilters();
-      await flushPromises();
     });
     expect(latest?.hasActiveFilters).toBe(false);
   });
@@ -605,14 +614,10 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.applyDateRange(new Date(2026, 5, 20), new Date(2026, 5, 10));
-      await flushPromises();
     });
 
     expect(latest?.dateFilterLabel).toMatch(/10/);
@@ -647,18 +652,14 @@ describe('useAccountMovementsViewModel', () => {
       },
     } as never);
 
-    await act(async () => {
-      ReactTestRenderer.create(<Harness />);
-      await flushPromises();
-    });
+    await mountHarness(<Harness />);
 
     const execBefore = (
       mockedUseDI().getAccountMovementsUseCase as {execute: jest.Mock}
     ).execute.mock.calls.length;
 
-    await act(async () => {
+    await actAndDrain(() => {
       latest?.applyAmountRange(100, 50);
-      await flushPromises();
     });
 
     const execAfter = (

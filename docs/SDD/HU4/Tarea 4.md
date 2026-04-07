@@ -1,8 +1,8 @@
-# 4. Habilitar/deshabilitar botón "Iniciar sesión" por estado de formulario
+# 4. [RN-MG] Implementación de elementos visuales en pantalla de login
 
-**Prioridad**: Alta
+**Prioridad**: Media-Alta
 
-**Historia padre**: #29065
+**Historia padre**: #29250
 
 ## Descripción
-Implementar lógica de habilitación del botón: solo habilitar cuando Usuario y Contraseña cumplan validaciones. Incluir estado &quot;loading&quot; al enviar (deshabilitar inputs/botón y mostrar indicador). Evitar múltiples submits (debounce/lock mientras haya request en curso).
+
