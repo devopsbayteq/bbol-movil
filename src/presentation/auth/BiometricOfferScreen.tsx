@@ -4,6 +4,8 @@ import {
   Text,
   Image,
   StyleSheet,
+  Platform,
+  Pressable,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -18,6 +20,8 @@ import {RootStackParamList} from '../../navigation/AppNavigator';
 import {mapBiometricError} from './useLoginViewModel';
 
 const fingerprintIcon = require('../../../assets/images/fingerprint.png');
+const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
+const shieldKeyholeIcon = require('../../../assets/images/shield-keyhole.png');
 
 export function BiometricOfferScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'BiometricOffer'>>();
@@ -31,6 +35,14 @@ export function BiometricOfferScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const trimmedEmail = email.trim();
+
+  const biometricHeroIcon =
+    Platform.OS === 'ios' ? faceViewfinderIcon : fingerprintIcon;
+
+  const heroAccessibilityLabel =
+    Platform.OS === 'ios'
+      ? 'Reconocimiento facial'
+      : 'Huella digital';
 
   const handleSkip = useCallback(async () => {
     setError(null);
@@ -56,43 +68,62 @@ export function BiometricOfferScreen() {
   }, [biometricRSAAuthOrchestrator, login, trimmedEmail, user]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']} testID="biometric-offer-screen">
+    <SafeAreaView
+      style={styles.safe}
+      edges={['top', 'bottom']}
+      testID="biometric-offer-screen">
       <KeyboardAwareScrollView
         style={styles.root}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.contentColumn}>
-          <Text style={styles.title}>Acceso biométrico</Text>
-          <Text style={styles.subtitle}>
-            ¿Deseas registrar tu huella o Face ID para iniciar sesión más rápido la próxima vez?
+          <View style={styles.iconCircle}>
+            <Image
+              source={biometricHeroIcon}
+              style={styles.iconInner}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+              accessibilityLabel={heroAccessibilityLabel}
+            />
+          </View>
+
+          <Text style={styles.title}>Activa tu acceso biométrico</Text>
+          <Text style={styles.body}>
+            Accede de forma más rápida y segura con tu huella digital o
+            reconocimiento facial. Podrás realizar transacciones y consultas al
+            instante.
           </Text>
-          <Image
-            source={fingerprintIcon}
-            style={styles.icon}
-            resizeMode="contain"
-            accessibilityLabel="Biometría"
-          />
+
           {error ? (
             <ErrorMessage message={error} style={styles.errorBanner} />
           ) : null}
+
           <View style={styles.actions}>
             <Button
               testID="biometric-offer-accept"
-              title="Aceptar"
-              onPress={() =>  handleAccept().catch()}
+              title="Activar biometría"
+              onPress={() => handleAccept().catch(() => {})}
               loading={isLoadingAccept}
               disabled={isLoadingAccept}
               variant="loginPrimary"
+              iconSourceRight={shieldKeyholeIcon}
+              iconRightTintColor={colors.white}
             />
-            <Button
+            <Pressable
               testID="biometric-offer-skip"
-              title="Omitir"
-              onPress={() =>  handleSkip().catch()}
+              onPress={() => handleSkip().catch(() => {})}
               disabled={isLoadingAccept}
-              variant="outline"
-            />
+              style={styles.skipPressable}
+              accessibilityRole="button"
+              accessibilityLabel="Ahora no">
+              <Text style={styles.skipLabel}>Ahora no</Text>
+            </Pressable>
           </View>
+
+          <Text style={styles.footerNote}>
+            Podrás activar esta opción más tarde desde los ajustes de seguridad
+          </Text>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -112,41 +143,85 @@ function useStyles(colors: ThemeColors) {
         },
         scrollContent: {
           flexGrow: 1,
+          justifyContent: 'center',
           paddingHorizontal: 24,
+          paddingTop: 24,
           paddingBottom: 32,
         },
         contentColumn: {
           width: '100%',
           maxWidth: 400,
           alignSelf: 'center',
-          paddingTop: 24,
+          alignItems: 'center',
+        },
+        iconCircle: {
+          width: 132,
+          height: 132,
+          borderRadius: 66,
+          backgroundColor: colors.white,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 28,
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 4},
+              shadowOpacity: 1,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 4,
+            },
+          }),
+        },
+        iconInner: {
+          width: 76,
+          height: 76,
         },
         title: {
           fontFamily: Lexend.bold,
-          fontSize: 28,
-          lineHeight: 36,
+          fontSize: 24,
+          lineHeight: 32,
           color: colors.textPrimary,
           marginBottom: 12,
+          textAlign: 'center',
         },
-        subtitle: {
+        body: {
           fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 26,
           color: colors.textSecondary,
           marginBottom: 24,
-        },
-        icon: {
-          width: 120,
-          height: 120,
-          alignSelf: 'center',
-          marginBottom: 24,
+          textAlign: 'center',
         },
         errorBanner: {
+          alignSelf: 'stretch',
           marginBottom: 16,
         },
         actions: {
-          gap: 12,
+          alignSelf: 'stretch',
+          gap: 16,
           marginTop: 8,
+        },
+        skipPressable: {
+          alignSelf: 'center',
+          paddingVertical: 12,
+          paddingHorizontal: 8,
+        },
+        skipLabel: {
+          fontFamily: Lexend.bold,
+          fontSize: 16,
+          lineHeight: 26,
+          color: colors.primary,
+          textAlign: 'center',
+        },
+        footerNote: {
+          marginTop: 24,
+          fontFamily: Lexend.regular,
+          fontSize: 13,
+          lineHeight: 20,
+          color: colors.textTertiary,
+          textAlign: 'center',
         },
       }),
     [colors],

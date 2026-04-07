@@ -24,6 +24,8 @@ export interface ThemeColors {
   warningBg: string;
   white: string;
   balanceDivider: string;
+  /** Sombra suave (p. ej. celdas OTP en iOS). */
+  shadowSoft: string;
 }
 
 export const LightColors: ThemeColors = {
@@ -52,6 +54,7 @@ export const LightColors: ThemeColors = {
   warningBg: '#FFFBEB',
   white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.2)',
+  shadowSoft: 'rgba(0,0,0,0.08)',
 };
 
 export const DarkColors: ThemeColors = {
@@ -80,4 +83,5 @@ export const DarkColors: ThemeColors = {
   warningBg: '#451A03',
   white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.15)',
+  shadowSoft: 'rgba(0,0,0,0.35)',
 };
