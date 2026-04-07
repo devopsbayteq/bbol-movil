@@ -8,8 +8,6 @@ import {
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {HOME_PRIMARY_LAYER} from '../homeConstants';
-
 type Props = {
   label: string;
   selected: boolean;
@@ -41,7 +39,9 @@ function useStyles(colors: ThemeColors, selected: boolean) {
           paddingHorizontal: 8,
           paddingVertical: 4,
           borderRadius: 8,
-          backgroundColor: selected ? HOME_PRIMARY_LAYER : colors.buttonSecondaryBg,
+          backgroundColor: selected
+            ? colors.homeProductCardSurface
+            : colors.buttonSecondaryBg,
           borderWidth: selected ? 1 : 0,
           borderColor: selected ? colors.primary : 'transparent',
         },

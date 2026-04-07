@@ -279,7 +279,7 @@ describe('HomeScreen', () => {
     expect(refresh).toHaveBeenCalled();
   });
 
-  test('muestra préstamos en filtro Préstamos', async () => {
+  test('muestra créditos en filtro Créditos', async () => {
     mockUseHomeViewModel.mockReturnValue({
       data: {
         accounts: [],
@@ -307,21 +307,21 @@ describe('HomeScreen', () => {
       root = ReactTestRenderer.create(<HomeScreen />);
     });
 
-    const prestamosTab = root!.root
+    const creditosTab = root!.root
       .findAllByType(TouchableOpacity as never)
       .find(inst => {
         try {
-          return inst.findByType(Text as never).props.children === 'Préstamos';
+          return inst.findByType(Text as never).props.children === 'Créditos';
         } catch {
           return false;
         }
       });
-    expect(prestamosTab).toBeDefined();
+    expect(creditosTab).toBeDefined();
     await act(async () => {
-      prestamosTab!.props.onPress();
+      creditosTab!.props.onPress();
     });
     const flat = renderedText(root!.toJSON());
-    expect(flat).toContain('Préstamo');
+    expect(flat).toContain('Crédito');
     expect(flat).toContain('Saldo pendiente');
     expect(flat).toMatch(/1[.,\s]000/);
   });

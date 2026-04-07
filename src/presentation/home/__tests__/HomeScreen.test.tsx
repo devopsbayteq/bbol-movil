@@ -23,15 +23,44 @@ jest.mock('@react-navigation/bottom-tabs', () => ({}));
 
 // Providers
 const mockColors = {
-  background: '#fff', surface: '#fff', primary: '#008292',
-  primaryLight: '#B3E5EC', textPrimary: '#1A1A1A', textSecondary: '#474747',
-  textTertiary: '#757575', textLabel: '#1A1A1A', border: '#E0E0E0',
-  borderLight: '#EEEEEE', borderSubtle: '#F2F2F2', inputBg: '#FFFFFF',
-  placeholder: '#757575', buttonSecondaryBg: '#E2E2E2', iconPrimary: '#000',
-  linkPrimary: '#008292', error: '#DC2626', errorBg: '#FEF2F2',
-  errorBorder: '#FECACA', success: '#059669', successBg: '#ECFDF5',
-  warning: '#D97706', warningBg: '#FFFBEB', white: '#FFFFFF',
+  background: '#fff',
+  surface: '#fff',
+  primary: '#008292',
+  primaryLight: '#B3E5EC',
+  textPrimary: '#1A1A1A',
+  textSecondary: '#474747',
+  textTertiary: '#757575',
+  textLabel: '#1A1A1A',
+  border: '#E0E0E0',
+  borderLight: '#EEEEEE',
+  borderSubtle: '#F2F2F2',
+  inputBg: '#FFFFFF',
+  placeholder: '#757575',
+  buttonSecondaryBg: '#E2E2E2',
+  iconPrimary: '#000',
+  linkPrimary: '#008292',
+  error: '#DC2626',
+  errorBg: '#FEF2F2',
+  errorBorder: '#FECACA',
+  success: '#059669',
+  successBg: '#ECFDF5',
+  warning: '#D97706',
+  warningBg: '#FFFBEB',
+  white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.2)',
+  shadowSoft: 'rgba(0,0,0,0.08)',
+  homeHeaderBackground: '#0B515C',
+  homeAvatarCircle: '#94E0ED',
+  homeHeaderIconButtonBg: '#096877',
+  homeProductCardSurface: '#D0F0F6',
+  homeProductCardBorder: '#FFFFFF',
+  homeChipSelectedBorder: '#D0F0F6',
+  homeBalanceToggleBg: '#94E0ED',
+  homeCreditCardSurface: '#262626',
+  homeLoanCardBackground: '#0067AE',
+  homeLoanCardBorder: '#E0EBFF',
+  homeBorderSoft: '#EFF6F7',
+  homePrimaryHover: '#06A3B6',
 };
 jest.mock('../../../providers', () => ({
   useAuth: () => ({user: {name: 'Juan Pérez'}, logout: mockLogout}),
@@ -66,18 +95,22 @@ jest.mock('react-native-svg', () => {
   return {__esModule: true, default: Svg, Svg, Path, Circle};
 });
 
-// Stub child components; ProductFilterTabs exposes both Tarjetas and Préstamos buttons
+// Stub child components; ProductFilterTabs exposes Tarjetas y Créditos buttons
 jest.mock('../components/HomeHeader', () => ({HomeHeader: () => null}));
 jest.mock('../components/ProductFilterTabs', () => ({
   ProductFilterTabs: ({onFilterChange}: any) => {
     const React = require('react');
     const {View, TouchableOpacity} = require('react-native');
-    return React.createElement(View, null,
+    return React.createElement(
+      View,
+      null,
       React.createElement(TouchableOpacity, {
-        testID: 'filter-tarjetas', onPress: () => onFilterChange('Tarjetas'),
+        testID: 'filter-tarjetas',
+        onPress: () => onFilterChange('Tarjetas'),
       }, null),
       React.createElement(TouchableOpacity, {
-        testID: 'filter-prestamos', onPress: () => onFilterChange('Préstamos'),
+        testID: 'filter-creditos',
+        onPress: () => onFilterChange('Créditos'),
       }, null),
     );
   },
@@ -87,8 +120,11 @@ jest.mock('../components/HomeSectionTitle', () => ({
     require('react').createElement(require('react-native').Text, null, children),
 }));
 jest.mock('../components/ProductCarouselCards', () => ({
-  SavingsAccountCard: () => null, CheckingAccountCard: () => null,
-  CreditCardPreview: () => null, LoanCard: () => null,
+  SavingsAccountCard: () => null,
+  CheckingAccountCard: () => null,
+  CreditCardPreview: () => null,
+  LoanCard: () => null,
+  InvestmentCard: () => null,
 }));
 jest.mock('../components/QuickActionsRow', () => ({
   QuickActionsRow: ({onPress}: any) =>
@@ -233,11 +269,11 @@ describe('HomeScreen', () => {
     expect(tree.toJSON()).toBeTruthy();
   });
 
-  it('renders loans when Préstamos filter is active', () => {
+  it('renders loans when Créditos filter is active', () => {
     mockViewModelState.data = makeFullData();
     const tree = render(<HomeScreen />);
     act(() => {
-      tree.root.findByProps({testID: 'filter-prestamos'}).props.onPress();
+      tree.root.findByProps({testID: 'filter-creditos'}).props.onPress();
     });
     expect(tree.toJSON()).toBeTruthy();
   });
@@ -327,7 +363,7 @@ describe('HomeScreen', () => {
     )[0];
     act(() => {
       carouselScrollView?.props?.onMomentumScrollEnd?.({
-        nativeEvent: {contentOffset: {x: 217}},
+        nativeEvent: {contentOffset: {x: 216}},
       });
     });
     expect(tree.toJSON()).toBeTruthy();

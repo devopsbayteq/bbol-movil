@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Animated,
   RefreshControl,
+  ImageBackground,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -23,7 +24,6 @@ import {useAuth} from '../../providers';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {AccountKind, FrequentPayment} from '../../domain/entities/ContractBalance';
-import {HOME_HEADER_BG} from './homeConstants';
 import {HomeHeader} from './components/HomeHeader';
 import {ProductFilterTabs} from './components/ProductFilterTabs';
 import {HomeSectionTitle} from './components/HomeSectionTitle';
@@ -32,6 +32,7 @@ import {
   CheckingAccountCard,
   CreditCardPreview,
   LoanCard,
+  InvestmentCard,
 } from './components/ProductCarouselCards';
 import {QuickActionsRow} from './components/QuickActionsRow';
 import {PromotionalBanner} from './components/PromotionalBanner';
@@ -44,10 +45,14 @@ import {
 import {useHomeViewModel} from './useHomeViewModel';
 import {DevelopmentNoticeModal} from '../components';
 
+const HEADER_BG = require('../../../assets/images/home/header-container.png');
+
 const PRODUCT_FILTERS = [
+  'Todos',
   'Cuentas',
   'Tarjetas',
-  'Préstamos',
+  'Inversiones',
+  'Créditos',
 ] as const;
 
 function accountTitle(kind: AccountKind): string {
@@ -79,16 +84,22 @@ function iconForFrequentPayment(
   return <PaymentPersonIcon color={color} />;
 }
 
-const CARD_WIDTH = 205;
+const CARD_WIDTH = 204;
+const CARD_HEIGHT = 130;
 const CARD_GAP = 12;
 const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
+const CAROUSEL_OVERLAP = Math.round(CARD_HEIGHT / 2);
+const MAIN_COLUMN_PADDING = 24;
+
+/** Altura aproximada de la imagen + franja teal bajo el header (fondo decorativo). */
+const HERO_IMAGE_SECTION_HEIGHT = 150;
 
 export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const [filter, setFilter] = useState<string>('Cuentas');
+  const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
   const iconColor = colors.textTertiary;
@@ -130,9 +141,11 @@ export function HomeScreen() {
       return [];
     }
 
-    const showAccounts = filter === 'Cuentas';
-    const showCards = filter === 'Tarjetas';
-    const showLoans = filter === 'Préstamos';
+    const all = filter === 'Todos';
+    const showAccounts = all || filter === 'Cuentas';
+    const showCards = all || filter === 'Tarjetas';
+    const showInvestments = all || filter === 'Inversiones';
+    const showLoans = all || filter === 'Créditos';
 
     const items: ProductItem[] = [];
 
@@ -216,6 +229,24 @@ export function HomeScreen() {
       }
     }
 
+    if (showInvestments) {
+      for (const inv of data.investments) {
+        const k = `inv-${inv.investmentGuid}`;
+        items.push({
+          key: k,
+          node: (
+            <InvestmentCard
+              key={k}
+              style={styles.productCard}
+              productName={inv.productName}
+              currentValue={inv.currentValue}
+              currency={inv.currency}
+            />
+          ),
+        });
+      }
+    }
+
     if (showLoans) {
       for (const loan of data.loans) {
         const k = `loan-${loan.loanGuid}`;
@@ -274,10 +305,9 @@ export function HomeScreen() {
     await logout();
   };
 
-
-  const optionIsDeveloping=()=>{
-      setDevModalVisible(true)
-  }
+  const openDevelopmentModal = () => {
+    setDevModalVisible(true);
+  };
 
   return (
     <View testID="home-screen" style={styles.root}>
@@ -292,87 +322,125 @@ export function HomeScreen() {
             colors={[colors.primary]}
           />
         }>
-        <View style={styles.darkHeaderZone}>
-          <SafeAreaView edges={['top']} />
-          <HomeHeader userName={user?.name} onLogout={handleLogout} onNotifications={optionIsDeveloping} />
-          <ProductFilterTabs
-            filters={PRODUCT_FILTERS}
-            selectedFilter={filter}
-            onFilterChange={handleFilterChange}
-          />
+        <View style={styles.stackRoot}>
+          {/* Capa inferior: solo fondos (imagen + colores). No interacción. */}
+          <View style={styles.heroStack} pointerEvents="none">
+            <ImageBackground
+              source={HEADER_BG}
+              style={styles.heroImageSection}
+              imageStyle={styles.headerBackgroundImage}
+              resizeMode="cover"
+            />
+            <View
+              style={[
+                styles.heroTealBand,
+                {backgroundColor: colors.homeHeaderBackground},
+              ]}
+            />
+            <View
+              style={[
+                styles.heroBodyFill,
+                {backgroundColor: colors.background},
+              ]}
+            />
+          </View>
 
-          {error ? (
-            <View style={styles.inlineMessage}>
-              <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity onPress={retry} accessibilityRole="button">
-                <Text style={styles.retryText}>Reintentar</Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
+          {/* Capa superior: interacción desde chips hasta pagos frecuentes */}
+          <View style={styles.contentLayer}>
+            <SafeAreaView edges={['top']} />
+            <HomeHeader
+              userName={user?.name}
+              onLogout={handleLogout}
+              onNotifications={openDevelopmentModal}
+            />
 
-          {isLoading ? (
-            <View style={styles.loadingBox}>
-              <ActivityIndicator size="small" color={colors.white} />
-            </View>
-          ) : productItems.length > 0 ? (
-            <ScrollView
-              ref={carouselRef}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToInterval={CARD_SNAP_INTERVAL}
-              snapToAlignment="start"
-              decelerationRate="fast"
-              onMomentumScrollEnd={onCarouselScroll}
-              contentContainerStyle={styles.carouselRow}>
-              {productItems.map((item, i) => (
-                <Animated.View
-                  key={item.key}
-                  style={[
-                    styles.carouselItem,
-                    {
-                      transform: [
-                        {scale: scaleAnims[i] ?? new Animated.Value(1)},
-                      ],
-                    },
-                  ]}>
-                  {item.node}
-                </Animated.View>
-              ))}
-            </ScrollView>
-          ) : (
-            <Text style={styles.emptyProductsDark}>
-              No hay productos en esta categoría.
-            </Text>
-          )}
-        </View>
-
-        {/* --- Light content area --- */}
-        <View style={styles.contentArea}>
-          <QuickActionsRow onPress={() => {
-              setDevModalVisible(true)
-          }} />
-          <PromotionalBanner />
-
-          <View style={styles.frequentPaymentsSection}>
-            <HomeSectionTitle>Pagos frecuentes</HomeSectionTitle>
-            {frequentPayments.length > 0 ? (
-              <View>
-                {frequentPayments.map((fp, i) => (
-                  <FrequentPaymentRow
-                    key={`${fp.beneficiaryName}-${i}`}
-                    label={fp.beneficiaryName}
-                    icon={iconForFrequentPayment(fp.beneficiaryType, iconColor)}
-                    isFirst={i === 0}
-                    isLast={i === frequentPayments.length - 1}
-                    onPress={() => setDevModalVisible(true)}
-                  />
-                ))}
+            <View style={styles.mainColumn}>
+              <ProductFilterTabs
+                
+                filters={PRODUCT_FILTERS}
+                selectedFilter={filter}
+                onFilterChange={handleFilterChange}
+              />
+              {!isLoading && productItems.length > 0 ? (
+              <View style={styles.carouselLayer} pointerEvents="box-none">
+                <ScrollView
+                  ref={carouselRef}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={CARD_SNAP_INTERVAL}
+                  snapToAlignment="start"
+                  decelerationRate="fast"
+                  onMomentumScrollEnd={onCarouselScroll}
+                  contentContainerStyle={styles.carouselRow}>
+                  {productItems.map((item, i) => (
+                    <Animated.View
+                      key={item.key}
+                      style={[
+                        styles.carouselItem,
+                        {
+                          transform: [
+                            {scale: scaleAnims[i] ?? new Animated.Value(1)},
+                          ],
+                        },
+                      ]}>
+                      {item.node}
+                    </Animated.View>
+                  ))}
+                </ScrollView>
               </View>
-            ) : (
-              <Text style={styles.emptyProducts}>
-                No hay pagos frecuentes registrados.
+            ) : null}
+            </View>
+
+            {error ? (
+              <View style={styles.inlineMessage}>
+                <Text style={styles.errorText}>{error}</Text>
+                <TouchableOpacity onPress={retry} accessibilityRole="button">
+                  <Text style={styles.retryText}>Reintentar</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
+            {isLoading ? (
+              <View style={styles.loadingBox}>
+                <ActivityIndicator size="small" color={colors.white} />
+              </View>
+            ) : !productItems.length ? (
+              <Text style={styles.emptyProductsInline}>
+                No hay productos en esta categoría.
               </Text>
-            )}
+            ) : null}
+
+            
+
+            <View style={[styles.mainColumn, styles.contentArea]}>
+              <QuickActionsRow onPress={openDevelopmentModal} />
+              <PromotionalBanner />
+
+              <View style={styles.frequentPaymentsSection}>
+                <HomeSectionTitle>Pagos frecuentes</HomeSectionTitle>
+                {frequentPayments.length > 0 ? (
+                  <View>
+                    {frequentPayments.map((fp, i) => (
+                      <FrequentPaymentRow
+                        key={`${fp.beneficiaryName}-${i}`}
+                        label={fp.beneficiaryName}
+                        icon={iconForFrequentPayment(
+                          fp.beneficiaryType,
+                          iconColor,
+                        )}
+                        isFirst={i === 0}
+                        isLast={i === frequentPayments.length - 1}
+                        onPress={openDevelopmentModal}
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  <Text style={styles.emptyProducts}>
+                    No hay pagos frecuentes registrados.
+                  </Text>
+                )}
+              </View>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -380,7 +448,6 @@ export function HomeScreen() {
         visible={devModalVisible}
         onClose={() => setDevModalVisible(false)}
       />
-
     </View>
   );
 }
@@ -396,32 +463,69 @@ function useStyles(colors: ThemeColors) {
         scroll: {
           flex: 1,
         },
-        darkHeaderZone: {
-          backgroundColor: HOME_HEADER_BG,
-          paddingBottom: 24,
-          gap: 24,
+        stackRoot: {
+          position: 'relative',
+          width: '100%',
+          overflow: 'visible',
+        },
+        heroStack: {
+          ...StyleSheet.absoluteFillObject,
+          zIndex: 0,
+          flexDirection: 'column',
+        },
+        heroImageSection: {
+          width: '100%',
+          height: HERO_IMAGE_SECTION_HEIGHT,
+          backgroundColor: colors.homeHeaderBackground,
+        },
+        headerBackgroundImage: {
+          opacity: 1,
+        },
+        heroTealBand: {
+          width: '100%',
+          height: 72,
+
+        },
+        heroBodyFill: {
+          flex: 1,
+          minHeight: 480,
+        },
+        contentLayer: {
+          position: 'relative',
+          zIndex: 1,
+          width: '100%',
+        },
+        mainColumn: {
+          //paddingHorizontal: MAIN_COLUMN_PADDING,
+          width: '100%',
+          alignSelf: 'center',
+          maxWidth: '100%',
+        },
+        carouselLayer: {        
+          zIndex: 2,
+  
         },
         contentArea: {
-          paddingHorizontal: 24,
           paddingTop: 16,
           paddingBottom: 32,
-          gap: 16,
+  
+          backgroundColor: colors.background,
         },
         carouselRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          paddingTop: 24,
-          paddingHorizontal: 24,
-          paddingRight: 24,
+          paddingTop: 4,
+          paddingHorizontal: MAIN_COLUMN_PADDING,
+          paddingBottom: 4,
           gap: CARD_GAP,
         },
         carouselItem: {
           width: CARD_WIDTH,
-          height: 130,
+          height: CARD_HEIGHT,
         },
         productCard: {
           width: CARD_WIDTH,
-          height: 130,
+          height: CARD_HEIGHT,
         },
         cardFill: {
           flex: 1,
@@ -435,7 +539,7 @@ function useStyles(colors: ThemeColors) {
         },
         inlineMessage: {
           gap: 8,
-          marginHorizontal: 24,
+          marginHorizontal: MAIN_COLUMN_PADDING,
         },
         errorText: {
           color: colors.errorBg,
@@ -446,12 +550,11 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           fontWeight: '600',
         },
-        emptyProductsDark: {
-          color: colors.white,
+        emptyProductsInline: {
+          color: colors.textSecondary,
           fontSize: 14,
           paddingVertical: 16,
-          paddingHorizontal: 24,
-          opacity: 0.7,
+          paddingHorizontal: MAIN_COLUMN_PADDING,
         },
         emptyProducts: {
           color: colors.textSecondary,

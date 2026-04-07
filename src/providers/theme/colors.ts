@@ -26,6 +26,25 @@ export interface ThemeColors {
   balanceDivider: string;
   /** Sombra suave (p. ej. celdas OTP en iOS). */
   shadowSoft: string;
+
+  /** Home: cabecera oscura (marca; mismo valor en light/dark). */
+  homeHeaderBackground: string;
+  homeAvatarCircle: string;
+  /** Botón icono (logout) sobre cabecera Home. */
+  homeHeaderIconButtonBg: string;
+  /** Tarjeta de producto clara (cuentas). */
+  homeProductCardSurface: string;
+  homeProductCardBorder: string;
+  /** Chip filtro seleccionado — borde acento claro. */
+  homeChipSelectedBorder: string;
+  /** Botón mostrar/ocultar saldo sobre tarjeta clara. */
+  homeBalanceToggleBg: string;
+  /** Tarjeta de crédito preview (fila productos). */
+  homeCreditCardSurface: string;
+  homeLoanCardBackground: string;
+  homeLoanCardBorder: string;
+  homeBorderSoft: string;
+  homePrimaryHover: string;
 }
 
 export const LightColors: ThemeColors = {
@@ -54,7 +73,19 @@ export const LightColors: ThemeColors = {
   warningBg: '#FFFBEB',
   white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.2)',
-  shadowSoft: 'rgba(0,0,0,0.08)',
+  shadowSoft: 'rgb(0, 0, 0)',
+  homeHeaderBackground: '#0B515C',
+  homeAvatarCircle: '#94E0ED',
+  homeHeaderIconButtonBg: '#096877',
+  homeProductCardSurface: '#eff6f7',
+  homeProductCardBorder: '#FFFFFF',
+  homeChipSelectedBorder: '#D0F0F6',
+  homeBalanceToggleBg: '#d0f0f6',
+  homeCreditCardSurface: '#262626',
+  homeLoanCardBackground: '#0067AE',
+  homeLoanCardBorder: '#E0EBFF',
+  homeBorderSoft: '#EFF6F7',
+  homePrimaryHover: '#06A3B6',
 };
 
 export const DarkColors: ThemeColors = {
@@ -84,4 +115,16 @@ export const DarkColors: ThemeColors = {
   white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.15)',
   shadowSoft: 'rgba(0,0,0,0.35)',
+  homeHeaderBackground: '#0B515C',
+  homeAvatarCircle: '#94E0ED',
+  homeHeaderIconButtonBg: '#096877',
+  homeProductCardSurface: '#D0F0F6',
+  homeProductCardBorder: '#FFFFFF',
+  homeChipSelectedBorder: '#D0F0F6',
+  homeBalanceToggleBg: '#94E0ED',
+  homeCreditCardSurface: '#262626',
+  homeLoanCardBackground: '#0067AE',
+  homeLoanCardBorder: '#E0EBFF',
+  homeBorderSoft: '#EFF6F7',
+  homePrimaryHover: '#06A3B6',
 };

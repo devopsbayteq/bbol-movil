@@ -11,12 +11,6 @@ import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
 import {formatCurrency} from '../../transactions/TransactionItem';
-import {
-  HOME_CARD_DARK,
-  HOME_INFO_BLUE,
-  HOME_INFO_BORDER,
-  HOME_PRIMARY_LAYER,
-} from '../homeConstants';
 
 function formatShortDueDate(iso: string): string {
   const d = new Date(iso);
@@ -77,8 +71,6 @@ function EyeSlashIcon({color, size = 16}: {color: string; size?: number}) {
 type SavingsCardProps = {
   style?: StyleProp<ViewStyle>;
   title?: string;
-  backgroundColor?: string;
-  borderColor?: string;
   maskedAccountNumber: string;
   balance: number;
 };
@@ -86,32 +78,31 @@ type SavingsCardProps = {
 export function SavingsAccountCard({
   style,
   title = 'Cta. ahorros',
-  backgroundColor = "#008292",
-  borderColor = "#008292",
   maskedAccountNumber,
   balance,
 }: SavingsCardProps) {
   const {colors} = useTheme();
   const styles = useSavingsStyles(colors);
   const [masked, setMasked] = useState(true);
+  const iconTint = colors.primary;
 
   return (
-    <View style={[styles.card, style, {backgroundColor, borderColor}]}>
+    <View style={[styles.card, style]}>
       <View style={styles.topRow}>
-        <View>
+        <View style={styles.titleCol}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{maskedAccountNumber}</Text>
         </View>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir">
-          <ShareIcon color={colors.white} />
+          <ShareIcon color={colors.textSecondary} size={18} />
         </TouchableOpacity>
       </View>
       <View style={styles.bottomRow}>
-        <View>
-          <Text style={styles.balanceLabel}>Saldo</Text>
-          <Text style={styles.balanceValue}>
+        <View style={styles.balanceCol}>
+          <Text style={styles.balanceValue} numberOfLines={1}>
             {masked ? '$**.**' : formatCurrency(balance)}
           </Text>
+          <Text style={styles.balanceLabel}>Saldo</Text>
         </View>
         <TouchableOpacity
           style={styles.eyeBtn}
@@ -119,9 +110,9 @@ export function SavingsAccountCard({
           accessibilityRole="button"
           accessibilityLabel={masked ? 'Mostrar saldo' : 'Ocultar saldo'}>
           {masked ? (
-            <EyeSlashIcon color={colors.primary} />
+            <EyeSlashIcon color={iconTint} size={18} />
           ) : (
-            <EyeIcon color={colors.primary} />
+            <EyeIcon color={iconTint} size={18} />
           )}
         </TouchableOpacity>
       </View>
@@ -137,50 +128,65 @@ function useSavingsStyles(colors: ThemeColors) {
           flex: 1,
           padding: 12,
           borderRadius: 8,
-          backgroundColor: colors.primary,
+          backgroundColor: colors.homeProductCardSurface,
           borderWidth: 1,
-          borderColor: colors.primary,
+          borderColor: colors.homeProductCardBorder,
+          shadowColor: colors.shadowSoft,
+          shadowOffset: {width: 16, height: 12},
+          shadowRadius: 12,
+          elevation: 24,
+
         },
         topRow: {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
         },
+        titleCol: {
+          flex: 1,
+          minWidth: 0,
+          paddingRight: 8,
+        },
         title: {
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 14,
           lineHeight: 22,
-          color: colors.white,
+          color: colors.primary,
         },
         subtitle: {
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 20,
-          color: colors.white,
-          opacity: 0.95,
+          color: colors.textSecondary,
+          marginTop: 2,
         },
         bottomRow: {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'flex-end',
-          marginTop: 24,
+          marginTop: 8,
+        },
+        balanceCol: {
+          flex: 1,
+          minWidth: 0,
         },
         balanceLabel: {
           fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.white,
+          fontSize: 14,
+          lineHeight: 16,
+          color: colors.primary,
+          marginTop: 2,
         },
         balanceValue: {
           fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-          color: colors.white,
+          fontSize: 22,
+          lineHeight: 28,
+          color: colors.textPrimary,
         },
         eyeBtn: {
-          backgroundColor: HOME_PRIMARY_LAYER,
+          backgroundColor: colors.homeBalanceToggleBg,
           borderRadius: 4,
-          padding: 4,
+          padding: 6,
         },
       }),
     [colors],
@@ -204,8 +210,6 @@ export function CheckingAccountCard({
     <SavingsAccountCard
       style={style}
       title={title}
-      backgroundColor={"#22D3EE"}
-      borderColor={"#22D3EE"}
       maskedAccountNumber={maskedAccountNumber}
       balance={balance}
     />
@@ -242,7 +246,7 @@ export function CreditCardPreview({
         </View>
       </View>
       <View style={styles.bottomRow}>
-        <View>
+        <View style={styles.amountCol}>
           <View style={styles.payRow}>
             <Text style={styles.mutedLabel}>Total a pagar</Text>
             <View style={styles.datePill}>
@@ -251,7 +255,7 @@ export function CreditCardPreview({
               </Text>
             </View>
           </View>
-          <Text style={styles.amount}>
+          <Text style={styles.amount} numberOfLines={1}>
             {masked ? '$**.**' : formatCurrency(totalDue)}
           </Text>
         </View>
@@ -261,9 +265,9 @@ export function CreditCardPreview({
           accessibilityRole="button"
           accessibilityLabel={masked ? 'Mostrar saldo' : 'Ocultar saldo'}>
           {masked ? (
-            <EyeSlashIcon color={colors.primary} size={13} />
+            <EyeSlashIcon color={colors.primary} size={14} />
           ) : (
-            <EyeIcon color={colors.primary} size={13} />
+            <EyeIcon color={colors.primary} size={14} />
           )}
         </TouchableOpacity>
       </View>
@@ -278,11 +282,10 @@ function useCreditStyles(colors: ThemeColors) {
         card: {
           flex: 1,
           padding: 10,
-          borderRadius: 7,
-          backgroundColor: HOME_CARD_DARK,
-          borderWidth: 0.8,
+          borderRadius: 8,
+          backgroundColor: colors.homeCreditCardSurface,
+          borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.textTertiary,
-          opacity: 0.92,
         },
         topRow: {
           flexDirection: 'row',
@@ -291,7 +294,7 @@ function useCreditStyles(colors: ThemeColors) {
         },
         title: {
           fontFamily: Lexend.semiBold,
-          fontSize: 11.7,
+          fontSize: 12,
           lineHeight: 18,
           color: colors.white,
         },
@@ -328,6 +331,11 @@ function useCreditStyles(colors: ThemeColors) {
           alignItems: 'flex-end',
           marginTop: 'auto',
         },
+        amountCol: {
+          flex: 1,
+          minWidth: 0,
+          paddingRight: 6,
+        },
         payRow: {
           flexDirection: 'row',
           alignItems: 'center',
@@ -353,15 +361,15 @@ function useCreditStyles(colors: ThemeColors) {
         },
         amount: {
           fontFamily: Lexend.semiBold,
-          fontSize: 11.7,
-          lineHeight: 18,
+          fontSize: 14,
+          lineHeight: 20,
           color: colors.white,
           marginTop: 4,
         },
         eyeBtn: {
-          backgroundColor: HOME_PRIMARY_LAYER,
-          borderRadius: 3,
-          padding: 3,
+          backgroundColor: colors.homeBalanceToggleBg,
+          borderRadius: 4,
+          padding: 4,
         },
       }),
     [colors],
@@ -385,12 +393,16 @@ export function LoanCard({
   const styles = useLoanStyles(colors);
 
   return (
-    <View style={[styles.card, style]} accessibilityLabel="Préstamo">
-      <Text style={styles.title}>Préstamo</Text>
+    <View style={[styles.card, style]} accessibilityLabel="Crédito">
+      <Text style={styles.title}>Crédito</Text>
       <Text style={styles.label}>Saldo pendiente</Text>
-      <Text style={styles.amount}>{formatCurrency(outstandingBalance)}</Text>
+      <Text style={styles.amount} numberOfLines={1}>
+        {formatCurrency(outstandingBalance)}
+      </Text>
       <Text style={styles.label}>Próxima cuota</Text>
-      <Text style={styles.subAmount}>{formatCurrency(nextInstallmentAmount)}</Text>
+      <Text style={styles.subAmount} numberOfLines={1}>
+        {formatCurrency(nextInstallmentAmount)}
+      </Text>
       <Text style={styles.date}>{formatInstallmentDate(nextInstallmentDate)}</Text>
     </View>
   );
@@ -403,18 +415,18 @@ function useLoanStyles(colors: ThemeColors) {
         card: {
           flex: 1,
           padding: 10,
-          borderRadius: 7,
-          backgroundColor: HOME_INFO_BLUE,
-          borderWidth: 0.8,
-          borderColor: HOME_INFO_BORDER,
-          opacity: 0.95,
+          borderRadius: 8,
+          backgroundColor: colors.homeLoanCardBackground,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.homeLoanCardBorder,
+          justifyContent: 'space-between',
         },
         title: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
           lineHeight: 18,
           color: colors.white,
-          marginBottom: 8,
+          marginBottom: 6,
         },
         label: {
           fontFamily: Lexend.regular,
@@ -428,7 +440,7 @@ function useLoanStyles(colors: ThemeColors) {
           fontSize: 13,
           lineHeight: 18,
           color: colors.white,
-          marginBottom: 8,
+          marginBottom: 6,
         },
         subAmount: {
           fontFamily: Lexend.semiBold,
@@ -465,15 +477,29 @@ export function InvestmentCard({
 }: InvestmentCardProps) {
   const {colors} = useTheme();
   const styles = useInvestmentStyles(colors);
+  const [masked, setMasked] = useState(true);
 
   return (
     <View style={[styles.card, style]} accessibilityLabel="Inversión">
-      <Text style={styles.title} numberOfLines={2}>
-        {productName}
-      </Text>
+      <View style={styles.topRow}>
+        <Text style={styles.title} numberOfLines={2}>
+          {productName}
+        </Text>
+        <TouchableOpacity
+          style={styles.eyeBtn}
+          onPress={() => setMasked(m => !m)}
+          accessibilityRole="button"
+          accessibilityLabel={masked ? 'Mostrar valor' : 'Ocultar valor'}>
+          {masked ? (
+            <EyeSlashIcon color={colors.primary} size={14} />
+          ) : (
+            <EyeIcon color={colors.primary} size={14} />
+          )}
+        </TouchableOpacity>
+      </View>
       <Text style={styles.label}>Valor actual</Text>
-      <Text style={styles.amount}>
-        {formatCurrency(currentValue)} {currency}
+      <Text style={styles.amount} numberOfLines={1}>
+        {masked ? '$**.**' : `${formatCurrency(currentValue)} ${currency}`}
       </Text>
     </View>
   );
@@ -486,33 +512,48 @@ function useInvestmentStyles(colors: ThemeColors) {
         card: {
           flex: 1,
           padding: 10,
-          borderRadius: 7,
-          backgroundColor: HOME_CARD_DARK,
-          borderWidth: 0.8,
-          borderColor: colors.textTertiary,
-          opacity: 0.92,
+          borderRadius: 8,
+          backgroundColor: colors.homeProductCardSurface,
+          borderWidth: 1,
+          borderColor: colors.homeProductCardBorder,
+          shadowColor: colors.shadowSoft,
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: 1,
+          shadowRadius: 6,
+          elevation: 3,
+        },
+        topRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 8,
+          marginBottom: 8,
         },
         title: {
           fontFamily: Lexend.semiBold,
-          fontSize: 11,
-          lineHeight: 16,
-          color: colors.white,
-          marginBottom: 10,
-          minHeight: 32,
+          fontSize: 12,
+          lineHeight: 18,
+          color: colors.textPrimary,
+          flex: 1,
+          minHeight: 36,
         },
         label: {
           fontFamily: Lexend.regular,
           fontSize: 9,
           lineHeight: 14,
-          color: colors.white,
-          opacity: 0.85,
+          color: colors.textSecondary,
         },
         amount: {
           fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.white,
+          fontSize: 14,
+          lineHeight: 20,
+          color: colors.textPrimary,
           marginTop: 4,
+        },
+        eyeBtn: {
+          backgroundColor: colors.homeBalanceToggleBg,
+          borderRadius: 4,
+          padding: 4,
         },
       }),
     [colors],

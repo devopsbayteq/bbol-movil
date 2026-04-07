@@ -2,7 +2,6 @@ import React, {useMemo} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {HOME_BORDER_SOFT, HOME_PRIMARY_LAYER} from '../homeConstants';
 
 type Props = {
   label: string;
@@ -34,11 +33,11 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           backgroundColor: colors.surface,
           borderWidth: 1,
-          borderColor: HOME_BORDER_SOFT,
+          borderColor: colors.homeBorderSoft,
         },
         iconWrap: {
           alignSelf: 'flex-start',
-          backgroundColor: HOME_PRIMARY_LAYER,
+          backgroundColor: colors.homeProductCardSurface,
           borderRadius: 8,
           padding: 8,
           marginBottom: 8,

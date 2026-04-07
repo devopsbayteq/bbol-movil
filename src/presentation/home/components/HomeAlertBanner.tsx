@@ -3,7 +3,6 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {HOME_PRIMARY_LAYER, HOME_TEXT_CARD_DARK} from '../homeConstants';
 
 type Props = {
   title: string;
@@ -77,7 +76,7 @@ function useStyles(colors: ThemeColors) {
           elevation: 2,
         },
         iconWrap: {
-          backgroundColor: HOME_PRIMARY_LAYER,
+          backgroundColor: colors.homeProductCardSurface,
           borderRadius: 8,
           padding: 8,
         },
@@ -89,13 +88,13 @@ function useStyles(colors: ThemeColors) {
           fontFamily: Lexend.semiBold,
           fontSize: 14,
           lineHeight: 22,
-          color: '#1A1C1C',
+          color: colors.textPrimary,
         },
         subtitle: {
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 20,
-          color: HOME_TEXT_CARD_DARK,
+          color: colors.textSecondary,
           marginTop: 2,
         },
         chevron: {
