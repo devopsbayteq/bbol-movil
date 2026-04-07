@@ -151,10 +151,7 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           paddingLeft: 16,
           paddingRight: 12,
-          ...(Platform.OS === 'ios'
-            ? {paddingTop: 12, paddingBottom: 16}
-            : {paddingVertical: 14}),
-          minHeight: 50,
+          height: 52,
           borderWidth: 0,
         },
         /** Sin sombra; mantiene la prop `variant` por compatibilidad. */
@@ -171,7 +168,7 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
           ...(Platform.OS === 'ios'
             ? {paddingTop: 0, paddingBottom: 3}
-            : {paddingVertical: 0}),
+            : {paddingVertical: 0, textAlignVertical: 'center'}),
         },
         eyeButton: {
           padding: 4,

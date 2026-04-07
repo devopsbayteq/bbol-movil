@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   StyleSheet,
+  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
@@ -80,9 +81,10 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.inputBg,
           borderRadius: 8,
           paddingHorizontal: 16,
+          height: 52,
           ...(Platform.OS === 'ios'
-            ? {paddingTop: 12, paddingBottom: 18}
-            : {paddingVertical: 14}),
+            ? {paddingTop: 0, paddingBottom: 3}
+            : {paddingVertical: 0, textAlignVertical: 'center'}),
           borderWidth: 0,
         },
         /** Misma apariencia base que `flat`; sin sombra (diseño login). */
