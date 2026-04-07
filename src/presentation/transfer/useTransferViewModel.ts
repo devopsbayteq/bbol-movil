@@ -21,7 +21,9 @@ function defaultAccountIndex(accounts: AccountBalance[]): number {
     if (accounts.length === 0) {
         return 0;
     }
-    const savingsIdx = accounts.findIndex(a => a.accountKind === 'savings');
+    const savingsIdx = accounts.findIndex(
+        a => a.accountKind.toLowerCase() === 'savings',
+    );
     return savingsIdx >= 0 ? savingsIdx : 0;
 }
 
@@ -164,16 +166,32 @@ export function useTransferViewModel() {
         }
     }, [accounts.length]);
 
-    const selectFromAccount = useCallback((index: number) => {
-        setFromAccountIndex(index);
-        setFromAccountModalVisible(false);
-        setAccountBeneficiaryModalVisible(false);
-    }, []);
+    const selectFromAccount = useCallback(
+        (index: number) => {
+            if (accounts.length >= 2 && index === toAccountIndex) {
+                setFromAccountIndex(index);
+                setToAccountIndex(fromAccountIndex);
+            } else {
+                setFromAccountIndex(index);
+            }
+            setFromAccountModalVisible(false);
+            setAccountBeneficiaryModalVisible(false);
+        },
+        [accounts.length, fromAccountIndex, toAccountIndex],
+    );
 
-    const selectToAccount = useCallback((index: number) => {
-        setToAccountIndex(index);
-        setToAccountModalVisible(false);
-    }, []);
+    const selectToAccount = useCallback(
+        (index: number) => {
+            if (accounts.length >= 2 && index === fromAccountIndex) {
+                setToAccountIndex(index);
+                setFromAccountIndex(toAccountIndex);
+            } else {
+                setToAccountIndex(index);
+            }
+            setToAccountModalVisible(false);
+        },
+        [accounts.length, fromAccountIndex, toAccountIndex],
+    );
 
 
 
@@ -189,11 +207,20 @@ export function useTransferViewModel() {
         if (amountError) {
             return {ok: false, message: amountError};
         }
-        if (!selectedToAccount) {
-            return {ok: false, message: 'Selecciona un beneficiario.'};
-        }
         if (!selectedFromAccount) {
             return {ok: false, message: 'No hay una cuenta de origen disponible.'};
+        }
+        if (!selectedToAccount) {
+            return {ok: false, message: 'Selecciona una cuenta de destino.'};
+        }
+        if (
+            fromAccountIndex === toAccountIndex ||
+            selectedFromAccount.accountGuid === selectedToAccount.accountGuid
+        ) {
+            return {
+                ok: false,
+                message: 'El origen y el destino deben ser cuentas distintas.',
+            };
         }
 
         const conceptError = validateTransferConcept(concept);
@@ -232,6 +259,8 @@ export function useTransferViewModel() {
         availableBalanceCents,
         concept,
         displayAmount,
+        fromAccountIndex,
+        toAccountIndex,
         selectedFromAccount,
         selectedToAccount,
         user?.name,

@@ -49,7 +49,6 @@ export function TransferScreen() {
         selectedFromAccount,
         fromAccountIndex,
         selectFromAccount,
-        toAccountDescription,
         fromAccountModalVisible,
         setFromAccountModalVisible,
         concept,
@@ -91,10 +90,32 @@ export function TransferScreen() {
         [selectedToAccount],
     );
 
+    const toAccountTitle = useMemo(
+        () => selectedToAccount?.accountTypeLabel?.trim() ?? '',
+        [selectedToAccount],
+    );
+
+    const toAccountSubtitle = useMemo(() => {
+        if (!selectedToAccount) {
+            return '';
+        }
+        const a = selectedToAccount;
+        return `${accountProductTitle(a)} ${a.maskedAccountNumber}`.trim();
+    }, [selectedToAccount]);
+
     const toContactName = selectedToAccount?.beneficiary.contactName?.trim() ?? '';
-    const toName =
-        toContactName !== '' ? toContactName : 'Selecciona el beneficiario';
-    const toDescription = toContactName !== '' ? toAccountDescription : '';
+
+    const toName = useMemo(() => {
+        if (!selectedToAccount) {
+            return 'Selecciona una cuenta de destino';
+        }
+        if (toContactName !== '') {
+            return toContactName;
+        }
+        return toAccountTitle !== '' ? toAccountTitle : 'Cuenta';
+    }, [selectedToAccount, toAccountTitle, toContactName]);
+
+    const toDescription = toAccountSubtitle;
 
     const onBack = () => {
         const tabNav =
@@ -234,6 +255,7 @@ export function TransferScreen() {
                 selectAccount={selectedId => selectFromAccount(selectedId)}
                 visible={fromAccountModalVisible}
                 onClose={() => setFromAccountModalVisible(false)}
+                pickerRole="source"
             />
 
             <AccountBeneficiarySelectorModal
@@ -242,6 +264,7 @@ export function TransferScreen() {
                 selectAccount={selectedId => selectToAccount(selectedId)}
                 visible={toAccountModalVisible}
                 onClose={() => setToAccountModalVisible(false)}
+                pickerRole="destination"
             />
         </View>
     );

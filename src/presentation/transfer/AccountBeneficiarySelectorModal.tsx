@@ -10,16 +10,26 @@ import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Lexend} from "../../theme/lexend.ts";
 import {Platform} from "react-native";
 
-interface AccountBeneficiarySelectorModalProps{
-    accounts:AccountBalance[];
-    visible:boolean;
-    onClose:()=>void;
-    accountIndexSelected:number,
-    selectAccount:(selectedId:number)=>void
+export type AccountPickerRole = 'source' | 'destination';
 
-
+interface AccountBeneficiarySelectorModalProps {
+    accounts: AccountBalance[];
+    visible: boolean;
+    onClose: () => void;
+    accountIndexSelected: number;
+    selectAccount: (selectedId: number) => void;
+    /** Origen: no permite cuenta sin saldo. Destino: permite saldo 0. */
+    pickerRole?: AccountPickerRole;
 }
-export const AccountBeneficiarySelectorModal=({accounts,accountIndexSelected,selectAccount,visible,onClose}:AccountBeneficiarySelectorModalProps)=>{
+
+export const AccountBeneficiarySelectorModal = ({
+    accounts,
+    accountIndexSelected,
+    selectAccount,
+    visible,
+    onClose,
+    pickerRole = 'source',
+}: AccountBeneficiarySelectorModalProps) => {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
@@ -57,7 +67,8 @@ export const AccountBeneficiarySelectorModal=({accounts,accountIndexSelected,sel
                         contentContainerStyle={styles.modalListContent}>
                         {accounts.map((item, index) => {
                             const isSelected = index === accountIndexSelected;
-                            const isDisabled = item.balance <= 0;
+                            const isDisabled =
+                                pickerRole === 'source' && item.balance <= 0;
                             return (
                                 <TouchableOpacity
                                     key={item.accountGuid}
