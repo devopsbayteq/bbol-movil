@@ -126,7 +126,10 @@ export function createContainer(): AppContainer {
   );
 
   const cryptoService = new CryptoService();
-  const biometricKeyStorageService = new BiometricKeyStorageService();
+  const biometricKeyStorageService = new BiometricKeyStorageService(
+    secureStorageService,
+    biometricAuthService,
+  );
   const biometricEnrollmentBinding = new BiometricEnrollmentBinding(
     secureStorageService,
   );
