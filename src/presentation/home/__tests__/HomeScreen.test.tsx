@@ -39,12 +39,26 @@ jest.mock('../../../providers', () => ({
 }));
 
 // useHomeViewModel
+const mockSetShowDevelopmentMode = jest.fn();
+
 let mockViewModelState: {
-  data: any; isLoading: boolean; isRefreshing: boolean;
-  error: string; refresh: jest.Mock; retry: jest.Mock;
+  data: any;
+  isLoading: boolean;
+  isRefreshing: boolean;
+  error: string;
+  refresh: jest.Mock;
+  retry: jest.Mock;
+  showDevelopmentMode: boolean;
+  setShowDevelopmentMode: jest.Mock;
 } = {
-  data: null, isLoading: false, isRefreshing: false,
-  error: '', refresh: mockRefresh, retry: mockRetry,
+  data: null,
+  isLoading: false,
+  isRefreshing: false,
+  error: '',
+  refresh: mockRefresh,
+  retry: mockRetry,
+  showDevelopmentMode: false,
+  setShowDevelopmentMode: mockSetShowDevelopmentMode,
 };
 jest.mock('../useHomeViewModel', () => ({
   useHomeViewModel: () => mockViewModelState,
@@ -160,8 +174,14 @@ describe('HomeScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockViewModelState = {
-      data: null, isLoading: false, isRefreshing: false,
-      error: '', refresh: mockRefresh, retry: mockRetry,
+      data: null,
+      isLoading: false,
+      isRefreshing: false,
+      error: '',
+      refresh: mockRefresh,
+      retry: mockRetry,
+      showDevelopmentMode: false,
+      setShowDevelopmentMode: mockSetShowDevelopmentMode,
     };
     (useNavigation as jest.Mock).mockReturnValue({
       navigate: mockNavigate, setParams: mockSetParams,

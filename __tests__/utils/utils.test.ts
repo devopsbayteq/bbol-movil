@@ -18,15 +18,18 @@ describe('accountDisplay', () => {
     accountGuid: 'a',
     maskedAccountNumber: '****1234',
     accountKind: 'savings' as const,
+    accountTypeLabel: 'Cta. Ahorros',
     balance: 100,
   };
   const checking = {
     ...savings,
     accountKind: 'checking' as const,
+    accountTypeLabel: 'Cta. corriente',
   };
   const other = {
     ...savings,
     accountKind: 'other' as const,
+    accountTypeLabel: 'Cuenta',
   };
 
   test('accountProductTitle reflects account kind', () => {
