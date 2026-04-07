@@ -20,6 +20,8 @@ import {
 export const BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE =
   'Detectamos un cambio en los registros biométricos de tu dispositivo. Por seguridad, inicia sesión con tu usuario y contraseña. Luego podrás volver a activar el acceso con huella o Face ID.';
 
+const USERNAME_TOO_LONG_MESSAGE_DISMISS_MS = 5000;
+
 export interface UseLoginViewModelOptions {
   /** Usuario ya vinculado al dispositivo: email fijo, sin edición del campo usuario. */
   deviceBoundLoginId?: string;
@@ -125,6 +127,25 @@ export function useLoginViewModel(
       emailError: null,
     }));
   }, [deviceBoundLoginId]);
+
+  /** Solo el error de máximo de caracteres en usuario se oculta solo tras unos segundos. */
+  useEffect(() => {
+    if (state.emailError !== loginValidationMessages.usernameTooLong) {
+      return undefined;
+    }
+    const timeoutId = setTimeout(() => {
+      setState(prev => {
+        if (prev.emailError !== loginValidationMessages.usernameTooLong) {
+          return prev;
+        }
+        const nextError = hasDisallowedLoginUsernameCharacters(prev.email)
+          ? loginValidationMessages.usernameInvalidCharacters
+          : getLiveUsernameError(prev.email);
+        return {...prev, emailError: nextError};
+      });
+    }, USERNAME_TOO_LONG_MESSAGE_DISMISS_MS);
+    return () => clearTimeout(timeoutId);
+  }, [state.emailError]);
 
   const setEmail = useCallback(
     (email: string) => {

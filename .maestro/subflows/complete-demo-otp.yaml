@@ -32,7 +32,7 @@ appId: com.bbapp
     commands:
       - tapOn:
           id: "register-alias-input"
-      - inputText: "demoalias"
+      - inputText: "midemoalias12"
       - hideKeyboard
       - tapOn:
           id: "register-alias-continue"

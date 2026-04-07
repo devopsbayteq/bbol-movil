@@ -2,6 +2,12 @@ import {useCallback, useState} from 'react';
 
 import {useDI} from '../../di';
 import {
+  hasDisallowedLoginUsernameCharacters,
+  LOGIN_USERNAME_MAX_LENGTH,
+  sanitizeLoginUsernameInput,
+} from '../../domain/validation/loginCredentials';
+import {
+  registerAliasValidationMessages,
   sanitizeRegisterAliasInput,
   validateRegisterAliasInput,
 } from '../../domain/validation/registerAlias';
@@ -14,14 +20,23 @@ export function useRegisterAliasViewModel() {
   const [isLoading, setIsLoading] = useState(false);
 
   const onChangeAlias = useCallback((value: string) => {
-    setAlias(sanitizeRegisterAliasInput(value));
-    if (inlineError) {
-      setInlineError(null);
+    const sanitized = sanitizeLoginUsernameInput(value);
+
+    if (sanitized.length > LOGIN_USERNAME_MAX_LENGTH) {
+      setAlias(sanitized.slice(0, LOGIN_USERNAME_MAX_LENGTH));
+      setInlineError(registerAliasValidationMessages.usernameTooLong);
+    } else {
+      const aliasError = hasDisallowedLoginUsernameCharacters(value)
+        ? registerAliasValidationMessages.usernameInvalidCharacters
+        : sanitized
+          ? validateRegisterAliasInput(sanitized)
+          : null;
+      setAlias(sanitized);
+      setInlineError(aliasError);
     }
-    if (submitError) {
-      setSubmitError(null);
-    }
-  }, [inlineError, submitError]);
+
+    setSubmitError(prev => (prev ? null : prev));
+  }, []);
 
   const submit = useCallback(async (): Promise<boolean> => {
     const normalized = sanitizeRegisterAliasInput(alias);

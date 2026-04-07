@@ -173,7 +173,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
             />
             <Text style={styles.loginBody}>
               Enviamos un código de verificación de 6 dígitos a tu celular
-              terminado en ****458.
+              terminado en <Text style={styles.loginBodyLastDigits}>****458</Text>.
             </Text>
             <Pressable
               style={styles.pinInputWrap}
@@ -350,7 +350,7 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           fontSize: 15,
           lineHeight: 24,
           color: colors.textSecondary,
-          textAlign: 'center',
+          textAlign: 'left',
           marginTop: 16,
           marginBottom: 8,
         },
@@ -431,11 +431,19 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           paddingHorizontal: 4,
         },
         resendLabel: {
+          fontFamily: Lexend.bold,
+          fontSize: 15,
+          lineHeight: 24,
+          color: colors.textTertiary,
+          opacity: 0.3,
+          textAlign: 'center',
+        },
+        loginBodyLastDigits: {
           fontFamily: Lexend.regular,
           fontSize: 15,
           lineHeight: 24,
-          color: colors.linkPrimary,
-          textAlign: 'center',
+          color: colors.textPrimary,
+          textAlign: 'left',
         },
         resendLabelDisabled: {
           color: colors.textTertiary,

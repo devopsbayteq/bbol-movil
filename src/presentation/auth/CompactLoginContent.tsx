@@ -322,7 +322,7 @@ function useStyles(colors: ThemeColors) {
         },
         welcomeLine: {
           fontFamily: Lexend.regular,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textSecondary,
           marginBottom: 20,
@@ -330,13 +330,13 @@ function useStyles(colors: ThemeColors) {
         },
         welcomePrefix: {
           fontFamily: Lexend.regular,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textSecondary,
         },
         welcomeName: {
           fontFamily: Lexend.bold,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textPrimary,
         },

@@ -14,9 +14,9 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
-import UserPlusSvg from '../../../assets/images/svg/user-plus.svg';
-import MenuIconSvg from '../../../assets/images/svg/menu-icon.svg';
 import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
+const institutionIcon = require('../../../assets/images/institution.png');
+const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 
 const bankMark = require('../../../assets/images/BBIcon.png');
 
@@ -143,40 +143,56 @@ export function FirstLoginContent({
           title="Iniciar sesión"
           onPress={onLogin}
           iconRightTintColor={colors.white}
-          // iconNodeRight={
-          //   <LoginSubmitArrowSvg
-          //     width={LOGIN_SUBMIT_ICON_SIZE}
-          //     height={LOGIN_SUBMIT_ICON_SIZE}
-          //   />
-          // }
+          iconSourceRight={
+            <LoginSubmitArrowSvg
+              width={LOGIN_SUBMIT_ICON_SIZE}
+              height={LOGIN_SUBMIT_ICON_SIZE}
+            />
+          }
           loading={isLoadingLogin}
           disabled={submitDisabled}
+          disabledBackgroundColor={colors.textTertiary}
           variant="loginPrimary"
         />
       </View>
 
-      <View style={styles.footerQuickRow}>
-        <Pressable
+      <View style={styles.actions}>
+        <Button
+          testID="login-create-user"
+          title="Crear usuario"
           onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Crear usuario">
-          <View style={styles.footerQuickIconWrap}>
-            <UserPlusSvg width={FOOTER_SVG_SIZE} height={FOOTER_SVG_SIZE} />
-          </View>
-          <Text style={styles.footerQuickLabel}>Crear usuario</Text>
-        </Pressable>
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Solicitar producto">
-          <View style={styles.footerQuickIconWrap}>
-            <MenuIconSvg width={FOOTER_SVG_SIZE} height={FOOTER_SVG_SIZE} />
-          </View>
-          <Text style={styles.footerQuickLabel}>Solicitar producto</Text>
-        </Pressable>
+          disabledBackgroundColor={colors.textTertiary}
+          variant="outline"
+        />
       </View>
+
+      <Pressable
+        testID="login-request-product"
+        onPress={showDevelopmentNotice}
+        style={({pressed}) => [
+          styles.productCard,
+          pressed && styles.productCardPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Solicita un producto">
+        <View style={styles.productIconCircle}>
+          <Image
+            source={institutionIcon}
+            style={styles.productIconImage}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+        <Text style={styles.productCardTitle}>Solicita un producto</Text>
+        <View style={styles.arrowRightIconWrap}>
+          <Image
+            source={arrowRightIcon}
+            style={styles.arrowRightIcon}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+      </Pressable>
 
       <TertiaryLinkButton
         testID="login-contact-us"
@@ -244,7 +260,7 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 4,
         },
         forgotText: {
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 14,
           lineHeight: 22,
           color: colors.textSecondary,
@@ -302,6 +318,49 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
           textAlign: 'center',
           marginBottom: 8,
+        },
+        productCard: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'center',
+          width: '100%',
+          maxWidth: 280,
+          gap: 12,
+          paddingVertical: 12,
+          paddingHorizontal: 14,
+          borderRadius: 12,
+          backgroundColor: colors.surface,
+          marginBottom: 8,
+        },
+        productCardPressed: {
+          opacity: 0.92,
+        },
+        productIconCircle: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        productIconImage: {
+          width: 40,
+          height: 40,
+        },
+        productCardTitle: {
+          flex: 1,
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.textPrimary,
+        },
+        arrowRightIconWrap: {
+          width: 24,
+          height: 24,
+        },
+        arrowRightIcon: {
+          width: 24,
+          height: 24,
         },
       }),
     [colors],

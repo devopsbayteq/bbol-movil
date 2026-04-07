@@ -42,29 +42,53 @@ export const sanitizeLoginUsernameInput = sanitizeUnsafeTextInput;
 
 export const sanitizeLoginPasswordInput = sanitizeUnsafeTextInput;
 
-export const validateLoginUsername = composeValidators(
-  requireTrimmedValue(loginValidationMessages.usernameRequired),
-  rejectMatchingCharacters(
-    isControlCharacter,
-    loginValidationMessages.usernameInvalidCharacters,
-  ),
-  rejectCharacters(
-    INVISIBLE_CHAR_PATTERN,
-    loginValidationMessages.usernameInvalidCharacters,
-  ),
-  requirePattern(
-    LOGIN_USERNAME_ALLOWED_PATTERN,
-    loginValidationMessages.usernameInvalidCharset,
-  ),
-  requireMinLength(
-    LOGIN_USERNAME_MIN_LENGTH,
-    loginValidationMessages.usernameTooShort,
-  ),
-  requireMaxLength(
-    LOGIN_USERNAME_MAX_LENGTH,
-    loginValidationMessages.usernameTooLong,
-  ),
-);
+/** Mensajes para la cadena de validación estilo usuario (login / alias). */
+export type LoginUsernameStyleValidationMessages = {
+  usernameRequired: string;
+  usernameInvalidCharacters: string;
+  usernameInvalidCharset: string;
+  usernameTooShort: string;
+  usernameTooLong: string;
+};
+
+export function createValidateLoginUsernameStyle(
+  messages: LoginUsernameStyleValidationMessages,
+) {
+  return composeValidators(
+    requireTrimmedValue(messages.usernameRequired),
+    rejectMatchingCharacters(
+      isControlCharacter,
+      messages.usernameInvalidCharacters,
+    ),
+    rejectCharacters(
+      INVISIBLE_CHAR_PATTERN,
+      messages.usernameInvalidCharacters,
+    ),
+    requirePattern(
+      LOGIN_USERNAME_ALLOWED_PATTERN,
+      messages.usernameInvalidCharset,
+    ),
+    requireMinLength(
+      LOGIN_USERNAME_MIN_LENGTH,
+      messages.usernameTooShort,
+    ),
+    requireMaxLength(
+      LOGIN_USERNAME_MAX_LENGTH,
+      messages.usernameTooLong,
+    ),
+  );
+}
+
+const loginUsernameStyleMessages: LoginUsernameStyleValidationMessages = {
+  usernameRequired: loginValidationMessages.usernameRequired,
+  usernameInvalidCharacters: loginValidationMessages.usernameInvalidCharacters,
+  usernameInvalidCharset: loginValidationMessages.usernameInvalidCharset,
+  usernameTooShort: loginValidationMessages.usernameTooShort,
+  usernameTooLong: loginValidationMessages.usernameTooLong,
+};
+
+export const validateLoginUsername =
+  createValidateLoginUsernameStyle(loginUsernameStyleMessages);
 
 export const validateLoginPassword = composeValidators(
   requireTrimmedValue(loginValidationMessages.passwordRequired),

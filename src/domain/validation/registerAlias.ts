@@ -1,26 +1,30 @@
-/** Longitud máxima del alias en registro (alfanumérico). */
-export const REGISTER_ALIAS_MAX_LENGTH = 16;
+import {
+  createValidateLoginUsernameStyle,
+  LOGIN_USERNAME_MAX_LENGTH,
+  LOGIN_USERNAME_MIN_LENGTH,
+  sanitizeLoginUsernameInput,
+} from './loginCredentials';
+import type {LoginUsernameStyleValidationMessages} from './loginCredentials';
 
-const ALIAS_MIN_LENGTH = 1;
-const ALIAS_PATTERN = /^[a-zA-Z0-9]+$/;
+/** Misma longitud máxima que el usuario de login. */
+export const REGISTER_ALIAS_MAX_LENGTH = LOGIN_USERNAME_MAX_LENGTH;
+
+export const registerAliasValidationMessages = {
+  usernameRequired: 'El alias es requerido',
+  usernameInvalidCharacters: 'El alias contiene caracteres no permitidos',
+  usernameInvalidCharset:
+    'El alias solo puede contener letras, números, punto (.), guion (-) y guion bajo (_).',
+  usernameTooShort: `El alias debe tener al menos ${LOGIN_USERNAME_MIN_LENGTH} caracteres`,
+  usernameTooLong: `El alias no puede superar ${LOGIN_USERNAME_MAX_LENGTH} caracteres`,
+} as const satisfies LoginUsernameStyleValidationMessages;
+
+export const validateRegisterAliasInput = createValidateLoginUsernameStyle(
+  registerAliasValidationMessages,
+);
 
 /**
- * Deja solo letras y números ASCII y recorta a la longitud máxima permitida.
+ * Valor listo para enviar: mismo saneo que el usuario de login y tope de longitud.
  */
 export function sanitizeRegisterAliasInput(raw: string): string {
-  return raw.replace(/[^a-zA-Z0-9]/g, '').slice(0, REGISTER_ALIAS_MAX_LENGTH);
-}
-
-export function validateRegisterAliasInput(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (trimmed.length < ALIAS_MIN_LENGTH) {
-    return 'Ingresa un alias.';
-  }
-  if (trimmed.length > REGISTER_ALIAS_MAX_LENGTH) {
-    return `El alias no puede superar ${REGISTER_ALIAS_MAX_LENGTH} caracteres.`;
-  }
-  if (!ALIAS_PATTERN.test(trimmed)) {
-    return 'El alias solo puede contener letras y números.';
-  }
-  return null;
+  return sanitizeLoginUsernameInput(raw).slice(0, LOGIN_USERNAME_MAX_LENGTH);
 }
