@@ -24,7 +24,8 @@
 		A9ABFDE55246474BAED89D57 /* BBBanner.png in Resources */ = {isa = PBXBuildFile; fileRef = 584B400705B54945A172EE84 /* BBBanner.png */; };
 		B0AE8A6AD20C433DB7757608 /* arrow-left.png in Resources */ = {isa = PBXBuildFile; fileRef = B7AE40E612804E9CA4931621 /* arrow-left.png */; };
 		B2C3D4E52F60718293A4B5C8 /* TlsPinningIOS.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */; };
-		C3D4E5F62F60718293A4B5CE /* BiometricEnrollmentModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F62F60718293A4B5CF /* BiometricEnrollmentModule.m */; };		DB700AC4D1DD440989491F0A /* Home.png in Resources */ = {isa = PBXBuildFile; fileRef = 939019A49A844AE58ED4F34C /* Home.png */; };
+		C3D4E5F62F60718293A4B5CE /* BiometricEnrollmentModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F62F60718293A4B5CF /* BiometricEnrollmentModule.m */; };
+		DB700AC4D1DD440989491F0A /* Home.png in Resources */ = {isa = PBXBuildFile; fileRef = 939019A49A844AE58ED4F34C /* Home.png */; };
 		E16EF85BA84447FCA7AA0DA5 /* house.png in Resources */ = {isa = PBXBuildFile; fileRef = 7D7CF1CBF3B341FEAE49CC52 /* house.png */; };
 		E83F80C9E0BE4F92870F8280 /* fingerprint.png in Resources */ = {isa = PBXBuildFile; fileRef = E5CC43D6A0744B9E907D17B8 /* fingerprint.png */; };
 		F0037803E8A84F37819E477B /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = 83794E6891374E2E91A4E764 /* delete.png */; };
@@ -49,10 +50,11 @@
 		83794E6891374E2E91A4E764 /* delete.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = delete.png; path = ../assets/images/delete.png; sourceTree = "<group>"; };
 		939019A49A844AE58ED4F34C /* Home.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Home.png; path = ../assets/images/Home.png; sourceTree = "<group>"; };
 		B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = TlsPinningIOS.m; path = BBApp/TlsPinningIOS.m; sourceTree = "<group>"; };
-		C3D4E5F62F60718293A4B5CF /* BiometricEnrollmentModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = BiometricEnrollmentModule.m; path = BBApp/BiometricEnrollmentModule.m; sourceTree = "<group>"; };		B4C6361218A14F289A1C5104 /* Lexend_700Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_700Bold.ttf; path = ../assets/fonts/Lexend_700Bold.ttf; sourceTree = "<group>"; };
+		B4C6361218A14F289A1C5104 /* Lexend_700Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_700Bold.ttf; path = ../assets/fonts/Lexend_700Bold.ttf; sourceTree = "<group>"; };
 		B7AE40E612804E9CA4931621 /* arrow-left.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "arrow-left.png"; path = "../assets/images/arrow-left.png"; sourceTree = "<group>"; };
 		BB6586417B774C5D94131ED5 /* Lexend_400Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_400Regular.ttf; path = ../assets/fonts/Lexend_400Regular.ttf; sourceTree = "<group>"; };
 		C1F6AE642B4241DF908739B7 /* Lexend_600SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Lexend_600SemiBold.ttf; path = ../assets/fonts/Lexend_600SemiBold.ttf; sourceTree = "<group>"; };
+		C3D4E5F62F60718293A4B5CF /* BiometricEnrollmentModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = BiometricEnrollmentModule.m; path = BBApp/BiometricEnrollmentModule.m; sourceTree = "<group>"; };
 		C9CA862F9FF04685A218E89E /* BBIcon.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = BBIcon.png; path = ../assets/images/BBIcon.png; sourceTree = "<group>"; };
 		E1917A570AF84B8387EA0DD7 /* ArrowUpArrowDownSelected.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = ArrowUpArrowDownSelected.png; path = ../assets/images/ArrowUpArrowDownSelected.png; sourceTree = "<group>"; };
 		E5CC43D6A0744B9E907D17B8 /* fingerprint.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = fingerprint.png; path = ../assets/images/fingerprint.png; sourceTree = "<group>"; };
@@ -75,7 +77,8 @@
 			isa = PBXGroup;
 			children = (
 				B2C3D4E52F60718293A4B5C9 /* TlsPinningIOS.m */,
-				C3D4E5F62F60718293A4B5CF /* BiometricEnrollmentModule.m */,				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				C3D4E5F62F60718293A4B5CF /* BiometricEnrollmentModule.m */,
+				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -263,12 +266,14 @@
 				"${PODS_ROOT}/Target Support Files/Pods-BBApp/Pods-BBApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			inputPaths = (
-			);			name = "[CP] Embed Pods Frameworks";
+			);
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BBApp/Pods-BBApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			outputPaths = (
-			);			runOnlyForDeploymentPostprocessing = 0;
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BBApp/Pods-BBApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
@@ -304,12 +309,14 @@
 				"${PODS_ROOT}/Target Support Files/Pods-BBApp/Pods-BBApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			inputPaths = (
-			);			name = "[CP] Copy Pods Resources";
+			);
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BBApp/Pods-BBApp-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			outputPaths = (
-			);			runOnlyForDeploymentPostprocessing = 0;
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BBApp/Pods-BBApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
@@ -322,7 +329,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2C3D4E52F60718293A4B5C8 /* TlsPinningIOS.m in Sources */,
-				C3D4E5F62F60718293A4B5CE /* BiometricEnrollmentModule.m in Sources */,				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				C3D4E5F62F60718293A4B5CE /* BiometricEnrollmentModule.m in Sources */,
+				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,10 +344,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9QZNBJ42R5;				ENABLE_BITCODE = NO;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = UZV32CBHS6;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BBApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BBOLTest;
+				INFOPLIST_KEY_CFBundleDisplayName = BBOLHackaton;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -352,7 +361,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bayteq.bbapp.dev;				PRODUCT_NAME = BBApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bayteq.bbapp.dev;
+				PRODUCT_NAME = BBApp;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -371,9 +381,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9QZNBJ42R5;				INFOPLIST_FILE = BBApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BBOLTest;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = UZV32CBHS6;
+				INFOPLIST_FILE = BBApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BBOLHackaton;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -386,7 +397,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bayteq.bbapp.dev;				PRODUCT_NAME = BBApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bayteq.bbapp.dev;
+				PRODUCT_NAME = BBApp;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
