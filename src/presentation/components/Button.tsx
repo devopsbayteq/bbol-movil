@@ -6,11 +6,12 @@ import {
   StyleSheet,
   type StyleProp,
   type ViewStyle,
+  type TextStyle,
   ImageSourcePropType,
   Image,
   View,
 } from 'react-native';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 
 type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
@@ -25,6 +26,8 @@ interface ButtonProps {
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Estilo del texto del título (p. ej. tamaño en pantallas de comprobante). */
+  labelStyle?: StyleProp<TextStyle>;
   testID?: string;
 }
 
@@ -38,6 +41,7 @@ export function Button({
   variant = 'primary',
   disabled = false,
   style,
+  labelStyle,
   testID,
 }: ButtonProps) {
   const {colors} = useTheme();
@@ -76,6 +80,7 @@ export function Button({
               styles.text,
               variant === 'outline' && styles.outlineText,
               variant === 'loginPrimary' && styles.loginPrimaryText,
+              labelStyle,
             ]}>
             {title}
           </Text>

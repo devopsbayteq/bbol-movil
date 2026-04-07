@@ -61,7 +61,10 @@ export function TransferReviewScreen() {
 
     const onTransferSuccess = useCallback((data: TransferDataResume) => {
         setSuccessTransactionData(data);
-        setTransferSuccessModal(true);
+        resetTransferSuccessUi();
+        navigation.navigate('TransferVoucher', {
+            routeSuccessTransactionData: data,
+        });
     }, []);
 
     const {

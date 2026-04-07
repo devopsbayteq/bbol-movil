@@ -15,6 +15,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ViewShot from 'react-native-view-shot';
 import {TransferVoucherShareableCard} from '../components/TransferVoucherShareableCard';
 import {useTransferVoucherCaptureShare} from '../useTransferVoucherCaptureShare';
+import {Lexend} from '../../../theme/lexend';
 
 const shareIcon = require('../../../../assets/images/share-nodes.png');
 
@@ -54,7 +55,11 @@ export const TransferVoucherScreen = () => {
 
   return (
     <View style={styles.root} testID="transfer-voucher-screen">
-      <ToolbarApp title="COMPROBANTE" />
+      <ToolbarApp
+        title="COMPROBANTE"
+        titleFont="regular"
+        showBottomDivider
+      />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
@@ -70,13 +75,18 @@ export const TransferVoucherScreen = () => {
             </ViewShot>
             <View style={styles.actionsGroup}>
               <Button
+                variant="loginPrimary"
                 iconSourceRight={shareIcon}
+                iconRightTintColor={colors.white}
                 title="Compartir"
+                labelStyle={styles.primaryButtonLabel}
+                style={styles.primaryButton}
                 onPress={() => {
                   shareVoucher().catch(() => {});
                 }}
               />
               <SecondaryIconButton
+                variant="outline"
                 title="Nueva transferencia"
                 onPress={() => {
                   navigation.reset({
@@ -88,7 +98,8 @@ export const TransferVoucherScreen = () => {
                 loading={false}
               />
               <TertiaryLinkButton
-                title="Ir al Inicio"
+                title="Ir al inicio"
+                labelStyle={styles.tertiaryLinkLabel}
                 onPress={() => {
                   navigation.getParent()?.navigate('Home');
                 }}
@@ -126,6 +137,21 @@ function useStyles(colors: ThemeColors) {
         actionsGroup: {
           gap: 12,
           width: '100%',
+        },
+        primaryButton: {
+          height: 48,
+          paddingVertical: 0,
+          justifyContent: 'center',
+        },
+        primaryButtonLabel: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
+          lineHeight: 22,
+        },
+        tertiaryLinkLabel: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
+          lineHeight: 22,
         },
       }),
     [colors],
