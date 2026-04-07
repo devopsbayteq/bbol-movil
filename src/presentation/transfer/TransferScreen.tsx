@@ -207,6 +207,7 @@ export function TransferScreen() {
 
                         <Button
                             disabled={!canContinueToReview}
+                            disabledBackgroundColor={colors.textTertiary}
                             testID="transfer-continue-button"
                             iconSourceRight={<TransferIconArrowRightWhite color={colors.white} size={20}/>}
                             title="Continuar"
