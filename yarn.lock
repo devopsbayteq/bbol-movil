@@ -5881,13 +5881,12 @@ react-native-safe-area-context@^5.5.2:
   resolved "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-5.7.0.tgz"
   integrity sha512-/9/MtQz8ODphjsLdZ+GZAIcC/RtoqW9EeShf7Uvnfgm/pzYrJ75y3PV/J1wuAV1T5Dye5ygq4EAW20RoBq0ABQ==
 
-react-native-screens@^4.24.0:
 react-native-screenguard@^2.0.0-beta5:
   version "2.0.0-beta5"
   resolved "https://registry.npmjs.org/react-native-screenguard/-/react-native-screenguard-2.0.0-beta5.tgz"
   integrity sha512-v8Lnv2am+COzEGKvj6J4UbpQsjHixkSqSJ+tgJtDvwck2Dil1vwOhEJBbngXYgj63x4iFlV9gE4gAOWG60avAg==
 
-react-native-screens@^4.24.0, "react-native-screens@>= 4.0.0":
+react-native-screens@^4.24.0:
   version "4.24.0"
   resolved "https://registry.npmjs.org/react-native-screens/-/react-native-screens-4.24.0.tgz"
   integrity sha512-SyoiGaDofiyGPFrUkn1oGsAzkRuX1JUvTD9YQQK3G1JGQ5VWkvHgYSsc1K9OrLsDQxN7NmV71O0sHCAh8cBetA==
