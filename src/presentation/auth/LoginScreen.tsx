@@ -60,6 +60,9 @@ export function LoginScreen() {
     };
   }, [biometricRSAAuthOrchestrator]);
 
+  const isDeviceBoundCredentialsFlow =
+    deviceBoundLoginId !== null && deviceBoundLoginId.length > 0;
+
   const {
     email,
     password,
@@ -83,6 +86,7 @@ export function LoginScreen() {
         mode: 'login',
         user,
         email: user.email,
+        ...(isDeviceBoundCredentialsFlow ? {skipRegisterAlias: true} : {}),
       });
     },
     user => {
@@ -133,51 +137,53 @@ export function LoginScreen() {
     isDeviceBoundCompact;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <KeyboardAwareScrollView
-        style={styles.root}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.contentColumn}>
-          {deviceBoundLoginId === null ? (
-            <ActivityIndicator
-              accessibilityLabel="Cargando"
-              color={colors.primary}
-              style={styles.inputsLoading}
-            />
-          ) : showCompactLayout ? (
-            <CompactLoginContent
-              greetingName={compactGreetingName}
-              password={password}
-              passwordError={passwordError}
-              onPasswordChange={setPassword}
-              isBusy={isBusy}
-              isLoadingLogin={isLoadingLogin}
-              isLoadingBiometric={isLoadingBiometric}
-              error={error}
-              showBiometricLogin={showBiometricLogin}
-              onLogin={handleLogin}
-              onBiometricLogin={handleBiometricLogin}
-              onChangeUser={handleChangeUser}
-            />
-          ) : (
-            <FirstLoginContent
-              email={email}
-              password={password}
-              emailError={emailError}
-              passwordError={passwordError}
-              onEmailChange={setEmail}
-              onPasswordChange={setPassword}
-              isBusy={isBusy}
-              isLoadingLogin={isLoadingLogin}
-              error={error}
-              onLogin={handleLogin}
-            />
-          )}
-        </View>
-      </KeyboardAwareScrollView>
-    </SafeAreaView>
+    <View style={[styles.shell, {backgroundColor: colors.background}]}>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <KeyboardAwareScrollView
+          style={styles.root}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.contentColumn}>
+            {deviceBoundLoginId === null ? (
+              <ActivityIndicator
+                accessibilityLabel="Cargando"
+                color={colors.primary}
+                style={styles.inputsLoading}
+              />
+            ) : showCompactLayout ? (
+              <CompactLoginContent
+                greetingName={compactGreetingName}
+                password={password}
+                passwordError={passwordError}
+                onPasswordChange={setPassword}
+                isBusy={isBusy}
+                isLoadingLogin={isLoadingLogin}
+                isLoadingBiometric={isLoadingBiometric}
+                error={error}
+                showBiometricLogin={showBiometricLogin}
+                onLogin={handleLogin}
+                onBiometricLogin={handleBiometricLogin}
+                onChangeUser={handleChangeUser}
+              />
+            ) : (
+              <FirstLoginContent
+                email={email}
+                password={password}
+                emailError={emailError}
+                passwordError={passwordError}
+                onEmailChange={setEmail}
+                onPasswordChange={setPassword}
+                isBusy={isBusy}
+                isLoadingLogin={isLoadingLogin}
+                error={error}
+                onLogin={handleLogin}
+              />
+            )}
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -185,9 +191,11 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
+        shell: {
+          flex: 1,
+        },
         safe: {
           flex: 1,
-          backgroundColor: colors.background,
         },
         root: {
           flex: 1,

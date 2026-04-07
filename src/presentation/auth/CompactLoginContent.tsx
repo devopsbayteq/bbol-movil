@@ -18,6 +18,7 @@ import {Lexend} from '../../theme/lexend';
 
 import UserPlusSvg from '../../../assets/images/svg/user-plus.svg';
 import MenuIconSvg from '../../../assets/images/svg/menu-icon.svg';
+import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
 
 const bankBanner = require('../../../assets/images/BBBanner.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
@@ -25,6 +26,7 @@ const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
 
 const FOOTER_SVG_SIZE = 28;
+const LOGIN_SUBMIT_ICON_SIZE = 24;
 
 export interface CompactLoginContentProps {
   greetingName: string;
@@ -139,7 +141,12 @@ export function CompactLoginContent({
           testID="login-submit"
           title="Ingresar"
           onPress={onLogin}
-          iconSource={require('../../../assets/images/house.png')}
+          iconNodeRight={
+            <LoginSubmitArrowSvg
+              width={LOGIN_SUBMIT_ICON_SIZE}
+              height={LOGIN_SUBMIT_ICON_SIZE}
+            />
+          }
           loading={isLoadingLogin}
           disabled={isBusy}
           variant="loginPrimary"

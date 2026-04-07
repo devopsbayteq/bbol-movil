@@ -16,11 +16,12 @@ import {Lexend} from '../../theme/lexend';
 
 import UserPlusSvg from '../../../assets/images/svg/user-plus.svg';
 import MenuIconSvg from '../../../assets/images/svg/menu-icon.svg';
+import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
 
 const bankMark = require('../../../assets/images/BBIcon.png');
-const loginSubmitIcon = require('../../../assets/images/arrow-right-from-bracket.png');
 
 const FOOTER_SVG_SIZE = 28;
+const LOGIN_SUBMIT_ICON_SIZE = 24;
 
 export interface FirstLoginContentProps {
   email: string;
@@ -141,8 +142,12 @@ export function FirstLoginContent({
           testID="login-submit"
           title="Iniciar sesión"
           onPress={onLogin}
-          iconSourceRight={loginSubmitIcon}
-          iconRightTintColor={colors.white}
+          iconNodeRight={
+            <LoginSubmitArrowSvg
+              width={LOGIN_SUBMIT_ICON_SIZE}
+              height={LOGIN_SUBMIT_ICON_SIZE}
+            />
+          }
           loading={isLoadingLogin}
           disabled={submitDisabled}
           variant="loginPrimary"

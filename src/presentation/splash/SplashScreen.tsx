@@ -3,6 +3,7 @@ import {
   Animated,
   Dimensions,
   Easing,
+  StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
@@ -12,10 +13,11 @@ import {useTheme} from '../../providers';
 import FondoSvg from '../../../assets/images/svg/fondo.svg';
 import LogoInitSvg from '../../../assets/images/svg/logo-init.svg';
 
-const LOGO_SIZE = 96;
+/** Tamaño visual del logo (viewBox del asset ~197). */
+const LOGO_SIZE = 152;
 
-function getWindowSize() {
-  const {width, height} = Dimensions.get('window');
+function getScreenSize() {
+  const {width, height} = Dimensions.get('screen');
   return {width, height};
 }
 
@@ -23,11 +25,11 @@ export function SplashScreen() {
   const {colors} = useTheme();
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.9)).current;
-  const [{width, height}, setWindowSize] = useState(getWindowSize);
+  const [{width, height}, setScreenSize] = useState(getScreenSize);
 
   useEffect(() => {
-    const sub = Dimensions.addEventListener('change', ({window}) => {
-      setWindowSize({width: window.width, height: window.height});
+    const sub = Dimensions.addEventListener('change', ({screen}) => {
+      setScreenSize({width: screen.width, height: screen.height});
     });
     return () => sub.remove();
   }, []);
@@ -51,6 +53,11 @@ export function SplashScreen() {
 
   return (
     <View style={[styles.root, {backgroundColor: colors.primary}]} testID="splash-screen">
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <FondoSvg
           width={width}

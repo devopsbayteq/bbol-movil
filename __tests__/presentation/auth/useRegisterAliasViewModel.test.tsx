@@ -35,8 +35,19 @@ describe('useRegisterAliasViewModel', () => {
       expect(ok).toBe(false);
     });
 
-    expect(latest?.inlineError).toBe('Ingresa un alias de al menos 2 caracteres.');
+    expect(latest?.inlineError).toBe('Ingresa un alias.');
     expect(mockedUseDI().registerAliasUseCase.execute).not.toHaveBeenCalled();
+  });
+
+  test('onChangeAlias filtra caracteres no alfanuméricos', async () => {
+    await act(async () => {
+      ReactTestRenderer.create(<Harness />);
+    });
+
+    act(() => {
+      latest?.onChangeAlias('mi@Alias#1');
+    });
+    expect(latest?.alias).toBe('miAlias1');
   });
 
   test('submit con alias válido llama execute y devuelve true', async () => {

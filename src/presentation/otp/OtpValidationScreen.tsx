@@ -14,12 +14,14 @@ import {
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-import {useTheme, type ThemeColors} from '../../providers';
+import {useTheme, type ThemeColors, useAuth} from '../../providers';
+import {useDI} from '../../di';
 import {ErrorMessage, OtpCodeInput} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
 import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 import {TransferStackParamList} from '../../navigation/TransferStackNavigator.tsx';
+import {navigatePostLoginEnrollment} from '../auth/navigatePostLoginEnrollment';
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
@@ -47,6 +49,8 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList | TransferStackParamList>
   >();
+  const {login} = useAuth();
+  const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
 
   const {
     code,
@@ -61,12 +65,19 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   } = useOtpValidationViewModel(
     async () => {
       if (params.mode === 'login') {
-        (
-          navigation as NativeStackNavigationProp<RootStackParamList>
-        ).navigate('RegisterAlias', {
-          user: params.user,
-          email: params.email,
-        });
+        const rootNav = navigation as NativeStackNavigationProp<RootStackParamList>;
+        if (params.skipRegisterAlias) {
+          await navigatePostLoginEnrollment(rootNav, params.user, params.email, {
+            biometricRSAAuthOrchestrator,
+            secureStorageService,
+            login,
+          });
+        } else {
+          rootNav.navigate('RegisterAlias', {
+            user: params.user,
+            email: params.email,
+          });
+        }
         return;
       }
       if (params.mode === 'transfer') {

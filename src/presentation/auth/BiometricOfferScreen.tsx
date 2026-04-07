@@ -18,8 +18,9 @@ import {Button, ErrorMessage} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
 import {mapBiometricError} from './useLoginViewModel';
+import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
 
-const fingerprintIcon = require('../../../assets/images/fingerprint.png');
+const BIOMETRIC_HERO_ICON_SIZE = 76;
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 const shieldKeyholeIcon = require('../../../assets/images/shield-keyhole.png');
 
@@ -35,9 +36,6 @@ export function BiometricOfferScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const trimmedEmail = email.trim();
-
-  const biometricHeroIcon =
-    Platform.OS === 'ios' ? faceViewfinderIcon : fingerprintIcon;
 
   const heroAccessibilityLabel =
     Platform.OS === 'ios'
@@ -79,13 +77,22 @@ export function BiometricOfferScreen() {
         showsVerticalScrollIndicator={false}>
         <View style={styles.contentColumn}>
           <View style={styles.iconCircle}>
-            <Image
-              source={biometricHeroIcon}
-              style={styles.iconInner}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-              accessibilityLabel={heroAccessibilityLabel}
-            />
+            {Platform.OS === 'ios' ? (
+              <Image
+                source={faceViewfinderIcon}
+                style={styles.iconInner}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+                accessibilityLabel={heroAccessibilityLabel}
+              />
+            ) : (
+              <FingerprintSvg
+                width={BIOMETRIC_HERO_ICON_SIZE}
+                height={BIOMETRIC_HERO_ICON_SIZE}
+                color={colors.primary}
+                accessibilityLabel={heroAccessibilityLabel}
+              />
+            )}
           </View>
 
           <Text style={styles.title}>Activa tu acceso biométrico</Text>
@@ -175,8 +182,8 @@ function useStyles(colors: ThemeColors) {
           }),
         },
         iconInner: {
-          width: 76,
-          height: 76,
+          width: BIOMETRIC_HERO_ICON_SIZE,
+          height: BIOMETRIC_HERO_ICON_SIZE,
         },
         title: {
           fontFamily: Lexend.regular,

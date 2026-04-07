@@ -18,6 +18,7 @@ import {useDI} from '../../di';
 import {Button, ErrorMessage, LoginTextField} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
+import {REGISTER_ALIAS_MAX_LENGTH} from '../../domain/validation/registerAlias';
 import {useRegisterAliasViewModel} from './useRegisterAliasViewModel';
 import {DeviceRegistrationSuccessModal} from './DeviceRegistrationSuccessModal';
 import {navigatePostLoginEnrollment} from './navigatePostLoginEnrollment';
@@ -114,6 +115,7 @@ export function RegisterAliasScreen() {
             variant="elevated"
             autoCapitalize="none"
             autoCorrect={false}
+            maxLength={REGISTER_ALIAS_MAX_LENGTH}
             returnKeyType="done"
             onSubmitEditing={() => handleSubmit().catch(() => {})}
           />
