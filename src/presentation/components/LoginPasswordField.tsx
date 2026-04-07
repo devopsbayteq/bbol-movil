@@ -14,6 +14,9 @@ import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 import {Platform} from 'react-native';
 
+import EyeSvg from '../../../assets/images/svg/eye.svg';
+import EyeSlashSvg from '../../../assets/images/svg/eye-slash.svg';
+
 function EyeOnIcon({color}: {color: string}) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -114,9 +117,9 @@ export function LoginPasswordField({
           style={styles.eyeButton}
           hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
           {visible ? (
-            <EyeOnIcon color={colors.iconPrimary} />
-          ) : (
-            <EyeOffIcon color={colors.iconPrimary} />
+  <EyeSvg width={20} height={20} color={colors.iconPrimary} />
+) : (
+  <EyeSlashSvg width={20} height={20} color={colors.iconPrimary} />
           )}
         </TouchableOpacity>
       </View>
