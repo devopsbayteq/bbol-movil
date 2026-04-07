@@ -54,17 +54,29 @@ export function useTransferViewModel() {
         }
         if (!accountsInitializedRef.current) {
             setFromAccountIndex(defaultIdx);
+            if (accounts.length > 1) {
+                const otherIdx = defaultIdx === 0 ? 1 : 0;
+                setToAccountIndex(otherIdx);
+            }
             accountsInitializedRef.current = true;
             return;
         }
         if (fromAccountIndex >= accounts.length) {
-            selectFromAccount(defaultIdx);
+            setFromAccountIndex(defaultIdx);
         }
     }, [accounts, defaultIdx, fromAccountIndex]);
 
+    useEffect(() => {
+        if (accounts.length === 0) {
+            return;
+        }
+        if (toAccountIndex >= accounts.length) {
+            setToAccountIndex(Math.max(0, accounts.length - 1));
+        }
+    }, [accounts, toAccountIndex]);
 
     const selectedFromAccount = accounts[fromAccountIndex] ?? null;
-    const selectedToAccount = accounts[fromAccountIndex] ?? null;
+    const selectedToAccount = accounts[toAccountIndex] ?? null;
 
     const fromAccountDescription = useMemo(
         () => (selectedFromAccount ? formatAccountKindLine(selectedFromAccount) : ''),
@@ -131,6 +143,7 @@ export function useTransferViewModel() {
 
     const selectFromAccount = useCallback((index: number) => {
         setFromAccountIndex(index);
+        setFromAccountModalVisible(false);
         setAccountBeneficiaryModalVisible(false);
     }, []);
 
@@ -156,7 +169,7 @@ export function useTransferViewModel() {
         if (!selectedToAccount) {
             return {ok: false, message: 'Selecciona un beneficiario.'};
         }
-        if (!selectFromAccount) {
+        if (!selectedFromAccount) {
             return {ok: false, message: 'No hay una cuenta de origen disponible.'};
         }
 
@@ -192,6 +205,7 @@ export function useTransferViewModel() {
         concept,
         displayAmount,
         selectedFromAccount,
+        selectedToAccount,
         user?.name,
     ]);
 

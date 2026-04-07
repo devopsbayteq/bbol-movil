@@ -135,26 +135,33 @@ function baseVm(overrides: Record<string, unknown> = {}) {
     error: null,
     retry: jest.fn().mockResolvedValue(undefined),
     accounts: [],
-    selectedAccount: null,
+    selectedFromAccount: null,
+    selectedToAccount: null,
     fromAccountDescription: '',
-    accountModalVisible: false,
-    setAccountModalVisible: jest.fn(),
-    beneficiary: null,
+    toAccountDescription: '',
+    fromAccountModalVisible: false,
+    setFromAccountModalVisible: jest.fn(),
+    toAccountModalVisible: false,
+    setToAccountModalVisible: jest.fn(),
     amountCents: 0,
     displayAmount: '$0,00',
     onAmountChange: jest.fn(),
     concept: '',
-    setConcept: jest.fn(),
+    onConceptChange: jest.fn(),
     validationMessage: null,
     setValidationMessage: jest.fn(),
-    openAccountPicker: jest.fn(),
-    selectAccount: jest.fn(),
-    selectBeneficiary: jest.fn(),
-    accountIndex: 0,
+    openFromAccountPicker: jest.fn(),
+    openToAccountPicker: jest.fn(),
+    selectFromAccount: jest.fn(),
+    selectToAccount: jest.fn(),
+    fromAccountIndex: 0,
+    toAccountIndex: 0,
     prepareTransferReview: jest.fn(() => ({
       ok: false,
       message: 'Selecciona un beneficiario.',
     })),
+    openAccountBeneficiaryPicker: jest.fn(),
+    accountBeneficiaryModalVisible: false,
     ...overrides,
   };
 }
@@ -209,7 +216,7 @@ describe('TransferScreen', () => {
     expect(retry).toHaveBeenCalled();
   });
 
-  test('el botón atrás navega al tab Home', async () => {
+  test('el botón atrás navega al tab posición consolidada', async () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
       root = ReactTestRenderer.create(<TransferScreen />);
@@ -219,7 +226,7 @@ describe('TransferScreen', () => {
     await act(async () => {
       back.props.onPress?.();
     });
-    expect(mockTabNavigate).toHaveBeenCalledWith('Home', {});
+    expect(mockTabNavigate).toHaveBeenCalledWith('ConsolidatedPosition', {});
   });
 
   test('Continuar con validación fallida llama setValidationMessage', async () => {

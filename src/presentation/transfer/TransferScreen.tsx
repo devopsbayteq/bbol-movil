@@ -18,36 +18,27 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import {
-    TransferIconArrowRight,
-    TransferIconUser,
-    TransferIconArrowRightWhite,
-} from './components/transferIcons.tsx';
+import {TransferIconAnglesDown, TransferIconArrowRightWhite} from './components/transferIcons.tsx';
 import {useTransferViewModel} from './useTransferViewModel';
-import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
-import {ToolbarApp} from "./components/ToolbarApp.tsx";
-import {ErrorBannerComponent} from "./transferInit/components/ErrorBannerComponent.tsx";
-import {TertiaryLinkButton} from "../components";
-import {AccountBeneficiarySelectorModal} from "./AccountBeneficiarySelectorModal.tsx";
-import {AccountSelectorButton} from "./components/AccountSelectorButton.tsx";
-
+import {accountProductTitle} from '../../utils/accountDisplay';
+import {ToolbarApp} from './components/ToolbarApp.tsx';
+import {ErrorBannerComponent} from './transferInit/components/ErrorBannerComponent.tsx';
+import {Button, TertiaryLinkButton} from '../components';
+import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal.tsx';
+import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
+import {SpacerView} from "../components/SpacerView.tsx";
 
 const ZERO_DISPLAY = formatMoneyEc(0);
 
-const HERO_BG = '#D0F0F6';
-const ICON_CHIP_BG = '#D0F0F6';
-const CONCEPT_INPUT_BG = '#EFF0F4';
-
 export function TransferScreen() {
-
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
 
     const navigation = useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
 
-    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>()
+    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>();
 
     const {
         displayAmount,
@@ -58,13 +49,11 @@ export function TransferScreen() {
         selectedFromAccount,
         fromAccountIndex,
         selectFromAccount,
-        fromAccountDescription,
         toAccountDescription,
         fromAccountModalVisible,
         setFromAccountModalVisible,
         concept,
         onConceptChange,
-        user,
         validationMessage,
         prepareTransferReview,
         setValidationMessage,
@@ -76,12 +65,31 @@ export function TransferScreen() {
         toAccountIndex,
         selectToAccount,
         openToAccountPicker,
-        selectedToAccount
+        selectedToAccount,
     } = useTransferViewModel();
 
+    const fromAccountTitle = useMemo(
+        () => selectedFromAccount?.accountTypeLabel?.trim() ?? '',
+        [selectedFromAccount],
+    );
 
-    const fromName = user?.name?.trim() || 'Titular';
-    const toName = selectedToAccount?.beneficiary.contactName ??'Selecciona el beneficiario';
+    const fromAccountSubtitle = useMemo(() => {
+        if (!selectedFromAccount) {
+            return '';
+        }
+        const a = selectedFromAccount;
+        return `${accountProductTitle(a)} ${a.maskedAccountNumber}`.trim();
+    }, [selectedFromAccount]);
+
+    const fromBalanceLabel = useMemo(
+        () => (selectedFromAccount != null ? formatMoneyEc(selectedFromAccount.balance) : ''),
+        [selectedFromAccount],
+    );
+
+    const toContactName = selectedToAccount?.beneficiary.contactName?.trim() ?? '';
+    const toName =
+        toContactName !== '' ? toContactName : 'Selecciona el beneficiario';
+    const toDescription = toContactName !== '' ? toAccountDescription : '';
 
     const onBack = () => {
         const tabNav =
@@ -92,18 +100,20 @@ export function TransferScreen() {
     return (
         <View style={styles.root} testID="transfer-main-screen">
             <ToolbarApp
-                title={"TRANSFERIR"}
+                title="TRANSFERIR"
                 onBackPress={() => {
-                    onBack()
-                }}/>
+                    onBack();
+                }}
+            />
 
             {error ? (
                 <ErrorBannerComponent
-                    textRetry={"Reintentar"}
+                    textRetry="Reintentar"
                     errorText={error}
                     onRetry={() => {
-                        retry().catch()
-                    }}/>
+                        retry().catch();
+                    }}
+                />
             ) : null}
 
             {isLoading ? (
@@ -120,22 +130,34 @@ export function TransferScreen() {
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}>
                     <View style={styles.hero}>
-
-                        <AccountSelectorButton
-                            onPress={openFromAccountPicker}
-                            accounts={accounts}
-                            selectedAccount={selectedFromAccount}
-                            origin={"Desde"}
-                            name={fromName}
-                            description={fromAccountDescription}/>
-
-                        <AccountSelectorButton
-                            onPress={openToAccountPicker}
-                            accounts={accounts}
-                            selectedAccount={selectedToAccount}
-                            origin={"Desde"}
-                            name={toName}
-                            description={toAccountDescription}/>
+                        <View style={styles.cardsBlock}>
+                            <AccountSelectorButton
+                                variant="from"
+                                onPress={openFromAccountPicker}
+                                accounts={accounts}
+                                selectedAccount={selectedFromAccount}
+                                origin="Desde"
+                                name={fromAccountTitle}
+                                description={fromAccountSubtitle}
+                                balanceLabel={fromBalanceLabel}
+                            />
+                            <SpacerView/>
+                            <View style={styles.bridgeRow}>
+                                <View style={styles.bridgeCircle}>
+                                    <TransferIconAnglesDown color={colors.primary} size={24}/>
+                                </View>
+                            </View>
+                            <AccountSelectorButton
+                                variant="to"
+                                onPress={openToAccountPicker}
+                                accounts={accounts}
+                                selectedAccount={selectedToAccount}
+                                origin="Hacia"
+                                name={toName}
+                                description={toDescription}
+                            />
+                        </View>
+                        <SpacerView/>
                         <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
                         <View style={styles.amountWrap}>
                             <TextInput
@@ -145,9 +167,9 @@ export function TransferScreen() {
                                 keyboardType="number-pad"
                                 returnKeyType="done"
                                 onSubmitEditing={() => Keyboard.dismiss()}
-                                placeholderTextColor="rgba(255,255,255,0.45)"
+                                placeholderTextColor={colors.placeholder}
                                 placeholder={ZERO_DISPLAY}
-                                selectionColor={colors.white}
+                                selectionColor={colors.primary}
                                 underlineColorAndroid="transparent"
                                 testID="transfer-amount-input"
                             />
@@ -155,9 +177,7 @@ export function TransferScreen() {
                                 <Text style={styles.amountFieldError}>{amountFieldError}</Text>
                             ) : null}
                         </View>
-
                     </View>
-
 
                     <View style={styles.bottomSection}>
                         <View style={styles.conceptBlock}>
@@ -179,6 +199,7 @@ export function TransferScreen() {
                             ) : null}
                         </View>
 
+
                         <TouchableOpacity
                             style={styles.primaryCta}
                             onPress={() => {
@@ -193,13 +214,10 @@ export function TransferScreen() {
                             }}
                             activeOpacity={0.9}
                             testID="transfer-continue-button">
-                            <TransferIconArrowRightWhite
-                                color={colors.white}
-                                size={20}
-                            />
                             <Text style={styles.primaryCtaText}>Continuar</Text>
+                            <TransferIconArrowRightWhite color={colors.white} size={20}/>
                         </TouchableOpacity>
-                        <TertiaryLinkButton title={"Cancelar"} onPress={() => {
+                        <TertiaryLinkButton title="Cancelar" onPress={() => {
                         }}/>
                     </View>
                 </KeyboardAwareScrollView>
@@ -212,7 +230,6 @@ export function TransferScreen() {
                 visible={fromAccountModalVisible}
                 onClose={() => setFromAccountModalVisible(false)}
             />
-
 
             <AccountBeneficiarySelectorModal
                 accounts={accounts}
@@ -233,32 +250,6 @@ function useStyles(colors: ThemeColors) {
                     flex: 1,
                     backgroundColor: colors.background,
                 },
-                header: {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    minHeight: 64,
-                    paddingHorizontal: 16,
-                    backgroundColor: colors.white,
-                },
-                backBtn: {
-                    width: 44,
-                    height: 44,
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
-                },
-                headerTitle: {
-                    flex: 1,
-                    textAlign: 'center',
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.textPrimary,
-                },
-                headerRightSpacer: {
-                    width: 44,
-                },
-
                 loadingWrap: {
                     flex: 1,
                     alignItems: 'center',
@@ -271,11 +262,30 @@ function useStyles(colors: ThemeColors) {
                     flexGrow: 1,
                 },
                 hero: {
-                    backgroundColor: HERO_BG,
+                    backgroundColor: colors.transferSectionBg,
                     paddingHorizontal: 24,
                     paddingTop: 24,
                     paddingBottom: 32,
                     minHeight: 320,
+                },
+                cardsBlock: {
+                    width: '100%',
+                },
+                bridgeRow: {
+                    alignItems: 'center',
+                    marginTop: -20,
+                    marginBottom: -20,
+                    zIndex: 2,
+                    height: 40,
+                    justifyContent: 'center',
+                },
+                bridgeCircle: {
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: colors.primaryIconContainerBg,
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 },
                 heroHint: {
                     fontFamily: Lexend.regular,
@@ -283,11 +293,12 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 24,
                     textAlign: 'center',
                     marginBottom: 8,
+                    color: colors.textSecondary,
                 },
                 amountWrap: {
                     alignSelf: 'center',
                     borderBottomWidth: StyleSheet.hairlineWidth,
-                    borderBottomColor: colors.white,
+                    borderBottomColor: colors.primary,
                     marginBottom: 24,
                     paddingHorizontal: 12,
                     paddingVertical: 8,
@@ -298,7 +309,7 @@ function useStyles(colors: ThemeColors) {
                     fontFamily: Lexend.regular,
                     fontSize: 13,
                     lineHeight: 18,
-                    color: '#FFB8B8',
+                    color: colors.error,
                     textAlign: 'center',
                     alignSelf: 'center',
                     maxWidth: 280,
@@ -310,52 +321,8 @@ function useStyles(colors: ThemeColors) {
                     textAlign: 'center',
                     paddingVertical: 0,
                     minHeight: 70,
-                    ...(Platform.OS === 'android' ? {textAlignVertical: 'center'} : null),
-                },
-                card: {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 16,
-                    backgroundColor: colors.white,
-                    borderRadius: 12,
-                    paddingHorizontal: 12,
-                    paddingVertical: 16,
-                    marginBottom: 16,
-                },
-                iconChip: {
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    backgroundColor: ICON_CHIP_BG,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                },
-                cardBody: {
-                    flex: 1,
-                    minWidth: 0,
-                },
-                cardLabel: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.textTertiary,
-                },
-                cardTitle: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
                     color: colors.textPrimary,
-                },
-                cardSub: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: '#3E494B',
-                    marginTop: 2,
-                },
-                cardChevronSpacer: {
-                    width: 16,
-                    height: 16,
+                    ...(Platform.OS === 'android' ? {textAlignVertical: 'center'} : null),
                 },
                 bottomSection: {
                     paddingHorizontal: 24,
@@ -372,7 +339,7 @@ function useStyles(colors: ThemeColors) {
                 },
                 conceptLabelStrong: {
                     fontFamily: Lexend.semiBold,
-                    color: '#3E494B',
+                    color: colors.textSecondary,
                 },
                 conceptLabelMuted: {
                     fontFamily: Lexend.regular,
@@ -382,18 +349,18 @@ function useStyles(colors: ThemeColors) {
                     fontFamily: Lexend.regular,
                     fontSize: 14,
                     color: colors.textPrimary,
-                    backgroundColor: CONCEPT_INPUT_BG,
+                    backgroundColor: colors.white,
                     borderWidth: 1,
-                    borderColor: colors.white,
+                    borderColor: colors.border,
                     borderRadius: 8,
                     paddingHorizontal: 16,
                     paddingVertical: 17,
                     overflow: 'visible',
                     ...Platform.select({
                         ios: {
-                            shadowColor: '#000',
+                            shadowColor: colors.shadowSoft,
                             shadowOffset: {width: 0, height: 4},
-                            shadowOpacity: 0.08,
+                            shadowOpacity: 1,
                             shadowRadius: 4,
                         },
                         android: {
@@ -401,9 +368,6 @@ function useStyles(colors: ThemeColors) {
                         },
                         default: {},
                     }),
-                },
-                conceptInputError: {
-                    borderColor: colors.error,
                 },
                 validationText: {
                     fontFamily: Lexend.regular,
@@ -415,7 +379,7 @@ function useStyles(colors: ThemeColors) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 12,
-                    backgroundColor: colors.primary,
+                    backgroundColor: colors.textTertiary,
                     borderRadius: 8,
                     paddingVertical: 16,
                 },
@@ -424,112 +388,6 @@ function useStyles(colors: ThemeColors) {
                     fontSize: 14,
                     lineHeight: 22,
                     color: colors.white,
-                },
-                modalRoot: {
-                    flex: 1,
-                    justifyContent: 'flex-end',
-                    backgroundColor: 'rgba(0,0,0,0.45)',
-                },
-                modalSheet: {
-                    backgroundColor: colors.background,
-                    borderTopLeftRadius: 12,
-                    borderTopRightRadius: 12,
-                    maxHeight: '78%',
-                    width: '100%',
-                    zIndex: 1,
-                    ...Platform.select({
-                        android: {elevation: 24},
-                        default: {},
-                    }),
-                },
-                modalHeader: {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    minHeight: 64,
-                    backgroundColor: colors.surface,
-                    borderTopLeftRadius: 12,
-                    borderTopRightRadius: 12,
-                    paddingHorizontal: 8,
-                },
-                modalHeaderSide: {
-                    width: 44,
-                    height: 44,
-                },
-                modalHeaderTitle: {
-                    flex: 1,
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.iconPrimary,
-                    textAlign: 'center',
-                },
-                modalCloseBtn: {
-                    width: 44,
-                    height: 44,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                },
-                modalListContent: {
-                    paddingHorizontal: 24,
-                    paddingTop: 24,
-                    paddingBottom: 12,
-                    gap: 12,
-                },
-                accountPickCard: {
-                    backgroundColor: colors.surface,
-                    borderRadius: 12,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                },
-                accountPickCardSelected: {
-                    backgroundColor: ICON_CHIP_BG,
-                    borderWidth: 1,
-                    borderColor: colors.primary,
-                },
-                accountPickCardDisabled: {
-                    backgroundColor: colors.buttonSecondaryBg,
-                },
-                accountPickRow: {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                },
-                accountPickRowDisabled: {
-                    opacity: 0.4,
-                },
-                accountPickLeft: {
-                    flex: 1,
-                    minWidth: 0,
-                    marginRight: 12,
-                },
-                accountPickType: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.textPrimary,
-                },
-                accountPickNumber: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.textTertiary,
-                },
-                accountPickRight: {
-                    alignItems: 'flex-end',
-                },
-                accountPickBalance: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.textPrimary,
-                    textAlign: 'right',
-                },
-                accountPickSaldoLabel: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.textTertiary,
-                    textAlign: 'right',
                 },
             }),
         [colors],
