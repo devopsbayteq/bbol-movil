@@ -1,11 +1,10 @@
 appId: com.bbapp
 name: Login en dispositivo ya vinculado (modo compacto, sin pantalla de alias)
 ---
-# Flujo real cuando ya hubo al menos un login exitoso en el mismo dispositivo:
-# logout no borra el vínculo (DEVICE_BOUND_*), así que se muestra CompactLoginContent
-# (saludo + solo contraseña). Tras OTP la app usa skipRegisterAlias y no pasa por RegisterAlias.
+# Flujo real cuando ya hubo al menos un login exitoso en el mismo dispositivo.
+# Nombre del archivo: orden alfabético justo después de login-success.yaml y antes de
+# login-validation-fields.yaml (ese flujo usa clearState y borra el vínculo del dispositivo).
 #
-# Requisito: haber completado antes un login en la app (o ejecutar p. ej. login-success).
 # No usar ensure-login-email-field-visible aquí (evitaría "Otro usuario" y el formulario completo).
 
 - launchApp
