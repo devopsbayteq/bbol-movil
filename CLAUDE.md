@@ -87,8 +87,8 @@ npm run lint          # ESLint
 | `transfer-concept-error` | TransferScreen — error inline concepto |
 | `transfer-continue-button` | TransferScreen — botón "Continuar" |
 | `transfer-review-screen` | TransferReviewScreen — vista raíz |
-| `transfer-confirm-button` | TransferReviewScreen — botón "Confirmar" |
-| `transfer-modify-button` | TransferReviewScreen — botón "Modificar" |
+| `transfer-confirm-button` | TransferReviewScreen — botón "Transferir" |
+| `transfer-modify-button` | TransferReviewScreen — botón "Cancelar" |
 | `transfer-success-modal` | TransferModalSuccess — sheet del modal |
 | `transfer-voucher-button` | TransferModalSuccess — botón "Voucher" |
 | `transfer-voucher-screen` | TransferVoucherScreen — vista raíz |
@@ -142,7 +142,7 @@ maestro test .maestro/flows/transfers/transfer-complete-with-otp.yaml
 
 ## API
 
-Base URL: `https://dev4.bayteq.com:50112/api/v1/`
+Base URL: `https://sd-8e3ce6a17c1b4748aca1e112713476ba.ecs.us-east-1.on.aws/api/v1`
 
 ## Reglas de validación
 

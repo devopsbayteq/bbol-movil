@@ -1,4 +1,4 @@
-import {useCallback, useMemo} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useDI} from '../../di';
 import type {HomeBanner, HomeDashboardIcon} from '../../domain/entities/ContractBalance';
@@ -14,6 +14,7 @@ import {
 const HOME_BALANCE_KEY = ['homeContractBalance'] as const;
 
 export function useHomeViewModel() {
+  const [showDevelopmentMode, setShowDevelopmentMode] = useState(false);
   const {getHomeContractBalanceUseCase} = useDI();
 
   const query = useQuery({
@@ -52,6 +53,8 @@ export function useHomeViewModel() {
   const recentActivityItems: RecentActivityItem[] = MOCK_RECENT_ACTIVITY;
 
   return {
+    showDevelopmentMode,
+    setShowDevelopmentMode,
     data: query.data ?? null,
     bannersForHome,
     dashboardIconsForHome,

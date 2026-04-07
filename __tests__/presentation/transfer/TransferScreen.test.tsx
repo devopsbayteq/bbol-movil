@@ -3,6 +3,8 @@ import ReactTestRenderer, {act} from 'react-test-renderer';
 import type {ReactTestRendererJSON} from 'react-test-renderer';
 import {ActivityIndicator, TouchableOpacity} from 'react-native';
 import {TransferScreen} from '../../../src/presentation/transfer/TransferScreen';
+import {formatMoneyEc} from '../../../src/utils/formatMoneyEc';
+import type {AccountBalance} from '../../../src/domain/entities/ContractBalance';
 
 /** Evita JSON.stringify sobre el árbol (referencias circulares en algunos nodos). */
 function renderedText(
@@ -136,6 +138,39 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({top: 0, bottom: 0, left: 0, right: 0}),
 }));
 
+function makeBeneficiaryContact(
+  overrides: Partial<AccountBalance['beneficiary']> = {},
+): AccountBalance['beneficiary'] {
+  return {
+    beneficiaryGuid: 'guid-default',
+    contactName: 'Contacto',
+    bankName: 'Banco',
+    accountType: 'savings',
+    accountTypeLabel: 'Ahorros',
+    beneficiaryAccountNumber: '0000000000',
+    lastFourDigits: '0000',
+    ...overrides,
+  };
+}
+
+function makeAccount(
+  overrides: Partial<AccountBalance> & {balance?: number} = {},
+): AccountBalance {
+  const guid = overrides.accountGuid ?? 'acc-default';
+  return {
+    accountGuid: guid,
+    maskedAccountNumber: '****1234',
+    accountKind: 'savings',
+    accountTypeLabel: 'Ahorros',
+    balance: 0,
+    beneficiary: makeBeneficiaryContact({
+      beneficiaryGuid: `${guid}-bene`,
+      ...overrides.beneficiary,
+    }),
+    ...overrides,
+  };
+}
+
 function baseVm(overrides: Record<string, unknown> = {}) {
   return {
     user: {name: 'Titular Demo'},
@@ -143,26 +178,34 @@ function baseVm(overrides: Record<string, unknown> = {}) {
     error: null,
     retry: jest.fn().mockResolvedValue(undefined),
     accounts: [],
-    selectedAccount: null,
+    selectedFromAccount: null,
+    selectedToAccount: null,
     fromAccountDescription: '',
-    accountModalVisible: false,
-    setAccountModalVisible: jest.fn(),
-    beneficiary: null,
+    toAccountDescription: '',
+    fromAccountModalVisible: false,
+    setFromAccountModalVisible: jest.fn(),
+    toAccountModalVisible: false,
+    setToAccountModalVisible: jest.fn(),
     amountCents: 0,
     displayAmount: '$0,00',
     onAmountChange: jest.fn(),
     concept: '',
-    setConcept: jest.fn(),
+    onConceptChange: jest.fn(),
     validationMessage: null,
     setValidationMessage: jest.fn(),
-    openAccountPicker: jest.fn(),
-    selectAccount: jest.fn(),
-    selectBeneficiary: jest.fn(),
-    accountIndex: 0,
+    openFromAccountPicker: jest.fn(),
+    openToAccountPicker: jest.fn(),
+    selectFromAccount: jest.fn(),
+    selectToAccount: jest.fn(),
+    fromAccountIndex: 0,
+    toAccountIndex: 0,
+    canContinueToReview: true,
     prepareTransferReview: jest.fn(() => ({
       ok: false,
       message: 'Selecciona un beneficiario.',
     })),
+    openAccountBeneficiaryPicker: jest.fn(),
+    accountBeneficiaryModalVisible: false,
     ...overrides,
   };
 }
@@ -171,6 +214,36 @@ describe('TransferScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseTransferViewModel.mockReturnValue(baseVm());
+  });
+
+  test('muestra el saldo disponible de la cuenta destino (Hacia)', async () => {
+    const accountFrom = makeAccount({
+      accountGuid: 'from-1',
+      balance: 1000.5,
+      beneficiary: makeBeneficiaryContact({contactName: 'Origen'}),
+    });
+    const accountTo = makeAccount({
+      accountGuid: 'to-1',
+      balance: 250.75,
+      beneficiary: makeBeneficiaryContact({contactName: 'Destino'}),
+    });
+    mockUseTransferViewModel.mockReturnValue(
+      baseVm({
+        accounts: [accountFrom, accountTo],
+        selectedFromAccount: accountFrom,
+        selectedToAccount: accountTo,
+        fromAccountIndex: 0,
+        toAccountIndex: 1,
+      }),
+    );
+
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<TransferScreen />);
+    });
+    const flat = renderedText(root!.toJSON());
+    expect(flat).toContain(formatMoneyEc(250.75));
+    expect(flat).toContain('Hacia');
   });
 
   test('muestra el título TRANSFERIR', async () => {
@@ -217,7 +290,7 @@ describe('TransferScreen', () => {
     expect(retry).toHaveBeenCalled();
   });
 
-  test('el botón atrás navega al tab Home', async () => {
+  test('el botón atrás navega al tab posición consolidada', async () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
       root = ReactTestRenderer.create(<TransferScreen />);
@@ -227,7 +300,23 @@ describe('TransferScreen', () => {
     await act(async () => {
       back.props.onPress?.();
     });
-    expect(mockTabNavigate).toHaveBeenCalledWith('Home', {});
+    expect(mockTabNavigate).toHaveBeenCalledWith('ConsolidatedPosition', {});
+  });
+
+  test('Continuar está deshabilitado cuando canContinueToReview es false', async () => {
+    mockUseTransferViewModel.mockReturnValue(
+      baseVm({canContinueToReview: false}),
+    );
+
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<TransferScreen />);
+    });
+
+    const continuar = root!.root.findByProps({
+      testID: 'transfer-continue-button',
+    });
+    expect(continuar.props.disabled).toBe(true);
   });
 
   test('Continuar con validación fallida llama setValidationMessage', async () => {

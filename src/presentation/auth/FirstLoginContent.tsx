@@ -1,6 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import {getVersion, getBuildNumber} from 'react-native-device-info';
 
 import {formatAppVersionDisplay} from '../../utils/appVersion';
@@ -15,11 +14,14 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
-const arrowBack = require('../../../assets/images/arrow-left.png');
+import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
+const institutionIcon = require('../../../assets/images/institution.png');
+const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
+
 const bankMark = require('../../../assets/images/BBIcon.png');
-const footerIconCreate = require('../../../assets/images/user-plus.png');
-const footerIconProduct = require('../../../assets/images/product_menu_icon.png');
-const loginSubmitIcon = require('../../../assets/images/arrow-right-from-bracket.png');
+
+const FOOTER_SVG_SIZE = 28;
+const LOGIN_SUBMIT_ICON_SIZE = 24;
 
 export interface FirstLoginContentProps {
   email: string;
@@ -46,10 +48,8 @@ export function FirstLoginContent({
   error,
   onLogin,
 }: FirstLoginContentProps) {
-  const navigation = useNavigation();
   const {colors} = useTheme();
   const styles = useStyles(colors);
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [devNoticeVisible, setDevNoticeVisible] = useState(false);
 
   const showDevelopmentNotice = useCallback(() => {
@@ -67,41 +67,18 @@ export function FirstLoginContent({
     )}`;
   }, []);
 
-  const canGoBack = navigation.canGoBack();
-  const submitDisabled = isBusy || !termsAccepted;
+  const submitDisabled = isBusy || !email || !password;
 
   return (
     <View style={styles.column}>
-      <View style={styles.topRow}>
-        {canGoBack ? (
-          <Pressable
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-            accessibilityRole="button"
-            accessibilityLabel="Volver">
-            <Image
-              source={arrowBack}
-              style={styles.backIcon}
-              resizeMode="contain"
-            />
-          </Pressable>
-        ) : (
-          <View style={styles.backPlaceholder} />
-        )}
-        <Text style={styles.versionText} numberOfLines={1}>
-          {versionLabel}
-        </Text>
-      </View>
-
       <View style={styles.brandBlock}>
-      
-          <Image
-            source={bankMark}
-            style={styles.logoMark}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-  
+        <Image
+          source={bankMark}
+          style={styles.logoMark}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
+
         <Text style={styles.heroTitle}>Bienvenido a tu banca móvil</Text>
         <Text style={styles.heroSubtitle}>
           Ingresa con usuario y contraseña
@@ -152,34 +129,6 @@ export function FirstLoginContent({
         </Pressable>
       </View>
 
-      <View style={styles.termsRow}>
-        <Pressable
-          testID="login-terms-checkbox"
-          onPress={() => setTermsAccepted(v => !v)}
-          style={styles.checkboxHit}
-          accessibilityRole="checkbox"
-          accessibilityState={{checked: termsAccepted}}
-          accessibilityLabel="Acepto los términos y condiciones">
-          <View
-            style={[
-              styles.checkbox,
-              termsAccepted && styles.checkboxChecked,
-            ]}>
-            {termsAccepted ? (
-              <Text style={styles.checkboxMark}>✓</Text>
-            ) : null}
-          </View>
-        </Pressable>
-        <View style={styles.termsTextWrap}>
-          <Text style={styles.termsText}>
-            Acepto los{' '}
-            <Text onPress={showDevelopmentNotice} style={styles.termsLink}>
-              términos y condiciones
-            </Text>
-          </Text>
-        </View>
-      </View>
-
       {error ? (
         <ErrorMessage
           testID="login-error"
@@ -193,51 +142,69 @@ export function FirstLoginContent({
           testID="login-submit"
           title="Iniciar sesión"
           onPress={onLogin}
-          iconSourceRight={loginSubmitIcon}
           iconRightTintColor={colors.white}
+          iconSourceRight={
+            <LoginSubmitArrowSvg
+              width={LOGIN_SUBMIT_ICON_SIZE}
+              height={LOGIN_SUBMIT_ICON_SIZE}
+            />
+          }
           loading={isLoadingLogin}
           disabled={submitDisabled}
+          disabledBackgroundColor={colors.textTertiary}
           variant="loginPrimary"
         />
       </View>
 
-      <View style={styles.footerQuickRow}>
-        <Pressable
+      <View style={styles.actions}>
+        <Button
+          testID="login-create-user"
+          title="Crear usuario"
           onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Crear usuario">
-          <View style={styles.footerQuickIconWrap}>
-            <Image
-              source={footerIconCreate}
-              style={styles.footerQuickIcon}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.footerQuickLabel}>Crear usuario</Text>
-        </Pressable>
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Solicitar producto">
-          <View style={styles.footerQuickIconWrap}>
-            <Image
-              source={footerIconProduct}
-              style={styles.footerQuickIconInner}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.footerQuickLabel}>Solicitar producto</Text>
-        </Pressable>
+          disabledBackgroundColor={colors.textTertiary}
+          variant="outline"
+        />
       </View>
+
+      <Pressable
+        testID="login-request-product"
+        onPress={showDevelopmentNotice}
+        style={({pressed}) => [
+          styles.productCard,
+          pressed && styles.productCardPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Solicita un producto">
+        <View style={styles.productIconCircle}>
+          <Image
+            source={institutionIcon}
+            style={styles.productIconImage}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+        <Text style={styles.productCardTitle}>Solicita un producto</Text>
+        <View style={styles.arrowRightIconWrap}>
+          <Image
+            source={arrowRightIcon}
+            style={styles.arrowRightIcon}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+      </Pressable>
 
       <TertiaryLinkButton
         testID="login-contact-us"
         title="Contáctate con nosotros"
         onPress={showDevelopmentNotice}
         style={styles.contactLink}
+        labelStyle={styles.contactLinkLabel}
       />
+
+      <Text style={styles.versionText} numberOfLines={1}>
+        {versionLabel}
+      </Text>
 
       <DevelopmentNoticeModal
         visible={devNoticeVisible}
@@ -255,49 +222,15 @@ function useStyles(colors: ThemeColors) {
           width: '100%',
           alignSelf: 'stretch',
         },
-        topRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 8,
-          marginBottom: 20,
-          gap: 12,
-        },
-        backButton: {
-          padding: 8,
-          marginLeft: -8,
-        },
-        backIcon: {
-          width: 24,
-          height: 24,
-        },
-        backPlaceholder: {
-          width: 40,
-        },
-        versionText: {
-          flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.textTertiary,
-          textAlign: 'right',
-        },
         brandBlock: {
           alignItems: 'center',
           marginBottom: 28,
+          marginTop: 8,
           gap: 12,
         },
-        logoTile: {
+        logoMark: {
           width: 72,
           height: 72,
-          borderRadius: 12,
-          backgroundColor: colors.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        logoMark: {
-      
-          
         },
         heroTitle: {
           fontFamily: Lexend.regular,
@@ -327,57 +260,10 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 4,
         },
         forgotText: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-          color: colors.linkPrimary,
-        },
-        termsRow: {
-          flexDirection: 'row',
-        //  alignItems: 'flex-start',
-          gap: 12,
-          marginTop: 8,
-          marginBottom: 16,
-          paddingVertical: 4,
-          alignItems: 'center',
-        },
-        checkboxHit: {
-          paddingVertical: 4,
-        },
-        termsTextWrap: {
-          flex: 1,
-        },
-        checkbox: {
-          width: 22,
-          height: 22,
-          borderRadius: 4,
-          borderWidth: 2,
-          borderColor: colors.border,
-          backgroundColor: colors.surface,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 2,
-        },
-        checkboxChecked: {
-          backgroundColor: colors.primary,
-          borderColor: colors.primary,
-        },
-        checkboxMark: {
-          color: colors.white,
-          fontSize: 14,
-          fontWeight: '700',
-          lineHeight: 16,
-        },
-        termsText: {
           fontFamily: Lexend.regular,
           fontSize: 14,
           lineHeight: 22,
           color: colors.textSecondary,
-        },
-        termsLink: {
-          fontFamily: Lexend.semiBold,
-          color: colors.linkPrimary,
-          textDecorationLine: 'underline',
         },
         errorBanner: {
           marginBottom: 16,
@@ -407,21 +293,6 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.surface,
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#000000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.1,
-          shadowRadius: 6,
-          elevation: 4,
-        },
-        footerQuickIcon: {
-          width: 28,
-          height: 28,
-          tintColor: colors.primary,
-        },
-        footerQuickIconInner: {
-          width: 28,
-          height: 28,
-          tintColor: colors.primary,
         },
         footerQuickLabel: {
           fontFamily: Lexend.regular,
@@ -432,10 +303,64 @@ function useStyles(colors: ThemeColors) {
         },
         contactLink: {
           alignSelf: 'center',
-          marginBottom: 16,
           marginTop: 24,
+          marginBottom: 8,
+        },
+        contactLinkLabel: {
           fontSize: 12,
+          lineHeight: 18,
           textDecorationLine: 'underline',
+        },
+        versionText: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 18,
+          color: colors.textTertiary,
+          textAlign: 'center',
+          marginBottom: 8,
+        },
+        productCard: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'center',
+          width: '100%',
+          maxWidth: 280,
+          gap: 12,
+          paddingVertical: 12,
+          paddingHorizontal: 14,
+          borderRadius: 12,
+          backgroundColor: colors.surface,
+          marginBottom: 8,
+        },
+        productCardPressed: {
+          opacity: 0.92,
+        },
+        productIconCircle: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        productIconImage: {
+          width: 40,
+          height: 40,
+        },
+        productCardTitle: {
+          flex: 1,
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.textPrimary,
+        },
+        arrowRightIconWrap: {
+          width: 24,
+          height: 24,
+        },
+        arrowRightIcon: {
+          width: 24,
+          height: 24,
         },
       }),
     [colors],

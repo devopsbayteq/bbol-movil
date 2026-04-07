@@ -15,10 +15,14 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ViewShot from 'react-native-view-shot';
 import {TransferVoucherShareableCard} from '../components/TransferVoucherShareableCard';
 import {useTransferVoucherCaptureShare} from '../useTransferVoucherCaptureShare';
+import {Lexend} from '../../../theme/lexend';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainTabParamList} from '../../../navigation/MainTabNavigator.tsx';
 
 const shareIcon = require('../../../../assets/images/share-nodes.png');
 
 type TransferVoucherRouteProp = RouteProp<TransferStackParamList, 'TransferVoucher'>;
+
 type NativeNav = NativeStackNavigationProp<
   TransferStackParamList,
   'TransferVoucher'
@@ -31,7 +35,18 @@ export const TransferVoucherScreen = () => {
   const {params} = useRoute<TransferVoucherRouteProp>();
 
   const navigation = useNavigation<NativeNav>();
+
   const transactionData = params.routeSuccessTransactionData;
+
+  const goToHomeTab = useCallback(() => {
+    navigation.popToTop();
+    const tabNav =
+      navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+    tabNav?.navigate({
+      name: 'ConsolidatedPosition',
+      params: {refreshHome: Date.now()},
+    });
+  }, [navigation]);
 
   const {viewShotRef, shareVoucher} = useTransferVoucherCaptureShare();
 
@@ -54,7 +69,11 @@ export const TransferVoucherScreen = () => {
 
   return (
     <View style={styles.root} testID="transfer-voucher-screen">
-      <ToolbarApp title="COMPROBANTE" />
+      <ToolbarApp
+        title="COMPROBANTE"
+        titleFont="regular"
+        showBottomDivider
+      />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
@@ -70,13 +89,18 @@ export const TransferVoucherScreen = () => {
             </ViewShot>
             <View style={styles.actionsGroup}>
               <Button
+                variant="loginPrimary"
                 iconSourceRight={shareIcon}
+                iconRightTintColor={colors.white}
                 title="Compartir"
+                labelStyle={styles.primaryButtonLabel}
+                style={styles.primaryButton}
                 onPress={() => {
                   shareVoucher().catch(() => {});
                 }}
               />
               <SecondaryIconButton
+                variant="outline"
                 title="Nueva transferencia"
                 onPress={() => {
                   navigation.reset({
@@ -88,10 +112,9 @@ export const TransferVoucherScreen = () => {
                 loading={false}
               />
               <TertiaryLinkButton
-                title="Ir al Inicio"
-                onPress={() => {
-                  navigation.getParent()?.navigate('Home');
-                }}
+                title="Ir al inicio"
+                labelStyle={styles.tertiaryLinkLabel}
+                onPress={goToHomeTab}
               />
             </View>
           </View>
@@ -126,6 +149,21 @@ function useStyles(colors: ThemeColors) {
         actionsGroup: {
           gap: 12,
           width: '100%',
+        },
+        primaryButton: {
+          height: 48,
+          paddingVertical: 0,
+          justifyContent: 'center',
+        },
+        primaryButtonLabel: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
+          lineHeight: 22,
+        },
+        tertiaryLinkLabel: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
+          lineHeight: 22,
         },
       }),
     [colors],

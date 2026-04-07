@@ -1,14 +1,18 @@
 appId: com.bbapp
 ---
-# Espera a que el splash (5s) y el fetch de clave pública terminen.
-# Si ya hay sesión, la app aterriza en home-screen (tab Inicio).
+# Autenticación estable para el resto de E2E.
+#
+# Flujo real alineado con credenciales demo (README / MockAuthDataSource):
+# usuario-demo12 + 123456 → OTP 123457 → (alias solo si primer ingreso en dispositivo) → biometría opcional → Inicio.
+#
+# Por defecto se fuerza el formulario completo (usuario + contraseña) con ensure-login-email-field-visible:
+# en dispositivos ya vinculados, "Otro usuario" limpia el modo compacto para poder escribir el usuario de prueba.
 - extendedWaitUntil:
     visible:
       id: "home-screen"
     timeout: 30000
     optional: true
 
-# Si no estamos en home, hay que hacer login.
 - runFlow:
     when:
       notVisible:
@@ -18,10 +22,10 @@ appId: com.bbapp
           file: ensure-login-email-field-visible.yaml
       - tapOn:
           id: "login-email-input"
-      - inputText: "Usuario10_2026"
+      - inputText: "usuario-demo12"
       - tapOn:
           id: "login-password-input"
-      - inputText: "Password@1"
+      - inputText: "123456"
       - hideKeyboard
       - runFlow:
           file: accept-login-terms.yaml

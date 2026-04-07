@@ -76,6 +76,21 @@ export function TransferIconArrowUp({color, size = 16}: IconProps) {
   );
 }
 
+/** Doble chevron abajo (entre tarjetas Desde / Hacia). */
+export function TransferIconAnglesDown({color, size = 24}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M7 8l5 5 5-5M7 14l5 5 5-5"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function TransferIconUser({color, size = 16}: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -198,6 +213,36 @@ export function TransferIconCheck({color, size = 22}: IconProps) {
         d="M20 6L9 17l-5-5"
         stroke={color}
         strokeWidth={2.25}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** Flechas horizontales opuestas (entre cuentas propias). */
+export function TransferIconArrowsRetweet({color, size = 24}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+        stroke={color}
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** Grupo de personas (a terceros). */
+export function TransferIconUsersGroup({color, size = 24}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
+        stroke={color}
+        strokeWidth={1.75}
         strokeLinecap="round"
         strokeLinejoin="round"
       />

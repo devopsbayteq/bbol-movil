@@ -6,32 +6,49 @@ import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Lexend} from "../../../theme/lexend.ts";
 
 interface ToolbarAppProps {
-    title?: string,
-    onBackPress?: () => void
+    title?: string;
+    onBackPress?: () => void;
+    titleFont?: 'regular' | 'semibold';
+    showBottomDivider?: boolean;
 }
 
-export const ToolbarApp = ({title = "", onBackPress}: ToolbarAppProps) => {
-
+export const ToolbarApp = ({
+    title = '',
+    onBackPress,
+    titleFont = 'semibold',
+    showBottomDivider = false,
+}: ToolbarAppProps) => {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
 
     const styles = useStyles(colors);
     return (
-        <View style={[styles.header, {paddingTop: insets.top}]}>
+        <View
+            style={[
+                styles.header,
+                {paddingTop: insets.top},
+                showBottomDivider && styles.headerWithDivider,
+            ]}>
             {onBackPress != null && (
                 <TouchableOpacity
                     onPress={() => {
-                        onBackPress()
+                        onBackPress();
                     }}
-                    style={styles.backBtn}
-                >
-                    <TransferIconArrowLeft color={colors.iconPrimary} size={20}/>
-                </TouchableOpacity>)}
-            <Text style={styles.headerTitle}>{title}</Text>
-            <View style={styles.headerRightSpacer}/>
+                    style={styles.backBtn}>
+                    <TransferIconArrowLeft color={colors.iconPrimary} size={20} />
+                </TouchableOpacity>
+            )}
+            <Text
+                style={[
+                    styles.headerTitle,
+                    titleFont === 'regular' && styles.headerTitleRegular,
+                ]}>
+                {title}
+            </Text>
+            <View style={styles.headerRightSpacer} />
         </View>
-    )
-}
+    );
+};
 
 function useStyles(colors: ThemeColors) {
     return useMemo(
@@ -49,6 +66,10 @@ function useStyles(colors: ThemeColors) {
                     paddingHorizontal: 16,
                     backgroundColor: colors.white,
                 },
+                headerWithDivider: {
+                    borderBottomWidth: StyleSheet.hairlineWidth,
+                    borderBottomColor: colors.borderLight,
+                },
                 backBtn: {
                     width: 44,
                     height: 44,
@@ -62,6 +83,10 @@ function useStyles(colors: ThemeColors) {
                     fontSize: 14,
                     lineHeight: 22,
                     color: colors.textPrimary,
+                },
+                headerTitleRegular: {
+                    fontFamily: Lexend.regular,
+                    fontWeight: '400',
                 },
                 headerRightSpacer: {
                     width: 44,

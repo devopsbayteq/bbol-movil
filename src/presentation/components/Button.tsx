@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, type ReactNode} from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -6,11 +6,12 @@ import {
   StyleSheet,
   type StyleProp,
   type ViewStyle,
+  type TextStyle,
   ImageSourcePropType,
   Image,
   View,
 } from 'react-native';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 
 type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
@@ -20,11 +21,15 @@ interface ButtonProps {
   onPress: () => void;
   loading?: boolean;
   iconSource?: ImageSourcePropType;
-  iconSourceRight?: ImageSourcePropType;
+  iconSourceRight?: ImageSourcePropType | ReactNode;
   iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
+  /** Si se define, el fondo en estado deshabilitado o cargando usa este color (sin opacidad). */
+  disabledBackgroundColor?: string;
   style?: StyleProp<ViewStyle>;
+  /** Estilo del texto del título (p. ej. tamaño en pantallas de comprobante). */
+  labelStyle?: StyleProp<TextStyle>;
   testID?: string;
 }
 
@@ -37,13 +42,17 @@ export function Button({
   iconRightTintColor,
   variant = 'primary',
   disabled = false,
+  disabledBackgroundColor,
   style,
+  labelStyle,
   testID,
 }: ButtonProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const isDisabled = disabled || loading;
+  const isPressDisabled = disabled || loading;
+  const loginPrimaryDisabledLook =
+    variant === 'loginPrimary' && disabled && !loading;
 
   return (
     <TouchableOpacity
@@ -53,11 +62,14 @@ export function Button({
         variant === 'primary' && styles.primary,
         variant === 'outline' && styles.outline,
         variant === 'loginPrimary' && styles.loginPrimary,
-        isDisabled && styles.disabled,
+        isPressDisabled &&
+          (disabledBackgroundColor
+            ? {backgroundColor: disabledBackgroundColor}
+            : styles.disabled),
         style,
       ]}
       onPress={onPress}
-      disabled={isDisabled}
+      disabled={isPressDisabled}
       activeOpacity={0.8}>
       {loading ? (
         <ActivityIndicator
@@ -76,18 +88,23 @@ export function Button({
               styles.text,
               variant === 'outline' && styles.outlineText,
               variant === 'loginPrimary' && styles.loginPrimaryText,
+              labelStyle,
             ]}>
             {title}
           </Text>
           {iconSourceRight ? (
-            <Image
-              source={iconSourceRight}
-              style={[
-                styles.iconTrailing,
-                iconRightTintColor ? {tintColor: iconRightTintColor} : null,
-              ]}
-              resizeMode="contain"
-            />
+            React.isValidElement(iconSourceRight) ? (
+              <View style={styles.iconTrailingContainer}>{iconSourceRight}</View>
+            ) : (
+              <Image
+                source={iconSourceRight as ImageSourcePropType}
+                style={[
+                  styles.iconTrailing,
+                  iconRightTintColor ? {tintColor: iconRightTintColor} : null,
+                ]}
+                resizeMode="contain"
+              />
+            )
           ) : null}
         </View>
       )}
@@ -121,6 +138,9 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.primary,
           width: '100%',
         },
+        loginPrimaryDisabled: {
+          backgroundColor: colors.textTertiary,
+        },
         disabled: {
           opacity: 0.7,
         },
@@ -143,10 +163,20 @@ function useStyles(colors: ThemeColors) {
           height: 24,
           marginRight: 8,
         },
+        iconLeadingWrap: {
+          marginRight: 8,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
         iconTrailing: {
           width: 24,
           height: 24,
           marginLeft: 8,
+        },
+        iconTrailingContainer: {
+          marginLeft: 8,
+          alignItems: 'center',
+          justifyContent: 'center',
         },
         contentRow: {
           flexDirection: 'row',

@@ -1,20 +1,30 @@
-import {isControlCharacter} from './textSafety';
+import {
+  createValidateLoginUsernameStyle,
+  LOGIN_USERNAME_MAX_LENGTH,
+  LOGIN_USERNAME_MIN_LENGTH,
+  sanitizeLoginUsernameInput,
+} from './loginCredentials';
+import type {LoginUsernameStyleValidationMessages} from './loginCredentials';
 
-const ALIAS_MIN_LENGTH = 2;
-const ALIAS_MAX_LENGTH = 64;
+/** Misma longitud máxima que el usuario de login. */
+export const REGISTER_ALIAS_MAX_LENGTH = LOGIN_USERNAME_MAX_LENGTH;
 
-export function validateRegisterAliasInput(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (trimmed.length < ALIAS_MIN_LENGTH) {
-    return 'Ingresa un alias de al menos 2 caracteres.';
-  }
-  if (trimmed.length > ALIAS_MAX_LENGTH) {
-    return 'El alias no puede superar 64 caracteres.';
-  }
-  for (let i = 0; i < trimmed.length; i += 1) {
-    if (isControlCharacter(trimmed[i])) {
-      return 'El alias contiene caracteres no válidos.';
-    }
-  }
-  return null;
+export const registerAliasValidationMessages = {
+  usernameRequired: 'El alias es requerido',
+  usernameInvalidCharacters: 'El alias contiene caracteres no permitidos',
+  usernameInvalidCharset:
+    'El alias solo puede contener letras, números, punto (.), guion (-) y guion bajo (_).',
+  usernameTooShort: `El alias debe tener al menos ${LOGIN_USERNAME_MIN_LENGTH} caracteres`,
+  usernameTooLong: `El alias no puede superar ${LOGIN_USERNAME_MAX_LENGTH} caracteres`,
+} as const satisfies LoginUsernameStyleValidationMessages;
+
+export const validateRegisterAliasInput = createValidateLoginUsernameStyle(
+  registerAliasValidationMessages,
+);
+
+/**
+ * Valor listo para enviar: mismo saneo que el usuario de login y tope de longitud.
+ */
+export function sanitizeRegisterAliasInput(raw: string): string {
+  return sanitizeLoginUsernameInput(raw).slice(0, LOGIN_USERNAME_MAX_LENGTH);
 }

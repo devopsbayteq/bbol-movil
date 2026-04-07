@@ -7,8 +7,10 @@ import {OtpValidationParams} from "./AppNavigator.tsx";
 import {OtpValidationScreen} from "../presentation/otp";
 import {TransferVoucherScreen} from "../presentation/transfer/transferResult/TranferVoucherScreen.tsx";
 import {TransferDataResume} from "../presentation/transfer/transferResult/TransferModalSuccess.tsx";
+import {TransferInitScreen} from "../presentation/transfer/transferInit/TransferInitScreen.tsx";
 
 export type TransferStackParamList = {
+    TransferInit:undefined,
     TransferMain: undefined;
     TransferReview: TransferReviewRouteParams;
     OtpValidationTransfer: OtpValidationParams;
@@ -24,6 +26,7 @@ export function TransferStackNavigator() {
                 headerShown: false,
                 animation: 'slide_from_right',
             }}>
+            <Stack.Screen name="TransferInit" component={TransferInitScreen}/>
             <Stack.Screen name="TransferMain" component={TransferScreen}/>
             <Stack.Screen name="TransferReview" component={TransferReviewScreen}/>
             <Stack.Screen name="OtpValidationTransfer" component={OtpValidationScreen}/>
