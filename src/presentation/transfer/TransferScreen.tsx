@@ -221,6 +221,7 @@ export function TransferScreen() {
                                 navigation.navigate('TransferReview', result.params);
                             }}/>
                         <TertiaryLinkButton title="Cancelar" onPress={() => {
+                            onBack()
                         }}/>
                     </View>
                 </KeyboardAwareScrollView>
