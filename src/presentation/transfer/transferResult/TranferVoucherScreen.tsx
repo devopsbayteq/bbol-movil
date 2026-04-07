@@ -16,10 +16,13 @@ import ViewShot from 'react-native-view-shot';
 import {TransferVoucherShareableCard} from '../components/TransferVoucherShareableCard';
 import {useTransferVoucherCaptureShare} from '../useTransferVoucherCaptureShare';
 import {Lexend} from '../../../theme/lexend';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainTabParamList} from '../../../navigation/MainTabNavigator.tsx';
 
 const shareIcon = require('../../../../assets/images/share-nodes.png');
 
 type TransferVoucherRouteProp = RouteProp<TransferStackParamList, 'TransferVoucher'>;
+
 type NativeNav = NativeStackNavigationProp<
   TransferStackParamList,
   'TransferVoucher'
@@ -32,7 +35,18 @@ export const TransferVoucherScreen = () => {
   const {params} = useRoute<TransferVoucherRouteProp>();
 
   const navigation = useNavigation<NativeNav>();
+
   const transactionData = params.routeSuccessTransactionData;
+
+  const goToHomeTab = useCallback(() => {
+    navigation.popToTop();
+    const tabNav =
+      navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+    tabNav?.navigate({
+      name: 'ConsolidatedPosition',
+      params: {refreshHome: Date.now()},
+    });
+  }, [navigation]);
 
   const {viewShotRef, shareVoucher} = useTransferVoucherCaptureShare();
 
@@ -100,9 +114,7 @@ export const TransferVoucherScreen = () => {
               <TertiaryLinkButton
                 title="Ir al inicio"
                 labelStyle={styles.tertiaryLinkLabel}
-                onPress={() => {
-                  navigation.getParent()?.navigate('Home');
-                }}
+                onPress={goToHomeTab}
               />
             </View>
           </View>

@@ -25,6 +25,8 @@ interface ButtonProps {
   iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
+  /** Si se define, el fondo en estado deshabilitado o cargando usa este color (sin opacidad). */
+  disabledBackgroundColor?: string;
   style?: StyleProp<ViewStyle>;
   /** Estilo del texto del título (p. ej. tamaño en pantallas de comprobante). */
   labelStyle?: StyleProp<TextStyle>;
@@ -37,11 +39,10 @@ export function Button({
   loading = false,
   iconSource,
   iconSourceRight,
-  iconNodeLeft,
-  iconNodeRight,
   iconRightTintColor,
   variant = 'primary',
   disabled = false,
+  disabledBackgroundColor,
   style,
   labelStyle,
   testID,
@@ -61,8 +62,10 @@ export function Button({
         variant === 'primary' && styles.primary,
         variant === 'outline' && styles.outline,
         variant === 'loginPrimary' && styles.loginPrimary,
-        loginPrimaryDisabledLook && styles.loginPrimaryDisabled,
-        isPressDisabled && !loginPrimaryDisabledLook && styles.disabled,
+        isPressDisabled &&
+          (disabledBackgroundColor
+            ? {backgroundColor: disabledBackgroundColor}
+            : styles.disabled),
         style,
       ]}
       onPress={onPress}
@@ -77,9 +80,7 @@ export function Button({
         />
       ) : (
         <View style={styles.contentRow}>
-          {iconNodeLeft ? (
-            <View style={styles.iconLeadingWrap}>{iconNodeLeft}</View>
-          ) : iconSource ? (
+          {iconSource ? (
             <Image source={iconSource} style={styles.iconLeading} resizeMode="contain" />
           ) : null}
           <Text

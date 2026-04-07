@@ -136,6 +136,18 @@ describe('Button', () => {
     expect(tree.toJSON()).toBeTruthy();
   });
 
+  it('renders disabled state with disabledBackgroundColor', () => {
+    const tree = render(
+      <Button
+        title="Disabled"
+        onPress={noop}
+        disabled
+        disabledBackgroundColor="#757575"
+      />,
+    );
+    expect(tree.toJSON()).toBeTruthy();
+  });
+
   it('renders with left icon', () => {
     const tree = render(<Button title="Icon" onPress={noop} iconSource={fakeIcon} />);
     expect(tree.toJSON()).toBeTruthy();

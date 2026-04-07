@@ -29,24 +29,9 @@ export function CardViewContainer({children}: CardViewContainerProps) {
     return (
         <View style={styles.cardInfoContainer}>
             <View style={styles.watermarkLayer} pointerEvents="none">
-                {WATERMARK_SPECS.map((spec, i) => (
-                    <Image
-                        key={i}
-                        source={BANK_LOGO}
-                        style={[
-                            styles.watermarkImg,
-                            {
-                                top: spec.top,
-                                left: spec.left,
-                                width: spec.width,
-                                height: spec.height,
-                            },
-                        ]}
-                        resizeMode="contain"
-                        accessibilityElementsHidden
-                        importantForAccessibility="no-hide-descendants"
-                    />
-                ))}
+               <Image
+               source={require("./../../../../assets/images/voucher_background.png")}
+               />
             </View>
             <View style={styles.foreground}>{children}</View>
         </View>
