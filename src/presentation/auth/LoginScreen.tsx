@@ -118,7 +118,9 @@ export function LoginScreen() {
         mode: 'login',
         user,
         email: user.email,
-        ...(isDeviceBoundCredentialsFlow ? {skipRegisterAlias: true} : {}),
+        ...(isDeviceBoundCredentialsFlow || user.alias != null
+          ? {skipRegisterAlias: true}
+          : {}),
       });
     },
     user => {

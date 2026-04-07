@@ -15,7 +15,10 @@ export type OtpValidationParams =
       mode: 'login';
       user: User;
       email: string;
-      /** Login compacto (usuario ya vinculado): no volver a pedir alias tras OTP */
+      /**
+       * No mostrar registro de alias tras OTP: login compacto (dispositivo vinculado) o el
+       * servidor ya devolvió `user.alias` en la respuesta de login.
+       */
       skipRegisterAlias?: boolean;
     }
   | {mode: 'transfer'; email: string};

@@ -9,6 +9,7 @@ export function mapLoginResponseToUser(
     id: email,
     email,
     name: email.split('@')[0] || 'User',
+    ...(model.alias != null ? {alias: model.alias} : {}),
     token: model.accessToken,
     sessionExpiresAt: Date.now() + model.sessionTimeSeconds * 1000,
     inactivityTimeoutSeconds: model.inactivityTimeoutSeconds,
