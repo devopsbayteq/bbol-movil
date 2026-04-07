@@ -40,6 +40,8 @@ function buildHomeVm(overrides: {
     error: overrides.error ?? '',
     refresh,
     retry,
+    showDevelopmentMode: false,
+    setShowDevelopmentMode: jest.fn(),
     bannersForHome: [] as unknown[],
     dashboardIconsForHome: [] as unknown[],
     upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,

@@ -81,6 +81,8 @@ let mockViewModelState: {
   error: string;
   refresh: jest.Mock;
   retry: jest.Mock;
+  showDevelopmentMode: boolean;
+  setShowDevelopmentMode: jest.Mock;
   bannersForHome: any[];
   dashboardIconsForHome: any[];
   upcomingPaymentsSummary: typeof MOCK_UPCOMING_PAYMENTS_SUMMARY;
@@ -92,6 +94,8 @@ let mockViewModelState: {
   error: '',
   refresh: mockRefresh,
   retry: mockRetry,
+  showDevelopmentMode: false,
+  setShowDevelopmentMode: jest.fn(),
   bannersForHome: [],
   dashboardIconsForHome: [],
   upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
@@ -250,6 +254,8 @@ describe('HomeScreen', () => {
       error: '',
       refresh: mockRefresh,
       retry: mockRetry,
+      showDevelopmentMode: false,
+      setShowDevelopmentMode: jest.fn(),
       bannersForHome: [],
       dashboardIconsForHome: [],
       upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
