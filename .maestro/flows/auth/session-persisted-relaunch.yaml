@@ -19,10 +19,8 @@ name: Tras reinicio — login obligatorio (sin restaurar sesión)
 - launchApp
 
 # Cold start no hidrata sesión; debe mostrarse login (tras splash / clave pública).
-- extendedWaitUntil:
-    visible:
-      id: "login-email-input"
-    timeout: 45000
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 
 - assertVisible:
     id: "login-email-input"

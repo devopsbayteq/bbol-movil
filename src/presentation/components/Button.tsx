@@ -20,7 +20,8 @@ interface ButtonProps {
   onPress: () => void;
   loading?: boolean;
   iconSource?: ImageSourcePropType;
-  iconSourceRight?: ImageSourcePropType
+  iconSourceRight?: ImageSourcePropType;
+  iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -31,7 +32,9 @@ export function Button({
   title,
   onPress,
   loading = false,
-  iconSource, iconSourceRight,
+  iconSource,
+  iconSourceRight,
+  iconRightTintColor,
   variant = 'primary',
   disabled = false,
   style,
@@ -66,7 +69,7 @@ export function Button({
       ) : (
         <View style={styles.contentRow}>
           {iconSource ? (
-            <Image source={iconSource} style={styles.icon} resizeMode="contain" />
+            <Image source={iconSource} style={styles.iconLeading} resizeMode="contain" />
           ) : null}
           <Text
             style={[
@@ -76,9 +79,16 @@ export function Button({
             ]}>
             {title}
           </Text>
-            {iconSourceRight ? (
-                <Image source={iconSourceRight} style={styles.icon} resizeMode="contain" />
-            ) : null}
+          {iconSourceRight ? (
+            <Image
+              source={iconSourceRight}
+              style={[
+                styles.iconTrailing,
+                iconRightTintColor ? {tintColor: iconRightTintColor} : null,
+              ]}
+              resizeMode="contain"
+            />
+          ) : null}
         </View>
       )}
     </TouchableOpacity>
@@ -128,10 +138,15 @@ function useStyles(colors: ThemeColors) {
           lineHeight: 26,
           color: colors.white,
         },
-        icon: {
+        iconLeading: {
           width: 24,
           height: 24,
           marginRight: 8,
+        },
+        iconTrailing: {
+          width: 24,
+          height: 24,
+          marginLeft: 8,
         },
         contentRow: {
           flexDirection: 'row',

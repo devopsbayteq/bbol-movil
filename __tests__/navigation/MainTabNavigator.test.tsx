@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
+import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import {MainTabNavigator} from '../../src/navigation/MainTabNavigator';
 
 jest.mock('@react-navigation/native', () => {
@@ -9,6 +10,11 @@ jest.mock('@react-navigation/native', () => {
     getFocusedRouteNameFromRoute: jest.fn(() => 'MovementsList'),
   };
 });
+
+const getFocusedRouteNameFromRouteMock =
+  getFocusedRouteNameFromRoute as jest.MockedFunction<
+    typeof getFocusedRouteNameFromRoute
+  >;
 
 jest.mock('@react-navigation/bottom-tabs', () => ({
   createBottomTabNavigator: () => {
@@ -24,16 +30,28 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
       }: {
         name: string;
         component: React.ComponentType;
-        options?: {title?: string} | ((args: {route: {name: string}}) => {title?: string});
+        options?:
+          | {title?: string; tabBarStyle?: {display?: string}}
+          | ((args: {route: {name: string}}) => {
+              title?: string;
+              tabBarStyle?: {display?: string};
+            });
       }) => {
         const resolved =
           typeof options === 'function'
             ? options({route: {name: 'Movements'} as never})
             : options;
         const label = resolved?.title ?? name;
+        const tabBarHidden =
+          resolved?.tabBarStyle?.display === 'none' ? 'yes' : 'no';
         return React.createElement(
           View,
           {key: name, testID: `tab-screen-${name}`},
+          React.createElement(
+            Text,
+            {testID: `tab-bar-visibility-${name}`},
+            tabBarHidden,
+          ),
           React.createElement(Text, null, label),
           Comp ? React.createElement(Comp) : null,
         );
@@ -80,6 +98,10 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('MainTabNavigator', () => {
+  beforeEach(() => {
+    getFocusedRouteNameFromRouteMock.mockReturnValue('MovementsList');
+  });
+
   test('renderiza el navegador de pestañas con títulos y pantallas simuladas', async () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -96,5 +118,33 @@ describe('MainTabNavigator', () => {
     expect(flat).toContain('Inicio');
     expect(flat).toContain('Transferir');
     expect(flat).toContain('Movimientos');
+  });
+
+  test('oculta la barra de pestañas en Movimientos cuando la ruta enfocada es MovementDetail', async () => {
+    getFocusedRouteNameFromRouteMock.mockReturnValue('MovementDetail');
+
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<MainTabNavigator />);
+    });
+
+    const flag = root!.root.findByProps({
+      testID: 'tab-bar-visibility-Movements',
+    });
+    expect(flag.props.children).toBe('yes');
+  });
+
+  test('muestra la barra de pestañas en Movimientos en lista', async () => {
+    getFocusedRouteNameFromRouteMock.mockReturnValue('MovementsList');
+
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<MainTabNavigator />);
+    });
+
+    const flag = root!.root.findByProps({
+      testID: 'tab-bar-visibility-Movements',
+    });
+    expect(flag.props.children).toBe('no');
   });
 });

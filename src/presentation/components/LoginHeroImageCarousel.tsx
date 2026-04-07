@@ -1,0 +1,107 @@
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  Animated,
+  Easing,
+  ImageSourcePropType,
+  StyleSheet,
+  View,
+} from 'react-native';
+
+import {useTheme, type ThemeColors} from '../../providers';
+
+const ROTATE_MS = 4500;
+const FADE_MS = 700;
+
+export interface LoginHeroImageCarouselProps {
+  sourceA: ImageSourcePropType;
+  sourceB: ImageSourcePropType;
+  /** Altura fija del área de ilustración. */
+  height?: number;
+}
+
+export function LoginHeroImageCarousel({
+  sourceA,
+  sourceB,
+  height = 180,
+}: LoginHeroImageCarouselProps) {
+  const {colors} = useTheme();
+  const styles = useCarouselStyles(colors, height);
+  const opacity0 = useRef(new Animated.Value(1)).current;
+  const opacity1 = useRef(new Animated.Value(0)).current;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const indexRef = useRef(0);
+
+  const runCrossfade = useCallback(() => {
+    const next = indexRef.current === 0 ? 1 : 0;
+    indexRef.current = next;
+    setActiveIndex(next);
+    Animated.parallel([
+      Animated.timing(next === 0 ? opacity0 : opacity1, {
+        toValue: 1,
+        duration: FADE_MS,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(next === 0 ? opacity1 : opacity0, {
+        toValue: 0,
+        duration: FADE_MS,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [opacity0, opacity1]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      runCrossfade();
+    }, ROTATE_MS);
+    return () => clearInterval(id);
+  }, [runCrossfade]);
+
+  const a11yLabel = useMemo(
+    () => `Ilustración ${activeIndex + 1} de 2`,
+    [activeIndex],
+  );
+
+  return (
+    <View
+      style={styles.root}
+      accessibilityRole="image"
+      accessibilityLabel={a11yLabel}
+      accessibilityLiveRegion="polite">
+      <Animated.Image
+        source={sourceA}
+        style={[styles.image, {opacity: opacity0}]}
+        resizeMode="cover"
+        height={200}
+        accessibilityIgnoresInvertColors
+      />
+      <Animated.Image
+        source={sourceB}
+        style={[styles.image, {opacity: opacity1}]}
+        resizeMode="cover"
+        height={200}
+        accessibilityIgnoresInvertColors
+      />
+    </View>
+  );
+}
+
+function useCarouselStyles(colors: ThemeColors, height: number) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          alignSelf: 'stretch',
+          height,
+          borderRadius: 16,
+          overflow: 'hidden',
+          backgroundColor: colors.background,
+        },
+        image: {
+          ...StyleSheet.absoluteFillObject,
+        },
+      }),
+    [colors.background, height],
+  );
+}

@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useDI} from '../../../src/di';
-import {useLoginViewModel} from '../../../src/presentation/auth/useLoginViewModel';
+import {
+  useLoginViewModel,
+  type UseLoginViewModelOptions,
+} from '../../../src/presentation/auth/useLoginViewModel';
 import {BiometricRSAError} from '../../../src/security/biometric/errors';
 
 jest.mock('react-native-device-info', () => ({
@@ -30,6 +33,7 @@ describe('useLoginViewModel', () => {
   function Harness({
     onCredentialLoginSuccess,
     onBiometricLoginSuccess,
+    options,
   }: {
     onCredentialLoginSuccess: (user: {
       id: string;
@@ -43,10 +47,12 @@ describe('useLoginViewModel', () => {
       name: string;
       token: string;
     }) => void;
+    options?: UseLoginViewModelOptions;
   }) {
     latest = useLoginViewModel(
       onCredentialLoginSuccess,
       onBiometricLoginSuccess,
+      options,
     );
     return null;
   }
@@ -99,7 +105,7 @@ describe('useLoginViewModel', () => {
     });
 
     act(() => {
-      latest?.setEmail('usuario01');
+      latest?.setEmail('usuario-demo12');
       latest?.setPassword('123');
     });
 
@@ -107,8 +113,8 @@ describe('useLoginViewModel', () => {
       await latest?.handleLogin();
     });
 
-    expect(latest?.emailError).toBe(
-      'El usuario debe tener al menos 12 caracteres',
+    expect(latest?.passwordError).toBe(
+      'La contraseña debe tener al menos 8 caracteres',
     );
     expect(execute).not.toHaveBeenCalled();
   });
@@ -236,7 +242,74 @@ describe('useLoginViewModel', () => {
     expect(latest?.isLoadingLogin).toBe(false);
   });
 
-  test('contraseña larga no aplica límite máximo', async () => {
+  test('modo dispositivo vinculado ignora setEmail y fija usuario para envío', async () => {
+    const execute = jest.fn().mockResolvedValue({
+      id: 'usuario-demo12',
+      email: 'usuario-demo12',
+      name: 'Usuario Demo',
+      token: 'jwt-token',
+    });
+    const onCredentialLoginSuccess = jest.fn();
+
+    mockedUseDI.mockReturnValue({
+      loginUseCase: {execute},
+      biometricRSAAuthOrchestrator: defaultOrchestrator,
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <Harness
+          onCredentialLoginSuccess={onCredentialLoginSuccess}
+          onBiometricLoginSuccess={jest.fn()}
+          options={{deviceBoundLoginId: 'usuario-demo12'}}
+        />,
+      );
+    });
+
+    act(() => {
+      latest?.setEmail('otro');
+    });
+    expect(latest?.email).toBe('usuario-demo12');
+    expect(latest?.isDeviceBoundCompact).toBe(true);
+
+    act(() => {
+      latest?.setPassword('12345678');
+    });
+
+    await act(async () => {
+      await latest?.handleLogin();
+    });
+
+    expect(execute).toHaveBeenCalledWith('usuario-demo12', '12345678');
+    expect(onCredentialLoginSuccess).toHaveBeenCalled();
+  });
+
+  test('resetForDifferentUser limpia credenciales', async () => {
+    mockedUseDI.mockReturnValue({
+      loginUseCase: {execute: jest.fn()},
+      biometricRSAAuthOrchestrator: defaultOrchestrator,
+    } as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <Harness
+          onCredentialLoginSuccess={jest.fn()}
+          onBiometricLoginSuccess={jest.fn()}
+          options={{deviceBoundLoginId: 'usuario-demo12'}}
+        />,
+      );
+    });
+
+    act(() => {
+      latest?.setPassword('12345678');
+      latest?.resetForDifferentUser();
+    });
+
+    expect(latest?.email).toBe('');
+    expect(latest?.password).toBe('');
+  });
+
+  test('contraseña demasiado larga muestra error de campo', async () => {
     mockedUseDI.mockReturnValue({
       loginUseCase: {execute: jest.fn()},
       biometricRSAAuthOrchestrator: defaultOrchestrator,
@@ -251,12 +324,12 @@ describe('useLoginViewModel', () => {
       );
     });
 
-    const longPw = 'a'.repeat(80);
+    const longPw = 'a'.repeat(30);
     act(() => {
       latest?.setPassword(longPw);
     });
 
-    expect(latest?.passwordError).toBeNull();
-    expect(latest?.password?.length).toBe(80);
+    expect(latest?.passwordError).toBeTruthy();
+    expect(latest?.password?.length).toBe(16);
   });
 });

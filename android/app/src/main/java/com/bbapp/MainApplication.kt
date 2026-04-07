@@ -1,6 +1,7 @@
 package com.bbapp
 
 import android.app.Application
+import com.bbapp.biometric.BiometricEnrollmentPackage
 import com.bbapp.tls.TlsPinningInstaller
 import com.bbapp.tls.TlsPinningPackage
 import com.facebook.react.PackageList
@@ -17,6 +18,7 @@ class MainApplication : Application(), ReactApplication {
       packageList =
         PackageList(this).packages.apply {
           add(TlsPinningPackage())
+          add(BiometricEnrollmentPackage())
         },
     )
   }

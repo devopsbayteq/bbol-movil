@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   StyleSheet,
+  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
@@ -11,33 +12,42 @@ import {
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 
+type LoginTextFieldVariant = 'flat' | 'elevated';
+
 interface LoginTextFieldProps extends Omit<TextInputProps, 'style'> {
-  label: string;
+  label?: string;
   hasError?: boolean;
   errorMessage?: string;
   containerStyle?: StyleProp<ViewStyle>;
+  variant?: LoginTextFieldVariant;
   testID?: string;
   errorTestID?: string;
 }
 
 export function LoginTextField({
-  label,
+  label = '',
   hasError = false,
   errorMessage,
   containerStyle,
+  variant = 'flat',
   testID,
   errorTestID,
   ...textInputProps
 }: LoginTextFieldProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
+  const showLabel = label.trim().length > 0;
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
-      <Text style={styles.label}>{label}</Text>
+      {showLabel ? <Text style={styles.label}>{label}</Text> : null}
       <TextInput
         testID={testID}
-        style={[styles.input, (hasError || !!errorMessage) && styles.inputError]}
+        style={[
+          styles.input,
+          variant === 'elevated' && styles.inputElevated,
+          (hasError || !!errorMessage) && styles.inputError,
+        ]}
         placeholderTextColor={colors.placeholder}
         {...textInputProps}
       />
@@ -74,6 +84,17 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 14,
           borderWidth: 0,
         },
+        inputElevated:
+          Platform.OS === 'ios'
+            ? {
+                shadowColor: '#000000',
+                shadowOffset: {width: 0, height: 2},
+                shadowOpacity: 0.12,
+                shadowRadius: 6,
+              }
+            : {
+                elevation: 4,
+              },
         inputError: {
           borderWidth: 1,
           borderColor: colors.error,

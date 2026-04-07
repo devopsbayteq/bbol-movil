@@ -7,10 +7,8 @@ name: Login — Validación de campos
 - runFlow:
     file: ../../subflows/ensure-login-screen.yaml
 
-- extendedWaitUntil:
-    visible:
-      id: "login-email-input"
-    timeout: 30000
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 
 # --- 1. Usuario demasiado corto (< 12 caracteres) ---
 - tapOn:
@@ -22,6 +20,8 @@ name: Login — Validación de campos
 
 # --- 2. Usuario demasiado largo (> 16 caracteres) ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
 - inputText: "abcdefghijklmnopq"
@@ -31,6 +31,8 @@ name: Login — Validación de campos
 
 # --- 3. Usuario con caracter no permitido (ej. @) ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
 - inputText: "user@invalid123"
@@ -38,8 +40,40 @@ name: Login — Validación de campos
     id: "login-password-input"
 - assertVisible: "El usuario solo puede contener letras, números, punto (.), guion (-) y guion bajo (_)."
 
-# --- 4. Submit sin datos muestra error de usuario requerido ---
+# --- 4. Contraseña demasiado corta (< 8 caracteres) ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario-demo12"
+- tapOn:
+    id: "login-password-input"
+- inputText: "1234567"
+- tapOn:
+    id: "login-email-input"
+- assertVisible: "La contraseña debe tener al menos 8 caracteres"
+
+# --- 5. Contraseña demasiado larga (> 16 caracteres) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario-demo12"
+- tapOn:
+    id: "login-password-input"
+- inputText: "contrasenamuylar1"
+- tapOn:
+    id: "login-email-input"
+- assertVisible: "La contraseña no puede superar 16 caracteres"
+
+# --- 6. Submit sin datos muestra error de usuario requerido ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- runFlow:
+    file: ../../subflows/accept-login-terms.yaml
 - tapOn:
     id: "login-submit"
 - assertVisible: "El usuario es requerido"

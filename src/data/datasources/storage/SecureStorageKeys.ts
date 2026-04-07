@@ -14,5 +14,20 @@ export const SecureStorageKeys = {
   BIOMETRIC_CREDENTIALS: '@bb_biometric_credentials',
   /** Email/usuario para cifrado en challenge/login biométrico (sin contraseña) */
   BIOMETRIC_USERNAME: '@bb_biometric_username',
+  /**
+   * Android: PEM de clave RSA cuando el Keychain con cifrado biométrico falla (p. ej. emulador).
+   * La lectura exige biometría vía BiometricAuthService antes de usar el PEM.
+   */
+  BIOMETRIC_RSA_PRIVATE_KEY_PEM: '@bb_biometric_rsa_private_key_pem',
+  /** `encrypted_storage` | ausente = ruta Keychain */
+  BIOMETRIC_RSA_KEY_BACKEND: '@bb_biometric_rsa_key_backend',
+  /** Snapshot iOS: `LAContext.evaluatedPolicyDomainState` en base64 (cambio de huellas/Face) */
+  BIOMETRIC_ENROLLMENT_SNAPSHOT: '@bb_biometric_enrollment_snapshot',
   USER_LOGIN_DATA: '@bb_user_login_data',
+  /** Primer login exitoso en este dispositivo (identificador de usuario / email de login) */
+  DEVICE_BOUND_LOGIN_ID: '@bb_device_bound_login_id',
+  /** Nombre para saludo en login compacto (típicamente `User.name`) */
+  DEVICE_BOUND_GREETING_NAME: '@bb_device_bound_greeting_name',
+  /** Usuario rechazó registrar biometría en oferta post-OTP; no volver a mostrar BiometricOffer */
+  BIOMETRIC_OFFER_DECLINED: '@bb_biometric_offer_declined',
 } as const;

@@ -12,8 +12,14 @@ const mockedUseDI = useDI as jest.MockedFunction<typeof useDI>;
 describe('useOtpValidationViewModel', () => {
   let latest: ReturnType<typeof useOtpValidationViewModel> | undefined;
 
-  function Harness({onSuccess}: {onSuccess: () => Promise<void>}) {
-    latest = useOtpValidationViewModel(onSuccess);
+  function Harness({
+    onSuccess,
+    flow = 'transfer',
+  }: {
+    onSuccess: () => Promise<void>;
+    flow?: 'login' | 'transfer';
+  }) {
+    latest = useOtpValidationViewModel(onSuccess, {flow});
     return null;
   }
 
@@ -91,37 +97,84 @@ describe('useOtpValidationViewModel', () => {
     expect(latest?.error).toBe('OTP inválido');
   });
 
-  test('enables resend after the waiting window', async () => {
+  test('transfer flow does not enable resend or countdown', async () => {
     const validateOtpUseCase = {execute: jest.fn()};
     mockedUseDI.mockReturnValue({validateOtpUseCase} as never);
 
     await act(async () => {
-      ReactTestRenderer.create(<Harness onSuccess={jest.fn()} />);
+      ReactTestRenderer.create(<Harness onSuccess={jest.fn()} flow="transfer" />);
+    });
+
+    expect(latest?.showResendControl).toBe(false);
+    expect(latest?.canResend).toBe(false);
+    expect(latest?.formattedCountdown).toBe('');
+
+    act(() => {
+      jest.advanceTimersByTime(120_000);
     });
 
     expect(latest?.canResend).toBe(false);
-
-    act(() => {
-      jest.advanceTimersByTime(30000);
-    });
-
-    expect(latest?.canResend).toBe(true);
   });
 
-  test('resendLabel counts down then allows plain label', async () => {
+  test('login flow enables resend after two minutes', async () => {
     const validateOtpUseCase = {execute: jest.fn()};
     mockedUseDI.mockReturnValue({validateOtpUseCase} as never);
 
     await act(async () => {
-      ReactTestRenderer.create(<Harness onSuccess={jest.fn()} />);
+      ReactTestRenderer.create(<Harness onSuccess={jest.fn()} flow="login" />);
     });
 
-    expect(latest?.resendLabel).toContain('Reenviar codigo en');
+    expect(latest?.canResend).toBe(false);
+    expect(latest?.showResendControl).toBe(true);
+    expect(latest?.formattedCountdown).toBe('02:00');
 
     act(() => {
-      jest.advanceTimersByTime(30000);
+      jest.advanceTimersByTime(120_000);
     });
 
-    expect(latest?.resendLabel).toBe('Reenviar codigo');
+    expect(latest?.canResend).toBe(true);
+    expect(latest?.formattedCountdown).toBe('00:00');
+  });
+
+  test('login resend restarts the two-minute window', async () => {
+    const validateOtpUseCase = {execute: jest.fn()};
+    mockedUseDI.mockReturnValue({validateOtpUseCase} as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness onSuccess={jest.fn()} flow="login" />);
+    });
+
+    act(() => {
+      jest.advanceTimersByTime(120_000);
+    });
+
+    await act(async () => {
+      latest?.handleResend();
+    });
+
+    expect(latest?.formattedCountdown).toBe('02:00');
+    expect(latest?.code).toBe('');
+    expect(latest?.canResend).toBe(false);
+  });
+
+  test('login hides resend control after three resends', async () => {
+    const validateOtpUseCase = {execute: jest.fn()};
+    mockedUseDI.mockReturnValue({validateOtpUseCase} as never);
+
+    await act(async () => {
+      ReactTestRenderer.create(<Harness onSuccess={jest.fn()} flow="login" />);
+    });
+
+    for (let i = 0; i < 3; i += 1) {
+      act(() => {
+        jest.advanceTimersByTime(120_000);
+      });
+      await act(async () => {
+        latest?.handleResend();
+      });
+    }
+
+    expect(latest?.showResendControl).toBe(false);
+    expect(latest?.canResend).toBe(false);
   });
 });

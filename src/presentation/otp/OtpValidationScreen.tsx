@@ -9,18 +9,13 @@ import {
   Alert,
   Pressable,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-import {useTheme, type ThemeColors, useAuth} from '../../providers';
-import {useDI} from '../../di';
-import {
-  ErrorMessage,
-  OtpCodeInput,
-  OtpNumericKeypad,
-  type OtpKeypadKey,
-} from '../components';
+import {useTheme, type ThemeColors} from '../../providers';
+import {ErrorMessage, OtpCodeInput} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
 import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
@@ -28,34 +23,30 @@ import {TransferStackParamList} from '../../navigation/TransferStackNavigator.ts
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
-const otpDelete = require('../../../assets/images/delete.png');
+const otpShield = require('../../../assets/images/icon_shell.png');
+const otpClock = require('../../../assets/images/clock-rotate-left.png');
 
 type OTPScreenNavigationProp =
-    | NativeStackNavigationProp<RootStackParamList, 'OtpValidation'>
-    | NativeStackNavigationProp<TransferStackParamList, 'OtpValidationTransfer'>;
-
+  | NativeStackNavigationProp<RootStackParamList, 'OtpValidation'>
+  | NativeStackNavigationProp<TransferStackParamList, 'OtpValidationTransfer'>;
 
 type OTPScreenRouteProp =
-    | RouteProp<RootStackParamList, 'OtpValidation'>
-    | RouteProp<TransferStackParamList, 'OtpValidationTransfer'>;
-
+  | RouteProp<RootStackParamList, 'OtpValidation'>
+  | RouteProp<TransferStackParamList, 'OtpValidationTransfer'>;
 
 interface OTPScreenComponentProps {
-    navigation: OTPScreenNavigationProp;
-    route: OTPScreenRouteProp;
+  navigation: OTPScreenNavigationProp;
+  route: OTPScreenRouteProp;
 }
 
 export function OtpValidationScreen({route}: OTPScreenComponentProps) {
-
-
   const {colors} = useTheme();
-  const styles = useStyles(colors);
-  const {login} = useAuth();
-  const {biometricRSAAuthOrchestrator} = useDI();
+  const params = route.params;
+  const isLogin = params.mode === 'login';
+  const styles = useStyles(colors, isLogin ? 'login' : 'transfer');
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList | TransferStackParamList>
   >();
-  const params = route.params;
 
   const {
     code,
@@ -63,34 +54,36 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
     isLoading,
     onChangeCode,
     handleValidate,
-  } = useOtpValidationViewModel(async () => {
-    if (params.mode === 'login') {
-      const hasBio =
-        await biometricRSAAuthOrchestrator.hasBiometricRegistration();
-      if (hasBio) {
-        await login(params.user);
+    canResend,
+    showResendControl,
+    formattedCountdown,
+    handleResend,
+  } = useOtpValidationViewModel(
+    async () => {
+      if (params.mode === 'login') {
+        (
+          navigation as NativeStackNavigationProp<RootStackParamList>
+        ).navigate('RegisterAlias', {
+          user: params.user,
+          email: params.email,
+        });
         return;
       }
-      (
-        navigation as NativeStackNavigationProp<RootStackParamList>
-      ).replace('BiometricOffer', {
-        user: params.user,
-        email: params.email,
-      });
-      return;
-    }
-    if (params.mode === 'transfer') {
-      navigation.dispatch(
-        StackActions.popTo(
-          'TransferReview',
-          {resultFromOtp: {otpValidated: true}},
-          {merge: true},
-        ),
-      );
-    }
-  });
+      if (params.mode === 'transfer') {
+        navigation.dispatch(
+          StackActions.popTo(
+            'TransferReview',
+            {resultFromOtp: {otpValidated: true}},
+            {merge: true},
+          ),
+        );
+      }
+    },
+    {flow: isLogin ? 'login' : 'transfer'},
+  );
 
   const lastSubmitted = useRef<string | null>(null);
+  const otpInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (code.length < 6) {
@@ -109,15 +102,17 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
     handleValidate().catch(() => {});
   }, [code, isLoading, error, handleValidate]);
 
-  const handleKeypad = (key: OtpKeypadKey) => {
-    if (key === 'backspace') {
-      onChangeCode(code.slice(0, -1));
-      return;
-    }
-    if (code.length < 6) {
-      onChangeCode(code + key);
-    }
+  const handleOtpTextChange = (text: string) => {
+    const digits = text.replace(/\D/g, '').slice(0, 6);
+    onChangeCode(digits);
   };
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      otpInputRef.current?.focus();
+    }, 400);
+    return () => clearTimeout(id);
+  }, []);
 
   const handleForgotPin = () => {
     Alert.alert(
@@ -125,6 +120,8 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
       'Si no recuerdas tu PIN o no recibiste el código, contacta a soporte.',
     );
   };
+
+  const headerTitle = isLogin ? 'ENROLAMIENTO' : 'AUTENTICACIÓN';
 
   return (
     <SafeAreaView
@@ -144,7 +141,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
           />
         </Pressable>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          AUTENTICACIÓN
+          {headerTitle}
         </Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -153,49 +150,141 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
-        <Text style={styles.instruction}>Introduce tu PIN para continuar</Text>
-        <Image
-          source={otpLockOpen}
-          style={styles.padlock}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-          accessibilityLabel="Candado abierto"
-        />
-
-        <View style={styles.pinSection}>
-          <OtpCodeInput
-            value={code}
-            hasError={!!error}
-            disabled={isLoading}
-            length={6}
-          />
-        </View>
+        {isLogin ? (
+          <>
+            <Text style={styles.sectionTitle}>Verificación de seguridad</Text>
+            <Image
+              source={otpShield}
+              style={styles.shieldIcon}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+              accessibilityLabel="Verificación de seguridad"
+            />
+            <Text style={styles.loginBody}>
+              Enviamos un código de verificación de 6 dígitos a tu celular
+              terminado en ****458.
+            </Text>
+            <Pressable
+              style={styles.pinInputWrap}
+              onPress={() => otpInputRef.current?.focus()}
+              accessibilityRole="none"
+              accessibilityHint="Abre el teclado para ingresar el código">
+              <OtpCodeInput
+                value={code}
+                hasError={!!error}
+                disabled={isLoading}
+                length={6}
+                variant="boxed"
+              />
+              <TextInput
+                ref={otpInputRef}
+                testID="otp-input"
+                value={code}
+                onChangeText={handleOtpTextChange}
+                keyboardType="number-pad"
+                inputMode="numeric"
+                maxLength={6}
+                editable={!isLoading}
+                caretHidden
+                style={styles.hiddenOtpInput}
+                accessibilityLabel="Código de verificación de 6 dígitos"
+                textContentType="oneTimeCode"
+                autoComplete="sms-otp"
+                importantForAutofill="yes"
+              />
+            </Pressable>
+            <View style={styles.timerRow}>
+              <Image
+                source={otpClock}
+                style={styles.timerIcon}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+              />
+              <Text style={styles.timerText}>
+                El código expira en: {formattedCountdown}
+              </Text>
+            </View>
+            {showResendControl ? (
+              <Pressable
+                onPress={() => handleResend()}
+                disabled={!canResend}
+                style={styles.resendWrap}
+                accessibilityRole="button"
+                accessibilityState={{disabled: !canResend}}
+                accessibilityLabel="Reenviar código">
+                <Text
+                  style={[
+                    styles.resendLabel,
+                    !canResend && styles.resendLabelDisabled,
+                  ]}>
+                  Reenviar código
+                </Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <Text style={styles.instruction}>
+              Introduce tu PIN para continuar
+            </Text>
+            <Image
+              source={otpLockOpen}
+              style={styles.padlock}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+              accessibilityLabel="Candado abierto"
+            />
+            <Pressable
+              style={styles.pinInputWrap}
+              onPress={() => otpInputRef.current?.focus()}
+              accessibilityRole="none"
+              accessibilityHint="Abre el teclado para ingresar el PIN">
+              <OtpCodeInput
+                value={code}
+                hasError={!!error}
+                disabled={isLoading}
+                length={6}
+              />
+              <TextInput
+                ref={otpInputRef}
+                testID="otp-input"
+                value={code}
+                onChangeText={handleOtpTextChange}
+                keyboardType="number-pad"
+                inputMode="numeric"
+                maxLength={6}
+                editable={!isLoading}
+                caretHidden
+                style={styles.hiddenOtpInput}
+                accessibilityLabel="PIN de 6 dígitos"
+                textContentType="oneTimeCode"
+              />
+            </Pressable>
+          </>
+        )}
 
         {error ? (
-          <ErrorMessage testID="otp-error" message={error} style={styles.error} />
+          <ErrorMessage
+            testID="otp-error"
+            message={error}
+            style={styles.error}
+          />
+        ) : null}
+        {!isLogin ? (
+          <TouchableOpacity
+            onPress={handleForgotPin}
+            activeOpacity={0.8}
+            style={styles.forgotWrap}
+            accessibilityRole="button">
+            <Text style={styles.forgotText}>¿Olvidaste tu PIN?</Text>
+          </TouchableOpacity>
         ) : null}
       </ScrollView>
-
-      <View style={styles.footer}>
-        <OtpNumericKeypad
-          onKeyPress={handleKeypad}
-          disabled={isLoading}
-          deleteIconSource={otpDelete}
-        />
-
-        <TouchableOpacity
-          onPress={handleForgotPin}
-          activeOpacity={0.8}
-          style={styles.forgotWrap}
-          accessibilityRole="button">
-          <Text style={styles.forgotText}>¿Olvidaste tu PIN?</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
 
-function useStyles(colors: ThemeColors) {
+function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
   return useMemo(
     () =>
       StyleSheet.create({
@@ -231,9 +320,53 @@ function useStyles(colors: ThemeColors) {
         },
         scrollContent: {
           paddingHorizontal: 24,
-          paddingTop: 28,
+          paddingTop: layout === 'login' ? 20 : 28,
           paddingBottom: 16,
+          alignItems: layout === 'login' ? 'stretch' : 'center',
+        },
+        sectionTitle: {
+          alignSelf: 'stretch',
+          fontFamily: Lexend.regular,
+          fontSize: 32,
+          lineHeight: 42,
+          color: colors.textPrimary,
+          textAlign: 'left',
+          marginBottom: 8,
+        },
+        loginBody: {
+          alignSelf: 'stretch',
+          fontFamily: Lexend.regular,
+          fontSize: 15,
+          lineHeight: 24,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginTop: 16,
+          marginBottom: 8,
+        },
+        shieldIcon: {
+          width: 90,
+          height: 90,
+          alignSelf: 'center',
+          marginTop: 24,
+          marginBottom: 24,
+        },
+        timerRow: {
+          flexDirection: 'row',
           alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: 20,
+          gap: 8,
+        },
+        timerIcon: {
+          width: 18,
+          height: 18,
+          tintColor: colors.textSecondary,
+        },
+        timerText: {
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          lineHeight: 22,
+          color: colors.textSecondary,
         },
         instruction: {
           fontFamily: Lexend.regular,
@@ -243,32 +376,28 @@ function useStyles(colors: ThemeColors) {
           textAlign: 'center',
           paddingHorizontal: 8,
         },
-        emailHint: {
-          marginTop: 8,
-          fontFamily: Lexend.regular,
-          fontSize: 14,
-          lineHeight: 22,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          paddingHorizontal: 8,
-        },
         padlock: {
           width: 120,
           height: 120,
           marginTop: 28,
           marginBottom: 28,
         },
-        pinSection: {
+        pinInputWrap: {
           alignSelf: 'stretch',
           alignItems: 'center',
+          marginTop: layout === 'login' ? 20 : 0,
+          position: 'relative',
+          minHeight: 52,
+        },
+        hiddenOtpInput: {
+          ...StyleSheet.absoluteFillObject,
+          opacity: 0.02,
+          color: 'transparent',
         },
         error: {
           alignSelf: 'stretch',
+          marginTop: 12,
           marginBottom: 8,
-        },
-        footer: {
-          paddingHorizontal: 24,
-          paddingBottom: 8,
         },
         forgotWrap: {
           alignSelf: 'center',
@@ -286,13 +415,14 @@ function useStyles(colors: ThemeColors) {
         },
         resendWrap: {
           alignSelf: 'center',
-          marginTop: 6,
-          paddingVertical: 4,
+          marginTop: 20,
+          paddingVertical: 8,
+          paddingHorizontal: 4,
         },
         resendLabel: {
           fontFamily: Lexend.regular,
-          fontSize: 14,
-          lineHeight: 22,
+          fontSize: 15,
+          lineHeight: 24,
           color: colors.linkPrimary,
           textAlign: 'center',
         },
@@ -300,6 +430,6 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
         },
       }),
-    [colors],
+    [colors, layout],
   );
 }

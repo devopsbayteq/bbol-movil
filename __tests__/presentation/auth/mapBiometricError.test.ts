@@ -11,6 +11,13 @@ describe('mapBiometricError', () => {
     ).toBeNull();
   });
 
+  it('mapea cambio de enrolamiento biométrico', () => {
+    const msg = mapBiometricError(
+      new BiometricRSAError('x', 'biometric_enrollment_changed'),
+    );
+    expect(msg).toContain('registros biométricos');
+  });
+
   it('mapea códigos RSA conocidos', () => {
     expect(
       mapBiometricError(

@@ -97,6 +97,25 @@ describe('domain use cases', () => {
     expect(secureStorage.save).not.toHaveBeenCalled();
   });
 
+  test('LoginUseCase rejects invalid password before calling repository', async () => {
+    const authRepository = {login: jest.fn()};
+    const secureStorage = {save: jest.fn()};
+    const getPublicKeyUseCase = {execute: jest.fn()};
+    const useCase = new LoginUseCase(
+      authRepository,
+      secureStorage as never,
+      '@bb_user_session',
+      getPublicKeyUseCase as never,
+      '@auth_token',
+    );
+
+    await expect(
+      useCase.execute('usuario-demo12', '1234567'),
+    ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
+    expect(authRepository.login).not.toHaveBeenCalled();
+    expect(secureStorage.save).not.toHaveBeenCalled();
+  });
+
   test('GetPublicKeyUseCase trims and stores the received key', async () => {
     const securityRepository = {
       getPublicKey: jest.fn().mockResolvedValue({value: '  PUBLIC_KEY  '}),

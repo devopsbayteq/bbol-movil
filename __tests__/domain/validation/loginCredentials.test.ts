@@ -1,8 +1,10 @@
 import {
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
-  LOGIN_USERNAME_MAX_LENGTH,
   LOGIN_USERNAME_MIN_LENGTH,
+  LOGIN_USERNAME_MAX_LENGTH,
+  LOGIN_PASSWORD_MIN_LENGTH,
+  LOGIN_PASSWORD_MAX_LENGTH,
   loginValidationMessages,
   sanitizeLoginPasswordInput,
   sanitizeLoginUsernameInput,
@@ -56,9 +58,25 @@ describe('loginCredentials validation', () => {
     expect(hasDisallowedLoginPasswordCharacters(rawPassword)).toBe(true);
   });
 
-  test('password has no minimum or maximum length beyond required and unsafe chars', () => {
-    expect(validateLoginPassword('1')).toBeNull();
-    expect(validateLoginPassword('a'.repeat(200))).toBeNull();
+  test('requires the minimum password length', () => {
+    const shortPassword = 'a'.repeat(LOGIN_PASSWORD_MIN_LENGTH - 1);
+
+    expect(validateLoginPassword(shortPassword)).toBe(
+      loginValidationMessages.passwordTooShort,
+    );
+  });
+
+  test('rejects passwords longer than the allowed maximum', () => {
+    const longPassword = 'a'.repeat(LOGIN_PASSWORD_MAX_LENGTH + 1);
+
+    expect(validateLoginPassword(longPassword)).toBe(
+      loginValidationMessages.passwordTooLong,
+    );
+  });
+
+  test('accepts a password within the valid length range', () => {
+    expect(validateLoginPassword('12345678')).toBeNull();
+    expect(validateLoginPassword('a'.repeat(LOGIN_PASSWORD_MAX_LENGTH))).toBeNull();
   });
 
   test('password still requires non-empty trimmed value', () => {

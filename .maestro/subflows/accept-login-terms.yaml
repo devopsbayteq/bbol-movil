@@ -1,0 +1,6 @@
+appId: com.bbapp
+---
+# Solo aplica al login primera vez; en modo compacto el control no existe (optional).
+- tapOn:
+    id: "login-terms-checkbox"
+    optional: true

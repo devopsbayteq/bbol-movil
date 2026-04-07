@@ -21,6 +21,9 @@ export const LOGIN_USERNAME_ALLOWED_PATTERN = /^[\p{L}\p{N}._-]+$/u;
 export const LOGIN_USERNAME_MIN_LENGTH = 12;
 export const LOGIN_USERNAME_MAX_LENGTH = 16;
 
+export const LOGIN_PASSWORD_MIN_LENGTH = 8;
+export const LOGIN_PASSWORD_MAX_LENGTH = 16;
+
 export const loginValidationMessages = {
   usernameRequired: 'El usuario es requerido',
   usernameInvalidCharacters: 'El usuario contiene caracteres no permitidos',
@@ -31,6 +34,8 @@ export const loginValidationMessages = {
   passwordRequired: 'La contraseña es requerida',
   passwordInvalidCharacters:
     'La contraseña contiene caracteres no permitidos',
+  passwordTooShort: `La contraseña debe tener al menos ${LOGIN_PASSWORD_MIN_LENGTH} caracteres`,
+  passwordTooLong: `La contraseña no puede superar ${LOGIN_PASSWORD_MAX_LENGTH} caracteres`,
 } as const;
 
 export const sanitizeLoginUsernameInput = sanitizeUnsafeTextInput;
@@ -70,6 +75,14 @@ export const validateLoginPassword = composeValidators(
   rejectCharacters(
     INVISIBLE_CHAR_PATTERN,
     loginValidationMessages.passwordInvalidCharacters,
+  ),
+  requireMaxLength(
+    LOGIN_PASSWORD_MAX_LENGTH,
+    loginValidationMessages.passwordTooLong,
+  ),
+  requireMinLength(
+    LOGIN_PASSWORD_MIN_LENGTH,
+    loginValidationMessages.passwordTooShort,
   ),
 );
 

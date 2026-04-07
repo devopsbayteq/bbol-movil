@@ -11,6 +11,8 @@ import type {
 } from '../../models/CertificateModels';
 import {ValidateTransactionAmountRequest} from '../../models/ValidateTransactionAmountRequest';
 import {ValidateTransactionAmountContentModel} from '../../models/ValidateTransactionAmountContentModel';
+import type {RegisterAliasRequest} from '../../models/RegisterAliasRequest';
+import type {RegisterAliasContentModel} from '../../models/RegisterAliasContentModel';
 
 const LOG_AREA = 'Security/certificate';
 
@@ -125,6 +127,30 @@ export class SecurityRemoteDataSource {
         throw new Error(
           response.data.message ||
             'No se pudo validar el monto. Por favor intente nuevamente.',
+        );
+      }
+
+      return response.data.content;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Error de conexión con el servidor');
+    }
+  }
+
+  async registerAlias(
+    request: RegisterAliasRequest,
+  ): Promise<RegisterAliasContentModel> {
+    try {
+      const response = await this.httpClient.post<
+        ApiResponseModel<RegisterAliasContentModel>
+      >('Security/register-alias', request);
+
+      if (response.data.responseType === 'Error' || !response.data.content) {
+        throw new Error(
+          response.data.message ||
+            'No se pudo registrar el alias. Por favor intente nuevamente.',
         );
       }
 

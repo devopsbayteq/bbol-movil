@@ -25,7 +25,9 @@ jest.mock('react-native-encrypted-storage', () => ({
 }));
 
 jest.mock('react-native-device-info', () => ({
-  getVersion: jest.fn(() => Promise.resolve('0.0.1')),
+  /** API real es síncrona; valores por defecto para tests que importan el módulo. */
+  getVersion: jest.fn(() => '0.0.1'),
+  getBuildNumber: jest.fn(() => '1'),
   getModel: jest.fn(() => Promise.resolve('TestModel')),
   getBrand: jest.fn(() => Promise.resolve('TestBrand')),
   getSystemVersion: jest.fn(() => Promise.resolve('17.0')),
@@ -55,8 +57,13 @@ jest.mock('react-native-keychain', () => ({
   getGenericPassword: jest.fn(() => Promise.resolve(false)),
   hasGenericPassword: jest.fn(() => Promise.resolve(false)),
   resetGenericPassword: jest.fn(() => Promise.resolve(true)),
-  ACCESS_CONTROL: {BIOMETRY_ANY: 'BiometryAny'},
+  ACCESS_CONTROL: {
+    BIOMETRY_ANY: 'BiometryAny',
+    BIOMETRY_CURRENT_SET: 'BiometryCurrentSet',
+  },
   ACCESSIBLE: {WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'AccessibleWhenUnlockedThisDeviceOnly'},
   AUTHENTICATION_TYPE: {BIOMETRICS: 'AuthenticationWithBiometrics'},
+  STORAGE_TYPE: {AES_GCM: 'KeystoreAESGCM'},
+  SECURITY_LEVEL: {SECURE_SOFTWARE: 0, SECURE_HARDWARE: 1, ANY: 2},
 }));
 

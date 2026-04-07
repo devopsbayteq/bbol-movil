@@ -1,263 +1,212 @@
-import React, {useEffect, useMemo} from 'react';
-import {
-    View,
-    Text,
-    Image,
-    StyleSheet,
-} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {View, StyleSheet, Alert, ActivityIndicator} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useLoginViewModel} from './useLoginViewModel';
+import {
+  useLoginViewModel,
+  BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE,
+} from './useLoginViewModel';
+import {CompactLoginContent} from './CompactLoginContent';
+import {FirstLoginContent} from './FirstLoginContent';
+import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
 import {useAuth} from '../../providers';
 import {useDI} from '../../di';
 import {useTheme, type ThemeColors} from '../../providers';
-import {
-    Button,
-    ErrorMessage,
-    LoginTextField,
-    LoginPasswordField,
-    SecondaryIconButton,
-    TertiaryLinkButton,
-    OrSeparator, DevelopmentNoticeModal,
-} from '../components';
-import {Lexend} from '../../theme/lexend';
-import {RootStackParamList} from "../../navigation/AppNavigator.tsx";
-const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
+import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 
 export function LoginScreen() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const {login} = useAuth();
+  const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
+  const {colors} = useTheme();
+  const styles = useStyles(colors);
 
-    const {colors} = useTheme();
-    const styles = useStyles(colors);
-    const {login} = useAuth();
+  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
+  /** `null` = cargando almacén; string vacío = sin usuario vinculado; no vacío = modo compacto */
+  const [deviceBoundLoginId, setDeviceBoundLoginId] = useState<string | null>(
+    null,
+  );
+  const [deviceBoundGreetingName, setDeviceBoundGreetingName] =
+    useState<string>('');
 
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
+      secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+    ]).then(([id, name]) => {
+      if (!cancelled) {
+        setDeviceBoundLoginId(id?.trim() ?? '');
+        setDeviceBoundGreetingName(name?.trim() ?? '');
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [secureStorageService]);
 
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  useEffect(() => {
+    let cancelled = false;
+    biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
+      if (!cancelled) {
+        setShowBiometricLogin(has);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [biometricRSAAuthOrchestrator]);
 
-    const {biometricRSAAuthOrchestrator} = useDI();
+  const {
+    email,
+    password,
+    emailError,
+    passwordError,
+    isLoadingLogin,
+    isLoadingBiometric,
+    isBusy,
+    error,
+    biometricEnrollmentRevoked,
+    acknowledgeBiometricEnrollmentRevoked,
+    isDeviceBoundCompact,
+    resetForDifferentUser,
+    setEmail,
+    setPassword,
+    handleLogin,
+    handleBiometricLogin,
+  } = useLoginViewModel(
+    user => {
+      navigation.navigate('OtpValidation', {
+        mode: 'login',
+        user,
+        email: user.email,
+      });
+    },
+    user => {
+      login(user).catch();
+    },
+    deviceBoundLoginId === null
+      ? undefined
+      : deviceBoundLoginId
+        ? {deviceBoundLoginId}
+        : undefined,
+  );
 
-    const {
-        email,
-        password,
-        emailError,
-        passwordError,
-        isLoadingLogin,
-        isLoadingBiometric,
-        isBusy,
-        error,
-        setEmail,
-        setPassword,
-        handleLogin,
-        handleBiometricLogin,
-        isCredentialLoginEnabled,
-        showDevelopMode,
-        setShowDevelopMode,
-        showBiometricLogin,
-        setShowBiometricLogin,
-        version
-    } = useLoginViewModel(
-        user => {
-            navigation.navigate('OtpValidation', {
-                mode: 'login',
-                user,
-                email: user.email,
-            });
-        },
-        user => {
-            login(user).catch();
-        },
+  useEffect(() => {
+    if (!biometricEnrollmentRevoked) {
+      return;
+    }
+    setShowBiometricLogin(false);
+    Alert.alert(
+      'Acceso biométrico desactualizado',
+      BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE,
+      [{text: 'Entendido', onPress: acknowledgeBiometricEnrollmentRevoked}],
     );
+  }, [
+    biometricEnrollmentRevoked,
+    acknowledgeBiometricEnrollmentRevoked,
+  ]);
 
-    useEffect(() => {
-        let cancelled = false;
-        biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
-            if (!cancelled) {
-                setShowBiometricLogin(has);
-            }
-        });
-        return () => {
-            cancelled = true;
-        };
-    }, [setShowBiometricLogin,biometricRSAAuthOrchestrator]);
-
-
-    return (
-        <SafeAreaView style={styles.safe} edges={['top']}>
-            <KeyboardAwareScrollView
-                style={styles.root}
-                contentContainerStyle={styles.scrollContent}
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}>
-                <View style={styles.contentColumn}>
-                    <Image
-                        source={require('../../../assets/images/BBBanner.png')}
-                        style={styles.bankLogo}
-                        resizeMode="contain"
-                        accessibilityLabel="Banco Bolivariano"
-                    />
-
-                    <View style={styles.hero}>
-                        <Text style={styles.heroTitle}>Identidad Digital</Text>
-                        <Text style={styles.heroSubtitle}>
-                            Ingresa con tu usuario y contraseña.
-                        </Text>
-                    </View>
-
-                    <View style={styles.inputs}>
-                        <LoginTextField
-                            testID="login-email-input"
-                            label="Ingresa tu usuario"
-                            placeholder="Usuario"
-                            value={email}
-                            onChangeText={setEmail}
-                            hasError={!!emailError}
-                            errorMessage={emailError ?? undefined}
-                            errorTestID="login-username-error"
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            editable={!isBusy}
-                            autoComplete="username"
-                        />
-
-                        <LoginPasswordField
-                            testID="login-password-input"
-                            label="Contraseña"
-                            placeholder="Contraseña"
-                            value={password}
-                            onChangeText={setPassword}
-                            hasError={!!passwordError}
-                            errorMessage={passwordError ?? undefined}
-                            errorTestID="login-password-error"
-                            editable={!isBusy}
-                            autoComplete="password"
-                        />
-                    </View>
-
-                    {error ? (
-                        <ErrorMessage
-                            testID="login-error"
-                            message={error}
-                            style={styles.errorBanner}
-                        />
-                    ) : null}
-
-                    <View style={styles.actions}>
-                        <Button
-                            testID="login-submit"
-                            title="Ingresar"
-                            onPress={handleLogin}
-                            iconSource={require('../../../assets/images/house.png')}
-                            loading={isLoadingLogin}
-                            disabled={isBusy || !isCredentialLoginEnabled}
-                            variant="loginPrimary"
-                        />
-                        {showBiometricLogin ? (
-                            <>
-                                <OrSeparator/>
-                                <SecondaryIconButton
-                                    title="Huella/FaceID"
-                                    iconSource={loginFingerprintIcon}
-                                    onPress={handleBiometricLogin}
-                                    disabled={isBusy}
-                                    loading={isLoadingBiometric}
-                                />
-                            </>
-                        ) : null}
-                    </View>
-                    <TertiaryLinkButton title={"Crear usuario"} onPress={() => {
-                        setShowDevelopMode(true)
-                    }}/>
-                    <TertiaryLinkButton title={"Solicitar Productos"} onPress={() => {
-                        setShowDevelopMode(true)
-                    }}/>
-                    <Text style={styles.versionApp}>{version}</Text>
-                    <TertiaryLinkButton title={"Contactos"} onPress={() => {
-                        setShowDevelopMode(true)
-                    }}/>
-
-                    <TertiaryLinkButton
-                        title="? Ayuda"
-                        onPress={() => {setShowDevelopMode(true)}}
-                        style={styles.helpLink}
-                    />
-                </View>
-            </KeyboardAwareScrollView>
-            <DevelopmentNoticeModal visible={showDevelopMode} onClose={() => {setShowDevelopMode(false)}}/>
-        </SafeAreaView>
+  const handleChangeUser = async () => {
+    await secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID);
+    await secureStorageService.remove(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
     );
+    // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
+    await secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED);
+    setDeviceBoundLoginId('');
+    setDeviceBoundGreetingName('');
+    resetForDifferentUser();
+  };
+
+  const compactGreetingName =
+    deviceBoundGreetingName.length > 0
+      ? deviceBoundGreetingName
+      : deviceBoundLoginId ?? '';
+
+  const showCompactLayout =
+    deviceBoundLoginId !== null &&
+    deviceBoundLoginId.length > 0 &&
+    isDeviceBoundCompact;
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <KeyboardAwareScrollView
+        style={styles.root}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.contentColumn}>
+          {deviceBoundLoginId === null ? (
+            <ActivityIndicator
+              accessibilityLabel="Cargando"
+              color={colors.primary}
+              style={styles.inputsLoading}
+            />
+          ) : showCompactLayout ? (
+            <CompactLoginContent
+              greetingName={compactGreetingName}
+              password={password}
+              passwordError={passwordError}
+              onPasswordChange={setPassword}
+              isBusy={isBusy}
+              isLoadingLogin={isLoadingLogin}
+              isLoadingBiometric={isLoadingBiometric}
+              error={error}
+              showBiometricLogin={showBiometricLogin}
+              onLogin={handleLogin}
+              onBiometricLogin={handleBiometricLogin}
+              onChangeUser={handleChangeUser}
+            />
+          ) : (
+            <FirstLoginContent
+              email={email}
+              password={password}
+              emailError={emailError}
+              passwordError={passwordError}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              isBusy={isBusy}
+              isLoadingLogin={isLoadingLogin}
+              error={error}
+              onLogin={handleLogin}
+            />
+          )}
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
 }
 
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
-                safe: {
-                    flex: 1,
-                    backgroundColor: colors.background,
-                },
-                root: {
-                    flex: 1,
-                },
-                scrollContent: {
-                    flexGrow: 1,
-                    paddingHorizontal: 24,
-                    paddingBottom: 32,
-                },
-                contentColumn: {
-                    width: '100%',
-                    maxWidth: 400,
-                    alignSelf: 'center',
-                },
-                bankLogo: {
-                    width: 196,
-                    height: 30,
-                    marginTop: 8,
-                    marginBottom: 24,
-                    alignSelf: 'flex-start',
-                },
-                hero: {
-                    marginBottom: 32,
-                    marginTop: 16,
-                    gap: 8,
-                    alignSelf: 'stretch',
-                },
-                heroTitle: {
-                    fontFamily: Lexend.bold,
-                    fontSize: 34,
-                    lineHeight: 44,
-                    color: colors.textPrimary,
-                },
-                heroSubtitle: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 16,
-                    lineHeight: 26,
-                    color: colors.textSecondary,
-                },
-                versionApp: {
-                    textAlign: 'center',
-                    fontFamily: Lexend.regular,
-                    fontSize: 16,
-                    lineHeight: 26,
-                    color: colors.textSecondary,
-                },
-                inputs: {
-                    gap: 8,
-                    marginBottom: 16,
-                },
-                errorBanner: {
-                    marginBottom: 16,
-                },
-                actions: {
-                    marginTop: 26,
-                    gap: 8,
-                    marginBottom: 8,
-                },
-                helpLink: {
-                    alignSelf: 'center',
-                    marginBottom: 24,
-                },
-            }),
-        [colors],
-    );
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        safe: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        root: {
+          flex: 1,
+        },
+        scrollContent: {
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          paddingBottom: 32,
+        },
+        contentColumn: {
+          width: '100%',
+          maxWidth: 400,
+          alignSelf: 'center',
+        },
+        inputsLoading: {
+          alignSelf: 'center',
+          marginVertical: 24,
+        },
+      }),
+    [colors],
+  );
 }

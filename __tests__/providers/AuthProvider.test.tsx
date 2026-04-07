@@ -93,6 +93,17 @@ describe('AuthProvider', () => {
       SecureStorageKeys.AUTH_TOKEN,
       'tok',
     );
+    expect(secureStorage.get).toHaveBeenCalledWith(
+      SecureStorageKeys.DEVICE_BOUND_LOGIN_ID,
+    );
+    expect(secureStorage.save).toHaveBeenCalledWith(
+      SecureStorageKeys.DEVICE_BOUND_LOGIN_ID,
+      'a@b.com',
+    );
+    expect(secureStorage.save).toHaveBeenCalledWith(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
+      'Ana',
+    );
     expect(ctx?.isAuthenticated).toBe(true);
     expect(ctx?.user).toEqual(user);
   });

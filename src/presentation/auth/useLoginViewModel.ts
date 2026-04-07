@@ -1,4 +1,5 @@
-import {useState, useCallback, useMemo} from 'react';
+import {useState, useCallback, useEffect, useMemo} from 'react';
+import DeviceInfo from 'react-native-device-info';
 import {User} from '../../domain/entities/User';
 import {useDI} from '../../di';
 import {BiometricAuthError} from '../../domain/services/BiometricAuthService';
@@ -7,6 +8,7 @@ import {BiometricRSAError} from '../../security/biometric';
 import {
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
+  LOGIN_PASSWORD_MAX_LENGTH,
   LOGIN_USERNAME_MAX_LENGTH,
   loginValidationMessages,
   sanitizeLoginPasswordInput,
@@ -14,7 +16,14 @@ import {
   validateLoginPassword,
   validateLoginUsername,
 } from '../../domain/validation';
-import DeviceInfo from "react-native-device-info";
+
+export const BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE =
+  'Detectamos un cambio en los registros biométricos de tu dispositivo. Por seguridad, inicia sesión con tu usuario y contraseña. Luego podrás volver a activar el acceso con huella o Face ID.';
+
+export interface UseLoginViewModelOptions {
+  /** Usuario ya vinculado al dispositivo: email fijo, sin edición del campo usuario. */
+  deviceBoundLoginId?: string;
+}
 
 interface LoginState {
   email: string;
@@ -24,12 +33,16 @@ interface LoginState {
   isLoadingLogin: boolean;
   isLoadingBiometric: boolean;
   error: string | null;
+  biometricEnrollmentRevoked: boolean;
 }
 
 export function mapBiometricError(err: unknown): string | null {
   if (err instanceof BiometricRSAError) {
     if (err.code === 'user_cancelled') {
       return null;
+    }
+    if (err.code === 'biometric_enrollment_changed') {
+      return BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE;
     }
     if (err.code === 'not_available') {
       return 'La autenticación biométrica no está disponible en este dispositivo.';
@@ -78,15 +91,16 @@ function getLivePasswordError(password: string): string | null {
 export function useLoginViewModel(
   onCredentialLoginSuccess: (user: User) => void,
   onBiometricLoginSuccess: (user: User) => void,
+  options?: UseLoginViewModelOptions,
 ) {
+  const deviceBoundLoginId = options?.deviceBoundLoginId?.trim() ?? '';
+  const isDeviceBoundCompact = deviceBoundLoginId.length > 0;
 
   const appVersion = DeviceInfo.getVersion();
   const buildNumber = DeviceInfo.getBuildNumber();
-
   const version = `Versión: ${appVersion} (${buildNumber})`;
 
   const [showDevelopMode, setShowDevelopMode] = useState(false);
-  const [showBiometricLogin, setShowBiometricLogin] = useState(false);
 
   const [state, setState] = useState<LoginState>({
     email: '',
@@ -96,37 +110,66 @@ export function useLoginViewModel(
     isLoadingLogin: false,
     isLoadingBiometric: false,
     error: null,
+    biometricEnrollmentRevoked: false,
   });
 
   const {loginUseCase, biometricRSAAuthOrchestrator} = useDI();
 
-  const setEmail = useCallback((email: string) => {
-    const sanitizedEmail = sanitizeLoginUsernameInput(email);
+  useEffect(() => {
+    if (!deviceBoundLoginId) {
+      return;
+    }
+    setState(prev => ({
+      ...prev,
+      email: deviceBoundLoginId,
+      emailError: null,
+    }));
+  }, [deviceBoundLoginId]);
 
-    if (sanitizedEmail.length > LOGIN_USERNAME_MAX_LENGTH) {
+  const setEmail = useCallback(
+    (email: string) => {
+      if (isDeviceBoundCompact) {
+        return;
+      }
+      const sanitizedEmail = sanitizeLoginUsernameInput(email);
+
+      if (sanitizedEmail.length > LOGIN_USERNAME_MAX_LENGTH) {
+        setState(prev => ({
+          ...prev,
+          email: sanitizedEmail.slice(0, LOGIN_USERNAME_MAX_LENGTH),
+          emailError: loginValidationMessages.usernameTooLong,
+          error: null,
+        }));
+        return;
+      }
+
+      const emailError = hasDisallowedLoginUsernameCharacters(email)
+        ? loginValidationMessages.usernameInvalidCharacters
+        : getLiveUsernameError(sanitizedEmail);
+
       setState(prev => ({
         ...prev,
-        email: sanitizedEmail.slice(0, LOGIN_USERNAME_MAX_LENGTH),
-        emailError: loginValidationMessages.usernameTooLong,
+        email: sanitizedEmail,
+        emailError,
+        error: null,
+      }));
+    },
+    [isDeviceBoundCompact],
+  );
+
+  const setPassword = useCallback((password: string) => {
+    const sanitizedPassword = sanitizeLoginPasswordInput(password);
+
+    if (sanitizedPassword.length > LOGIN_PASSWORD_MAX_LENGTH) {
+      setState(prev => ({
+        ...prev,
+        password: sanitizedPassword.slice(0, LOGIN_PASSWORD_MAX_LENGTH),
+        passwordError: loginValidationMessages.passwordTooLong,
         error: null,
       }));
       return;
     }
 
-    const emailError = hasDisallowedLoginUsernameCharacters(email)
-      ? loginValidationMessages.usernameInvalidCharacters
-      : getLiveUsernameError(sanitizedEmail);
-
-    setState(prev => ({
-      ...prev,
-      email: sanitizedEmail,
-      emailError,
-      error: null,
-    }));
-  }, []);
-
-  const setPassword = useCallback((password: string) => {
-    const sanitizedPassword = sanitizeLoginPasswordInput(password);
     const passwordError = hasDisallowedLoginPasswordCharacters(password)
       ? loginValidationMessages.passwordInvalidCharacters
       : getLivePasswordError(sanitizedPassword);
@@ -192,7 +235,12 @@ export function useLoginViewModel(
   ]);
 
   const handleBiometricLogin = useCallback(async () => {
-    setState(prev => ({...prev, isLoadingBiometric: true, error: null}));
+    setState(prev => ({
+      ...prev,
+      isLoadingBiometric: true,
+      error: null,
+      biometricEnrollmentRevoked: false,
+    }));
 
     try {
       const result = await biometricRSAAuthOrchestrator.loginWithBiometric();
@@ -204,25 +252,51 @@ export function useLoginViewModel(
         sessionExpiresAt: Date.now() + 3600 * 1000,
         inactivityTimeoutSeconds: 300,
       };
-      setState(prev => ({...prev, isLoadingBiometric: false}));
+      setState(prev => ({
+        ...prev,
+        isLoadingBiometric: false,
+        biometricEnrollmentRevoked: false,
+      }));
       onBiometricLoginSuccess(user);
     } catch (err) {
+      const revoked =
+        err instanceof BiometricRSAError &&
+        err.code === 'biometric_enrollment_changed';
       const message = mapBiometricError(err);
       setState(prev => ({
         ...prev,
         isLoadingBiometric: false,
-        ...(message ? {error: message} : {}),
+        biometricEnrollmentRevoked: revoked,
+        ...(revoked ? {error: null} : message ? {error: message} : {}),
       }));
     }
   }, [biometricRSAAuthOrchestrator, onBiometricLoginSuccess]);
 
+  const acknowledgeBiometricEnrollmentRevoked = useCallback(() => {
+    setState(prev => ({...prev, biometricEnrollmentRevoked: false}));
+  }, []);
+
+  const resetForDifferentUser = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      email: '',
+      password: '',
+      emailError: null,
+      passwordError: null,
+      error: null,
+    }));
+  }, []);
+
   const isBusy = state.isLoadingLogin || state.isLoadingBiometric;
 
-  const isCredentialLoginEnabled = useMemo(
-      () =>
-          state.email.trim().length > 0 && state.password.trim().length > 0,
-      [state.email, state.password],
-  );
+  const isCredentialLoginEnabled = useMemo(() => {
+    const pwdOk = state.password.trim().length > 0;
+    if (isDeviceBoundCompact) {
+      return pwdOk;
+    }
+    return state.email.trim().length > 0 && pwdOk;
+  }, [state.email, state.password, isDeviceBoundCompact]);
+
   return {
     email: state.email,
     password: state.password,
@@ -231,16 +305,18 @@ export function useLoginViewModel(
     isLoadingLogin: state.isLoadingLogin,
     isLoadingBiometric: state.isLoadingBiometric,
     isBusy,
-    isCredentialLoginEnabled,
     error: state.error,
+    biometricEnrollmentRevoked: state.biometricEnrollmentRevoked,
+    acknowledgeBiometricEnrollmentRevoked,
+    isDeviceBoundCompact,
+    resetForDifferentUser,
+    isCredentialLoginEnabled,
+    showDevelopMode,
+    setShowDevelopMode,
+    version,
     setEmail,
     setPassword,
     handleLogin,
     handleBiometricLogin,
-    showDevelopMode,
-    setShowDevelopMode,
-    showBiometricLogin,
-    setShowBiometricLogin,
-    version
   };
 }
