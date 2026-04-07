@@ -12,6 +12,7 @@ import {
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
+import {Platform} from 'react-native';
 
 function EyeOnIcon({color}: {color: string}) {
   return (
