@@ -140,14 +140,15 @@ export function LoginScreen() {
   ]);
 
   const handleChangeUser = async () => {
-    await secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID);
-    await secureStorageService.remove(
-      SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
-    );
-    // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
-    await secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED);
+    await Promise.allSettled([
+      secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
+      secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+      // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
+      secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED),
+    ]);
     setDeviceBoundLoginId('');
     setDeviceBoundGreetingName('');
+    setShowBiometricLogin(false);
     resetForDifferentUser();
   };
 
