@@ -4,13 +4,15 @@ import {
   BeneficiaryContactsContentModel,
 } from '../models/BeneficiaryContactsContentModel';
 
-function mapDtoToEntity(dto: BeneficiaryContactDto): BeneficiaryContact {
+export function mapDtoToEntity(dto: BeneficiaryContactDto): BeneficiaryContact {
   return {
     beneficiaryGuid: dto.beneficiaryGuid,
     contactName: dto.contactName,
     bankName: dto.bankName,
     accountType: dto.accountType,
+    accountTypeLabel:dto.accountTypeLabel,
     lastFourDigits: dto.lastFourDigits,
+    beneficiaryAccountNumber:dto.beneficiaryAccountNumber
   };
 }
 

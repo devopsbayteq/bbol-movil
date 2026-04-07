@@ -2,6 +2,8 @@ export interface BeneficiaryContact {
   beneficiaryGuid: string;
   contactName: string;
   bankName: string;
-  accountType: number;
+  accountType: string;
+  accountTypeLabel:string,
+  beneficiaryAccountNumber:string,
   lastFourDigits: string;
 }
