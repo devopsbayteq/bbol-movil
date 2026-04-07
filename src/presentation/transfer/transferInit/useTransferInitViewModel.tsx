@@ -3,8 +3,8 @@ import {useHomeViewModel} from '../../home/useHomeViewModel.ts';
 export const useTransferInitViewModel = () => {
   const {data, isLoading, error, retry} = useHomeViewModel();
 
-  const isBetweenOwnAccountsEnabled = true;
-  const isThirdPartyEnabled = false;
+  const isBetweenOwnAccountsEnabled = (data?.accounts.length ?? 0) > 0;
+  const isThirdPartyEnabled = false
 
   return {
     data,
