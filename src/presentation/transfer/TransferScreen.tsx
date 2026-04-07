@@ -5,9 +5,6 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
-    Modal,
-    ScrollView,
-    Pressable,
     ActivityIndicator,
     Keyboard,
     Platform,
@@ -21,23 +18,19 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import {TransferWatermark} from './components/TransferWatermark';
 import {
     TransferIconArrowRight,
-    TransferIconArrowUp,
-    TransferIconClose,
     TransferIconUser,
-    TransferIconWallet,
     TransferIconArrowRightWhite,
 } from './components/transferIcons.tsx';
 import {useTransferViewModel} from './useTransferViewModel';
 import {BeneficiarySelectModal} from '../beneficiary/BeneficiarySelectModal';
-import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {ToolbarApp} from "./components/ToolbarApp.tsx";
 import {ErrorBannerComponent} from "./transferInit/components/ErrorBannerComponent.tsx";
 import {TertiaryLinkButton} from "../components";
 import {AccountBeneficiarySelectorModal} from "./AccountBeneficiarySelectorModal.tsx";
+import {AccountSelectorButton} from "./components/AccountSelectorButton.tsx";
 
 
 const ZERO_DISPLAY = formatMoneyEc(0);
@@ -65,14 +58,14 @@ export function TransferScreen() {
         setBeneficiarySelectorVisible,
         beneficiary,
         accounts,
-        openAccountPicker,
+        openFromAccountPicker,
         openAccountBeneficiaryPicker,
         selectedAccount,
-        accountIndex,
-        selectAccount,
+        fromAccountIndex,
+        selectFromAccount,
         fromAccountDescription,
-        accountModalVisible,
-        setAccountModalVisible,
+        fromAccountModalVisible,
+        setFromAccountModalVisible,
         concept,
         onConceptChange,
         user,
@@ -81,7 +74,11 @@ export function TransferScreen() {
         setValidationMessage,
         error,
         isLoading,
-        retry
+        retry,
+        toAccountModalVisible,
+        setToAccountModalVisible,
+        toAccountIndex,
+        selectToAccount
     } = useTransferViewModel();
 
 
@@ -125,39 +122,48 @@ export function TransferScreen() {
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}>
                     <View style={styles.hero}>
-                        <TouchableOpacity
-                            style={styles.card}
-                            onPress={
-                                accounts.length > 1 ? openAccountPicker : undefined
-                            }
-                            activeOpacity={accounts.length > 1 ? 0.9 : 1}
-                            disabled={accounts.length <= 1}>
-                            <View style={styles.iconChip}>
-                                <TransferIconWallet color={colors.primary} size={16}/>
-                            </View>
-                            <View style={styles.cardBody}>
-                                <Text style={styles.cardLabel}>Desde</Text>
-                                <Text style={styles.cardTitle} numberOfLines={1}>
-                                    {holderName}
-                                </Text>
-                                {selectedAccount ? (
-                                    <Text style={styles.cardSub} numberOfLines={1}>
-                                        {fromAccountDescription}
-                                    </Text>
-                                ) : (
-                                    <Text style={styles.cardSub}>Sin cuenta disponible</Text>
-                                )}
-                            </View>
-                            {accounts.length > 1 ? (
-                                <TransferIconArrowUp color={colors.iconPrimary} size={16}/>
-                            ) : (
-                                <View style={styles.cardChevronSpacer}/>
-                            )}
-                        </TouchableOpacity>
+
+                        <AccountSelectorButton
+                            onPress={openFromAccountPicker}
+                            accounts={accounts}
+                            selectedAccount={selectedAccount}
+                            origin={"Desde"}
+                            name={holderName}
+                            description={fromAccountDescription}/>
+
+                        {/*<TouchableOpacity*/}
+                        {/*    style={styles.card}*/}
+                        {/*    onPress={*/}
+                        {/*        accounts.length > 1 ? openFromAccountPicker : undefined*/}
+                        {/*    }*/}
+                        {/*    activeOpacity={accounts.length > 1 ? 0.9 : 1}*/}
+                        {/*    disabled={accounts.length <= 1}>*/}
+                        {/*    <View style={styles.iconChip}>*/}
+                        {/*        <TransferIconWallet color={colors.primary} size={16}/>*/}
+                        {/*    </View>*/}
+                        {/*    <View style={styles.cardBody}>*/}
+                        {/*        <Text style={styles.cardLabel}>Desde</Text>*/}
+                        {/*        <Text style={styles.cardTitle} numberOfLines={1}>*/}
+                        {/*            {holderName}*/}
+                        {/*        </Text>*/}
+                        {/*        {selectedAccount ? (*/}
+                        {/*            <Text style={styles.cardSub} numberOfLines={1}>*/}
+                        {/*                {fromAccountDescription}*/}
+                        {/*            </Text>*/}
+                        {/*        ) : (*/}
+                        {/*            <Text style={styles.cardSub}>Sin cuenta disponible</Text>*/}
+                        {/*        )}*/}
+                        {/*    </View>*/}
+                        {/*    {accounts.length > 1 ? (*/}
+                        {/*        <TransferIconArrowUp color={colors.iconPrimary} size={16}/>*/}
+                        {/*    ) : (*/}
+                        {/*        <View style={styles.cardChevronSpacer}/>*/}
+                        {/*    )}*/}
+                        {/*</TouchableOpacity>*/}
 
                         <TouchableOpacity
                             style={styles.card}
-                            onPress={() => openAccountBeneficiaryPicker}
+                            onPress={openAccountBeneficiaryPicker}
                             activeOpacity={0.9}
                             testID="transfer-beneficiary-picker">
                             <View style={styles.iconChip}>
@@ -244,10 +250,19 @@ export function TransferScreen() {
 
             <AccountBeneficiarySelectorModal
                 accounts={accounts}
-                accountIndexSelected={accountIndex}
-                selectAccount={selectedId => selectAccount(selectedId)}
-                visible={accountModalVisible}
-                onClose={() => setAccountModalVisible(false)}
+                accountIndexSelected={fromAccountIndex}
+                selectAccount={selectedId => selectFromAccount(selectedId)}
+                visible={fromAccountModalVisible}
+                onClose={() => setFromAccountModalVisible(false)}
+            />
+
+
+            <AccountBeneficiarySelectorModal
+                accounts={accounts}
+                accountIndexSelected={toAccountIndex}
+                selectAccount={selectedId => selectToAccount(selectedId)}
+                visible={toAccountModalVisible}
+                onClose={() => setToAccountModalVisible(false)}
             />
 
             <BeneficiarySelectModal
