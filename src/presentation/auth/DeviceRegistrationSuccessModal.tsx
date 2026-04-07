@@ -95,13 +95,7 @@ export function DeviceRegistrationSuccessModal({
             </Pressable>
           </View>
 
-          <View style={styles.body}>
-            <Image
-              source={successIllustration}
-              style={styles.hero}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
+          <View style={styles.body}>       
             <Text style={styles.bodyText}>
               Tu nuevo dispositivo ha sido registrado, estás listo para ingresar a
               tu Banca móvil.

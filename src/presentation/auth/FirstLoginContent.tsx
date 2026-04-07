@@ -94,14 +94,14 @@ export function FirstLoginContent({
       </View>
 
       <View style={styles.brandBlock}>
-        <View style={styles.logoTile} accessibilityLabel="Banco Bolivariano">
+      
           <Image
             source={bankMark}
             style={styles.logoMark}
             resizeMode="contain"
             accessibilityIgnoresInvertColors
           />
-        </View>
+  
         <Text style={styles.heroTitle}>Bienvenido a tu banca móvil</Text>
         <Text style={styles.heroSubtitle}>
           Ingresa con usuario y contraseña
@@ -296,9 +296,8 @@ function useStyles(colors: ThemeColors) {
           justifyContent: 'center',
         },
         logoMark: {
-          width: 40,
-          height: 40,
-          tintColor: colors.white,
+      
+          
         },
         heroTitle: {
           fontFamily: Lexend.regular,
