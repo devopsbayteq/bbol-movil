@@ -72,15 +72,15 @@ export function LoginHeroImageCarousel({
       <Animated.Image
         source={sourceA}
         style={[styles.image, {opacity: opacity0}]}
-        resizeMode="cover"
-        height={200}
+        resizeMode="none"
+        height={height}
         accessibilityIgnoresInvertColors
       />
       <Animated.Image
         source={sourceB}
         style={[styles.image, {opacity: opacity1}]}
-        resizeMode="cover"
-        height={200}
+        resizeMode="none"
+        height={height}
         accessibilityIgnoresInvertColors
       />
     </View>
