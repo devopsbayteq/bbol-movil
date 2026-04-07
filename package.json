@@ -38,6 +38,7 @@
     "react-native-quick-crypto": "^1.0.18",
     "react-native-reanimated": "^4.3.0",
     "react-native-safe-area-context": "^5.5.2",
+    "react-native-screenguard": "^2.0.0-beta5",
     "react-native-screens": "^4.24.0",
     "react-native-share": "^12.2.6",
     "react-native-svg": "^15.15.4",

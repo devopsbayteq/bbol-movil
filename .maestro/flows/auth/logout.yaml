@@ -15,9 +15,13 @@ name: Logout y retorno a pantalla de login
 - tapOn:
     id: "logout-button"
 
+# Tras logout el dispositivo puede seguir en modo compacto; ensure-login-email-field-visible pulsa
+# "Otro usuario" y vuelve al formulario completo (mismo patrón que el resto de E2E).
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 
 - assertVisible: "Bienvenido a tu banca móvil"
+- assertVisible:
+    id: "login-email-input"
 - assertVisible:
     id: "login-submit"

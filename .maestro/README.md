@@ -71,6 +71,7 @@ npm run ios
   flows/
     auth/
       login-success.yaml              # Login + OTP + inicio (movimientos)
+      login-success-compact-second-session.yaml # Tras primer login: modo compacto (sin alias)
       login-credentials-opens-otp.yaml   # Solo hasta pantalla OTP
       login-otp-invalid.yaml          # PIN incorrecto en OTP
       login-invalid-credentials.yaml  # Credenciales invalidas
@@ -79,9 +80,11 @@ npm run ios
     transactions/
       transactions-list-visible.yaml  # Verificar pantalla de transacciones
   subflows/
-    ensure-login-screen.yaml        # Cierra sesion si hace falta
+    ensure-login-screen.yaml        # Cierra sesion si hace falta (luego "Otro usuario" si aplica)
+    ensure-login-screen-keep-device-bound.yaml # Logout sin forzar formulario completo (modo compacto)
+    ensure-login-email-field-visible.yaml # "Otro usuario" + espera campo usuario (primer ingreso E2E)
     ensure-authenticated.yaml         # Sesion existente o login+OTP mock
-    complete-demo-otp.yaml          # Introduce PIN 123457 en teclado OTP
+    complete-demo-otp.yaml          # Post-OTP: alias/modal/biometria opcionales + Inicio
   fixtures/                # Datos de prueba (futuro)
   README.md
 ```
@@ -119,6 +122,12 @@ Usuario y contraseña (sin correo). En modo mock coinciden con `MockAuthDataSour
 
 El usuario debe tener entre **12 y 16** caracteres (letras, números, `.`, `-`, `_`). Los flujos Maestro usan **usuario-demo12** por defecto.
 
+## Flujo de login (app real)
+
+1. **Primer ingreso en el dispositivo** (sin `DEVICE_BOUND_*` o tras pulsar **Otro usuario**): formulario completo (usuario + contraseña) → OTP → **RegisterAlias** → modal de registro → oferta biométrica (si aplica) → Inicio. Los flujos que llaman a `ensure-login-email-field-visible.yaml` fuerzan este modo para poder escribir `usuario-demo12`.
+2. **Siguientes ingresos en el mismo dispositivo** (sesión cerrada pero vínculo conservado): **modo compacto** (saludo + solo contraseña). El OTP navega con `skipRegisterAlias`: no aparece la pantalla de alias. Para E2E usar `login-success-compact-second-session.yaml` y `ensure-login-screen-keep-device-bound.yaml`. En `npm run test:e2e` el archivo va **justo después** de `login-success.yaml` y **antes** de `login-validation-fields.yaml` (ese flujo hace `clearState`) y de `logout.yaml` (fuerza formulario completo con `ensure-login-email-field-visible`).
+3. **`complete-demo-otp.yaml`** cubre ambos casos: espera opcional a `register-alias-screen` y pasos condicionales; si no hay primer ingreso, continúa hacia Inicio.
+
 ## Solucion de problemas
 
 ### `CLEAR_APP_USER_DATA` / `pm clear` al usar `clearState: true`
@@ -141,8 +150,16 @@ Si tu ROM lo permite, puedes volver a anadir `clearState: true` bajo `launchApp`
 |----------------------|---------------------------------|
 | login-email-input    | Campo de texto de usuario (login) |
 | login-password-input | Campo de texto de contraseña    |
+| login-change-user    | Enlace "Otro usuario" (modo compacto) |
 | login-submit         | Botón "Ingresar"                |
 | login-error          | Mensaje de error en login       |
+| register-alias-screen | Pantalla registro de alias      |
+| register-alias-input | Campo alias                     |
+| register-alias-continue | Continuar tras alias       |
+| device-registration-success-continue | Modal registro dispositivo |
+| biometric-offer-screen | Oferta de biometría          |
+| biometric-offer-skip | Omitir oferta biométrica      |
+| home-screen          | Contenedor pestaña Inicio       |
 | otp-screen           | Pantalla OTP / PIN              |
 | otp-error            | Mensaje de error en OTP         |
 | transactions-screen  | Contenedor pantalla transacciones |

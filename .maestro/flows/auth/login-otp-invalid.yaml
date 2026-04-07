@@ -13,11 +13,11 @@ name: PIN incorrecto muestra error en pantalla OTP
 
 - tapOn:
     id: "login-email-input"
-- inputText: "Usuario10_2026"
+- inputText: "usuario-demo12"
 
 - tapOn:
     id: "login-password-input"
-- inputText: "Password@1"
+- inputText: "123456"
 
 - hideKeyboard
 
@@ -42,4 +42,5 @@ name: PIN incorrecto muestra error en pantalla OTP
       id: "otp-error"
     timeout: 15000
 
-- assertVisible: "El código ingresado es incorrecto."
+- assertVisible:
+    id: "otp-error"

@@ -1,10 +1,13 @@
-import {useCallback} from 'react';
+import {useCallback, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useDI} from '../../di';
 
 const HOME_BALANCE_KEY = ['homeContractBalance'] as const;
 
 export function useHomeViewModel() {
+
+
+  const [showDevelopmentMode, setShowDevelopmentMode] = useState(false);
   const {getHomeContractBalanceUseCase} = useDI();
 
   const query = useQuery({
@@ -21,6 +24,8 @@ export function useHomeViewModel() {
   }, [query]);
 
   return {
+    showDevelopmentMode,
+    setShowDevelopmentMode,
     data: query.data ?? null,
     isLoading: query.isLoading,
     isRefreshing: query.isRefetching,
