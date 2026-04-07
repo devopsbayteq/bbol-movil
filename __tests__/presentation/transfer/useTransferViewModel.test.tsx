@@ -3,6 +3,7 @@ import ReactTestRenderer, {act} from 'react-test-renderer';
 import type {AccountBalance} from '../../../src/domain/entities/ContractBalance';
 import type {BeneficiaryContact} from '../../../src/domain/entities/BeneficiaryContact';
 import {useTransferViewModel} from '../../../src/presentation/transfer/useTransferViewModel';
+import {formatMoneyEc} from '../../../src/utils/formatMoneyEc';
 
 jest.mock('react-native-encrypted-storage', () => ({
   __esModule: true,
@@ -259,6 +260,12 @@ describe('useTransferViewModel', () => {
       expect(result.params.amountCents).toBe(500);
       expect(result.params.beneficiary.name).toBe('Cuenta propia B');
       expect(result.params.beneficiary.id).toBe('ben-checking');
+      expect(result.params.fromAccountTitle).toBe('Ahorros');
+      expect(result.params.fromAccountSubtitle).toBe(
+        'Cuenta de Ahorros ****1111',
+      );
+      expect(result.params.fromBalanceDisplay).toBe(formatMoneyEc(1000));
+      expect(result.params.toBalanceDisplay).toBe(formatMoneyEc(500));
     }
   });
 

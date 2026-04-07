@@ -53,7 +53,7 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
 
 - assertVisible: "Comprobante test"
 
-# Confirmar → abre OTP de transferencia
+# Transferir → abre OTP de transferencia
 - tapOn:
     id: "transfer-confirm-button"
 

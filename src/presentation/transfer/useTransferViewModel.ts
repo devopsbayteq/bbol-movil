@@ -9,7 +9,10 @@ import {
     validateTransferConcept,
 } from '../../domain/validation';
 import {useAuth} from '../../providers';
-import {formatAccountKindLine} from '../../utils/accountDisplay';
+import {
+    accountProductTitle,
+    formatAccountKindLine,
+} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
@@ -200,6 +203,7 @@ export function useTransferViewModel() {
 
         const holderName = user?.name?.trim() || 'Titular';
 
+        const fromAccountSubtitle = `${accountProductTitle(selectedFromAccount)} ${selectedFromAccount.maskedAccountNumber}`.trim();
 
         return {
             ok: true,
@@ -215,7 +219,11 @@ export function useTransferViewModel() {
                 },
                 fromHolderName: holderName,
                 fromAccountLine: formatAccountKindLine(selectedFromAccount),
-                accountId: selectedFromAccount.beneficiary.beneficiaryGuid,
+                fromAccountTitle: selectedFromAccount.accountTypeLabel?.trim() ?? '',
+                fromAccountSubtitle,
+                fromBalanceDisplay: formatMoneyEc(selectedFromAccount.balance),
+                toBalanceDisplay: formatMoneyEc(selectedToAccount.balance),
+                accountId: selectedFromAccount.accountGuid,
                 concept: concept,
             },
         };
