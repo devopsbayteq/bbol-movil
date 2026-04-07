@@ -14,3 +14,4 @@ export type {OtpKeypadKey} from './OtpNumericKeypad';
 export {SessionTimeoutWarningModal} from './SessionTimeoutWarningModal';
 export {SessionExpiredModal} from './SessionExpiredModal';
 export {DevelopmentNoticeModal} from './DevelopmentNoticeModal';
+export {LoginHeroImageCarousel} from './LoginHeroImageCarousel';

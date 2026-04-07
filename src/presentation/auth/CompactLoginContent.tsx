@@ -12,14 +12,16 @@ import {
   TertiaryLinkButton,
   OrSeparator,
   DevelopmentNoticeModal,
+  LoginHeroImageCarousel,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
 const bankBanner = require('../../../assets/images/BBBanner.png');
-const welcomeBrandIcon = require('../../../assets/images/BBIcon.png');
+const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
+const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
-const footerIconCreate = require('../../../assets/images/BBIcon.png');
-const footerIconProduct = require('../../../assets/images/share-nodes.png');
+const footerIconCreate = require('../../../assets/images/user-plus.png');
+const footerIconProduct = require('../../../assets/images/product_menu_icon.png');
 
 export interface CompactLoginContentProps {
   greetingName: string;
@@ -83,17 +85,12 @@ export function CompactLoginContent({
         </Text>
       </View>
 
-      <View style={styles.brandBlock}>
-        <View
-          style={styles.logoTile}
-          accessibilityLabel="Banco Bolivariano">
-          <Image
-            source={welcomeBrandIcon}
-            style={styles.logoMark}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-        </View>
+      <View style={styles.heroCarousel}>
+        <LoginHeroImageCarousel
+          sourceA={heroLoginA}
+          sourceB={heroLoginB}
+          height={180}
+        />
       </View>
 
       <Text style={styles.welcomeLine} accessibilityRole="text">
@@ -167,11 +164,13 @@ export function CompactLoginContent({
           style={styles.footerQuickItem}
           accessibilityRole="button"
           accessibilityLabel="Crear usuario">
-          <Image
-            source={footerIconCreate}
-            style={styles.footerQuickIcon}
-            resizeMode="contain"
-          />
+          <View style={styles.footerQuickIconWrap}>
+            <Image
+              source={footerIconCreate}
+              style={styles.footerQuickIcon}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={styles.footerQuickLabel}>Crear usuario</Text>
         </Pressable>
         <Pressable
@@ -179,11 +178,13 @@ export function CompactLoginContent({
           style={styles.footerQuickItem}
           accessibilityRole="button"
           accessibilityLabel="Solicitar producto">
-          <Image
-            source={footerIconProduct}
-            style={styles.footerQuickIcon}
-            resizeMode="contain"
-          />
+          <View style={styles.footerQuickIconWrap}>
+            <Image
+              source={footerIconProduct}
+              style={styles.footerQuickIconInner}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={styles.footerQuickLabel}>Solicitar producto</Text>
         </Pressable>
       </View>
@@ -232,41 +233,30 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
           textAlign: 'right',
         },
-        brandBlock: {
-          alignItems: 'center',
+        heroCarousel: {
+          alignSelf: 'stretch',
           marginBottom: 16,
         },
-        logoTile: {
-          width: 72,
-          height: 72,
-          borderRadius: 12,
-          backgroundColor: colors.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        logoMark: {
-          width: 40,
-          height: 40,
-          tintColor: colors.white,
-        },
         welcomeLine: {
+          paddingRight: 60,
           fontFamily: Lexend.regular,
-          fontSize: 16,
-          lineHeight: 26,
+          fontSize: 24,
+          lineHeight: 32,
           color: colors.textSecondary,
           marginBottom: 20,
-          textAlign: 'center',
+          textAlign: 'left',
         },
         welcomePrefix: {
           fontFamily: Lexend.regular,
-          fontSize: 16,
-          lineHeight: 26,
+          fontSize: 24,
+          lineHeight: 32,
           color: colors.textSecondary,
         },
         welcomeName: {
           fontFamily: Lexend.bold,
-          fontSize: 16,
-          lineHeight: 26,
+          fontSize: 24,
+          lineHeight: 32,
+          textAlign: 'left',
           color: colors.textPrimary,
         },
         inputs: {
@@ -310,7 +300,25 @@ function useStyles(colors: ThemeColors) {
           gap: 8,
           maxWidth: '45%',
         },
+        footerQuickIconWrap: {
+          width: 48,
+          height: 48,
+          borderRadius: 60,
+          backgroundColor: colors.surface,
+          alignItems: 'center',
+          justifyContent: 'center',
+          shadowColor: '#000000',
+          shadowOffset: {width: 0, height: 2},
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+          elevation: 4,
+        },
         footerQuickIcon: {
+          width: 28,
+          height: 28,
+          tintColor: colors.primary,
+        },
+        footerQuickIconInner: {
           width: 28,
           height: 28,
           tintColor: colors.primary,
@@ -324,7 +332,10 @@ function useStyles(colors: ThemeColors) {
         },
         contactLink: {
           alignSelf: 'center',
-          marginBottom: 24,
+          marginBottom: 16,
+          marginTop: 24,
+          fontSize: 12,
+          textDecorationLine: 'underline',
         },
       }),
     [colors],
