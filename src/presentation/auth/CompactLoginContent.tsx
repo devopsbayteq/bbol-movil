@@ -216,8 +216,8 @@ function useStyles(colors: ThemeColors) {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginTop: 8,
-          marginBottom: 16,
+          marginTop: 6,
+          marginBottom: 14,
           gap: 12,
         },
         bankLogo: {
@@ -243,7 +243,7 @@ function useStyles(colors: ThemeColors) {
           fontSize: 24,
           lineHeight: 32,
           color: colors.textSecondary,
-          marginBottom: 20,
+          marginBottom: 16,
           textAlign: 'left',
         },
         welcomePrefix: {
@@ -266,38 +266,38 @@ function useStyles(colors: ThemeColors) {
         forgotRow: {
           alignSelf: 'flex-end',
           marginTop: -4,
-          marginBottom: 4,
+          marginBottom: 2,
           paddingVertical: 4,
         },
         forgotText: {
           fontFamily: Lexend.semiBold,
           fontSize: 14,
-          lineHeight: 22,
+          lineHeight: 16,
           color: colors.linkPrimary,
         },
         changeUserLink: {
           alignSelf: 'flex-start',
-          marginTop: 4,
+          marginTop: 2,
         },
         errorBanner: {
           marginBottom: 16,
         },
         actions: {
-          marginTop: 8,
-          gap: 8,
-          marginBottom: 16,
+          marginTop: 2,
+          gap: 2,
+          marginBottom: 6,
         },
         footerQuickRow: {
           flexDirection: 'row',
           justifyContent: 'space-around',
           alignItems: 'flex-start',
           marginTop: 8,
-          marginBottom: 12,
+          marginBottom: 6,
           paddingHorizontal: 8,
         },
         footerQuickItem: {
           alignItems: 'center',
-          gap: 8,
+          gap: 4,
           maxWidth: '45%',
         },
         footerQuickIconWrap: {
@@ -332,8 +332,8 @@ function useStyles(colors: ThemeColors) {
         },
         contactLink: {
           alignSelf: 'center',
-          marginBottom: 16,
-          marginTop: 24,
+          marginBottom: 8,
+          marginTop: 16,
           fontSize: 12,
           textDecorationLine: 'underline',
         },
