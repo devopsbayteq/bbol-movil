@@ -22,15 +22,15 @@ export function TransferVoucherShareableCard({
       <View style={styles.accountsBlock}>
         <CardAccountItem
           origin="Desde"
-          accountType={transferResume.fromHolderName}
-          name={transferResume.fromAccountLine}
+          accountType={transferResume.fromAccountTitle}
+          name={transferResume.fromAccountSubtitle}
           showBottomBorder
           icon="wallet"
         />
         <CardAccountItem
           origin="Hacia"
-          accountType={transferResume.beneficiary.name}
-          name={transferResume.beneficiary.accountHint??""}
+          accountType={transferResume.toAccountTitle}
+          name={transferResume.toAccountSubtitle}
           icon="user"
         />
       </View>

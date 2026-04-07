@@ -179,7 +179,7 @@ function baseVm(overrides: Record<string, unknown> = {}) {
     toAccountModalVisible: false,
     setToAccountModalVisible: jest.fn(),
     amountCents: 0,
-    displayAmount: '$0,00',
+    displayAmount: '$0.00',
     onAmountChange: jest.fn(),
     concept: '',
     onConceptChange: jest.fn(),

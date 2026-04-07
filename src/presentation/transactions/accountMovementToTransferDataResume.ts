@@ -39,5 +39,9 @@ export function accountMovementToTransferDataResume(
     concept,
     transactionIdentifier: m.transactionIdentifier || m.transactionGuid,
     voucherDisplayDate,
+    fromAccountTitle: m.ownerAccountLabel,
+    fromAccountSubtitle: fromAccountLine(m),
+    toAccountTitle: m.beneficiaryName,
+    toAccountSubtitle: beneficiaryAccountHint(m),
   };
 }

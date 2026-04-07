@@ -48,6 +48,8 @@ export function useTransferReviewViewModel(
         toBalanceDisplay,
         accountId,
         concept,
+        toAccountSubtitle,
+        toAccountTitle,
     } = route.params;
 
     const [commission, setCommission] = useState<
@@ -98,6 +100,10 @@ export function useTransferReviewViewModel(
                 accountId,
                 concept: concept.trim(),
                 transactionIdentifier: execution.transactionIdentifier,
+                toAccountSubtitle: toAccountSubtitle,
+                toAccountTitle: toAccountTitle,
+                fromAccountTitle: fromAccountTitle,
+                fromAccountSubtitle: fromAccountSubtitle,
             };
             onTransferSuccess?.(payload);
             setConfirmLoading(false);
@@ -109,7 +115,21 @@ export function useTransferReviewViewModel(
             setConfirmLoading(false)
         }
 
-    },[accountId, amountCents, beneficiary, concept, displayAmount, executeTransferUseCase, fromAccountLine, fromHolderName, onTransferSuccess])
+    }, [
+        accountId,
+        amountCents,
+        beneficiary,
+        concept,
+        displayAmount,
+        executeTransferUseCase,
+        fromAccountLine,
+        fromAccountSubtitle,
+        fromHolderName,
+        fromAccountTitle,
+        onTransferSuccess,
+        toAccountSubtitle,
+        toAccountTitle,
+    ])
 
     const onConfirm = useCallback(async () => {
         setConfirmError(null);
@@ -147,6 +167,10 @@ export function useTransferReviewViewModel(
                     accountId,
                     concept: concept.trim(),
                     transactionIdentifier: execution.transactionIdentifier,
+                    toAccountSubtitle: toAccountSubtitle,
+                    toAccountTitle: toAccountTitle,
+                    fromAccountTitle: fromAccountTitle,
+                    fromAccountSubtitle: fromAccountSubtitle,
                 };
                 onTransferSuccess?.(payload);
                 return;
@@ -172,7 +196,11 @@ export function useTransferReviewViewModel(
         user?.email,
         validateTransactionAmountUseCase,
         executeTransferUseCase,
+        fromAccountSubtitle,
+        fromAccountTitle,
         onTransferSuccess,
+        toAccountSubtitle,
+        toAccountTitle,
     ]);
 
     return {
@@ -183,6 +211,8 @@ export function useTransferReviewViewModel(
         fromAccountLine,
         fromAccountTitle,
         fromAccountSubtitle,
+        toAccountSubtitle,
+        toAccountTitle,
         fromBalanceDisplay,
         toBalanceDisplay,
         accountId,

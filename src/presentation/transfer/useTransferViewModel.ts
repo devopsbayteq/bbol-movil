@@ -14,6 +14,7 @@ import {
     formatAccountKindLine,
 } from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
+import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
 
@@ -94,7 +95,7 @@ export function useTransferViewModel() {
     );
 
     const displayAmount = useMemo(
-        () => formatMoneyEc(amountCents / 100),
+        () => formatMoneyUsdDisplay(amountCents / 100),
         [amountCents],
     );
 
@@ -230,7 +231,7 @@ export function useTransferViewModel() {
 
         const holderName = user?.name?.trim() || 'Titular';
 
-        const fromAccountSubtitle = `${accountProductTitle(selectedFromAccount)} ${selectedFromAccount.maskedAccountNumber}`.trim();
+        const fromAccountSubtitle = `${selectedFromAccount.accountTypeLabel} ${selectedFromAccount.maskedAccountNumber}`.trim();
 
         return {
             ok: true,
@@ -246,6 +247,8 @@ export function useTransferViewModel() {
                 },
                 fromHolderName: holderName,
                 fromAccountLine: formatAccountKindLine(selectedFromAccount),
+                toAccountSubtitle: formatAccountKindLine(selectedToAccount),
+                toAccountTitle:selectedToAccount.beneficiary.contactName,
                 fromAccountTitle: selectedFromAccount.accountTypeLabel?.trim() ?? '',
                 fromAccountSubtitle,
                 fromBalanceDisplay: formatMoneyEc(selectedFromAccount.balance),

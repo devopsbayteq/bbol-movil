@@ -83,6 +83,8 @@ export function TransferReviewScreen() {
         conceptDisplay,
         onConfirm,
         doTransacction,
+        toAccountSubtitle,
+        toAccountTitle
     } = useTransferReviewViewModel(
         () => {
             navigation.navigate('OtpValidationTransfer', {
@@ -158,11 +160,11 @@ export function TransferReviewScreen() {
                         <View style={styles.cardBody}>
                             <Text style={styles.haciaLabel}>Hacia</Text>
                             <Text style={styles.rowAccountName} numberOfLines={2}>
-                                {beneficiary.name}
+                                {toAccountTitle}
                             </Text>
-                            {paraSubline ? (
+                            {toAccountSubtitle ? (
                                 <Text style={styles.cardSub} numberOfLines={2}>
-                                    {paraSubline}
+                                    {toAccountSubtitle}
                                 </Text>
                             ) : null}
                         </View>

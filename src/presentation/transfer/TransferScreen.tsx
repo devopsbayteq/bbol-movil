@@ -20,6 +20,7 @@ import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {TransferIconAnglesDown, TransferIconArrowRightWhite} from './components/transferIcons.tsx';
 import {useTransferViewModel} from './useTransferViewModel';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
+import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
 import {accountProductTitle} from '../../utils/accountDisplay';
 import {ToolbarApp} from './components/ToolbarApp.tsx';
 import {ErrorBannerComponent} from './transferInit/components/ErrorBannerComponent.tsx';
@@ -28,7 +29,7 @@ import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
 import {SpacerView} from "../components/SpacerView.tsx";
 
-const ZERO_DISPLAY = formatMoneyEc(0);
+const ZERO_DISPLAY = formatMoneyUsdDisplay(0);
 
 export function TransferScreen() {
     const {colors} = useTheme();
@@ -77,7 +78,7 @@ export function TransferScreen() {
             return '';
         }
         const a = selectedFromAccount;
-        return `${accountProductTitle(a)} ${a.maskedAccountNumber}`.trim();
+        return `${a.accountTypeLabel} ${a.maskedAccountNumber}`.trim();
     }, [selectedFromAccount]);
 
     const fromBalanceLabel = useMemo(
@@ -100,7 +101,7 @@ export function TransferScreen() {
             return '';
         }
         const a = selectedToAccount;
-        return `${accountProductTitle(a)} ${a.maskedAccountNumber}`.trim();
+        return `${a.accountTypeLabel} ${a.maskedAccountNumber}`.trim();
     }, [selectedToAccount]);
 
     const toContactName = selectedToAccount?.beneficiary.contactName?.trim() ?? '';
