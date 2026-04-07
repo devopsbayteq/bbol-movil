@@ -142,12 +142,13 @@ export function FirstLoginContent({
           testID="login-submit"
           title="Iniciar sesión"
           onPress={onLogin}
-          iconNodeRight={
-            <LoginSubmitArrowSvg
-              width={LOGIN_SUBMIT_ICON_SIZE}
-              height={LOGIN_SUBMIT_ICON_SIZE}
-            />
-          }
+          iconRightTintColor={colors.white}
+          // iconNodeRight={
+          //   <LoginSubmitArrowSvg
+          //     width={LOGIN_SUBMIT_ICON_SIZE}
+          //     height={LOGIN_SUBMIT_ICON_SIZE}
+          //   />
+          // }
           loading={isLoadingLogin}
           disabled={submitDisabled}
           variant="loginPrimary"

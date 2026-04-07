@@ -19,7 +19,10 @@ import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 export function LoginScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {login} = useAuth();
+  const {login, consumeSuppressCompactLoginAutoBiometricOnce} = useAuth();
+  const [suppressAutoBiometricPromptOnce] = useState(() =>
+    consumeSuppressCompactLoginAutoBiometricOnce(),
+  );
   const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
@@ -192,6 +195,7 @@ export function LoginScreen() {
                 isLoadingBiometric={isLoadingBiometric}
                 error={error}
                 showBiometricLogin={showBiometricLogin}
+                suppressAutoBiometricPromptOnce={suppressAutoBiometricPromptOnce}
                 onLogin={handleLogin}
                 onBiometricLogin={handleBiometricLogin}
                 onChangeUser={handleChangeUser}

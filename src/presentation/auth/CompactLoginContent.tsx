@@ -51,6 +51,8 @@ export interface CompactLoginContentProps {
   isLoadingBiometric: boolean;
   error: string | null;
   showBiometricLogin: boolean;
+  /** Si true, no se dispara el prompt biométrico al montar (p. ej. tras cerrar sesión). */
+  suppressAutoBiometricPromptOnce?: boolean;
   onLogin: () => void;
   onBiometricLogin: () => void;
   onChangeUser: () => void;
@@ -66,6 +68,7 @@ export function CompactLoginContent({
   isLoadingBiometric,
   error,
   showBiometricLogin,
+  suppressAutoBiometricPromptOnce = false,
   onLogin,
   onBiometricLogin,
   onChangeUser,
@@ -79,7 +82,11 @@ export function CompactLoginContent({
   // una credencial biométrica registrada. Sólo se dispara una vez por montaje
   // para no acosar al usuario si cancela o si el componente re-renderiza.
   useEffect(() => {
-    if (!showBiometricLogin || autoBiometricTriggeredRef.current) {
+    if (
+      !showBiometricLogin ||
+      suppressAutoBiometricPromptOnce ||
+      autoBiometricTriggeredRef.current
+    ) {
       return;
     }
     autoBiometricTriggeredRef.current = true;
@@ -87,7 +94,11 @@ export function CompactLoginContent({
       onBiometricLogin();
     }, AUTO_BIOMETRIC_PROMPT_DELAY_MS);
     return () => clearTimeout(timeoutId);
-  }, [showBiometricLogin, onBiometricLogin]);
+  }, [
+    showBiometricLogin,
+    suppressAutoBiometricPromptOnce,
+    onBiometricLogin,
+  ]);
 
   const showDevelopmentNotice = useCallback(() => {
     setDevNoticeVisible(true);

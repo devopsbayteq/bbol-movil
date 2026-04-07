@@ -6,8 +6,7 @@ import {
   StyleSheet,
   type StyleProp,
   type TextStyle,
-  type ViewStyle,
-  type TextStyle,
+  type ViewStyle
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';

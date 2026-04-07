@@ -303,7 +303,7 @@ export function HomeScreen() {
     const frequentPayments: FrequentPayment[] = data?.frequentPayments ?? [];
 
     const handleLogout = async () => {
-        await logout();
+        await logout({suppressCompactLoginAutoBiometricOnce: true});
     };
 
 
