@@ -25,6 +25,7 @@ import {createApiSecretKey} from '../security/http/apiSecretKey';
 import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../security/certificate/keys.constants';
 import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
 import {ValidateOtpUseCase} from '../domain/usecases/ValidateOtpUseCase';
+import {RegisterAliasUseCase} from '../domain/usecases/RegisterAliasUseCase';
 import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
 import {GetBeneficiaryContactsUseCase} from '../domain/usecases/GetBeneficiaryContactsUseCase';
 import {ValidateTransactionAmountUseCase} from '../domain/usecases/ValidateTransactionAmountUseCase';
@@ -51,6 +52,7 @@ export interface AppContainer {
   authRemoteDataSource: AuthRemoteDataSource;
   getUserLoggedUseCase: GetUserLoggedUseCase;
   validateOtpUseCase: ValidateOtpUseCase;
+  registerAliasUseCase: RegisterAliasUseCase;
   getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
   getBeneficiaryContactsUseCase: GetBeneficiaryContactsUseCase;
   validateTransactionAmountUseCase: ValidateTransactionAmountUseCase;
@@ -146,6 +148,11 @@ export function createContainer(): AppContainer {
     getPublicKeyUseCase,
   );
 
+  const registerAliasUseCase = new RegisterAliasUseCase(
+    securityRepository,
+    getPublicKeyUseCase,
+  );
+
   const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
     contractBalanceRepository,
   );
@@ -174,6 +181,7 @@ export function createContainer(): AppContainer {
     authRemoteDataSource,
     getUserLoggedUseCase,
     validateOtpUseCase,
+    registerAliasUseCase,
     getHomeContractBalanceUseCase,
     getBeneficiaryContactsUseCase,
     validateTransactionAmountUseCase,

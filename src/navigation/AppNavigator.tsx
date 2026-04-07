@@ -5,6 +5,7 @@ import {MainTabNavigator} from './MainTabNavigator';
 import {PublicKeyErrorScreen, SplashScreen} from '../presentation/splash';
 import {OtpValidationScreen} from '../presentation/otp';
 import {BiometricOfferScreen} from '../presentation/auth/BiometricOfferScreen';
+import {RegisterAliasScreen} from '../presentation/auth/RegisterAliasScreen';
 import {useAuth, useSecurity} from '../providers';
 import {User} from '../domain/entities/User';
 
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   CertificateHandshake: undefined;
   Login: undefined;
   OtpValidation: OtpValidationParams;
+  RegisterAlias: {user: User; email: string};
   BiometricOffer: {user: User; email: string};
   Main: undefined;
 };
@@ -72,6 +74,7 @@ export function AppNavigator() {
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="OtpValidation" component={OtpValidationScreen} />
+          <Stack.Screen name="RegisterAlias" component={RegisterAliasScreen} />
           <Stack.Screen name="BiometricOffer" component={BiometricOfferScreen} />
         </>
       )}

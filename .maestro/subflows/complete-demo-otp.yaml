@@ -13,14 +13,27 @@ appId: com.bbapp
 - tapOn: "Digito 5"
 - tapOn: "Digito 7"
 
-# Tras OTP exitoso en login: oferta biométrica (si aún no hay huella) o directo a Inicio.
-- runFlow:
-    when:
-      visible:
-        id: "biometric-offer-screen"
-    commands:
-      - tapOn:
-          id: "biometric-offer-skip"
+# Registro obligatorio de alias (post-OTP, pre-biometría)
+- extendedWaitUntil:
+    visible:
+      id: "register-alias-screen"
+    timeout: 30000
+
+- tapOn:
+    id: "register-alias-input"
+- inputText: "demoalias"
+
+- tapOn:
+    id: "register-alias-continue"
+
+# Modal de éxito (~5s) o cierre manual; luego oferta biométrica o Inicio
+- extendedWaitUntil:
+    visible:
+      id: "biometric-offer-screen"
+    timeout: 20000
+
+- tapOn:
+    id: "biometric-offer-skip"
 
 - extendedWaitUntil:
     visible:
