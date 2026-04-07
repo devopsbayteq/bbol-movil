@@ -36,11 +36,13 @@ import {accountTypeModalLabel} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {ToolbarApp} from "./components/ToolbarApp.tsx";
 import {ErrorBannerComponent} from "./transferInit/components/ErrorBannerComponent.tsx";
+import {TertiaryLinkButton} from "../components";
+import {AccountBeneficiarySelectorModal} from "./AccountBeneficiarySelectorModal.tsx";
 
 
 const ZERO_DISPLAY = formatMoneyEc(0);
 
-const HERO_BG = '#0B515C';
+const HERO_BG = '#D0F0F6';
 const ICON_CHIP_BG = '#D0F0F6';
 const CONCEPT_INPUT_BG = '#EFF0F4';
 
@@ -52,7 +54,7 @@ export function TransferScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
 
-    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList,'ConsolidatedPosition'>>()
+    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>()
 
     const {
         displayAmount,
@@ -64,6 +66,7 @@ export function TransferScreen() {
         beneficiary,
         accounts,
         openAccountPicker,
+        openAccountBeneficiaryPicker,
         selectedAccount,
         accountIndex,
         selectAccount,
@@ -88,7 +91,7 @@ export function TransferScreen() {
     const onBack = () => {
         const tabNav =
             navigationTab.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate('ConsolidatedPosition',{});
+        tabNav?.navigate('ConsolidatedPosition', {});
     };
 
     return (
@@ -122,45 +125,6 @@ export function TransferScreen() {
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}>
                     <View style={styles.hero}>
-                        <TransferWatermark/>
-                        <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
-
-                        <View style={styles.amountWrap}>
-                            <TextInput
-                                style={styles.amountInput}
-                                value={displayAmount}
-                                onChangeText={onAmountChange}
-                                keyboardType="number-pad"
-                                returnKeyType="done"
-                                onSubmitEditing={() => Keyboard.dismiss()}
-                                placeholderTextColor="rgba(255,255,255,0.45)"
-                                placeholder={ZERO_DISPLAY}
-                                selectionColor={colors.white}
-                                underlineColorAndroid="transparent"
-                                testID="transfer-amount-input"
-                            />
-                            {amountFieldError ? (
-                                <Text style={styles.amountFieldError}>{amountFieldError}</Text>
-                            ) : null}
-                        </View>
-
-                        <TouchableOpacity
-                            style={styles.card}
-                            onPress={() => setBeneficiarySelectorVisible(true)}
-                            activeOpacity={0.9}
-                            testID="transfer-beneficiary-picker">
-                            <View style={styles.iconChip}>
-                                <TransferIconUser color={HERO_BG} size={16}/>
-                            </View>
-                            <View style={styles.cardBody}>
-                                <Text style={styles.cardLabel}>Para</Text>
-                                <Text style={styles.cardTitle} numberOfLines={2}>
-                                    {beneficiaryTitle}
-                                </Text>
-                            </View>
-                            <TransferIconArrowRight color={colors.iconPrimary} size={16}/>
-                        </TouchableOpacity>
-
                         <TouchableOpacity
                             style={styles.card}
                             onPress={
@@ -169,7 +133,7 @@ export function TransferScreen() {
                             activeOpacity={accounts.length > 1 ? 0.9 : 1}
                             disabled={accounts.length <= 1}>
                             <View style={styles.iconChip}>
-                                <TransferIconWallet color={HERO_BG} size={16}/>
+                                <TransferIconWallet color={colors.primary} size={16}/>
                             </View>
                             <View style={styles.cardBody}>
                                 <Text style={styles.cardLabel}>Desde</Text>
@@ -191,7 +155,46 @@ export function TransferScreen() {
                             )}
                         </TouchableOpacity>
 
+                        <TouchableOpacity
+                            style={styles.card}
+                            onPress={() => openAccountBeneficiaryPicker}
+                            activeOpacity={0.9}
+                            testID="transfer-beneficiary-picker">
+                            <View style={styles.iconChip}>
+                                <TransferIconUser color={HERO_BG} size={16}/>
+                            </View>
+                            <View style={styles.cardBody}>
+                                <Text style={styles.cardLabel}>Para</Text>
+                                <Text style={styles.cardTitle} numberOfLines={2}>
+                                    {beneficiaryTitle}
+                                </Text>
+                            </View>
+                            <TransferIconArrowRight color={colors.iconPrimary} size={16}/>
+                        </TouchableOpacity>
+
+
+                        <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
+                        <View style={styles.amountWrap}>
+                            <TextInput
+                                style={styles.amountInput}
+                                value={displayAmount}
+                                onChangeText={onAmountChange}
+                                keyboardType="number-pad"
+                                returnKeyType="done"
+                                onSubmitEditing={() => Keyboard.dismiss()}
+                                placeholderTextColor="rgba(255,255,255,0.45)"
+                                placeholder={ZERO_DISPLAY}
+                                selectionColor={colors.white}
+                                underlineColorAndroid="transparent"
+                                testID="transfer-amount-input"
+                            />
+                            {amountFieldError ? (
+                                <Text style={styles.amountFieldError}>{amountFieldError}</Text>
+                            ) : null}
+                        </View>
+
                     </View>
+
 
                     <View style={styles.bottomSection}>
                         <View style={styles.conceptBlock}>
@@ -233,89 +236,19 @@ export function TransferScreen() {
                             />
                             <Text style={styles.primaryCtaText}>Continuar</Text>
                         </TouchableOpacity>
+                        <TertiaryLinkButton title={"Cancelar"} onPress={() => {
+                        }}/>
                     </View>
                 </KeyboardAwareScrollView>
             )}
 
-            <Modal
+            <AccountBeneficiarySelectorModal
+                accounts={accounts}
+                accountIndexSelected={accountIndex}
+                selectAccount={selectedId => selectAccount(selectedId)}
                 visible={accountModalVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setAccountModalVisible(false)}>
-                <View style={styles.modalRoot}>
-                    <Pressable
-                        style={StyleSheet.absoluteFill}
-                        onPress={() => setAccountModalVisible(false)}
-                        accessibilityLabel="Cerrar"
-                    />
-                    <View
-                        style={[
-                            styles.modalSheet,
-                            {paddingBottom: Math.max(insets.bottom, 12)},
-                        ]}>
-                        <View style={styles.modalHeader}>
-                            <View style={styles.modalHeaderSide}/>
-                            <Text style={styles.modalHeaderTitle}>CUENTAS</Text>
-                            <TouchableOpacity
-                                style={styles.modalCloseBtn}
-                                onPress={() => setAccountModalVisible(false)}
-                                accessibilityRole="button"
-                                accessibilityLabel="Cerrar selección de cuentas">
-                                <TransferIconClose color={colors.iconPrimary} size={20}/>
-                            </TouchableOpacity>
-                        </View>
-                        <ScrollView
-                            scrollEnabled={accounts.length > 4}
-                            contentContainerStyle={styles.modalListContent}>
-                            {accounts.map((item, index) => {
-                                const isSelected = index === accountIndex;
-                                const isDisabled = item.balance <= 0;
-                                return (
-                                    <TouchableOpacity
-                                        key={item.accountGuid}
-                                        style={[
-                                            styles.accountPickCard,
-                                            isSelected &&
-                                            !isDisabled &&
-                                            styles.accountPickCardSelected,
-                                            isDisabled && styles.accountPickCardDisabled,
-                                        ]}
-                                        onPress={() => selectAccount(index)}
-                                        activeOpacity={isDisabled ? 1 : 0.88}
-                                        disabled={isDisabled}
-                                        accessibilityState={{
-                                            selected: isSelected && !isDisabled,
-                                            disabled: isDisabled,
-                                        }}>
-                                        <View
-                                            style={[
-                                                styles.accountPickRow,
-                                                isDisabled && styles.accountPickRowDisabled,
-                                            ]}>
-                                            <View style={styles.accountPickLeft}>
-                                                <Text style={styles.accountPickType}>
-                                                    {accountTypeModalLabel(item)}
-                                                </Text>
-                                                <Text style={styles.accountPickNumber}>
-                                                    {item.maskedAccountNumber}
-                                                </Text>
-                                            </View>
-                                            <View style={styles.accountPickRight}>
-                                                <Text style={styles.accountPickBalance}>
-                                                    {formatMoneyEc(item.balance)}
-                                                </Text>
-                                                <Text style={styles.accountPickSaldoLabel}>
-                                                    Saldo disponible
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => setAccountModalVisible(false)}
+            />
 
             <BeneficiarySelectModal
                 visible={beneficiarySelectorVisible}
@@ -387,7 +320,6 @@ function useStyles(colors: ThemeColors) {
                     fontFamily: Lexend.regular,
                     fontSize: 16,
                     lineHeight: 24,
-                    color: colors.white,
                     textAlign: 'center',
                     marginBottom: 8,
                 },
@@ -414,7 +346,6 @@ function useStyles(colors: ThemeColors) {
                     fontFamily: Lexend.bold,
                     fontSize: 50,
                     lineHeight: 60,
-                    color: colors.white,
                     textAlign: 'center',
                     paddingVertical: 0,
                     minHeight: 70,

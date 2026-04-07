@@ -34,6 +34,8 @@ export function useTransferViewModel() {
   const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
 
   const [accountModalVisible, setAccountModalVisible] = useState(false);
+  const [accountBeneficiaryModalVisible, setAccountBeneficiaryModalVisible] = useState(false);
+
   const accounts = useMemo(() => data?.accounts ?? [], [data?.accounts]);
   const defaultIdx = useMemo(() => defaultAccountIndex(accounts), [accounts]);
 
@@ -103,6 +105,13 @@ export function useTransferViewModel() {
   const openAccountPicker = useCallback(() => {
     if (accounts.length > 1) {
       setAccountModalVisible(true);
+    }
+  }, [accounts.length]);
+
+
+  const openAccountBeneficiaryPicker = useCallback(() => {
+    if (accounts.length > 1) {
+      setAccountBeneficiaryModalVisible(true);
     }
   }, [accounts.length]);
 
@@ -188,5 +197,7 @@ export function useTransferViewModel() {
     selectBeneficiary,
     accountIndex,
     prepareTransferReview,
+    openAccountBeneficiaryPicker,
+    accountBeneficiaryModalVisible
   };
 }
