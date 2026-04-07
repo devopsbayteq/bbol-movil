@@ -6,7 +6,8 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {RootStackParamList} from '../../navigation/AppNavigator';
 import {ToolbarApp} from '../transfer/components/ToolbarApp';
-import {SecurityBugIcon} from './SecurityMenuIcons';
+import {CalendarIcon} from "../home/components/HomeIcons.tsx";
+
 
 export function SecurityMenuScreen() {
   const {colors} = useTheme();
@@ -29,7 +30,7 @@ export function SecurityMenuScreen() {
         showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionTitle}>Bloqueo de capturas de pantalla</Text>
         <View style={styles.card}>
-          <SecurityBugIcon color={colors.primary} size={24} />
+          <CalendarIcon color={colors.primary} size={24} />
           <View style={styles.cardTextCol}>
             <Text style={styles.cardTitle}>
               {screenshotBlockEnabled ? 'Activado' : 'Desactivado'}
