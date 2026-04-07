@@ -61,6 +61,15 @@ jest.mock('../../src/presentation/otp', () => {
   };
 });
 
+jest.mock('../../src/presentation/auth/RegisterAliasScreen', () => {
+  const React = require('react');
+  const {Text} = require('react-native');
+  return {
+    RegisterAliasScreen: () =>
+      React.createElement(Text, {testID: 'register-alias-mock'}, 'RegisterAlias'),
+  };
+});
+
 jest.mock('../../src/presentation/auth/BiometricOfferScreen', () => {
   const React = require('react');
   const {Text} = require('react-native');
@@ -150,6 +159,7 @@ describe('AppNavigator', () => {
 
     expect(root!.root.findByProps({testID: 'root-stack'})).toBeTruthy();
     expect(root!.root.findByProps({testID: 'login-mock'})).toBeTruthy();
+    expect(root!.root.findByProps({testID: 'register-alias-mock'})).toBeTruthy();
     expect(root!.root.findAllByProps({testID: 'stack-screen-Login'}).length).toBeGreaterThan(
       0,
     );
