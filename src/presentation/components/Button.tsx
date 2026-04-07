@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, type ReactNode} from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -20,7 +20,7 @@ interface ButtonProps {
   onPress: () => void;
   loading?: boolean;
   iconSource?: ImageSourcePropType;
-  iconSourceRight?: ImageSourcePropType;
+  iconSourceRight?: ImageSourcePropType | ReactNode;
   iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
@@ -80,14 +80,18 @@ export function Button({
             {title}
           </Text>
           {iconSourceRight ? (
-            <Image
-              source={iconSourceRight}
-              style={[
-                styles.iconTrailing,
-                iconRightTintColor ? {tintColor: iconRightTintColor} : null,
-              ]}
-              resizeMode="contain"
-            />
+            React.isValidElement(iconSourceRight) ? (
+              <View style={styles.iconTrailingContainer}>{iconSourceRight}</View>
+            ) : (
+              <Image
+                source={iconSourceRight as ImageSourcePropType}
+                style={[
+                  styles.iconTrailing,
+                  iconRightTintColor ? {tintColor: iconRightTintColor} : null,
+                ]}
+                resizeMode="contain"
+              />
+            )
           ) : null}
         </View>
       )}
@@ -147,6 +151,11 @@ function useStyles(colors: ThemeColors) {
           width: 24,
           height: 24,
           marginLeft: 8,
+        },
+        iconTrailingContainer: {
+          marginLeft: 8,
+          alignItems: 'center',
+          justifyContent: 'center',
         },
         contentRow: {
           flexDirection: 'row',

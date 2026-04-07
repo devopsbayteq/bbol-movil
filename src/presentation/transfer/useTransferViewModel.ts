@@ -103,6 +103,26 @@ export function useTransferViewModel() {
         [amountCents, availableBalanceCents],
     );
 
+    const canContinueToReview = useMemo(() => {
+        if (!selectedFromAccount || !selectedToAccount) {
+            return false;
+        }
+        if (fromAccountIndex === toAccountIndex) {
+            return false;
+        }
+        return (
+            validateTransferAmountForSubmit(amountCents, availableBalanceCents) ===
+            null
+        );
+    }, [
+        selectedFromAccount,
+        selectedToAccount,
+        fromAccountIndex,
+        toAccountIndex,
+        amountCents,
+        availableBalanceCents,
+    ]);
+
     const onAmountChange = useCallback((text: string) => {
         const digits = text.replace(/\D/g, '');
         setValidationMessage(null);
@@ -225,6 +245,7 @@ export function useTransferViewModel() {
         concept,
         onConceptChange,
         amountFieldError,
+        canContinueToReview,
         validationMessage,
         setValidationMessage,
         openFromAccountPicker,

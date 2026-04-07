@@ -78,6 +78,7 @@ export function AccountSelectorButton({
         </View>
       ) : (
         <View style={styles.trailingTo}>
+          <Text style={styles.balanceText}>{balanceLabel ?? ''}</Text>
           {accounts.length > 1 ? (
             <TransferIconArrowRight color={colors.iconPrimary} size={16} />
           ) : (
@@ -150,6 +151,9 @@ function useStyles(colors: ThemeColors) {
           transform: [{rotate: '90deg'}],
         },
         trailingTo: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
           flexShrink: 0,
         },
         cardChevronSpacer: {

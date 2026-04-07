@@ -307,6 +307,39 @@ describe('useTransferViewModel', () => {
     expect(latest?.amountFieldError).not.toBeNull();
   });
 
+  test('canContinueToReview es false con monto cero aunque origen y destino sean distintos', async () => {
+    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
+    await mount();
+    expect(latest?.canContinueToReview).toBe(false);
+  });
+
+  test('canContinueToReview es true con origen y destino distintos y monto válido', async () => {
+    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
+    await mount();
+    act(() => {
+      latest?.onAmountChange('500');
+    });
+    expect(latest?.canContinueToReview).toBe(true);
+  });
+
+  test('canContinueToReview es false con una sola cuenta (origen y destino coinciden)', async () => {
+    mockHomeData.data = {accounts: [savingsAccount]};
+    await mount();
+    act(() => {
+      latest?.onAmountChange('100');
+    });
+    expect(latest?.canContinueToReview).toBe(false);
+  });
+
+  test('canContinueToReview es false cuando el monto supera el saldo', async () => {
+    mockHomeData.data = {accounts: [{...savingsAccount, balance: 0.5}, checkingAccount]};
+    await mount();
+    act(() => {
+      latest?.onAmountChange('10000');
+    });
+    expect(latest?.canContinueToReview).toBe(false);
+  });
+
   test('setFromAccountModalVisible controla la visibilidad del modal de origen', async () => {
     await mount();
     act(() => {

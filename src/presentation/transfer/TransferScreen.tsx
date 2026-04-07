@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity,
     TextInput,
     ActivityIndicator,
     Keyboard,
@@ -44,6 +43,7 @@ export function TransferScreen() {
         displayAmount,
         onAmountChange,
         amountFieldError,
+        canContinueToReview,
         accounts,
         openFromAccountPicker,
         selectedFromAccount,
@@ -84,6 +84,11 @@ export function TransferScreen() {
     const fromBalanceLabel = useMemo(
         () => (selectedFromAccount != null ? formatMoneyEc(selectedFromAccount.balance) : ''),
         [selectedFromAccount],
+    );
+
+    const toBalanceLabel = useMemo(
+        () => (selectedToAccount != null ? formatMoneyEc(selectedToAccount.balance) : ''),
+        [selectedToAccount],
     );
 
     const toContactName = selectedToAccount?.beneficiary.contactName?.trim() ?? '';
@@ -155,6 +160,7 @@ export function TransferScreen() {
                                 origin="Hacia"
                                 name={toName}
                                 description={toDescription}
+                                balanceLabel={toBalanceLabel}
                             />
                         </View>
                         <SpacerView/>
@@ -199,9 +205,11 @@ export function TransferScreen() {
                             ) : null}
                         </View>
 
-
-                        <TouchableOpacity
-                            style={styles.primaryCta}
+                        <Button
+                            disabled={!canContinueToReview}
+                            testID="transfer-continue-button"
+                            iconSourceRight={<TransferIconArrowRightWhite color={colors.white} size={20}/>}
+                            title="Continuar"
                             onPress={() => {
                                 const result = prepareTransferReview();
 
@@ -211,12 +219,7 @@ export function TransferScreen() {
                                 }
                                 setValidationMessage(null);
                                 navigation.navigate('TransferReview', result.params);
-                            }}
-                            activeOpacity={0.9}
-                            testID="transfer-continue-button">
-                            <Text style={styles.primaryCtaText}>Continuar</Text>
-                            <TransferIconArrowRightWhite color={colors.white} size={20}/>
-                        </TouchableOpacity>
+                            }}/>
                         <TertiaryLinkButton title="Cancelar" onPress={() => {
                         }}/>
                     </View>
