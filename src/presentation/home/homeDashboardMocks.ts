@@ -30,7 +30,7 @@ export interface UpcomingPaymentsSummary {
 export const MOCK_UPCOMING_PAYMENTS_SUMMARY: UpcomingPaymentsSummary = {
   summaryLine: '3 pagos próximos',
   linkLabel: 'Ver pagos',
-  amountLabel: '$47.00',
+  amountLabel: '$47.50',
 };
 
 export interface RecentActivityItem {
