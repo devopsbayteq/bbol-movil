@@ -122,6 +122,7 @@ export function MainTabNavigator() {
                 name="ConsolidatedPosition"
                 component={HomeStackNavigator}
                 options={{
+                    popToTopOnBlur:true,
                     title: 'Inicio',
                     tabBarIcon: tabBarIconHome,
                 }}
