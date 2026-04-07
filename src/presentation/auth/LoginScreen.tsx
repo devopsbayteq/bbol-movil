@@ -1,8 +1,8 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {View, StyleSheet, Alert, ActivityIndicator} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {View, StyleSheet, Alert, ActivityIndicator, AppState} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {
   useLoginViewModel,
@@ -31,34 +31,63 @@ export function LoginScreen() {
   );
   const [deviceBoundGreetingName, setDeviceBoundGreetingName] =
     useState<string>('');
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    let cancelled = false;
-    Promise.all([
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const loadDeviceBoundProfile = useCallback(async () => {
+    const [id, name] = await Promise.all([
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
-    ]).then(([id, name]) => {
-      if (!cancelled) {
-        setDeviceBoundLoginId(id?.trim() ?? '');
-        setDeviceBoundGreetingName(name?.trim() ?? '');
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
+    ]);
+    if (!isMountedRef.current) {
+      return;
+    }
+    setDeviceBoundLoginId(id?.trim() ?? '');
+    setDeviceBoundGreetingName(name?.trim() ?? '');
   }, [secureStorageService]);
 
+  const loadBiometricAvailability = useCallback(async () => {
+    try {
+      const hasRegistration =
+        await biometricRSAAuthOrchestrator.hasBiometricRegistration();
+      if (isMountedRef.current) {
+        setShowBiometricLogin(hasRegistration);
+      }
+    } catch {
+      if (isMountedRef.current) {
+        setShowBiometricLogin(false);
+      }
+    }
+  }, [biometricRSAAuthOrchestrator]);
+
   useEffect(() => {
-    let cancelled = false;
-    biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
-      if (!cancelled) {
-        setShowBiometricLogin(has);
+    void loadDeviceBoundProfile();
+    void loadBiometricAvailability();
+  }, [loadBiometricAvailability, loadDeviceBoundProfile]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadDeviceBoundProfile();
+      void loadBiometricAvailability();
+    }, [loadBiometricAvailability, loadDeviceBoundProfile]),
+  );
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        void loadDeviceBoundProfile();
+        void loadBiometricAvailability();
       }
     });
     return () => {
-      cancelled = true;
+      subscription.remove();
     };
-  }, [biometricRSAAuthOrchestrator]);
+  }, [loadBiometricAvailability, loadDeviceBoundProfile]);
 
   const {
     email,

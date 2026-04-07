@@ -62,13 +62,13 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   }, [secureStorage]);
 
   async function restoreSession() {
-    try {
-      // Banca: no restaurar sesión tras reinicio en frío — siempre pantalla de login.
-      await secureStorage.remove(SecureStorageKeys.USER_SESSION);
-      await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
-    } catch {
-      await secureStorage.clear();
-    }
+    // Banca: no restaurar sesión tras reinicio en frío — siempre pantalla de login.
+    // Si falla el remove de una clave puntual (intermitente en iOS), no debemos borrar
+    // todo el almacén porque perderíamos datos persistentes del login compacto/biometría.
+    await Promise.allSettled([
+      secureStorage.remove(SecureStorageKeys.USER_SESSION),
+      secureStorage.remove(SecureStorageKeys.AUTH_TOKEN),
+    ]);
     setState({user: null, isAuthenticated: false, isLoading: false});
   }
 
