@@ -13,7 +13,6 @@ import {formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {useHomeViewModel} from '../home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
-import type {BeneficiaryOption} from '../beneficiary/transferTypes.ts';
 
 function defaultAccountIndex(accounts: AccountBalance[]): number {
     if (accounts.length === 0) {
@@ -28,9 +27,6 @@ export function useTransferViewModel() {
     const {data, isLoading, error, retry} = useHomeViewModel();
 
     const [amountCents, setAmountCents] = useState(0);
-
-    const [beneficiarySelectorVisible, setBeneficiarySelectorVisible] = useState(false);
-    const [beneficiary, setBeneficiary] = useState<BeneficiaryOption | null>(null);
 
     const [accountBeneficiaryModalVisible, setAccountBeneficiaryModalVisible] = useState(false);
 
@@ -67,11 +63,17 @@ export function useTransferViewModel() {
     }, [accounts, defaultIdx, fromAccountIndex]);
 
 
-    const selectedAccount = accounts[fromAccountIndex] ?? null;
+    const selectedFromAccount = accounts[fromAccountIndex] ?? null;
+    const selectedToAccount = accounts[fromAccountIndex] ?? null;
 
     const fromAccountDescription = useMemo(
-        () => (selectedAccount ? formatAccountKindLine(selectedAccount) : ''),
-        [selectedAccount],
+        () => (selectedFromAccount ? formatAccountKindLine(selectedFromAccount) : ''),
+        [selectedFromAccount],
+    );
+
+    const toAccountDescription = useMemo(
+        () => (selectedToAccount ? formatAccountKindLine(selectedToAccount) : ''),
+        [selectedToAccount],
     );
 
     const displayAmount = useMemo(
@@ -80,8 +82,8 @@ export function useTransferViewModel() {
     );
 
     const availableBalanceCents = useMemo(
-        () => balanceDollarsToCents(selectedAccount?.balance ?? 0),
-        [selectedAccount?.balance],
+        () => balanceDollarsToCents(selectedFromAccount?.balance ?? 0),
+        [selectedFromAccount?.balance],
     );
 
     const amountFieldError = useMemo(
@@ -132,11 +134,6 @@ export function useTransferViewModel() {
         setAccountBeneficiaryModalVisible(false);
     }, []);
 
-    const selectBeneficiary = useCallback((b: BeneficiaryOption) => {
-        setBeneficiary(b);
-        setValidationMessage(null);
-    }, []);
-
     const selectToAccount = useCallback((index: number) => {
         setToAccountIndex(index);
         setToAccountModalVisible(false);
@@ -156,10 +153,10 @@ export function useTransferViewModel() {
         if (amountError) {
             return {ok: false, message: amountError};
         }
-        if (!beneficiary) {
+        if (!selectedToAccount) {
             return {ok: false, message: 'Selecciona un beneficiario.'};
         }
-        if (!selectedAccount) {
+        if (!selectFromAccount) {
             return {ok: false, message: 'No hay una cuenta de origen disponible.'};
         }
 
@@ -176,20 +173,25 @@ export function useTransferViewModel() {
             params: {
                 amountCents,
                 displayAmount,
-                beneficiary,
+                beneficiary:{
+                    id:selectedToAccount.beneficiary.beneficiaryGuid,
+                    bankName:selectedToAccount.beneficiary.bankName,
+                    name:selectedToAccount.beneficiary.contactName,
+                    kind:"own_account",
+                    accountHint:selectedToAccount.beneficiary.lastFourDigits
+                },
                 fromHolderName: holderName,
-                fromAccountLine: formatAccountKindLine(selectedAccount),
-                accountId: selectedAccount.accountGuid,
+                fromAccountLine: formatAccountKindLine(selectedFromAccount),
+                accountId: selectedFromAccount.beneficiary.beneficiaryGuid,
                 concept: concept,
             },
         };
     }, [
         amountCents,
         availableBalanceCents,
-        beneficiary,
         concept,
         displayAmount,
-        selectedAccount,
+        selectedFromAccount,
         user?.name,
     ]);
 
@@ -199,13 +201,10 @@ export function useTransferViewModel() {
         error,
         retry,
         accounts,
-        selectedAccount,
+        selectedFromAccount,
         fromAccountDescription,
         fromAccountModalVisible,
         setFromAccountModalVisible,
-        beneficiarySelectorVisible,
-        setBeneficiarySelectorVisible,
-        beneficiary,
         amountCents,
         displayAmount,
         onAmountChange,
@@ -217,7 +216,6 @@ export function useTransferViewModel() {
         openFromAccountPicker,
         openToAccountPicker,
         selectFromAccount,
-        selectBeneficiary,
         fromAccountIndex,
         prepareTransferReview,
         openAccountBeneficiaryPicker,
@@ -225,6 +223,8 @@ export function useTransferViewModel() {
         toAccountModalVisible,
         setToAccountModalVisible,
         toAccountIndex,
-        selectToAccount
+        selectToAccount,
+        toAccountDescription,
+        selectedToAccount
     };
 }

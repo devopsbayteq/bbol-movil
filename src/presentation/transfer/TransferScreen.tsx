@@ -53,17 +53,13 @@ export function TransferScreen() {
         displayAmount,
         onAmountChange,
         amountFieldError,
-        selectBeneficiary,
-        beneficiarySelectorVisible,
-        setBeneficiarySelectorVisible,
-        beneficiary,
         accounts,
         openFromAccountPicker,
-        openAccountBeneficiaryPicker,
-        selectedAccount,
+        selectedFromAccount,
         fromAccountIndex,
         selectFromAccount,
         fromAccountDescription,
+        toAccountDescription,
         fromAccountModalVisible,
         setFromAccountModalVisible,
         concept,
@@ -78,12 +74,14 @@ export function TransferScreen() {
         toAccountModalVisible,
         setToAccountModalVisible,
         toAccountIndex,
-        selectToAccount
+        selectToAccount,
+        openToAccountPicker,
+        selectedToAccount
     } = useTransferViewModel();
 
 
-    const holderName = user?.name?.trim() || 'Titular';
-    const beneficiaryTitle = beneficiary ? beneficiary.name : 'Selecciona el beneficiario';
+    const fromName = user?.name?.trim() || 'Titular';
+    const toName = selectedToAccount?.beneficiary.contactName ??'Selecciona el beneficiario';
 
     const onBack = () => {
         const tabNav =
@@ -126,59 +124,18 @@ export function TransferScreen() {
                         <AccountSelectorButton
                             onPress={openFromAccountPicker}
                             accounts={accounts}
-                            selectedAccount={selectedAccount}
+                            selectedAccount={selectedFromAccount}
                             origin={"Desde"}
-                            name={holderName}
+                            name={fromName}
                             description={fromAccountDescription}/>
 
-                        {/*<TouchableOpacity*/}
-                        {/*    style={styles.card}*/}
-                        {/*    onPress={*/}
-                        {/*        accounts.length > 1 ? openFromAccountPicker : undefined*/}
-                        {/*    }*/}
-                        {/*    activeOpacity={accounts.length > 1 ? 0.9 : 1}*/}
-                        {/*    disabled={accounts.length <= 1}>*/}
-                        {/*    <View style={styles.iconChip}>*/}
-                        {/*        <TransferIconWallet color={colors.primary} size={16}/>*/}
-                        {/*    </View>*/}
-                        {/*    <View style={styles.cardBody}>*/}
-                        {/*        <Text style={styles.cardLabel}>Desde</Text>*/}
-                        {/*        <Text style={styles.cardTitle} numberOfLines={1}>*/}
-                        {/*            {holderName}*/}
-                        {/*        </Text>*/}
-                        {/*        {selectedAccount ? (*/}
-                        {/*            <Text style={styles.cardSub} numberOfLines={1}>*/}
-                        {/*                {fromAccountDescription}*/}
-                        {/*            </Text>*/}
-                        {/*        ) : (*/}
-                        {/*            <Text style={styles.cardSub}>Sin cuenta disponible</Text>*/}
-                        {/*        )}*/}
-                        {/*    </View>*/}
-                        {/*    {accounts.length > 1 ? (*/}
-                        {/*        <TransferIconArrowUp color={colors.iconPrimary} size={16}/>*/}
-                        {/*    ) : (*/}
-                        {/*        <View style={styles.cardChevronSpacer}/>*/}
-                        {/*    )}*/}
-                        {/*</TouchableOpacity>*/}
-
-                        <TouchableOpacity
-                            style={styles.card}
-                            onPress={openAccountBeneficiaryPicker}
-                            activeOpacity={0.9}
-                            testID="transfer-beneficiary-picker">
-                            <View style={styles.iconChip}>
-                                <TransferIconUser color={HERO_BG} size={16}/>
-                            </View>
-                            <View style={styles.cardBody}>
-                                <Text style={styles.cardLabel}>Para</Text>
-                                <Text style={styles.cardTitle} numberOfLines={2}>
-                                    {beneficiaryTitle}
-                                </Text>
-                            </View>
-                            <TransferIconArrowRight color={colors.iconPrimary} size={16}/>
-                        </TouchableOpacity>
-
-
+                        <AccountSelectorButton
+                            onPress={openToAccountPicker}
+                            accounts={accounts}
+                            selectedAccount={selectedToAccount}
+                            origin={"Desde"}
+                            name={toName}
+                            description={toAccountDescription}/>
                         <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
                         <View style={styles.amountWrap}>
                             <TextInput
@@ -264,17 +221,6 @@ export function TransferScreen() {
                 visible={toAccountModalVisible}
                 onClose={() => setToAccountModalVisible(false)}
             />
-
-            <BeneficiarySelectModal
-                visible={beneficiarySelectorVisible}
-                onRequestClose={() => setBeneficiarySelectorVisible(false)}
-                onSelect={b => {
-                    selectBeneficiary(b);
-                    setBeneficiarySelectorVisible(false);
-                }}
-            />
-
-
         </View>
     );
 }
