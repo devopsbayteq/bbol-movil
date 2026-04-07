@@ -54,10 +54,9 @@ name: Transferencias — revisión detallada (monto, beneficiario, concepto, acc
 # --- Verificar todos los campos de la pantalla de revisión ---
 - assertVisible: "REVISAR TRANSFERENCIA"
 - assertVisible: "Monto a enviar"
-- assertVisible: "Para"
+- assertVisible: "Hacia"
 - assertVisible: "Desde"
 - assertVisible: "Comisión"
-- assertVisible: "Fecha"
 - assertVisible: "Concepto"
 - assertVisible: "Pago prueba E2E"
 
@@ -67,7 +66,7 @@ name: Transferencias — revisión detallada (monto, beneficiario, concepto, acc
 - assertVisible:
     id: "transfer-modify-button"
 
-# --- Botón Modificar vuelve al formulario ---
+# --- Botón Cancelar vuelve al formulario ---
 - tapOn:
     id: "transfer-modify-button"
 

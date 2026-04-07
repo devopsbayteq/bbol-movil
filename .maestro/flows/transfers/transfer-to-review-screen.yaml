@@ -50,5 +50,5 @@ name: Transferencias — formulario hasta pantalla de revisión
 
 - assertVisible: "REVISAR TRANSFERENCIA"
 - assertVisible: "Monto a enviar"
-- assertVisible: "Confirmar"
-- assertVisible: "Modificar"
+- assertVisible: "Transferir"
+- assertVisible: "Cancelar"

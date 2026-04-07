@@ -7,8 +7,9 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
+  type TextStyle,
 } from 'react-native';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 
 interface TertiaryLinkButtonProps {

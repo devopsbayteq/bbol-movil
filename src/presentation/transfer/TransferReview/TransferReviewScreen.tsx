@@ -18,21 +18,16 @@ import {useTheme, type ThemeColors} from '../../../providers';
 import {Lexend} from '../../../theme/lexend';
 import {ErrorMessage} from '../../components';
 import {
-    TransferIconArrowRight,
-    TransferIconArrowRightWhite,
+    TransferIconArrowsRetweet,
     TransferIconUser,
     TransferIconWallet,
 } from '../components/transferIcons.tsx';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
-import {ToolbarApp} from "../components/ToolbarApp.tsx";
+import {ToolbarApp} from '../components/ToolbarApp.tsx';
 import {
     TransferModalSuccess,
     type TransferDataResume,
 } from '../transferResult/TransferModalSuccess.tsx';
-
-const HERO_ICON = '#0B515C';
-const ICON_CHIP_BG = '#D0F0F6';
-const LABEL_MUTED = '#3E494B';
 
 export function TransferReviewScreen() {
     const {colors} = useTheme();
@@ -43,8 +38,7 @@ export function TransferReviewScreen() {
         NativeStackNavigationProp<TransferStackParamList, 'TransferReview'>
     >();
 
-    const router = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>()
-
+    const router = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>();
 
     const [showTransferSuccessModal, setTransferSuccessModal] = useState(false);
     const [successTransactionData, setSuccessTransactionData] =
@@ -59,56 +53,61 @@ export function TransferReviewScreen() {
         navigation.popToTop();
         const tabNav =
             navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate({name: 'Home', params: {refreshHome: Date.now()}});
+        tabNav?.navigate({
+            name: 'ConsolidatedPosition',
+            params: {refreshHome: Date.now()},
+        });
     }, [navigation]);
 
-    const onTransferSuccess = useCallback(
-        (data: TransferDataResume) => {
-            setSuccessTransactionData(data);
-            setTransferSuccessModal(true);
-        },
-        [],
-    );
+    const onTransferSuccess = useCallback((data: TransferDataResume) => {
+        setSuccessTransactionData(data);
+        resetTransferSuccessUi();
+        navigation.navigate('TransferVoucher', {
+            routeSuccessTransactionData: data,
+        });
+    }, []);
 
     const {
         displayAmount,
         beneficiary,
-        fromHolderName,
-        fromAccountLine,
-        commission,
+        fromAccountTitle,
+        fromAccountSubtitle,
+        fromBalanceDisplay,
+        toBalanceDisplay,
         commissionLoading,
+        commissionDisplay,
         confirmLoading,
         confirmError,
         setConfirmError,
         paraSubline,
         conceptDisplay,
-        transferDateLabel,
         onConfirm,
-        doTransacction
-    } = useTransferReviewViewModel(() => {
-        navigation.navigate('OtpValidationTransfer', {mode: 'transfer', email: "",})
-    }, {onTransferSuccess});
+        doTransacction,
+    } = useTransferReviewViewModel(
+        () => {
+            navigation.navigate('OtpValidationTransfer', {
+                mode: 'transfer',
+                email: '',
+            });
+        },
+        {onTransferSuccess},
+    );
 
     useEffect(() => {
         if (router.params?.resultFromOtp?.otpValidated) {
-            navigation.setParams({resultFromOtp: undefined})
-            doTransacction().catch()
+            navigation.setParams({resultFromOtp: undefined});
+            doTransacction().catch();
         }
-    }, [
-        doTransacction,
-        navigation,
-        router.params?.resultFromOtp
-    ])
-
+    }, [doTransacction, navigation, router.params?.resultFromOtp]);
 
     return (
         <View style={styles.root} testID="transfer-review-screen">
             <ToolbarApp
-                title={"REVISAR TRANSFERENCIA"}
+                title="REVISAR TRANSFERENCIA"
                 onBackPress={() => {
-                    navigation.goBack()
-                }
-                }/>
+                    navigation.goBack();
+                }}
+            />
 
             <ScrollView
                 style={styles.scroll}
@@ -123,13 +122,42 @@ export function TransferReviewScreen() {
                         {displayAmount}
                     </Text>
 
-                    <View style={styles.paraRow}>
+                    <View style={styles.immediateBanner}>
+                        <Text style={styles.immediateBannerText}>
+                            La transferencia se realizará de inmediato
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.desdeRow}
+                        onPress={() => {
+                            navigation.goBack();
+                        }}
+                        activeOpacity={0.88}
+                        accessibilityRole="button"
+                        accessibilityLabel="Volver para cambiar cuenta de origen">
                         <View style={styles.iconChip}>
-                            <TransferIconUser color={HERO_ICON} size={16}/>
+                            <TransferIconWallet color={colors.primary} size={16} />
                         </View>
                         <View style={styles.cardBody}>
-                            <Text style={styles.paraLabel}>Para</Text>
-                            <Text style={styles.cardTitle} numberOfLines={2}>
+                            <Text style={styles.desdeLabel}>Desde</Text>
+                            <Text style={styles.rowAccountName} numberOfLines={1}>
+                                {fromAccountTitle}
+                            </Text>
+                            <Text style={styles.cardSub} numberOfLines={1}>
+                                {fromAccountSubtitle}
+                            </Text>
+                        </View>
+                        <Text style={styles.balanceInline}>{fromBalanceDisplay}</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.paraRow}>
+                        <View style={styles.iconChip}>
+                            <TransferIconUser color={colors.primary} size={16} />
+                        </View>
+                        <View style={styles.cardBody}>
+                            <Text style={styles.haciaLabel}>Hacia</Text>
+                            <Text style={styles.rowAccountName} numberOfLines={2}>
                                 {beneficiary.name}
                             </Text>
                             {paraSubline ? (
@@ -138,51 +166,22 @@ export function TransferReviewScreen() {
                                 </Text>
                             ) : null}
                         </View>
-                        <View style={styles.cardChevronSpacer}/>
+                        <Text style={styles.balanceInline}>{toBalanceDisplay}</Text>
                     </View>
 
-                    <TouchableOpacity
-                        style={styles.desdeRow}
-                        onPress={() => {
-                            navigation.goBack()
-                        }}
-                        activeOpacity={0.88}
-                        accessibilityRole="button"
-                        accessibilityLabel="Volver para cambiar cuenta de origen">
-                        <View style={styles.iconChip}>
-                            <TransferIconWallet color={HERO_ICON} size={16}/>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <Text style={styles.desdeLabel}>Desde</Text>
-                            <Text style={styles.cardTitle} numberOfLines={1}>
-                                {fromHolderName}
-                            </Text>
-                            <Text style={styles.cardSub} numberOfLines={1}>
-                                {fromAccountLine}
-                            </Text>
-                        </View>
-                        <TransferIconArrowRight color={colors.iconPrimary} size={16}/>
-                    </TouchableOpacity>
-
                     <View style={styles.detailRow}>
-                        <Text style={styles.detailLabel}>Comisión</Text>
-                        {commissionLoading ? (
-                            <ActivityIndicator size="small" color={colors.primary}/>
-                        ) : (
-                            <Text style={styles.detailValue}>
-                                {commission ?? '—'}
-                            </Text>
-                        )}
-                    </View>
-                    <View style={styles.detailRow}>
-                        <Text style={styles.detailLabel}>Fecha</Text>
-                        <Text style={styles.detailValue}>{transferDateLabel}</Text>
-                    </View>
-                    <View style={[styles.detailRow, styles.detailRowLast]}>
                         <Text style={styles.detailLabel}>Concepto</Text>
                         <Text style={[styles.detailValue, styles.conceptValue]}>
                             {conceptDisplay}
                         </Text>
+                    </View>
+                    <View style={[styles.detailRow, styles.detailRowLast]}>
+                        <Text style={styles.detailLabel}>Comisión</Text>
+                        {commissionLoading ? (
+                            <ActivityIndicator size="small" color={colors.primary} />
+                        ) : (
+                            <Text style={styles.detailValue}>{commissionDisplay}</Text>
+                        )}
                     </View>
                 </View>
 
@@ -200,34 +199,37 @@ export function TransferReviewScreen() {
                         ]}
                         onPress={() => {
                             setConfirmError(null);
-                            onConfirm().catch(() => {
-                            });
+                            onConfirm().catch(() => {});
                         }}
                         disabled={confirmLoading}
                         activeOpacity={0.9}
                         accessibilityRole="button"
-                        accessibilityLabel="Confirmar transferencia"
+                        accessibilityLabel="Transferir"
                         testID="transfer-confirm-button">
                         {confirmLoading ? (
-                            <ActivityIndicator color={colors.white} size="small"/>
+                            <ActivityIndicator color={colors.white} size="small" />
                         ) : (
-                            <TransferIconArrowRightWhite color={colors.white} size={20}/>
+                            <>
+                                <Text style={styles.primaryCtaText}>Transferir</Text>
+                                <TransferIconArrowsRetweet
+                                    color={colors.white}
+                                    size={20}
+                                />
+                            </>
                         )}
-                        <Text style={styles.primaryCtaText}>Confirmar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.secondaryCta}
                         onPress={() => {
-                            navigation.goBack()
+                            navigation.goBack();
                         }}
                         activeOpacity={0.88}
                         accessibilityRole="button"
-                        accessibilityLabel="Modificar transferencia"
+                        accessibilityLabel="Cancelar transferencia"
                         testID="transfer-modify-button">
-                        <Text style={styles.secondaryCtaText}>Modificar</Text>
+                        <Text style={styles.secondaryCtaText}>Cancelar</Text>
                     </TouchableOpacity>
                 </View>
-
             </ScrollView>
 
             {successTransactionData ? (
@@ -241,11 +243,11 @@ export function TransferReviewScreen() {
                     transactionData={successTransactionData}
                     visible={showTransferSuccessModal}
                     onClose={() => {
-                        resetTransferSuccessUi()
+                        resetTransferSuccessUi();
                         navigation.reset({
                             index: 0,
-                            routes: [{name: 'TransferMain'}]
-                        })
+                            routes: [{name: 'TransferMain'}],
+                        });
                     }}
                     navigateToTransfer={() => {
                         resetTransferSuccessUi();
@@ -293,13 +295,33 @@ function useStyles(colors: ThemeColors) {
                     fontFamily: Lexend.semiBold,
                     fontSize: 12,
                     lineHeight: 20,
-                    color: LABEL_MUTED,
+                    color: colors.textSecondary,
+                    textAlign: 'center',
+                    alignSelf: 'stretch',
                 },
                 amountValue: {
-                    fontFamily: Lexend.bold,
-                    fontSize: 26,
-                    lineHeight: 36,
+                    fontFamily: Lexend.regular,
+                    fontSize: 50,
+                    lineHeight: 60,
                     color: colors.textPrimary,
+                    textAlign: 'center',
+                    alignSelf: 'stretch',
+                },
+                immediateBanner: {
+                    alignSelf: 'stretch',
+                    backgroundColor: colors.primaryIconContainerBg,
+                    borderRadius: 12,
+                    paddingHorizontal: 4,
+                    paddingVertical: 8,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                },
+                immediateBannerText: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textSecondary,
+                    textAlign: 'center',
                 },
                 paraRow: {
                     flexDirection: 'row',
@@ -313,7 +335,7 @@ function useStyles(colors: ThemeColors) {
                     width: 32,
                     height: 32,
                     borderRadius: 8,
-                    backgroundColor: ICON_CHIP_BG,
+                    backgroundColor: colors.primaryIconContainerBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                 },
@@ -321,11 +343,11 @@ function useStyles(colors: ThemeColors) {
                     flex: 1,
                     minWidth: 0,
                 },
-                paraLabel: {
+                haciaLabel: {
                     fontFamily: Lexend.regular,
                     fontSize: 12,
                     lineHeight: 20,
-                    color: colors.textPrimary,
+                    color: colors.textSecondary,
                 },
                 desdeLabel: {
                     fontFamily: Lexend.regular,
@@ -333,11 +355,11 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 20,
                     color: colors.textTertiary,
                 },
-                cardTitle: {
-                    fontFamily: Lexend.semiBold,
+                rowAccountName: {
+                    fontFamily: Lexend.regular,
                     fontSize: 14,
                     lineHeight: 22,
-                    color: colors.textPrimary,
+                    color: colors.textSecondary,
                 },
                 cardSub: {
                     fontFamily: Lexend.regular,
@@ -346,19 +368,20 @@ function useStyles(colors: ThemeColors) {
                     color: colors.textTertiary,
                     marginTop: 2,
                 },
-                cardChevronSpacer: {
-                    width: 16,
-                    height: 16,
+                balanceInline: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textSecondary,
+                    flexShrink: 0,
                 },
                 desdeRow: {
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 16,
-                    paddingHorizontal: 13,
-                    paddingVertical: 17,
+                    paddingHorizontal: 12,
+                    paddingVertical: 16,
                     borderRadius: 12,
-                    borderWidth: 1,
-                    borderColor: colors.border,
                 },
                 detailRow: {
                     flexDirection: 'row',
@@ -408,13 +431,15 @@ function useStyles(colors: ThemeColors) {
                     gap: 12,
                     backgroundColor: colors.primary,
                     borderRadius: 8,
-                    paddingVertical: 16,
+                    minHeight: 48,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
                     width: '100%',
                     ...Platform.select({
                         ios: {
-                            shadowColor: '#000',
+                            shadowColor: colors.shadowSoft,
                             shadowOffset: {width: 0, height: 2},
-                            shadowOpacity: 0.08,
+                            shadowOpacity: 1,
                             shadowRadius: 4,
                         },
                         android: {elevation: 2},

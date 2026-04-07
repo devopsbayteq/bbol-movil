@@ -8,15 +8,7 @@ import type {TransferStackParamList} from '../../../navigation/TransferStackNavi
 import {useDI} from '../../../di';
 import {useAuth} from '../../../providers';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess.tsx';
-
-
-function formatReviewDate(date: Date): string {
-    const day = date.getDate();
-    const month = date.toLocaleDateString('es-EC', {month: 'long'});
-    const capMonth = month.charAt(0).toUpperCase() + month.slice(1);
-    const year = date.getFullYear();
-    return `${day} de ${capMonth}, ${year}`;
-}
+import {formatMoneyEc} from '../../../utils/formatMoneyEc';
 
 function beneficiaryAccountLine(
     bankName?: string,
@@ -50,6 +42,10 @@ export function useTransferReviewViewModel(
         beneficiary,
         fromHolderName,
         fromAccountLine,
+        fromAccountTitle,
+        fromAccountSubtitle,
+        fromBalanceDisplay,
+        toBalanceDisplay,
         accountId,
         concept,
     } = route.params;
@@ -75,7 +71,12 @@ export function useTransferReviewViewModel(
 
     const conceptDisplay = concept.trim() ? concept.trim() : '—';
 
-    const transferDateLabel = useMemo(() => formatReviewDate(new Date()), []);
+    const commissionDisplay = useMemo(() => {
+        if (commission === 'Con cargo') {
+            return 'Con cargo';
+        }
+        return formatMoneyEc(0);
+    }, [commission]);
 
     const doTransacction = useCallback(async () => {
         setConfirmError(null);
@@ -112,13 +113,6 @@ export function useTransferReviewViewModel(
 
     const onConfirm = useCallback(async () => {
         setConfirmError(null);
-
-        if (beneficiary.kind === 'own_account') {
-            setConfirmError(
-                'Las transferencias entre cuentas propias serán habilitadas próximamente.',
-            );
-            return;
-        }
 
         const email = user?.email?.trim() ?? '';
         if (!email) {
@@ -187,16 +181,20 @@ export function useTransferReviewViewModel(
         beneficiary,
         fromHolderName,
         fromAccountLine,
+        fromAccountTitle,
+        fromAccountSubtitle,
+        fromBalanceDisplay,
+        toBalanceDisplay,
         accountId,
         concept,
         commission,
         commissionLoading,
+        commissionDisplay,
         confirmLoading,
         confirmError,
         setConfirmError,
         paraSubline,
         conceptDisplay,
-        transferDateLabel,
         onConfirm,
         doTransacction
     };

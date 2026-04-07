@@ -1,12 +1,9 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useMemo} from 'react';
-import QRCode from 'react-native-qrcode-svg';
-import {ThemeColors, useTheme} from '../../../providers';
-import {Lexend} from '../../../theme/lexend';
+import {StyleSheet, View} from 'react-native';
+import React from 'react';
 import {CardViewContainer} from './CardViewContainer';
 import {TransactionHeaderInformation} from './TransactionHeaderInformation';
 import {CardAccountItem} from './CardAccountItem';
-import {SpacerView} from '../../components/SpacerView';
+import {VoucherConceptRow} from './VoucherConceptRow';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess';
 
 type TransferVoucherShareableCardProps = {
@@ -16,74 +13,36 @@ type TransferVoucherShareableCardProps = {
 export function TransferVoucherShareableCard({
   transferResume,
 }: TransferVoucherShareableCardProps) {
-  const {colors} = useTheme();
-  const styles = useStyles(colors);
   const showConcept =
     transferResume.concept != null && transferResume.concept !== '';
 
   return (
     <CardViewContainer>
-      <View>
-        <TransactionHeaderInformation transferResume={transferResume} />
-        {showConcept ? (
-          <View style={styles.contentConcept}>
-            <Text style={styles.conceptTitle}>Concepto</Text>
-            <Text>{transferResume.concept}</Text>
-          </View>
-        ) : null}
+      <TransactionHeaderInformation transferResume={transferResume} />
+      <View style={styles.accountsBlock}>
         <CardAccountItem
           origin="Desde"
-          accountType={transferResume.fromAccountLine}
-          name={transferResume.fromHolderName}
+          accountType={transferResume.fromHolderName}
+          name={transferResume.fromAccountLine}
           showBottomBorder
+          icon="wallet"
         />
         <CardAccountItem
-          origin="Para"
-          accountType={transferResume.beneficiary.accountHint}
-          name={transferResume.beneficiary.name}
-          showBottomBorder
+          origin="Hacia"
+          accountType={transferResume.beneficiary.name}
+          name={transferResume.beneficiary.accountHint??""}
+          icon="user"
         />
-        <SpacerView />
-        <View style={styles.containerQR}>
-          <QRCode
-            value={transferResume.transactionIdentifier}
-            size={100}
-          />
-          <SpacerView />
-          <Text style={styles.qrDescription}>
-            QR de verificación{'\n'}de transacción
-          </Text>
-        </View>
       </View>
+      {showConcept ? (
+        <VoucherConceptRow concept={transferResume.concept} />
+      ) : null}
     </CardViewContainer>
   );
 }
 
-function useStyles(colors: ThemeColors) {
-  return useMemo(
-    () =>
-      StyleSheet.create({
-        contentConcept: {
-          alignItems: 'flex-start',
-        },
-        conceptTitle: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.primary,
-          textAlign: 'center',
-        },
-        containerQR: {
-          flexDirection: 'row',
-          alignItems: 'center',
-        },
-        qrDescription: {
-          fontSize: 14,
-          fontWeight: '400',
-          color: colors.primary,
-          fontFamily: Lexend.bold,
-        },
-      }),
-    [colors],
-  );
-}
+const styles = StyleSheet.create({
+  accountsBlock: {
+    width: '100%',
+  },
+});

@@ -87,8 +87,8 @@ npm run lint          # ESLint
 | `transfer-concept-error` | TransferScreen — error inline concepto |
 | `transfer-continue-button` | TransferScreen — botón "Continuar" |
 | `transfer-review-screen` | TransferReviewScreen — vista raíz |
-| `transfer-confirm-button` | TransferReviewScreen — botón "Confirmar" |
-| `transfer-modify-button` | TransferReviewScreen — botón "Modificar" |
+| `transfer-confirm-button` | TransferReviewScreen — botón "Transferir" |
+| `transfer-modify-button` | TransferReviewScreen — botón "Cancelar" |
 | `transfer-success-modal` | TransferModalSuccess — sheet del modal |
 | `transfer-voucher-button` | TransferModalSuccess — botón "Voucher" |
 | `transfer-voucher-screen` | TransferVoucherScreen — vista raíz |

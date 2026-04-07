@@ -6,11 +6,12 @@ import {
   StyleSheet,
   type StyleProp,
   type ViewStyle,
+  type TextStyle,
   ImageSourcePropType,
   Image,
   View,
 } from 'react-native';
-import {useTheme, type ThemeColors} from '../../providers/theme';
+import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 
 type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
@@ -20,15 +21,13 @@ interface ButtonProps {
   onPress: () => void;
   loading?: boolean;
   iconSource?: ImageSourcePropType;
-  iconSourceRight?: ImageSourcePropType;
-  /** Si se define, sustituye a `iconSource` (p. ej. SVG). */
-  iconNodeLeft?: ReactNode;
-  /** Si se define, sustituye a `iconSourceRight` (p. ej. SVG). */
-  iconNodeRight?: ReactNode;
+  iconSourceRight?: ImageSourcePropType | ReactNode;
   iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Estilo del texto del título (p. ej. tamaño en pantallas de comprobante). */
+  labelStyle?: StyleProp<TextStyle>;
   testID?: string;
 }
 
@@ -44,6 +43,7 @@ export function Button({
   variant = 'primary',
   disabled = false,
   style,
+  labelStyle,
   testID,
 }: ButtonProps) {
   const {colors} = useTheme();
@@ -87,20 +87,23 @@ export function Button({
               styles.text,
               variant === 'outline' && styles.outlineText,
               variant === 'loginPrimary' && styles.loginPrimaryText,
+              labelStyle,
             ]}>
             {title}
           </Text>
-          {iconNodeRight ? (
-            <View style={styles.iconTrailingWrap}>{iconNodeRight}</View>
-          ) : iconSourceRight ? (
-            <Image
-              source={iconSourceRight}
-              style={[
-                styles.iconTrailing,
-                iconRightTintColor ? {tintColor: iconRightTintColor} : null,
-              ]}
-              resizeMode="contain"
-            />
+          {iconSourceRight ? (
+            React.isValidElement(iconSourceRight) ? (
+              <View style={styles.iconTrailingContainer}>{iconSourceRight}</View>
+            ) : (
+              <Image
+                source={iconSourceRight as ImageSourcePropType}
+                style={[
+                  styles.iconTrailing,
+                  iconRightTintColor ? {tintColor: iconRightTintColor} : null,
+                ]}
+                resizeMode="contain"
+              />
+            )
           ) : null}
         </View>
       )}
@@ -169,10 +172,10 @@ function useStyles(colors: ThemeColors) {
           height: 24,
           marginLeft: 8,
         },
-        iconTrailingWrap: {
+        iconTrailingContainer: {
           marginLeft: 8,
-          justifyContent: 'center',
           alignItems: 'center',
+          justifyContent: 'center',
         },
         contentRow: {
           flexDirection: 'row',

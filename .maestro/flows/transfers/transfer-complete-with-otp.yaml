@@ -50,11 +50,11 @@ name: Transferencia completa — formulario, revisión, OTP y éxito
 
 - assertVisible: "REVISAR TRANSFERENCIA"
 - assertVisible: "Monto a enviar"
-- assertVisible: "Confirmar"
-- assertVisible: "Modificar"
+- assertVisible: "Transferir"
+- assertVisible: "Cancelar"
 
-# Confirmar abre pantalla OTP (mode: 'transfer')
-- tapOn: "Confirmar"
+# Transferir abre pantalla OTP (mode: 'transfer')
+- tapOn: "Transferir"
 
 - runFlow:
     file: ../../subflows/complete-demo-otp-transfer.yaml

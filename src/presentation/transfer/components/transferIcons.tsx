@@ -76,6 +76,21 @@ export function TransferIconArrowUp({color, size = 16}: IconProps) {
   );
 }
 
+/** Doble chevron abajo (entre tarjetas Desde / Hacia). */
+export function TransferIconAnglesDown({color, size = 24}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M7 8l5 5 5-5M7 14l5 5 5-5"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function TransferIconUser({color, size = 16}: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
