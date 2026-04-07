@@ -72,13 +72,15 @@ export function LoginHeroImageCarousel({
       <Animated.Image
         source={sourceA}
         style={[styles.image, {opacity: opacity0}]}
-        resizeMode="contain"
+        resizeMode="cover"
+        height={200}
         accessibilityIgnoresInvertColors
       />
       <Animated.Image
         source={sourceB}
         style={[styles.image, {opacity: opacity1}]}
-        resizeMode="contain"
+        resizeMode="cover"
+        height={200}
         accessibilityIgnoresInvertColors
       />
     </View>
@@ -94,12 +96,12 @@ function useCarouselStyles(colors: ThemeColors, height: number) {
           height,
           borderRadius: 16,
           overflow: 'hidden',
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background,
         },
         image: {
-         // ...StyleSheet.absoluteFill,
+          ...StyleSheet.absoluteFillObject,
         },
       }),
-    [colors.surface, height],
+    [colors.background, height],
   );
 }

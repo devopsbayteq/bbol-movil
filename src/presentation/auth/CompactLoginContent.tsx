@@ -89,7 +89,7 @@ export function CompactLoginContent({
         <LoginHeroImageCarousel
           sourceA={heroLoginA}
           sourceB={heroLoginB}
-          height={180}
+          height={210}
         />
       </View>
 
