@@ -4,7 +4,7 @@ export const useTransferInitViewModel = () => {
   const {data, isLoading, error, retry} = useHomeViewModel();
 
   const isBetweenOwnAccountsEnabled = true;
-  const isThirdPartyEnabled = true;
+  const isThirdPartyEnabled = false;
 
   return {
     data,

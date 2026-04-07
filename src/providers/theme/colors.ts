@@ -3,7 +3,6 @@ export interface ThemeColors {
   surface: string;
   primary: string;
   primaryLight: string;
-  /** Fondo suave detrás de iconos en filas de acción (p. ej. transfer init). */
   primaryIconContainerBg: string;
   textPrimary: string;
   textSecondary: string;
