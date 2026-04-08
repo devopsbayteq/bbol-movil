@@ -16,7 +16,7 @@ import type {TransferStackParamList} from '../../navigation/TransferStackNavigat
 import type {MainTabParamList} from '../../../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../../../providers';
 import {Lexend} from '../../theme/lexend';
-import {ErrorMessage} from '../ui/ErrorMessage';
+import {ErrorMessage} from '../ui';
 import {
     TransferIconArrowsRetweet,
 } from '../components/transferIcons.tsx';

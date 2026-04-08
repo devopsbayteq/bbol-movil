@@ -8,7 +8,7 @@ import type {TransferStackParamList} from '../../navigation/TransferStackNavigat
 import {useDI} from '../../../../di';
 import {useAuth} from '../../../../providers';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess';
-import {formatMoneyEc} from '../../utils/formatMoneyEc';
+import {formatMoneyUsdDisplay} from "../../utils/formatMoneyUsdDisplay.ts";
 
 function beneficiaryAccountLine(
     bankName?: string,
@@ -83,7 +83,7 @@ export function useTransferReviewViewModel(
         if (commission === 'Con cargo') {
             return 'Con cargo';
         }
-        return formatMoneyEc(0);
+        return formatMoneyUsdDisplay(0);
     }, [commission]);
 
     const doTransacction = useCallback(async () => {

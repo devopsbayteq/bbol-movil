@@ -18,6 +18,7 @@ import {Lexend} from '../theme/lexend';
 import type {TransferStackParamList} from '../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../../navigation/MainTabNavigator';
 import {TransferIconArrowRightWhite} from './components/transferIcons.tsx';
+import {TRANSFER_CONCEPT_MAX_LENGTH} from '../domain/validation';
 import {useTransferViewModel} from './useTransferViewModel';
 import {formatMoneyUsdDisplay} from '../utils/formatMoneyUsdDisplay';
 import {ToolbarApp} from './components/ToolbarApp.tsx';
@@ -30,7 +31,6 @@ import AngleArrow from '../../../../assets/images/svg/angles-down.svg';
 
 const AMOUNT_PLACEHOLDER = formatMoneyUsdDisplay(0);
 
-/** Vertical gap between account cards; must match SpacerView height between selectors. */
 const ACCOUNT_BRIDGE_SPACER_HEIGHT = 24;
 const BRIDGE_CIRCLE_SIZE = 40;
 
@@ -277,7 +277,7 @@ export function TransferScreen() {
                                 onChangeText={onConceptChange}
                                 placeholder="Ej. Pago zapatos"
                                 placeholderTextColor={colors.placeholder}
-                                maxLength={120}
+                                maxLength={TRANSFER_CONCEPT_MAX_LENGTH}
                                 testID="transfer-concept-input"
                             />
                             {validationMessage ? (

@@ -1,14 +1,13 @@
 import {Text} from "react-native";
 import {Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {TransferIconClose} from "./components/transferIcons.tsx";
-import {accountTypeModalLabel} from '../utils/accountDisplay';
-import {formatMoneyEc} from '../utils/formatMoneyEc';
 import React, {useMemo} from 'react';
 import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 import {ThemeColors, useTheme} from '../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../theme/lexend';
 import {Platform} from "react-native";
+import {formatMoneyUsdDisplay} from "../utils/formatMoneyUsdDisplay.ts";
 
 export type AccountPickerRole = 'source' | 'destination';
 
@@ -101,7 +100,7 @@ export const AccountBeneficiarySelectorModal = ({
                                         </View>
                                         <View style={styles.accountPickRight}>
                                             <Text style={styles.accountPickBalance}>
-                                                {formatMoneyEc(item.balance)}
+                                                {formatMoneyUsdDisplay(item.balance)}
                                             </Text>
                                             <Text style={styles.accountPickSaldoLabel}>
                                                 Saldo disponible

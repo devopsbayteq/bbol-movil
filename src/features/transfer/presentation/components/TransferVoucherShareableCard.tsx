@@ -3,7 +3,6 @@ import React, {useMemo} from 'react';
 import {CardViewContainer} from './CardViewContainer';
 import {TransactionHeaderInformation} from './TransactionHeaderInformation';
 import {CardAccountItem} from './CardAccountItem';
-import {VoucherConceptRow, VoucherTaxRow} from './VoucherConceptRow';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess';
 import {SpacerView} from "../ui";
 import {useTheme, type ThemeColors} from '../../../../providers';
@@ -41,13 +40,6 @@ export function TransferVoucherShareableCard({
                 />
             </View>
             <SpacerView height={20}/>
-            {showConcept ? (
-                <View>
-                    <VoucherConceptRow concept={transferResume.concept}/>
-                    <View style={styles.dividerItems}/>
-                </View>
-            ) : null}
-
             <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Concepto</Text>
                 <Text style={[styles.detailValue, styles.conceptValue]}>
