@@ -205,11 +205,11 @@ export function HomeScreen() {
                   })
                 }
                 accessibilityRole="button"
-                accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
+                accessibilityLabel={`Ver movimientos de ${acc.maskedAccountNumber}`}>
                 <SavingsAccountCard
                   style={styles.cardFill}
-                  title={acc.accountAlias}
-                  maskedAccountNumber={acc.accountTypeLabel + '' + acc.maskedAccountHome}
+                  title={acc.accountTypeLabel}
+                  maskedAccountNumber={ acc.maskedAccountNumber}
                   balance={acc.balance}
                   isFirst={items.length === 0}
                 />

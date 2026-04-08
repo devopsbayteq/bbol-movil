@@ -413,7 +413,7 @@ export function TransactionsScreen() {
   const listHeader = useMemo(() => {
     if (!vm.selectedAccount) return null;
     const acc = vm.selectedAccount;
-    const maskedLabel = `${acc.accountTypeLabel} ${acc.maskedAccountHome}`;
+    const maskedLabel = `${acc.maskedAccountNumber} `;
 
     return (
       <View>
@@ -424,7 +424,7 @@ export function TransactionsScreen() {
             <View style={styles.accountInfoBlock}>
               <View style={styles.accountLabelRow}>
                 <Text style={styles.accountShortLabel}>
-                  {acc.accountAlias}
+                  {acc.accountTypeLabel}
                 </Text>
                 
               </View>
