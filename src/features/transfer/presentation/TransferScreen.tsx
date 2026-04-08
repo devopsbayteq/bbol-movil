@@ -375,6 +375,7 @@ function useStyles(colors: ThemeColors) {
                     height: BRIDGE_CIRCLE_SIZE,
                     borderRadius: BRIDGE_CIRCLE_SIZE / 2,
                     alignItems: 'center',
+                    backgroundColor:colors.primaryIconContainerBg,
                     justifyContent: 'center',
                 },
                 heroHint: {
