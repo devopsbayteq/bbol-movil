@@ -1,5 +1,4 @@
 export {
-  createValidateLoginUsernameStyle,
   hasDisallowedLoginPasswordCharacters,
   hasDisallowedLoginUsernameCharacters,
   LOGIN_PASSWORD_MAX_LENGTH,
@@ -13,13 +12,6 @@ export {
   validateLoginPassword,
   validateLoginUsername,
 } from './loginCredentials';
-export type {LoginUsernameStyleValidationMessages} from './loginCredentials';
-export {
-  REGISTER_ALIAS_MAX_LENGTH,
-  registerAliasValidationMessages,
-  sanitizeRegisterAliasInput,
-  validateRegisterAliasInput,
-} from './registerAlias';
 export {
   balanceDollarsToCents,
   getLiveTransferAmountError,

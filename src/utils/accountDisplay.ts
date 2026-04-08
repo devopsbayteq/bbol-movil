@@ -21,5 +21,11 @@ export function accountTypeModalLabel(account: AccountBalance): string {
 }
 
 export function formatAccountKindLine(account: AccountBalance): string {
-  return `${account.accountTypeLabel} ${account.maskedAccountNumber}`.trim();
+  const kind =
+    account.accountKind === 'savings'
+      ? 'Cta. Ahorros'
+      : account.accountKind === 'checking'
+        ? 'Cta. corriente'
+        : 'Cuenta';
+  return `${kind} ${account.maskedAccountNumber}`.trim();
 }

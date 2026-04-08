@@ -52,7 +52,7 @@ describe('shouldApplyTlsPinningForUrl', () => {
 
   it('returns true for pinned api https', () => {
     expect(
-      shouldApplyTlsPinningForUrl('https://sd-8e3ce6a17c1b4748aca1e112713476ba.ecs.us-east-1.on.aws/path', {
+      shouldApplyTlsPinningForUrl('https://dev4.bayteq.com/path', {
         pinningEnabled: true,
         expectedSha256Hex: 'aa',
       }),

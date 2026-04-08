@@ -1,14 +1,10 @@
-import {BeneficiaryContact} from "./BeneficiaryContact.ts";
-
-export type AccountKind = 'Savings' | 'Checking' | 'other';
+export type AccountKind = 'savings' | 'checking' | 'other';
 
 export interface AccountBalance {
   accountGuid: string;
   maskedAccountNumber: string;
-  accountKind: string;
-  accountTypeLabel:string;
+  accountKind: AccountKind;
   balance: number;
-  beneficiary:BeneficiaryContact
 }
 
 export interface CreditCardBalance {

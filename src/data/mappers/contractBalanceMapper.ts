@@ -1,4 +1,5 @@
 import {
+  AccountKind,
   AccountBalance,
   ContractBalance,
   CreditCardBalance,
@@ -18,17 +19,27 @@ import {
   InvestmentBalanceModel,
   LoanBalanceModel,
 } from '../models/ContractBalanceContentModel';
-import { mapDtoToEntity} from "./beneficiaryMapper.ts";
 
+/** Valores provisionales hasta documentación del API */
+export const ACCOUNT_TYPE_SAVINGS = 1;
+export const ACCOUNT_TYPE_CHECKING = 2;
+
+function mapAccountKind(accountType: number): AccountKind {
+  if (accountType === ACCOUNT_TYPE_SAVINGS) {
+    return 'savings';
+  }
+  if (accountType === ACCOUNT_TYPE_CHECKING) {
+    return 'checking';
+  }
+  return 'other';
+}
 
 function mapAccount(model: AccountBalanceModel): AccountBalance {
   return {
     accountGuid: model.accountGuid,
     maskedAccountNumber: model.maskedAccountNumber,
-    accountKind: model.accountType,
-    accountTypeLabel:model.accountTypeLabel,
+    accountKind: mapAccountKind(model.accountType),
     balance: model.balance,
-    beneficiary: mapDtoToEntity(model.beneficiary)
   };
 }
 

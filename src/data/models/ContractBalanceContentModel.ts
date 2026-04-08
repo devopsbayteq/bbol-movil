@@ -1,13 +1,8 @@
-
-import {BeneficiaryContactDto} from "./BeneficiaryContactsContentModel.ts";
-
 export interface AccountBalanceModel {
   accountGuid: string;
   maskedAccountNumber: string;
-  accountType: string
-  accountTypeLabel:string;
+  accountType: number;
   balance: number;
-  beneficiary:BeneficiaryContactDto
 }
 
 export interface CreditCardBalanceModel {

@@ -20,12 +20,10 @@ import {
   type RouteProp,
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
-import type {CreditCardBalance} from '../../domain/entities/ContractBalance';
+import type {AccountKind} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
 import {ProductFilterTabs} from './components/ProductFilterTabs';
 import {
@@ -53,12 +51,11 @@ const PRODUCT_FILTERS = [
   'Créditos',
 ] as const;
 
-function accountTitle(kind: string): string {
-  const k = kind.toLowerCase();
-  if (k === 'savings') {
+function accountTitle(kind: AccountKind): string {
+  if (kind === 'savings') {
     return 'Cta. ahorros';
   }
-  if (k === 'checking') {
+  if (kind === 'checking') {
     return 'Cta. corriente';
   }
   return 'Cuenta';
@@ -73,21 +70,17 @@ const MAIN_COLUMN_PADDING = 24;
 /** Altura aproximada de la imagen + franja teal bajo el header (fondo decorativo). */
 const HERO_IMAGE_SECTION_HEIGHT = 150;
 
-type ProductItem = {key: string; node: React.ReactNode};
-
 export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
-  const stackNavigation =
-    useNavigation<NativeStackNavigationProp<HomeStackParamList, 'Home'>>();
-  const tabNavigation =
-    useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>();
-  const route = useRoute<RouteProp<HomeStackParamList, 'Home'>>();
-
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [devModalVisible, setDevModalVisible] = useState(false);
+  const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
+  const navigation =
+    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
 
   const {
     data,
@@ -100,8 +93,6 @@ export function HomeScreen() {
     dashboardIconsForHome,
     upcomingPaymentsSummary,
     recentActivityItems,
-    showDevelopmentMode,
-    setShowDevelopmentMode,
   } = useHomeViewModel();
 
   const carouselRef = useRef<ScrollView>(null);
@@ -114,29 +105,21 @@ export function HomeScreen() {
         return;
       }
       refresh().catch();
-      stackNavigation.setParams({refreshHome: undefined});
-    }, [refresh, route.params?.refreshHome, stackNavigation]),
+      navigation.setParams({refreshHome: undefined});
+    }, [navigation, refresh, route.params?.refreshHome]),
   );
 
-  const creditProductNav = useCallback(
-    (_creditCardBalance: CreditCardBalance) => {
-      stackNavigation.navigate('ConsolidatedPositionDetailScreen');
+  const handleFilterChange = useCallback(
+    (newFilter: string) => {
+      setFilter(newFilter);
+      setSelectedIdx(0);
+      carouselRef.current?.scrollTo({x: 0, animated: false});
+      scaleAnims.length = 0;
     },
-    [stackNavigation],
+    [scaleAnims],
   );
 
-  const navigateToMovements = useCallback(
-    (accountGuid: string) => {
-      tabNavigation.navigate('Movements', {
-        screen: 'MovementsList',
-        params: {
-          accountGuid,
-          resetFilters: Date.now(),
-        },
-      });
-    },
-    [tabNavigation],
-  );
+  type ProductItem = {key: string; node: React.ReactNode};
 
   const productItems = useMemo((): ProductItem[] => {
     if (!data) {
@@ -154,7 +137,7 @@ export function HomeScreen() {
     if (showAccounts) {
       for (const acc of data.accounts) {
         const k = `acc-${acc.accountGuid}`;
-        if (acc.accountKind.toLowerCase() === 'checking') {
+        if (acc.accountKind === 'checking') {
           items.push({
             key: k,
             node: (
@@ -162,7 +145,15 @@ export function HomeScreen() {
                 key={k}
                 activeOpacity={0.92}
                 style={styles.productCard}
-                onPress={() => navigateToMovements(acc.accountGuid)}
+                onPress={() =>
+                  navigation.navigate('Movements', {
+                    screen: 'MovementsList',
+                    params: {
+                      accountGuid: acc.accountGuid,
+                      resetFilters: Date.now(),
+                    },
+                  })
+                }
                 accessibilityRole="button"
                 accessibilityLabel="Ver movimientos de cuenta corriente">
                 <CheckingAccountCard
@@ -181,7 +172,15 @@ export function HomeScreen() {
                 key={k}
                 activeOpacity={0.92}
                 style={styles.productCard}
-                onPress={() => navigateToMovements(acc.accountGuid)}
+                onPress={() =>
+                  navigation.navigate('Movements', {
+                    screen: 'MovementsList',
+                    params: {
+                      accountGuid: acc.accountGuid,
+                      resetFilters: Date.now(),
+                    },
+                  })
+                }
                 accessibilityRole="button"
                 accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
                 <SavingsAccountCard
@@ -203,18 +202,13 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <TouchableOpacity
+            <CreditCardPreview
               key={k}
-              activeOpacity={0.92}
               style={styles.productCard}
-              onPress={() => creditProductNav(card)}>
-              <CreditCardPreview
-                style={styles.productCard}
-                maskedCardNumber={card.maskedCardNumber}
-                totalDue={card.totalDue}
-                maxPaymentDate={card.maxPaymentDate}
-              />
-            </TouchableOpacity>
+              maskedCardNumber={card.maskedCardNumber}
+              totalDue={card.totalDue}
+              maxPaymentDate={card.maxPaymentDate}
+            />
           ),
         });
       }
@@ -257,14 +251,7 @@ export function HomeScreen() {
     }
 
     return items;
-  }, [
-    creditProductNav,
-    data,
-    filter,
-    navigateToMovements,
-    styles.cardFill,
-    styles.productCard,
-  ]);
+  }, [data, filter, navigation, styles.cardFill, styles.productCard]);
 
   if (scaleAnims.length !== productItems.length) {
     scaleAnims.length = 0;
@@ -297,22 +284,12 @@ export function HomeScreen() {
     }
   };
 
-  const handleFilterChange = useCallback(
-    (newFilter: string) => {
-      setFilter(newFilter);
-      setSelectedIdx(0);
-      carouselRef.current?.scrollTo({x: 0, animated: false});
-      scaleAnims.length = 0;
-    },
-    [scaleAnims],
-  );
-
   const handleLogout = async () => {
-    await logout({suppressCompactLoginAutoBiometricOnce: true});
+    await logout();
   };
 
   const openDevelopmentModal = () => {
-    setShowDevelopmentMode(true);
+    setDevModalVisible(true);
   };
 
   return (
@@ -329,6 +306,7 @@ export function HomeScreen() {
           />
         }>
         <View style={styles.stackRoot}>
+          {/* Capa inferior: solo fondos (imagen + colores). No interacción. */}
           <View style={styles.heroStack} pointerEvents="none">
             <ImageBackground
               source={HEADER_BG}
@@ -350,6 +328,7 @@ export function HomeScreen() {
             />
           </View>
 
+          {/* Capa superior: interacción desde chips hasta pagos frecuentes */}
           <View style={styles.contentLayer}>
             <SafeAreaView edges={['top']} />
             <HomeHeader
@@ -360,38 +339,39 @@ export function HomeScreen() {
 
             <View style={styles.mainColumn}>
               <ProductFilterTabs
+                
                 filters={PRODUCT_FILTERS}
                 selectedFilter={filter}
                 onFilterChange={handleFilterChange}
               />
               {!isLoading && productItems.length > 0 ? (
-                <View style={styles.carouselLayer} pointerEvents="box-none">
-                  <ScrollView
-                    ref={carouselRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={CARD_SNAP_INTERVAL}
-                    snapToAlignment="start"
-                    decelerationRate="fast"
-                    onMomentumScrollEnd={onCarouselScroll}
-                    contentContainerStyle={styles.carouselRow}>
-                    {productItems.map((item, i) => (
-                      <Animated.View
-                        key={item.key}
-                        style={[
-                          styles.carouselItem,
-                          {
-                            transform: [
-                              {scale: scaleAnims[i] ?? new Animated.Value(1)},
-                            ],
-                          },
-                        ]}>
-                        {item.node}
-                      </Animated.View>
-                    ))}
-                  </ScrollView>
-                </View>
-              ) : null}
+              <View style={styles.carouselLayer} pointerEvents="box-none">
+                <ScrollView
+                  ref={carouselRef}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={CARD_SNAP_INTERVAL}
+                  snapToAlignment="start"
+                  decelerationRate="fast"
+                  onMomentumScrollEnd={onCarouselScroll}
+                  contentContainerStyle={styles.carouselRow}>
+                  {productItems.map((item, i) => (
+                    <Animated.View
+                      key={item.key}
+                      style={[
+                        styles.carouselItem,
+                        {
+                          transform: [
+                            {scale: scaleAnims[i] ?? new Animated.Value(1)},
+                          ],
+                        },
+                      ]}>
+                      {item.node}
+                    </Animated.View>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
             </View>
 
             {error ? (
@@ -412,6 +392,8 @@ export function HomeScreen() {
                 No hay productos en esta categoría.
               </Text>
             ) : null}
+
+            
 
             {data ? (
               <View style={[styles.mainColumn, styles.contentArea]}>
@@ -438,8 +420,8 @@ export function HomeScreen() {
         </View>
       </ScrollView>
       <DevelopmentNoticeModal
-        visible={showDevelopmentMode}
-        onClose={() => setShowDevelopmentMode(false)}
+        visible={devModalVisible}
+        onClose={() => setDevModalVisible(false)}
       />
     </View>
   );
@@ -477,6 +459,7 @@ function useStyles(colors: ThemeColors) {
         heroTealBand: {
           width: '100%',
           height: 72,
+
         },
         heroBodyFill: {
           flex: 1,
@@ -488,12 +471,14 @@ function useStyles(colors: ThemeColors) {
           width: '100%',
         },
         mainColumn: {
+          //paddingHorizontal: MAIN_COLUMN_PADDING,
           width: '100%',
           alignSelf: 'center',
           maxWidth: '100%',
         },
-        carouselLayer: {
+        carouselLayer: {        
           zIndex: 2,
+  
         },
         contentArea: {
           paddingTop: 16,

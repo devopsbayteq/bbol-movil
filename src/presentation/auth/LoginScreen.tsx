@@ -1,8 +1,8 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {View, StyleSheet, Alert, ActivityIndicator, AppState} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {View, StyleSheet, Alert, ActivityIndicator} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {
   useLoginViewModel,
@@ -19,10 +19,7 @@ import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 export function LoginScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {login, consumeSuppressCompactLoginAutoBiometricOnce} = useAuth();
-  const [suppressAutoBiometricPromptOnce] = useState(() =>
-    consumeSuppressCompactLoginAutoBiometricOnce(),
-  );
+  const {login} = useAuth();
   const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
@@ -34,66 +31,34 @@ export function LoginScreen() {
   );
   const [deviceBoundGreetingName, setDeviceBoundGreetingName] =
     useState<string>('');
-  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  const loadDeviceBoundProfile = useCallback(async () => {
-    const [id, name] = await Promise.all([
+    let cancelled = false;
+    Promise.all([
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
-    ]);
-    if (!isMountedRef.current) {
-      return;
-    }
-    setDeviceBoundLoginId(id?.trim() ?? '');
-    setDeviceBoundGreetingName(name?.trim() ?? '');
-  }, [secureStorageService]);
-
-  const loadBiometricAvailability = useCallback(async () => {
-    try {
-      const hasRegistration =
-        await biometricRSAAuthOrchestrator.hasBiometricRegistration();
-      if (isMountedRef.current) {
-        setShowBiometricLogin(hasRegistration);
-      }
-    } catch {
-      if (isMountedRef.current) {
-        setShowBiometricLogin(false);
-      }
-    }
-  }, [biometricRSAAuthOrchestrator]);
-
-  useEffect(() => {
-    void loadDeviceBoundProfile();
-    void loadBiometricAvailability();
-  }, [loadBiometricAvailability, loadDeviceBoundProfile]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadDeviceBoundProfile();
-      void loadBiometricAvailability();
-    }, [loadBiometricAvailability, loadDeviceBoundProfile]),
-  );
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextState => {
-      if (nextState === 'active') {
-        void loadDeviceBoundProfile();
-        void loadBiometricAvailability();
+    ]).then(([id, name]) => {
+      if (!cancelled) {
+        setDeviceBoundLoginId(id?.trim() ?? '');
+        setDeviceBoundGreetingName(name?.trim() ?? '');
       }
     });
     return () => {
-      subscription.remove();
+      cancelled = true;
     };
-  }, [loadBiometricAvailability, loadDeviceBoundProfile]);
+  }, [secureStorageService]);
 
-  const isDeviceBoundCredentialsFlow =
-    deviceBoundLoginId !== null && deviceBoundLoginId.length > 0;
+  useEffect(() => {
+    let cancelled = false;
+    biometricRSAAuthOrchestrator.hasBiometricRegistration().then(has => {
+      if (!cancelled) {
+        setShowBiometricLogin(has);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [biometricRSAAuthOrchestrator]);
 
   const {
     email,
@@ -118,7 +83,6 @@ export function LoginScreen() {
         mode: 'login',
         user,
         email: user.email,
-        ...(isDeviceBoundCredentialsFlow ? {skipRegisterAlias: true} : {}),
       });
     },
     user => {
@@ -147,15 +111,14 @@ export function LoginScreen() {
   ]);
 
   const handleChangeUser = async () => {
-    await Promise.allSettled([
-      secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
-      secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
-      // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
-      secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED),
-    ]);
+    await secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID);
+    await secureStorageService.remove(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
+    );
+    // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
+    await secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED);
     setDeviceBoundLoginId('');
     setDeviceBoundGreetingName('');
-    setShowBiometricLogin(false);
     resetForDifferentUser();
   };
 
@@ -170,54 +133,51 @@ export function LoginScreen() {
     isDeviceBoundCompact;
 
   return (
-    <View style={[styles.shell, {backgroundColor: colors.background}]}>
-      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        <KeyboardAwareScrollView
-          style={styles.root}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.contentColumn}>
-            {deviceBoundLoginId === null ? (
-              <ActivityIndicator
-                accessibilityLabel="Cargando"
-                color={colors.primary}
-                style={styles.inputsLoading}
-              />
-            ) : showCompactLayout ? (
-              <CompactLoginContent
-                greetingName={compactGreetingName}
-                password={password}
-                passwordError={passwordError}
-                onPasswordChange={setPassword}
-                isBusy={isBusy}
-                isLoadingLogin={isLoadingLogin}
-                isLoadingBiometric={isLoadingBiometric}
-                error={error}
-                showBiometricLogin={showBiometricLogin}
-                suppressAutoBiometricPromptOnce={suppressAutoBiometricPromptOnce}
-                onLogin={handleLogin}
-                onBiometricLogin={handleBiometricLogin}
-                onChangeUser={handleChangeUser}
-              />
-            ) : (
-              <FirstLoginContent
-                email={email}
-                password={password}
-                emailError={emailError}
-                passwordError={passwordError}
-                onEmailChange={setEmail}
-                onPasswordChange={setPassword}
-                isBusy={isBusy}
-                isLoadingLogin={isLoadingLogin}
-                error={error}
-                onLogin={handleLogin}
-              />
-            )}
-          </View>
-        </KeyboardAwareScrollView>
-      </SafeAreaView>
-    </View>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <KeyboardAwareScrollView
+        style={styles.root}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.contentColumn}>
+          {deviceBoundLoginId === null ? (
+            <ActivityIndicator
+              accessibilityLabel="Cargando"
+              color={colors.primary}
+              style={styles.inputsLoading}
+            />
+          ) : showCompactLayout ? (
+            <CompactLoginContent
+              greetingName={compactGreetingName}
+              password={password}
+              passwordError={passwordError}
+              onPasswordChange={setPassword}
+              isBusy={isBusy}
+              isLoadingLogin={isLoadingLogin}
+              isLoadingBiometric={isLoadingBiometric}
+              error={error}
+              showBiometricLogin={showBiometricLogin}
+              onLogin={handleLogin}
+              onBiometricLogin={handleBiometricLogin}
+              onChangeUser={handleChangeUser}
+            />
+          ) : (
+            <FirstLoginContent
+              email={email}
+              password={password}
+              emailError={emailError}
+              passwordError={passwordError}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              isBusy={isBusy}
+              isLoadingLogin={isLoadingLogin}
+              error={error}
+              onLogin={handleLogin}
+            />
+          )}
+        </View>
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -225,11 +185,9 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        shell: {
-          flex: 1,
-        },
         safe: {
           flex: 1,
+          backgroundColor: colors.background,
         },
         root: {
           flex: 1,

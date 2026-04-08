@@ -53,7 +53,7 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
 
 - assertVisible: "Comprobante test"
 
-# Transferir → abre OTP de transferencia
+# Confirmar → abre OTP de transferencia
 - tapOn:
     id: "transfer-confirm-button"
 
@@ -82,10 +82,10 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
 
 - assertVisible: "COMPROBANTE"
 - assertVisible: "Desde"
-- assertVisible: "Hacia"
+- assertVisible: "Para"
 
 # --- Volver al inicio desde el comprobante ---
-- tapOn: "Ir al inicio"
+- tapOn: "Ir al Inicio"
 
 - extendedWaitUntil:
     visible: "Mis Productos"

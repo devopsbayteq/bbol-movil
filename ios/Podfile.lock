@@ -1571,29 +1571,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-screenguard (2.0.0-beta5):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - SDWebImage (~> 5.11)
-    - Yoga
   - react-native-view-shot (5.0.0-alpha.3):
     - hermes-engine
     - RCTRequired
@@ -2284,9 +2261,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - SDWebImage (5.21.7):
-    - SDWebImage/Core (= 5.21.7)
-  - SDWebImage/Core (5.21.7)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2338,7 +2312,6 @@ DEPENDENCIES:
   - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-screenguard (from `../node_modules/react-native-screenguard`)
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-networking (from `../node_modules/react-native/ReactCommon/react/networking`)
@@ -2382,10 +2355,6 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
-
-SPEC REPOS:
-  trunk:
-    - SDWebImage
 
 EXTERNAL SOURCES:
   BVLinearGradient:
@@ -2483,8 +2452,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-quick-base64"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-screenguard:
-    :path: "../node_modules/react-native-screenguard"
   react-native-view-shot:
     :path: "../node_modules/react-native-view-shot"
   React-NativeModulesApple:
@@ -2575,8 +2542,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   FBLazyVector: e97c19a5a442429d1988f182a1940fb08df514da
-  hermes-engine: 7c576804ce4370787a7a9082bfcd6d0738acfed9
-  jail-monkey: 561b37e135171fae4576181d87137b0400442c40
+  hermes-engine: dfcf7acf311d74d397708b8b5bacfc0ab4194fdf  jail-monkey: 561b37e135171fae4576181d87137b0400442c40
   NitroModules: 76063cb7bc1a21cf46d11b25abfcf1759bf0be47
   QuickCrypto: d83ea91eedfc80d9eabbd2fc209436502347950e
   RCTDeprecation: af44b104091a34482596cd9bd7e8d90c4e9b4bd7
@@ -2587,8 +2553,7 @@ SPEC CHECKSUMS:
   React: 1ba7d364ade7d883a1ec055bfc3606f35fdee17b
   React-callinvoker: bc2a26f8d84fb01f003fc6de6c9337b64715f95b
   React-Core: 7840d3a80b43a95c5e80ef75146bd70925ebab0f
-  React-Core-prebuilt: 983541c7d42d7515b99357e917d6545e226ec6e3
-  React-CoreModules: 2eb010400b63b89e53a324ffb3c112e4c7c3ce42
+  React-Core-prebuilt: 08cb166a128d2afb8a4e571926ab297280568b6a  React-CoreModules: 2eb010400b63b89e53a324ffb3c112e4c7c3ce42
   React-cxxreact: a558e92199d26f145afa9e62c4233cf8e7950efe
   React-debug: 755200a6e7f5e6e0a40ff8d215493d43cce285fc
   React-defaultsnativemodule: bb85b1bdd9b4b82650cfa92998567fcfdb030145
@@ -2620,7 +2585,6 @@ SPEC CHECKSUMS:
   react-native-keyboard-controller: 6be69ebb8d769a97cd034b94feaa909ff1e463a2
   react-native-quick-base64: 6568199bb2ac8e72ecdfdc73a230fbc5c1d3aac4
   react-native-safe-area-context: ae7587b95fb580d1800c5b0b2a7bd48c2868e67a
-  react-native-screenguard: 4daf8cb9c41b1c5a37c1db285832c481459ed4de
   react-native-view-shot: e41e4060b9c9b0c1cb56dae6a82c0748cf0556f2
   React-NativeModulesApple: 5ba0903927f6b8d335a091700e9fda143980f819
   React-networking: 3a4b7f9ed2b2d1c0441beacb79674323a24bcca6
@@ -2655,17 +2619,14 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: e96e93b493d8d86eeaee3e590ba0be53f6abe46f
   ReactCodegen: 797de5178718324c6eba3327b07f9a423fbd5787
   ReactCommon: 07572bf9e687c8a52fbe4a3641e9e3a1a477c78e
-  ReactNativeDependencies: 4ebbfcaa91dce125ef0236547b8e28af7e4bd1a4
-  RNDeviceInfo: 4c852998208b60dc192ae3529e5867817719ad1e
+  ReactNativeDependencies: 19089103cdb0108714a8e5f0545688a300ace996  RNDeviceInfo: 4c852998208b60dc192ae3529e5867817719ad1e
   RNKeychain: 667b7bd224f14055ae4cb52b41a82ad0ad70574f
   RNReanimated: 923eb30d50cea473eed734767d4c33c374fae5fc
   RNScreens: 6cb648bdad8fe9bee9259fe144df95b6d1d5b707
   RNShare: aad7f2a80ae80be5e2bf57583be28b1a18f95de1
   RNSVG: c69f7709226108f5eb89b5aa8833c17a36345468
   RNWorklets: bc32c788b41ef5f9ee519d6bf3f495b73fb7741b
-  SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   Yoga: c0b3f2c7e8d3e327e450223a2414ca3fa296b9a2
-
 PODFILE CHECKSUM: e3f749f413f9dcedb3c7c469fda330f8e9cfae6f
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

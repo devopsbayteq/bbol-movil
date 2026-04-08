@@ -14,14 +14,12 @@ import {
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-import {useTheme, type ThemeColors, useAuth} from '../../providers';
-import {useDI} from '../../di';
+import {useTheme, type ThemeColors} from '../../providers';
 import {ErrorMessage, OtpCodeInput} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
 import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 import {TransferStackParamList} from '../../navigation/TransferStackNavigator.tsx';
-import {navigatePostLoginEnrollment} from '../auth/navigatePostLoginEnrollment';
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
@@ -49,8 +47,6 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   const navigation = useNavigation<
     NativeStackNavigationProp<RootStackParamList | TransferStackParamList>
   >();
-  const {login} = useAuth();
-  const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
 
   const {
     code,
@@ -65,19 +61,12 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   } = useOtpValidationViewModel(
     async () => {
       if (params.mode === 'login') {
-        const rootNav = navigation as NativeStackNavigationProp<RootStackParamList>;
-        if (params.skipRegisterAlias) {
-          await navigatePostLoginEnrollment(rootNav, params.user, params.email, {
-            biometricRSAAuthOrchestrator,
-            secureStorageService,
-            login,
-          });
-        } else {
-          rootNav.navigate('RegisterAlias', {
-            user: params.user,
-            email: params.email,
-          });
-        }
+        (
+          navigation as NativeStackNavigationProp<RootStackParamList>
+        ).navigate('RegisterAlias', {
+          user: params.user,
+          email: params.email,
+        });
         return;
       }
       if (params.mode === 'transfer') {
@@ -173,7 +162,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
             />
             <Text style={styles.loginBody}>
               Enviamos un código de verificación de 6 dígitos a tu celular
-              terminado en <Text style={styles.loginBodyLastDigits}>****458</Text>.
+              terminado en ****458.
             </Text>
             <Pressable
               style={styles.pinInputWrap}
@@ -350,7 +339,7 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           fontSize: 15,
           lineHeight: 24,
           color: colors.textSecondary,
-          textAlign: 'left',
+          textAlign: 'center',
           marginTop: 16,
           marginBottom: 8,
         },
@@ -431,19 +420,11 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           paddingHorizontal: 4,
         },
         resendLabel: {
-          fontFamily: Lexend.bold,
-          fontSize: 15,
-          lineHeight: 24,
-          color: colors.textTertiary,
-          opacity: 0.3,
-          textAlign: 'center',
-        },
-        loginBodyLastDigits: {
           fontFamily: Lexend.regular,
           fontSize: 15,
           lineHeight: 24,
-          color: colors.textPrimary,
-          textAlign: 'left',
+          color: colors.linkPrimary,
+          textAlign: 'center',
         },
         resendLabelDisabled: {
           color: colors.textTertiary,

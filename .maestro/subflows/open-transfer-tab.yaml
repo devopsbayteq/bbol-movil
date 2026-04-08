@@ -4,11 +4,5 @@ appId: com.bbapp
 - tapOn: "Transferir"
 - extendedWaitUntil:
     visible:
-      id: "transfer-init-screen"
-    timeout: 20000
-- tapOn:
-    id: "transfer-init-between-accounts"
-- extendedWaitUntil:
-    visible:
       id: "transfer-main-screen"
     timeout: 20000

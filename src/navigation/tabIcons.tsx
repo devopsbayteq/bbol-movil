@@ -1,9 +1,9 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
 
-const home = require('../../../assets/images/house.png');
-const transfer = require('../../../assets/images/ArrowUpArrowDown.png');
-const movements = require('../../../assets/images/clock-rotate-left.png');
+const home = require('../../assets/images/house.png');
+const transfer = require('../../assets/images/ArrowUpArrowDown.png');
+const movements = require('../../assets/images/clock-rotate-left.png');
 
 type TabIconProps = {
   color: string;

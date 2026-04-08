@@ -3,7 +3,6 @@
  * Goal: maximise line, branch and function coverage for SonarQube.
  */
 import React from 'react';
-import {Text} from 'react-native';
 import {create, act} from 'react-test-renderer';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -136,18 +135,6 @@ describe('Button', () => {
     expect(tree.toJSON()).toBeTruthy();
   });
 
-  it('renders disabled state with disabledBackgroundColor', () => {
-    const tree = render(
-      <Button
-        title="Disabled"
-        onPress={noop}
-        disabled
-        disabledBackgroundColor="#757575"
-      />,
-    );
-    expect(tree.toJSON()).toBeTruthy();
-  });
-
   it('renders with left icon', () => {
     const tree = render(<Button title="Icon" onPress={noop} iconSource={fakeIcon} />);
     expect(tree.toJSON()).toBeTruthy();
@@ -156,17 +143,6 @@ describe('Button', () => {
   it('renders with right icon', () => {
     const tree = render(<Button title="Icon" onPress={noop} iconSourceRight={fakeIcon} />);
     expect(tree.toJSON()).toBeTruthy();
-  });
-
-  it('renders with right icon as React element (SVG slot)', () => {
-    const tree = render(
-      <Button
-        title="Icon"
-        onPress={noop}
-        iconSourceRight={<Text testID="button-trailing-icon" />}
-      />,
-    );
-    expect(tree.root.findByProps({testID: 'button-trailing-icon'})).toBeTruthy();
   });
 
   it('calls onPress when not disabled', () => {

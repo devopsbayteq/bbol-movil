@@ -151,34 +151,6 @@ describe('AuthProvider', () => {
     expect(ctx?.isAuthenticated).toBe(false);
   });
 
-  it('logout con suppressCompactLoginAutoBiometricOnce activa el flag hasta consumirlo', async () => {
-    let ctx: ReturnType<typeof useAuth> | undefined;
-    function Read() {
-      ctx = useAuth();
-      return null;
-    }
-
-    await act(async () => {
-      ReactTestRenderer.create(
-        <AuthProvider>
-          <Read />
-        </AuthProvider>,
-      );
-    });
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(false);
-
-    await act(async () => {
-      await ctx?.logout({suppressCompactLoginAutoBiometricOnce: true});
-    });
-
-    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(true);
-    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(false);
-  });
-
   it('registra listener de AppState que borra USER_LOGIN_DATA al ir a background', async () => {
     const addSpy = jest.spyOn(AppState, 'addEventListener');
 
