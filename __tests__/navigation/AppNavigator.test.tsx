@@ -9,12 +9,9 @@ jest.mock('react-native-screenguard', () => ({
 }));
 
 const mockUseAuth = jest.fn();
-const mockUseSecurity = jest.fn();
 
 jest.mock('../../src/providers', () => ({
   useAuth: () => mockUseAuth(),
-  useSecurity: () => mockUseSecurity(),
-  useTheme: () => ({colors: {primary: '#000', textPrimary: '#111', white: '#fff'}}),
 }));
 
 jest.mock('@react-navigation/native-stack', () => {
@@ -101,12 +98,6 @@ jest.mock('../../src/presentation/splash', () => {
   return {
     SplashScreen: () =>
       React.createElement(Text, {testID: 'splash-mock'}, 'Splash'),
-    PublicKeyErrorScreen: ({message}: {message: string}) =>
-      React.createElement(
-        View,
-        {testID: 'public-key-error'},
-        React.createElement(Text, null, message),
-      ),
   };
 });
 
@@ -117,50 +108,11 @@ describe('AppNavigator', () => {
       isAuthenticated: false,
       isLoading: false,
     });
-    mockUseSecurity.mockReturnValue({
-      publicKey: 'pk',
-      isLoading: false,
-      error: null as string | null,
-      retry: jest.fn(),
-    });
   });
 
   afterEach(() => {
     jest.useRealTimers();
     jest.clearAllMocks();
-  });
-
-  test('muestra error de clave pública cuando falla la carga y no hay clave', async () => {
-    mockUseSecurity.mockReturnValue({
-      publicKey: null,
-      isLoading: false,
-      error: 'sin red',
-      retry: jest.fn(),
-    });
-
-    let root: ReactTestRenderer.ReactTestRenderer;
-    await act(async () => {
-      root = ReactTestRenderer.create(<AppNavigator />);
-    });
-
-    expect(root!.root.findByProps({testID: 'public-key-error'})).toBeTruthy();
-    expect(JSON.stringify(root!.toJSON())).toContain('sin red');
-  });
-
-  test('muestra Splash mientras carga la clave pública', async () => {
-    mockUseSecurity.mockReturnValue({
-      publicKey: null,
-      isLoading: true,
-      error: null,
-      retry: jest.fn(),
-    });
-
-    let root: ReactTestRenderer.ReactTestRenderer;
-    await act(async () => {
-      root = ReactTestRenderer.create(<AppNavigator />);
-    });
-
-    expect(root!.root.findByProps({testID: 'splash-mock'})).toBeTruthy();
   });
 
   test('tras el timer de splash y sin sesión, muestra stack de login', async () => {

@@ -123,6 +123,7 @@ describe('useLoginViewModel', () => {
     const execute = jest.fn().mockResolvedValue({
       id: 'usuario-demo12',
       email: 'usuario-demo12',
+      firstName: 'Usuario',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });
@@ -156,6 +157,7 @@ describe('useLoginViewModel', () => {
     expect(onCredentialLoginSuccess).toHaveBeenCalledWith({
       id: 'usuario-demo12',
       email: 'usuario-demo12',
+      firstName: 'Usuario',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });
@@ -198,6 +200,7 @@ describe('useLoginViewModel', () => {
       expect.objectContaining({
         id: 'cliente@banco.com',
         email: 'cliente@banco.com',
+        firstName: '',
         name: 'cliente',
         token: 'bio-token',
         inactivityTimeoutSeconds: 300,
@@ -246,6 +249,7 @@ describe('useLoginViewModel', () => {
     const execute = jest.fn().mockResolvedValue({
       id: 'usuario-demo12',
       email: 'usuario-demo12',
+      firstName: 'Usuario',
       name: 'Usuario Demo',
       token: 'jwt-token',
     });

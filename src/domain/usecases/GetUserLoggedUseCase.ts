@@ -12,6 +12,10 @@ export class GetUserLoggedUseCase {
     if (!userLoginData) {
       throw new Error('No se encontró el usuario.');
     }
-    return JSON.parse(userLoginData);
+    const parsed = JSON.parse(userLoginData) as User;
+    return {
+      ...parsed,
+      firstName: parsed.firstName ?? '',
+    };
   }
 }

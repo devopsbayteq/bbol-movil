@@ -62,6 +62,7 @@ describe('SessionTimeoutProvider', () => {
       user: {
         id: '1',
         email: 'a@b.com',
+        firstName: 'A',
         name: 'A',
         token: 't',
         sessionExpiresAt: Date.now() + 3_600_000,
@@ -102,6 +103,7 @@ describe('SessionTimeoutProvider', () => {
       user: {
         id: '1',
         email: 'a@b.com',
+        firstName: 'A',
         name: 'A',
         token: 't',
         sessionExpiresAt: Date.now() - 5_000,
@@ -138,6 +140,7 @@ describe('SessionTimeoutProvider', () => {
       user: {
         id: '1',
         email: 'a@b.com',
+        firstName: 'A',
         name: 'A',
         token: 't',
         sessionExpiresAt: base + 3_600_000,
@@ -174,6 +177,7 @@ describe('SessionTimeoutProvider', () => {
       user: {
         id: '1',
         email: 'a@b.com',
+        firstName: 'A',
         name: 'A',
         token: 't',
         sessionExpiresAt: Date.now() + 3_600_000,
@@ -216,6 +220,7 @@ describe('SessionTimeoutProvider', () => {
       user: {
         id: '1',
         email: 'a@b.com',
+        firstName: 'A',
         name: 'A',
         token: 't',
         sessionExpiresAt: Date.now() - 1,
@@ -265,6 +270,7 @@ describe('SessionTimeoutProvider', () => {
       user: {
         id: '1',
         email: 'a@b.com',
+        firstName: 'A',
         name: 'A',
         token: 't',
         sessionExpiresAt: Date.now() + 3_600_000,

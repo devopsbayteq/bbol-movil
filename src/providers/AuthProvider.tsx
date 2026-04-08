@@ -25,6 +25,10 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 function resolveDeviceBoundGreetingName(user: User): string {
+  const fromFirst = user.firstName?.trim();
+  if (fromFirst) {
+    return fromFirst;
+  }
   const fromName = user.name.trim();
   if (fromName) {
     return fromName;

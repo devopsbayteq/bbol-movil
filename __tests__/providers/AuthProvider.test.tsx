@@ -75,6 +75,7 @@ describe('AuthProvider', () => {
     const user = {
       id: '1',
       email: 'a@b.com',
+      firstName: 'Ana',
       name: 'Ana',
       token: 'tok',
       sessionExpiresAt: Date.now() + 60_000,
@@ -130,6 +131,7 @@ describe('AuthProvider', () => {
       await ctx?.login({
         id: '1',
         email: 'a@b.com',
+        firstName: 'Ana',
         name: 'Ana',
         token: 't',
         sessionExpiresAt: Date.now() + 1000,

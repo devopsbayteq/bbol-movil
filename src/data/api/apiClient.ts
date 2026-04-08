@@ -4,7 +4,6 @@ import {
   type ApiHeadersInterceptorDeps,
 } from './apiHeadersInterceptor';
 import {attachHttpLoggingInterceptor} from './httpLoggingInterceptor';
-import {SecureStorageService} from '../../domain/services/SecureStorageService';
 import {HttpClient, HttpResponse, RequestConfig} from './HttpClient';
 
 export type {ApiHeadersInterceptorDeps};

@@ -2,14 +2,16 @@ import {rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64} from '../../security/
 import {User} from '../entities/User';
 import {AuthRepository} from '../repositories/AuthRepository';
 import {validateLoginPassword, validateLoginUsername} from '../validation';
-import { SecureStorageService } from '../services/SecureStorageService';
+import {SecureStorageService} from '../services/SecureStorageService';
 import {GetPublicKeyUseCase} from './GetPublicKeyUseCase';
+import {RunCertificateHandshakeUseCase} from './RunCertificateHandshakeUseCase';
 
 export class LoginUseCase {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly secureStorageService: SecureStorageService,
     private readonly storageKey: string,
+    private readonly runCertificateHandshakeUseCase: RunCertificateHandshakeUseCase,
     private readonly getPublicKeyUseCase: GetPublicKeyUseCase,
     /** Misma clave que usa el interceptor HTTP para `Authorization` (debe persistirse antes de llamadas posteriores al login, p. ej. biometric-registration). */
     private readonly authTokenStorageKey: string,
@@ -29,8 +31,9 @@ export class LoginUseCase {
       throw new Error(passwordError);
     }
 
+    await this.runCertificateHandshakeUseCase.execute();
     const {value: serverPublicKeyPemBase64} =
-      await this.getPublicKeyUseCase.execute();
+      await this.getPublicKeyUseCase.execute(true);
     const encryptedUsername = rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
       serverPublicKeyPemBase64,
       trimmedEmail,

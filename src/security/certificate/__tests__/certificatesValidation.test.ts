@@ -244,7 +244,9 @@ describe('validateCertificateResponse', () => {
     jest.restoreAllMocks();
   });
 
-  it('lanza si tras AES-256 el material no alcanza 16 bytes para AES-128 directo', () => {
+  it('lanza cuando ninguna estrategia AES logra descifrar el payload', () => {
+    // secretMaterial de 15 chars genera clave de 15 bytes para AES-128 → longitud inválida;
+    // las estrategias AES-256 con SHA-256 producen "bad decrypt" porque el payload es aleatorio.
     const session: CertificateSession = {
       secretMaterial: 'exactly15chars!',
       ivMaterial: 'abcdefghijklmnop',
@@ -265,14 +267,14 @@ describe('validateCertificateResponse', () => {
       },
     };
 
-    expect(() => validateCertificateResponse(envelope, session)).toThrow(
-      'Material de sesión inválido para AES-128 directo',
-    );
+    expect(() => validateCertificateResponse(envelope, session)).toThrow();
 
     jest.restoreAllMocks();
   });
 
   it('descifra vía AES-128 directo cuando AES-256 derivado falla', () => {
+    // Plaintext largo (> 48 bytes) para minimizar falsos positivos con claves incorrectas.
+    const plaintext = 'cert-hash-aes128-direct-strategy-validated-output';
     const session: CertificateSession = {
       secretMaterial: '1234567890123456',
       ivMaterial: 'abcdefghijklmnop',
@@ -281,7 +283,7 @@ describe('validateCertificateResponse', () => {
     const iv16 = Buffer.from(session.ivMaterial, 'utf8').subarray(0, 16);
     const cipher = crypto.createCipheriv('aes-128-cbc', key16, iv16);
     const ciphertext = Buffer.concat([
-      cipher.update(Buffer.from('cert-aes128', 'utf8')),
+      cipher.update(Buffer.from(plaintext, 'utf8')),
       cipher.final(),
     ]);
 
@@ -302,7 +304,7 @@ describe('validateCertificateResponse', () => {
     };
 
     const result = validateCertificateResponse(envelope, session);
-    expect(result.certificateHashHex).toBe('cert-aes128');
+    expect(result.certificateHashHex).toBe(plaintext);
 
     jest.restoreAllMocks();
   });

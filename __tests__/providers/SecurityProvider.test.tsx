@@ -14,7 +14,7 @@ describe('SecurityProvider', () => {
     jest.clearAllMocks();
   });
 
-  it('expone la clave pública tras cargar', async () => {
+  it('expone la clave pública tras retry (carga explícita)', async () => {
     mockedUseDI.mockReturnValue({
       getPublicKeyUseCase: {
         execute: jest.fn().mockResolvedValue({value: 'pk-b64-value'}),
@@ -35,8 +35,10 @@ describe('SecurityProvider', () => {
       );
     });
 
+    expect(ctx?.publicKey).toBeNull();
+
     await act(async () => {
-      await Promise.resolve();
+      await ctx?.retry();
     });
 
     expect(ctx?.publicKey).toBe('pk-b64-value');
@@ -68,8 +70,11 @@ describe('SecurityProvider', () => {
       );
     });
 
+    expect(ctx?.error).toBeNull();
+    expect(ctx?.publicKey).toBeNull();
+
     await act(async () => {
-      await Promise.resolve();
+      await ctx?.retry();
     });
 
     expect(ctx?.error).toBe('timeout');

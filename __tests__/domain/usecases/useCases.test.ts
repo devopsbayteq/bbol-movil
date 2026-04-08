@@ -8,12 +8,14 @@ import {ValidateOtpUseCase} from '../../../src/domain/usecases/ValidateOtpUseCas
 import {ValidateTransactionAmountUseCase} from '../../../src/domain/usecases/ValidateTransactionAmountUseCase';
 import {ExecuteTransferUseCase} from '../../../src/domain/usecases/ExecuteTransferUseCase';
 import * as rsaUtils from '../../../src/security/certificate/rsaUtils';
+import {ServerPublicKeySessionStoreImpl} from '../../../src/data/services/ServerPublicKeySessionStoreImpl';
 
 describe('domain use cases', () => {
   test('LoginUseCase trims credentials, persists session and returns user', async () => {
     const user = {
       id: 'usuario-demo12',
       email: 'usuario-demo12',
+      firstName: 'Usuario',
       name: 'Usuario Demo',
       token: 'jwt-token',
       sessionExpiresAt: Date.now() + 3600 * 1000,
@@ -25,6 +27,9 @@ describe('domain use cases', () => {
     const secureStorage = {
       save: jest.fn().mockResolvedValue(undefined),
     };
+    const runCertificateHandshakeUseCase = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
     const getPublicKeyUseCase = {
       execute: jest.fn().mockResolvedValue({value: 'server-public-key-material'}),
     };
@@ -35,12 +40,14 @@ describe('domain use cases', () => {
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
 
     const result = await useCase.execute('  usuario-demo12  ', '  12345678  ');
 
+    expect(runCertificateHandshakeUseCase.execute).toHaveBeenCalledTimes(1);
     expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
@@ -62,11 +69,13 @@ describe('domain use cases', () => {
       login: jest.fn(),
     };
     const secureStorage = {save: jest.fn()};
+    const runCertificateHandshakeUseCase = {execute: jest.fn()};
     const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
@@ -76,16 +85,20 @@ describe('domain use cases', () => {
     );
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(runCertificateHandshakeUseCase.execute).not.toHaveBeenCalled();
+    expect(getPublicKeyUseCase.execute).not.toHaveBeenCalled();
   });
 
   test('LoginUseCase rejects username shorter than minimum before calling repository', async () => {
     const authRepository = {login: jest.fn()};
     const secureStorage = {save: jest.fn()};
+    const runCertificateHandshakeUseCase = {execute: jest.fn()};
     const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
@@ -95,16 +108,20 @@ describe('domain use cases', () => {
     );
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(runCertificateHandshakeUseCase.execute).not.toHaveBeenCalled();
+    expect(getPublicKeyUseCase.execute).not.toHaveBeenCalled();
   });
 
   test('LoginUseCase rejects invalid password before calling repository', async () => {
     const authRepository = {login: jest.fn()};
     const secureStorage = {save: jest.fn()};
+    const runCertificateHandshakeUseCase = {execute: jest.fn()};
     const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
@@ -114,45 +131,45 @@ describe('domain use cases', () => {
     ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(runCertificateHandshakeUseCase.execute).not.toHaveBeenCalled();
   });
 
-  test('GetPublicKeyUseCase trims and stores the received key', async () => {
+  test('GetPublicKeyUseCase normaliza la clave y la guarda en sesión (una sola llamada al repo)', async () => {
     const securityRepository = {
       getPublicKey: jest.fn().mockResolvedValue({value: '  PUBLIC_KEY  '}),
     };
-    const secureStorage = {
-      save: jest.fn().mockResolvedValue(undefined),
-    };
+    const sessionStore = new ServerPublicKeySessionStoreImpl();
     const useCase = new GetPublicKeyUseCase(
       securityRepository as never,
-      secureStorage as never,
-      'server-key',
+      sessionStore,
     );
 
     const result = await useCase.execute();
 
     expect(securityRepository.getPublicKey).toHaveBeenCalledTimes(1);
-    expect(secureStorage.save).toHaveBeenCalledWith('server-key', 'PUBLIC/KEY');
     expect(result).toEqual({value: 'PUBLIC/KEY'});
+
+    await useCase.execute();
+    expect(securityRepository.getPublicKey).toHaveBeenCalledTimes(1);
   });
 
   test('GetPublicKeyUseCase rejects an empty public key', async () => {
     const securityRepository = {
       getPublicKey: jest.fn().mockResolvedValue({value: '   '}),
     };
-    const secureStorage = {
-      save: jest.fn(),
+    const sessionStore = {
+      get: jest.fn().mockReturnValue(null),
+      set: jest.fn(),
     };
     const useCase = new GetPublicKeyUseCase(
       securityRepository as never,
-      secureStorage as never,
-      'server-key',
+      sessionStore as never,
     );
 
     await expect(useCase.execute()).rejects.toThrow(
       'La clave pública recibida no es válida',
     );
-    expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(sessionStore.set).not.toHaveBeenCalled();
   });
 
   test('GetAccountMovementsUseCase returns paginated movements', async () => {
@@ -230,7 +247,7 @@ describe('domain use cases', () => {
     };
     const useCase = new GetUserLoggedUseCase(secureStorage as never, '@key');
 
-    await expect(useCase.execute()).resolves.toEqual(user);
+    await expect(useCase.execute()).resolves.toEqual({...user, firstName: ''});
     expect(secureStorage.get).toHaveBeenCalledWith('@key');
   });
 

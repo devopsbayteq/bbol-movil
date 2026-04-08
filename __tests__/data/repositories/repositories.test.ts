@@ -8,7 +8,12 @@ import {TransferRepositoryImpl} from '../../../src/data/repositories/TransferRep
 describe('data repositories', () => {
   test('AuthRepositoryImpl maps datasource login response to a user entity', async () => {
     const dataSource = {
-      login: jest.fn().mockResolvedValue({accessToken: 'access-token'}),
+      login: jest.fn().mockResolvedValue({
+        accessToken: 'access-token',
+        firstName: '',
+        sessionTimeSeconds: 3600,
+        inactivityTimeoutSeconds: 300,
+      }),
     };
     const repository = new AuthRepositoryImpl(dataSource);
 
@@ -25,6 +30,7 @@ describe('data repositories', () => {
     expect(result).toMatchObject({
       id: 'cliente@banco.com',
       email: 'cliente@banco.com',
+      firstName: '',
       name: 'cliente',
       token: 'access-token',
     });

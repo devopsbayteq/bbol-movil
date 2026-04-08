@@ -35,8 +35,9 @@ describe('AxiosHttpClient', () => {
       secretKey: 'secret',
       requestId: 'req-1',
       secureStorage: {get: jest.fn(), save: jest.fn(), remove: jest.fn(), clear: jest.fn()},
+      serverPublicKeySessionStore: {get: () => null, set: jest.fn()},
       serverPublicPemBase64: 'PUBLIC_KEY_B64',
-      getDeviceState: () => 'secure',
+      deviceSecurityService: {getSnapshot: jest.fn()} as never,
     });
     expect(_client).toBeDefined();
 
@@ -67,8 +68,9 @@ describe('AxiosHttpClient', () => {
       secretKey: 'secret',
       requestId: 'req-1',
       secureStorage: {get: jest.fn(), save: jest.fn(), remove: jest.fn(), clear: jest.fn()},
+      serverPublicKeySessionStore: {get: () => null, set: jest.fn()},
       serverPublicPemBase64: 'PUBLIC_KEY_B64',
-      getDeviceState: () => 'secure',
+      deviceSecurityService: {getSnapshot: jest.fn()} as never,
     });
 
     await expect(client.get('/health')).resolves.toEqual({
