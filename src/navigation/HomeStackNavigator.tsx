@@ -1,5 +1,9 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import type {
+  InvestmentBalance,
+  LoanBalance,
+} from '../domain/entities/ContractBalance';
 import {HomeScreen} from '../presentation/home/HomeScreen';
 import {CardDetailScreen} from '../presentation/cardDetail/CardDetailScreen';
 import {InvestmentDetailScreen} from '../presentation/investmentDetail/InvestmentDetailScreen';
@@ -8,8 +12,15 @@ import {LoanDetailScreen} from '../presentation/loanDetail/LoanDetailScreen';
 export type HomeStackParamList = {
   HomeMain: {refreshHome?: number} | undefined;
   CardDetail: {maskedCardNumber: string};
-  InvestmentDetail: {investmentGuid: string};
-  LoanDetail: {loanGuid: string};
+  InvestmentDetail: {
+    investmentGuid: string;
+    /** Snapshot desde Home para el primer render sin depender solo del caché de React Query. */
+    investmentBalance?: InvestmentBalance;
+  };
+  LoanDetail: {
+    loanGuid: string;
+    loanBalance?: LoanBalance;
+  };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();

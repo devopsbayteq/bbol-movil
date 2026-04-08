@@ -62,10 +62,12 @@ export function InvestmentDetailScreen() {
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<HomeStackParamList, 'InvestmentDetail'>>();
-  const {investmentGuid} = route.params;
+  const {investmentGuid, investmentBalance} = route.params;
 
-  const {detail, isLoading, errorMessage} =
-    useInvestmentDetailViewModel(investmentGuid);
+  const {detail, isLoading, errorMessage} = useInvestmentDetailViewModel(
+    investmentGuid,
+    investmentBalance,
+  );
 
   const [devModalVisible, setDevModalVisible] = useState(false);
   const openRenewDev = useCallback(() => setDevModalVisible(true), []);

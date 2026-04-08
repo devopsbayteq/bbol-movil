@@ -1,11 +1,15 @@
 import {useMemo} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useDI} from '../../di';
+import type {LoanBalance} from '../../domain/entities/ContractBalance';
 import type {LoanDetail} from '../../domain/entities/LoanDetail';
 import {HOME_CONTRACT_BALANCE_QUERY_KEY} from '../home/useHomeViewModel';
 import {buildLoanDetail} from './buildLoanDetail';
 
-export function useLoanDetailViewModel(loanGuid: string) {
+export function useLoanDetailViewModel(
+  loanGuid: string,
+  loanBalanceFromRoute?: LoanBalance,
+) {
   const {getHomeContractBalanceUseCase} = useDI();
 
   const query = useQuery({
@@ -14,6 +18,9 @@ export function useLoanDetailViewModel(loanGuid: string) {
   });
 
   const detail: LoanDetail | null = useMemo(() => {
+    if (loanBalanceFromRoute?.loanGuid === loanGuid) {
+      return buildLoanDetail(loanBalanceFromRoute);
+    }
     if (!query.data?.loans?.length) {
       return null;
     }
@@ -22,7 +29,7 @@ export function useLoanDetailViewModel(loanGuid: string) {
       return null;
     }
     return buildLoanDetail(loan);
-  }, [query.data, loanGuid]);
+  }, [loanBalanceFromRoute, loanGuid, query.data]);
 
   const errorMessage = useMemo(() => {
     if (query.error) {
@@ -38,7 +45,7 @@ export function useLoanDetailViewModel(loanGuid: string) {
 
   return {
     detail,
-    isLoading: query.isLoading && query.data === undefined,
+    isLoading: query.isLoading,
     errorMessage,
   };
 }

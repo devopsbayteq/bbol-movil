@@ -257,6 +257,7 @@ export function HomeScreen() {
               onPress={() =>
                 navigation.navigate('InvestmentDetail', {
                   investmentGuid: inv.investmentGuid,
+                  investmentBalance: inv,
                 })
               }
               accessibilityRole="button"
@@ -285,7 +286,10 @@ export function HomeScreen() {
               activeOpacity={0.92}
               style={styles.productCard}
               onPress={() =>
-                navigation.navigate('LoanDetail', {loanGuid: loan.loanGuid})
+                navigation.navigate('LoanDetail', {
+                  loanGuid: loan.loanGuid,
+                  loanBalance: loan,
+                })
               }
               accessibilityRole="button"
               accessibilityLabel="Ver detalle de préstamo">

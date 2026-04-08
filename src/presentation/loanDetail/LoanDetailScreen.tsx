@@ -75,9 +75,12 @@ export function LoanDetailScreen() {
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<HomeStackParamList, 'LoanDetail'>>();
-  const {loanGuid} = route.params;
+  const {loanGuid, loanBalance} = route.params;
 
-  const {detail, isLoading, errorMessage} = useLoanDetailViewModel(loanGuid);
+  const {detail, isLoading, errorMessage} = useLoanDetailViewModel(
+    loanGuid,
+    loanBalance,
+  );
 
   const [devModalVisible, setDevModalVisible] = useState(false);
   const openHistoryDev = useCallback(() => setDevModalVisible(true), []);
