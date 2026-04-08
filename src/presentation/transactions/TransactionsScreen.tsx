@@ -346,8 +346,12 @@ export function TransactionsScreen() {
   }, [vm.items, colors]);
 
   const onBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
     tabNavigation?.navigate('Home', {screen: 'HomeMain'});
-  }, [tabNavigation]);
+  }, [navigation, tabNavigation]);
 
   const totalItems = vm.items.length;
 

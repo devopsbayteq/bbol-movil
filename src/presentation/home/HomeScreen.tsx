@@ -22,14 +22,11 @@ import {
   useFocusEffect,
   useNavigation,
   useRoute,
-  type CompositeNavigationProp,
   type RouteProp,
 } from '@react-navigation/native';
-import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
 import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
@@ -99,10 +96,7 @@ export function HomeScreen() {
   const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
   const navigation =
     useNavigation<
-      CompositeNavigationProp<
-        NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
-        BottomTabNavigationProp<MainTabParamList, 'Home'>
-      >
+      NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>
     >();
 
   const {
@@ -180,12 +174,9 @@ export function HomeScreen() {
                 activeOpacity={0.92}
                 style={styles.productCard}
                 onPress={() =>
-                  navigation.navigate('Movements', {
-                    screen: 'MovementsList',
-                    params: {
-                      accountGuid: acc.accountGuid,
-                      resetFilters: Date.now(),
-                    },
+                  navigation.navigate('MovementsList', {
+                    accountGuid: acc.accountGuid,
+                    resetFilters: Date.now(),
                   })
                 }
                 accessibilityRole="button"
@@ -208,12 +199,9 @@ export function HomeScreen() {
                 activeOpacity={0.92}
                 style={styles.productCard}
                 onPress={() =>
-                  navigation.navigate('Movements', {
-                    screen: 'MovementsList',
-                    params: {
-                      accountGuid: acc.accountGuid,
-                      resetFilters: Date.now(),
-                    },
+                  navigation.navigate('MovementsList', {
+                    accountGuid: acc.accountGuid,
+                    resetFilters: Date.now(),
                   })
                 }
                 accessibilityRole="button"
