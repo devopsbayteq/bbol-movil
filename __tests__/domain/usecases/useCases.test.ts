@@ -26,6 +26,9 @@ describe('domain use cases', () => {
     const secureStorage = {
       save: jest.fn().mockResolvedValue(undefined),
     };
+    const runCertificateHandshakeUseCase = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
     const getPublicKeyUseCase = {
       execute: jest.fn().mockResolvedValue({value: 'server-public-key-material'}),
     };
@@ -36,12 +39,14 @@ describe('domain use cases', () => {
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
 
     const result = await useCase.execute('  usuario-demo12  ', '  12345678  ');
 
+    expect(runCertificateHandshakeUseCase.execute).toHaveBeenCalledTimes(1);
     expect(getPublicKeyUseCase.execute).toHaveBeenCalledTimes(1);
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(authRepository.login).toHaveBeenCalledWith(
@@ -63,11 +68,13 @@ describe('domain use cases', () => {
       login: jest.fn(),
     };
     const secureStorage = {save: jest.fn()};
+    const runCertificateHandshakeUseCase = {execute: jest.fn()};
     const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
@@ -77,16 +84,20 @@ describe('domain use cases', () => {
     );
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(runCertificateHandshakeUseCase.execute).not.toHaveBeenCalled();
+    expect(getPublicKeyUseCase.execute).not.toHaveBeenCalled();
   });
 
   test('LoginUseCase rejects username shorter than minimum before calling repository', async () => {
     const authRepository = {login: jest.fn()};
     const secureStorage = {save: jest.fn()};
+    const runCertificateHandshakeUseCase = {execute: jest.fn()};
     const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
@@ -96,16 +107,20 @@ describe('domain use cases', () => {
     );
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(runCertificateHandshakeUseCase.execute).not.toHaveBeenCalled();
+    expect(getPublicKeyUseCase.execute).not.toHaveBeenCalled();
   });
 
   test('LoginUseCase rejects invalid password before calling repository', async () => {
     const authRepository = {login: jest.fn()};
     const secureStorage = {save: jest.fn()};
+    const runCertificateHandshakeUseCase = {execute: jest.fn()};
     const getPublicKeyUseCase = {execute: jest.fn()};
     const useCase = new LoginUseCase(
       authRepository,
       secureStorage as never,
       '@bb_user_session',
+      runCertificateHandshakeUseCase as never,
       getPublicKeyUseCase as never,
       '@auth_token',
     );
@@ -115,6 +130,7 @@ describe('domain use cases', () => {
     ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
     expect(authRepository.login).not.toHaveBeenCalled();
     expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(runCertificateHandshakeUseCase.execute).not.toHaveBeenCalled();
   });
 
   test('GetPublicKeyUseCase normaliza la clave y la guarda en sesión (una sola llamada al repo)', async () => {

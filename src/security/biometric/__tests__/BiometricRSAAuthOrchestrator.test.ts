@@ -5,6 +5,7 @@ import type {CryptoService} from '../CryptoService';
 import type {BiometricKeyStorageService} from '../BiometricKeyStorageService';
 import type {SecureStorageService} from '../../../domain/services/SecureStorageService';
 import type {GetPublicKeyUseCase} from '../../../domain/usecases/GetPublicKeyUseCase';
+import type {RunCertificateHandshakeUseCase} from '../../../domain/usecases/RunCertificateHandshakeUseCase';
 import type {BiometricAuthService} from '../../../domain/services/BiometricAuthService';
 import {SecureStorageKeys} from '../../../data/datasources/storage/SecureStorageKeys';
 import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../../certificate/keys.constants';
@@ -23,6 +24,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
       >
     >;
     secure: jest.Mocked<Pick<SecureStorageService, 'get' | 'save' | 'remove'>>;
+    runCert?: jest.Mocked<Pick<RunCertificateHandshakeUseCase, 'execute'>>;
     getPk: jest.Mocked<Pick<GetPublicKeyUseCase, 'execute'>>;
     biometricAuth?: jest.Mocked<Pick<BiometricAuthService, 'getAvailability' | 'authenticate'>>;
     enrollmentBinding?: {
@@ -54,11 +56,18 @@ describe('BiometricRSAAuthOrchestrator', () => {
       clear: jest.fn().mockResolvedValue(undefined),
     };
 
+    const runCert =
+      mocks.runCert ??
+      ({execute: jest.fn().mockResolvedValue(undefined)} as jest.Mocked<
+        Pick<RunCertificateHandshakeUseCase, 'execute'>
+      >);
+
     return new BiometricRSAAuthOrchestrator(
       mocks.remote as unknown as BiometricRemoteDataSource,
       mocks.crypto as unknown as CryptoService,
       keyStorage,
       secure,
+      runCert as unknown as RunCertificateHandshakeUseCase,
       mocks.getPk as unknown as GetPublicKeyUseCase,
       biometricAuth as unknown as BiometricAuthService,
       enrollmentBinding as unknown as BiometricEnrollmentBinding,
@@ -196,6 +205,7 @@ describe('BiometricRSAAuthOrchestrator', () => {
       }),
       save: jest.fn().mockResolvedValue(undefined),
     };
+    const runCert = {execute: jest.fn().mockResolvedValue(undefined)};
     const getPk = {
       execute: jest.fn().mockResolvedValue({value: serverPem}),
     };
@@ -209,13 +219,16 @@ describe('BiometricRSAAuthOrchestrator', () => {
       crypto,
       keyStorage,
       secure,
+      runCert,
       getPk,
       enrollmentBinding,
     });
 
     const result = await orchestrator.loginWithBiometric();
 
-    expect(enrollmentBinding.verify).toHaveBeenCalled();    expect(result.accessToken).toBe('tok');
+    expect(runCert.execute).toHaveBeenCalled();
+    expect(enrollmentBinding.verify).toHaveBeenCalled();
+    expect(result.accessToken).toBe('tok');
     expect(result.email).toBe('user@test.com');
     expect(remote.postBiometricLogin).toHaveBeenCalledWith(
       expect.objectContaining({

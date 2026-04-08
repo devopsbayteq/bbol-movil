@@ -2,7 +2,6 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -25,7 +24,7 @@ const SecurityContext = createContext<SecurityContextValue | undefined>(
 export function SecurityProvider({children}: {children: React.ReactNode}) {
   const {getPublicKeyUseCase} = useDI();
   const [publicKey, setPublicKey] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -45,10 +44,6 @@ export function SecurityProvider({children}: {children: React.ReactNode}) {
       setIsLoading(false);
     }
   }, [getPublicKeyUseCase]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   const value: SecurityContextValue = useMemo(
     () => ({

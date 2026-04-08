@@ -3,7 +3,6 @@ import {View, Text, StyleSheet} from 'react-native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useDI} from '../../di';
 import {SecureStorageKeys} from '../../data/datasources/storage/SecureStorageKeys';
-import {syncTlsPinningFromStorage} from '../../security/tls';
 import type {RootStackParamList} from '../../navigation/AppNavigator';
 import {Button, ErrorMessage, LoadingState} from '../components';
 import {useTheme, type ThemeColors} from '../../providers/theme';
@@ -30,16 +29,7 @@ export function CertificateHandshakeScreen({navigation}: Props) {
   const completeHandshake = useCallback(async () => {
     setPhase('loading');
     setError(null);
-    const result = await runCertificateHandshakeUseCase.execute();
-    await secureStorageService.save(
-      SecureStorageKeys.CERTIFICATE_HASH,
-      result.certificateHashHex,
-    );
-    await secureStorageService.save(
-      SecureStorageKeys.CERTIFICATE_PINNING_ENABLED,
-      result.pinningEnabled ? 'true' : 'false',
-    );
-    await syncTlsPinningFromStorage(secureStorageService);
+    await runCertificateHandshakeUseCase.execute();
     navigation.replace('Login');
   }, [
     navigation,

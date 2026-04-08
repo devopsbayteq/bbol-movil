@@ -9,9 +9,13 @@ export class GetPublicKeyUseCase {
     private readonly sessionStore: ServerPublicKeySessionStore,
   ) {}
 
-  async execute(): Promise<PublicKey> {
+  /**
+   * @param force Si es `true`, ignora el caché en memoria y siempre consulta el servicio.
+   *              Usar `true` en el flujo de login para garantizar una clave fresca por intento.
+   */
+  async execute(force = false): Promise<PublicKey> {
     const cached = this.sessionStore.get()?.trim() ?? '';
-    if (cached) {
+    if (cached && !force) {
       return {value: cached};
     }
 

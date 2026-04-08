@@ -8,7 +8,7 @@ import {
   SERVER_PUBLIC_KEY_PEM_BASE64,
 } from './keys.constants';
 import {Buffer} from 'buffer';
-import {AES_IV_LENGTH_BYTES, aes256CbcDecrypt} from './aesHelper';
+import {AES_IV_LENGTH_BYTES, AES_KEY_LENGTH_BYTES} from './aesHelper';
 import crypto from 'react-native-quick-crypto';
 import {devLog, devWarn} from '../../data/api/devLog';
 import {
@@ -55,26 +55,80 @@ export function deriveIvHexFromIvMaterial(ivMaterial: string): Buffer {
   return Buffer.from(ivCandidate);
 }
 
+/**
+ * Descifra AES con el modo, clave e IV indicados.
+ * - ECB: IV debe ser un Buffer vacío (el modo lo ignora).
+ * - CBC: IV de 16 bytes.
+ * Soporta AES-128 (clave 16 bytes) y AES-256 (clave 32 bytes).
+ */
+function tryAesDecrypt(
+  ciphertext: Buffer,
+  key: Buffer,
+  iv: Buffer,
+  mode: 'ecb' | 'cbc',
+): string {
+  const bits = key.length === AES_KEY_LENGTH_BYTES ? 256 : 128;
+  const algorithm = `aes-${bits}-${mode}` as const;
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  const plain = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return plain.toString('utf8');
+}
+
 function tryDecryptWithDerivationStrategies(
   ciphertext: Buffer,
   secretMaterial: string,
   ivMaterial: string,
 ): {plaintext: string; strategy: string} {
-  const keySha256 = deriveAes256KeyHexFromSecretMaterial(secretMaterial);
-  const ivSha256 = deriveIvHexFromIvMaterial(ivMaterial);
-  const ivUtf8 = Buffer.from(ivMaterial, 'utf8').subarray(0, AES_IV_LENGTH_BYTES);
+  const secretBytes = Buffer.from(secretMaterial, 'utf8'); // 16 bytes
+  const ivBytes = Buffer.from(ivMaterial, 'utf8');          // 16 bytes
+  const emptyIv = Buffer.alloc(0);                          // ECB no usa IV
 
-  const attempts: Array<{name: string; key: Buffer; iv: Buffer}> = [
-    {name: 'key=sha256(secret), iv=sha256(iv)[0..15]', key: keySha256, iv: ivSha256},
-    {name: 'key=sha256(secret), iv=utf8(iv)[0..15]', key: keySha256, iv: Buffer.from(ivUtf8)},
+  const keySha256 = deriveAes256KeyHexFromSecretMaterial(secretMaterial); // 32 bytes
+  const ivSha256 = deriveIvHexFromIvMaterial(ivMaterial);                  // 16 bytes
+
+  const keySha256First16 = Buffer.from(keySha256.subarray(0, AES_IV_LENGTH_BYTES)); // 16 bytes
+
+  // AES-256 sin hash, clave extendida desde los materiales de sesión
+  const keySecretConcat = Buffer.concat([secretBytes, ivBytes]);
+  const keySecretDoubled = Buffer.concat([secretBytes, secretBytes]);
+  const keySecretZeroPad = Buffer.concat([secretBytes, Buffer.alloc(AES_IV_LENGTH_BYTES, 0)]);
+  const zeroIv = Buffer.alloc(AES_IV_LENGTH_BYTES, 0);
+
+  type AesAttempt = {
+    name: string;
+    key: Buffer;
+    iv: Buffer;
+    mode: 'ecb' | 'cbc';
+  };
+
+  const attempts: AesAttempt[] = [
+    // ── ECB: el servidor usa Aes.Mode = CipherMode.ECB + PKCS7 ────────────────
+    // Key = UTF8(secretMaterial) → 16 bytes → AES-128-ECB
+    {name: 'aes128-ecb key=utf8(secret)', key: secretBytes, iv: emptyIv, mode: 'ecb'},
+    {name: 'aes256-ecb key=sha256(secret)', key: keySha256, iv: emptyIv, mode: 'ecb'},
+    {name: 'aes128-ecb key=sha256(secret)[0..16]', key: keySha256First16, iv: emptyIv, mode: 'ecb'},
+
+    // ── CBC con clave derivada por SHA-256 ────────────────────────────────────
+    {name: 'aes256-cbc key=sha256(secret) iv=sha256(iv)', key: keySha256, iv: ivSha256, mode: 'cbc'},
+    {name: 'aes256-cbc key=sha256(secret) iv=utf8(iv)', key: keySha256, iv: ivBytes, mode: 'cbc'},
+    {name: 'aes256-cbc key=sha256(secret) iv=zeros', key: keySha256, iv: zeroIv, mode: 'cbc'},
+
+    // ── CBC con clave extendida directamente de los materiales ────────────────
+    {name: 'aes256-cbc key=secret+iv iv=utf8(iv)', key: keySecretConcat, iv: ivBytes, mode: 'cbc'},
+    {name: 'aes256-cbc key=secret*2  iv=utf8(iv)', key: keySecretDoubled, iv: ivBytes, mode: 'cbc'},
+    {name: 'aes256-cbc key=secret+0s iv=utf8(iv)', key: keySecretZeroPad, iv: ivBytes, mode: 'cbc'},
+
+    // ── CBC AES-128 ───────────────────────────────────────────────────────────
+    {name: 'aes128-cbc key=sha256(secret)[0..16] iv=utf8(iv)', key: keySha256First16, iv: ivBytes, mode: 'cbc'},
+    {name: 'aes128-cbc key=utf8(secret) iv=utf8(iv)', key: secretBytes, iv: ivBytes, mode: 'cbc'},
+    {name: 'aes128-cbc key=utf8(secret) iv=sha256(iv)', key: secretBytes, iv: ivSha256, mode: 'cbc'},
+    {name: 'aes128-cbc key=utf8(secret) iv=zeros', key: secretBytes, iv: zeroIv, mode: 'cbc'},
   ];
 
   let lastError: unknown;
   for (const attempt of attempts) {
     try {
-      const plaintext = aes256CbcDecrypt(ciphertext, attempt.key, attempt.iv).toString(
-        'utf8',
-      );
+      const plaintext = tryAesDecrypt(ciphertext, attempt.key, attempt.iv, attempt.mode);
       return {plaintext, strategy: attempt.name};
     } catch (error) {
       lastError = error;
@@ -88,21 +142,6 @@ function tryDecryptWithDerivationStrategies(
   throw lastError instanceof Error
     ? lastError
     : new Error('No se pudo desencriptar AES con estrategias conocidas');
-}
-
-function tryDecryptWithDirectAes128(
-  ciphertext: Buffer,
-  secretMaterial: string,
-  ivMaterial: string,
-): {plaintext: string; strategy: string} {
-  const key16 = Buffer.from(secretMaterial, 'utf8').subarray(0, 16);
-  const iv16 = Buffer.from(ivMaterial, 'utf8').subarray(0, 16);
-  if (key16.length !== 16 || iv16.length !== 16) {
-    throw new Error('Material de sesión inválido para AES-128 directo');
-  }
-  const decipher = crypto.createDecipheriv('aes-128-cbc', key16, iv16);
-  const plain = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-  return {plaintext: plain.toString('utf8'), strategy: 'key=utf8(secret)[16], iv=utf8(iv)[16], aes-128-cbc'};
 }
 
 export interface CertificateHandshakeKeys {
@@ -178,6 +217,10 @@ export async function startCertificateValidation(
   session: CertificateSession;
 }> {
   const session = generateCertificateSession();
+  devLog(LOG_CERT_VALIDATE, 'Generando sesión de handshake', {
+    secretMaterial: session.secretMaterial,
+    ivMaterial: session.ivMaterial,
+  });
   const body = buildCertificateRequest(session, keys);
   const response = await postCertificate(body);
   return {response, session};
@@ -243,37 +286,18 @@ export function validateCertificateResponse(
     aesCiphertextBase64Chars: aesCiphertextBase64.length,
     aesCiphertextBase64Preview: aesCiphertextBase64.slice(0, 16),
   });
-  const aesKey = deriveAes256KeyHexFromSecretMaterial(session.secretMaterial);
-  const iv = deriveIvHexFromIvMaterial(session.ivMaterial);
   const ciphertext = decodeAesCiphertextFromRsaPayload(aesCiphertextBase64);
   devLog(LOG_CERT_VALIDATE, 'AES decrypt: tamaños de entrada', {
     ciphertextBytes: ciphertext.length,
-    aesKeyBytes: aesKey.length,
-    ivBytes: iv.length,
+    secretBytes: session.secretMaterial.length,
+    ivBytes: session.ivMaterial.length,
     ciphertextMod16: ciphertext.length % 16,
   });
-  let plaintext: string;
-  let strategy: string;
-  try {
-    const out = tryDecryptWithDerivationStrategies(
-      ciphertext,
-      session.secretMaterial,
-      session.ivMaterial,
-    );
-    plaintext = out.plaintext;
-    strategy = out.strategy;
-  } catch (error) {
-    devWarn(LOG_CERT_VALIDATE, 'AES-256 derivado falló, probando AES-128 directo', {
-      message: error instanceof Error ? error.message : String(error),
-    });
-    const out = tryDecryptWithDirectAes128(
-      ciphertext,
-      session.secretMaterial,
-      session.ivMaterial,
-    );
-    plaintext = out.plaintext;
-    strategy = out.strategy;
-  }
+  const {plaintext, strategy} = tryDecryptWithDerivationStrategies(
+    ciphertext,
+    session.secretMaterial,
+    session.ivMaterial,
+  );
   devLog(LOG_CERT_VALIDATE, 'AES decrypt OK', {strategy});
 
   return {

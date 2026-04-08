@@ -20,6 +20,7 @@ import {TransactionListRemoteDataSource} from '../data/datasources/transaction/T
 import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
 import {ServerPublicKeySessionStoreImpl} from '../data/services/ServerPublicKeySessionStoreImpl';
+import {CertificateHandshakePersistenceServiceImpl} from '../data/services/CertificateHandshakePersistenceServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
 import {DeviceSecurityServiceImpl} from '../data/services/DeviceSecurityServiceImpl';
 import {createApiSecretKey} from '../security/http/apiSecretKey';
@@ -112,10 +113,18 @@ export function createContainer(): AppContainer {
     serverPublicKeySessionStore,
   );
 
+  const certificateHandshakePersistenceService =
+    new CertificateHandshakePersistenceServiceImpl(secureStorageService);
+  const runCertificateHandshakeUseCase = new RunCertificateHandshakeUseCase(
+    securityRemoteDataSource,
+    certificateHandshakePersistenceService,
+  );
+
   const loginUseCase = new LoginUseCase(
     authRepository,
     secureStorageService,
     SecureStorageKeys.USER_LOGIN_DATA,
+    runCertificateHandshakeUseCase,
     getPublicKeyUseCase,
     SecureStorageKeys.AUTH_TOKEN,
   );
@@ -142,6 +151,7 @@ export function createContainer(): AppContainer {
     cryptoService,
     biometricKeyStorageService,
     secureStorageService,
+    runCertificateHandshakeUseCase,
     getPublicKeyUseCase,
     biometricAuthService,
     biometricEnrollmentBinding,
@@ -163,10 +173,6 @@ export function createContainer(): AppContainer {
 
   const getBeneficiaryContactsUseCase = new GetBeneficiaryContactsUseCase(
     beneficiaryRepository,
-  );
-
-  const runCertificateHandshakeUseCase = new RunCertificateHandshakeUseCase(
-    securityRemoteDataSource,
   );
 
   const validateTransactionAmountUseCase = new ValidateTransactionAmountUseCase(

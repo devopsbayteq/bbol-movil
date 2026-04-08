@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {RunCertificateHandshakeUseCase} from '../../domain/usecases/RunCertificateHandshakeUseCase';
 import {GetPublicKeyUseCase} from '../../domain/usecases/GetPublicKeyUseCase';
 import {
   BiometricAuthError,
@@ -24,6 +25,7 @@ export class BiometricRSAAuthOrchestrator {
     private readonly cryptoService: CryptoService,
     private readonly keyStorage: BiometricKeyStorageService,
     private readonly secureStorage: SecureStorageService,
+    private readonly runCertificateHandshakeUseCase: RunCertificateHandshakeUseCase,
     private readonly getPublicKeyUseCase: GetPublicKeyUseCase,
     private readonly biometricAuth: BiometricAuthService,
     private readonly enrollmentBinding: BiometricEnrollmentBinding,
@@ -168,6 +170,7 @@ export class BiometricRSAAuthOrchestrator {
 
       await this.enrollmentBinding.verify();
 
+      await this.runCertificateHandshakeUseCase.execute();
       const serverPem = await this.resolveServerPublicKeyPemBase64();
       const usernameEncryptBase64 = encryptUserIdentifierForBiometricApi(
         serverPem,
