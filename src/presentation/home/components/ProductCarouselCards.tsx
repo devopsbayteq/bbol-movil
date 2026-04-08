@@ -258,7 +258,9 @@ export function CreditCardPreview({
           colors.homeCreditCardGradientTop,
           colors.homeCreditCardGradientBottom,
         ]}
-        style={styles.cardGradient}>
+        style={styles.cardGradientFill}
+      />
+      <View style={styles.cardInner} pointerEvents="box-none">
         <View style={styles.cardTop}>
           <View style={styles.headerRow}>
             <Text style={styles.cardTitle}>Tarjeta</Text>
@@ -296,7 +298,7 @@ export function CreditCardPreview({
             )}
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -309,10 +311,24 @@ function useCreditStyles(colors: ThemeColors) {
           flex: 1,
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: colors.textTertiary,
+          borderColor: colors.homeCreditCardBorder,
           overflow: 'hidden',
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+            },
+          }),
         },
-        cardGradient: {
+        cardGradientFill: {
+          ...StyleSheet.absoluteFillObject,
+        },
+        cardInner: {
           flex: 1,
           padding: 12,
           justifyContent: 'space-between',
@@ -444,7 +460,9 @@ export function LoanCard({
         ]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}
-        style={styles.cardGradient}>
+        style={styles.cardGradientFill}
+      />
+      <View style={styles.cardInner} pointerEvents="box-none">
         <View>
           <Text style={styles.productTitle}>Préstamo</Text>
           <Text style={styles.maskedAccount}>{maskedLine}</Text>
@@ -475,7 +493,7 @@ export function LoanCard({
             )}
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -488,10 +506,24 @@ function useLoanStyles(colors: ThemeColors) {
           flex: 1,
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: colors.homePrimaryHover,
+          borderColor: colors.homeLoanCarouselBorder,
           overflow: 'hidden',
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+            },
+          }),
         },
-        cardGradient: {
+        cardGradientFill: {
+          ...StyleSheet.absoluteFillObject,
+        },
+        cardInner: {
           flex: 1,
           padding: 12,
           justifyContent: 'space-between',
@@ -593,7 +625,9 @@ export function InvestmentCard({
         ]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}
-        style={styles.cardGradient}>
+        style={styles.cardGradientFill}
+      />
+      <View style={styles.cardInner} pointerEvents="box-none">
         <View style={styles.topBlock}>
           <Text style={styles.productTitle} numberOfLines={2}>
             {productName}
@@ -621,7 +655,7 @@ export function InvestmentCard({
             )}
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -634,10 +668,24 @@ function useInvestmentStyles(colors: ThemeColors) {
           flex: 1,
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: colors.homeLoanCardBackground,
+          borderColor: colors.homeInvestmentCardBorder,
           overflow: 'hidden',
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+            },
+          }),
         },
-        cardGradient: {
+        cardGradientFill: {
+          ...StyleSheet.absoluteFillObject,
+        },
+        cardInner: {
           flex: 1,
           padding: 12,
           justifyContent: 'space-between',

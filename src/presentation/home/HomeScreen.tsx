@@ -10,10 +10,14 @@ import {
   RefreshControl,
   ImageBackground,
   useWindowDimensions,
+  Platform,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import {
   useFocusEffect,
   useNavigation,
@@ -72,22 +76,22 @@ const CARD_HEIGHT = 130;
 const CARD_GAP = 6;
 const MAIN_COLUMN_PADDING = 24;
 
-/** Altura aproximada de la imagen + franja teal bajo el header (fondo decorativo). */
+/** Altura base de la imagen de cabecera (sin el extra iOS por safe area / solapamiento con cards). */
 const HERO_IMAGE_SECTION_HEIGHT = 150;
 
 export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
+  const insets = useSafeAreaInsets();
   const {width: windowWidth} = useWindowDimensions();
-  const cardLayout = useMemo(
-    () => ({
-      cardWidth: Math.round(windowWidth * CARD_WIDTH_SCREEN_FRACTION),
-      cardHeight: CARD_HEIGHT,
-    }),
-    [windowWidth],
+  /** iOS: el contenido queda más abajo por el notch; sin esto el corte teal/gris cae en el borde superior de las cards. */
+  const iosHeroExtra = useMemo(
+    () =>
+      Platform.OS === 'ios'
+        ? Math.round(insets.top + (CARD_HEIGHT - CARD_HEIGHT * 1.02))
+        : 0,
+    [insets.top],
   );
-  const cardSnapInterval = cardLayout.cardWidth + CARD_GAP;
-  const styles = useStyles(colors, cardLayout);
 
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -113,6 +117,17 @@ export function HomeScreen() {
     upcomingPaymentsSummary,
     recentActivityItems,
   } = useHomeViewModel();
+
+  const cardLayout = useMemo(
+    () => ({
+      cardWidth: Math.round(windowWidth * CARD_WIDTH_SCREEN_FRACTION),
+      cardHeight: CARD_HEIGHT,
+    }),
+    [windowWidth],
+  );
+
+  const cardSnapInterval = cardLayout.cardWidth + CARD_GAP;
+  const styles = useStyles(colors, cardLayout, iosHeroExtra);
 
   const carouselRef = useRef<ScrollView>(null);
   const scaleAnims = useRef<Animated.Value[]>([]).current;
@@ -481,6 +496,7 @@ export function HomeScreen() {
 function useStyles(
   colors: ThemeColors,
   layout: {cardWidth: number; cardHeight: number},
+  iosHeroExtra: number,
 ) {
   return useMemo(
     () =>
@@ -504,7 +520,7 @@ function useStyles(
         },
         heroImageSection: {
           width: '100%',
-          height: HERO_IMAGE_SECTION_HEIGHT,
+          height: HERO_IMAGE_SECTION_HEIGHT + iosHeroExtra,
           backgroundColor: colors.homeHeaderBackground,
         },
         headerBackgroundImage: {
@@ -591,6 +607,6 @@ function useStyles(
           paddingVertical: 16,
         },
       }),
-    [colors, layout.cardWidth, layout.cardHeight],
+    [colors, layout.cardWidth, layout.cardHeight, iosHeroExtra],
   );
 }

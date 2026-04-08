@@ -48,6 +48,8 @@ export interface ThemeColors {
   homeCreditCardGradientTop: string;
   /** Gradiente inferior — tarjeta crédito carousel (home). */
   homeCreditCardGradientBottom: string;
+  /** Borde — preview tarjeta crédito (carousel home). */
+  homeCreditCardBorder: string;
   homeLoanCardBackground: string;
   /** Gradiente inicio — tarjeta préstamo carousel (home). */
   homeLoanCardGradientStart: string;
@@ -57,7 +59,11 @@ export interface ThemeColors {
   homeInvestmentCardGradientStart: string;
   /** Gradiente fin — tarjeta inversión carousel (home). */
   homeInvestmentCardGradientEnd: string;
+  /** Borde — tarjeta inversión (carousel home). */
+  homeInvestmentCardBorder: string;
   homeLoanCardBorder: string;
+  /** Borde — tarjeta préstamo / Créditos (carousel home). */
+  homeLoanCarouselBorder: string;
   homeBorderSoft: string;
   homePrimaryHover: string;
   lineSeparator: string;
@@ -106,12 +112,15 @@ export const LightColors: ThemeColors = {
   homeCreditCardSurface: '#262626',
   homeCreditCardGradientTop: '#323232',
   homeCreditCardGradientBottom: '#1A1A1A',
+  homeCreditCardBorder: '#757575',
   homeLoanCardBackground: '#0067AE',
   homeLoanCardGradientStart: '#096877',
   homeLoanCardGradientEnd: '#008292',
   homeInvestmentCardGradientStart: '#003960',
   homeInvestmentCardGradientEnd: '#0067AE',
+  homeInvestmentCardBorder: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
+  homeLoanCarouselBorder: '#06A3B6',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
   lineSeparator: '#d6d6d6',
@@ -158,12 +167,15 @@ export const DarkColors: ThemeColors = {
   homeCreditCardSurface: '#262626',
   homeCreditCardGradientTop: '#323232',
   homeCreditCardGradientBottom: '#1A1A1A',
+  homeCreditCardBorder: '#757575',
   homeLoanCardBackground: '#0067AE',
   homeLoanCardGradientStart: '#096877',
   homeLoanCardGradientEnd: '#008292',
   homeInvestmentCardGradientStart: '#003960',
   homeInvestmentCardGradientEnd: '#0067AE',
+  homeInvestmentCardBorder: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
+  homeLoanCarouselBorder: '#06A3B6',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
   lineSeparator: '#374151',
