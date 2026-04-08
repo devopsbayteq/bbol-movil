@@ -134,10 +134,10 @@ describe('useTransferViewModel', () => {
   test('onAmountChange limita al máximo permitido', async () => {
     await mount();
     act(() => {
-      // Valor más grande que MAX_TRANSFER_CENTS = 999_999_999_999
+      // Valor más grande que MAX_TRANSFER_CENTS (5000 unidades de cuenta)
       latest?.onAmountChange('9999999999999');
     });
-    expect(latest?.amountCents).toBe(999999999999);
+    expect(latest?.amountCents).toBe(500_000);
   });
 
   test('onAmountChange limpia validationMessage al cambiar', async () => {

@@ -15,6 +15,7 @@ export {
 export {
   balanceDollarsToCents,
   getLiveTransferAmountError,
+  MAX_TRANSFER_AMOUNT_UNITS,
   MAX_TRANSFER_CENTS,
   parseTransferAmountInputToCents,
   sanitizeTransferAmountInput,

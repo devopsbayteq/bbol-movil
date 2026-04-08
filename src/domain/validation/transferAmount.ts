@@ -1,4 +1,7 @@
-export const MAX_TRANSFER_CENTS = 999_999_999_999;
+/** Monto máximo por transferencia en unidades de cuenta (p. ej. soles), sin decimales en esta constante. */
+export const MAX_TRANSFER_AMOUNT_UNITS = 5000;
+
+export const MAX_TRANSFER_CENTS = MAX_TRANSFER_AMOUNT_UNITS * 100;
 
 const MAX_TRANSFER_CENTS_BIGINT = BigInt(MAX_TRANSFER_CENTS);
 

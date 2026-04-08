@@ -282,7 +282,7 @@ export function useTransferViewModel() {
                 fromHolderName: holderName,
                 fromAccountLine: formatAccountKindLine(selectedFromAccount),
                 toAccountSubtitle: formatAccountKindLine(selectedToAccount),
-                toAccountTitle:selectedToAccount.beneficiary.contactName,
+                toAccountTitle:selectedToAccount.accountTypeLabel?.trim()??"",
                 fromAccountTitle: selectedFromAccount.accountTypeLabel?.trim() ?? '',
                 fromAccountSubtitle,
                 fromBalanceDisplay: formatMoneyUsdDisplay(selectedFromAccount.balance),

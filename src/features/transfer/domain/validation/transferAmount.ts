@@ -1,11 +1,9 @@
-export const MAX_TRANSFER_CENTS = 999_999_999_999;
+
+export const MAX_TRANSFER_AMOUNT_UNITS = 5000;
+export const MAX_TRANSFER_CENTS = MAX_TRANSFER_AMOUNT_UNITS * 100;
 
 const MAX_TRANSFER_CENTS_BIGINT = BigInt(MAX_TRANSFER_CENTS);
 
-/**
- * Normalizes raw input: strips `$`, commas, spaces; keeps digits and at most one `.`;
- * after `.`, at most two fractional digits.
- */
 export function sanitizeTransferAmountInput(raw: string): string {
   const normalized = raw.replace(/[$,\s]/g, '');
   let result = '';

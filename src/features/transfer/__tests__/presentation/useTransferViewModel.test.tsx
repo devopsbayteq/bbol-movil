@@ -189,7 +189,7 @@ describe('useTransferViewModel', () => {
     act(() => {
       latest?.onAmountChange('9999999999999');
     });
-    expect(latest?.amountCents).toBe(999999999999);
+    expect(latest?.amountCents).toBe(500_000);
   });
 
   test('onAmountChange limpia validationMessage al cambiar', async () => {

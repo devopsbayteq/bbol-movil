@@ -66,6 +66,16 @@ describe('transferAmount validation', () => {
     );
   });
 
+  test('rejects amount above max transfer on submit', () => {
+    expect(validateTransferAmountForSubmit(MAX_TRANSFER_CENTS + 1, 10_000_000)).toBe(
+      transferAmountMessages.exceedsMax,
+    );
+  });
+
+  test('accepts amount at max transfer when balance allows', () => {
+    expect(validateTransferAmountForSubmit(MAX_TRANSFER_CENTS, MAX_TRANSFER_CENTS)).toBeNull();
+  });
+
   test('does not show live error while amount is zero', () => {
     expect(getLiveTransferAmountError(0, 10_000)).toBeNull();
   });
@@ -73,6 +83,12 @@ describe('transferAmount validation', () => {
   test('shows live error when amount exceeds balance', () => {
     expect(getLiveTransferAmountError(500, 400)).toBe(
       transferAmountMessages.exceedsBalance,
+    );
+  });
+
+  test('shows live error when amount exceeds max transfer', () => {
+    expect(getLiveTransferAmountError(MAX_TRANSFER_CENTS + 1, 10_000_000)).toBe(
+      transferAmountMessages.exceedsMax,
     );
   });
 });
