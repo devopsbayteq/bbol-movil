@@ -13,7 +13,7 @@ import {
   sanitizeUnsafeTextInput,
 } from './textSafety';
 
-export const TRANSFER_CONCEPT_MAX_LENGTH = 120;
+export const TRANSFER_CONCEPT_MAX_LENGTH = 30;
 
 export const transferConceptMessages = {
   invalidCharacters: 'El concepto contiene caracteres no permitidos',

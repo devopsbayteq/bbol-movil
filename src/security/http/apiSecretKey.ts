@@ -8,6 +8,5 @@ export function createApiSecretKey(): string {
   return buf
     .toString('base64')
     .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/[=]+$/, '');
+    .replace(/\//g, '_');
 }

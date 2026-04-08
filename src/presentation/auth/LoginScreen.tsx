@@ -179,6 +179,7 @@ export function LoginScreen() {
       // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
       secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED),
     ]);
+    await biometricRSAAuthOrchestrator.clearBiometricRegistration();
     setDeviceBoundLoginId('');
     setDeviceBoundGreetingName('');
     setDeviceBoundGreetingFirstName('');
@@ -249,7 +250,7 @@ export function LoginScreen() {
   );
 }
 
-function useStyles(colors: ThemeColors) {
+function useStyles(_colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
@@ -277,6 +278,6 @@ function useStyles(colors: ThemeColors) {
           marginVertical: 24,
         },
       }),
-    [colors],
+    [],
   );
 }

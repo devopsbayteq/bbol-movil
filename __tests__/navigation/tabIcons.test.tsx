@@ -2,9 +2,11 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {
   TabHomeIcon,
-  TabMovementsIcon,
+  TabOthersIcon,
+  TabPaymentsIcon,
   TabTransferIcon,
-} from '../../src/navigation/components/tabIcons';
+  TabWithdrawIcon,
+} from '../../src/navigation/tabIcons';
 
 describe('tabIcons', () => {
   test('TabHomeIcon aplica color, tamaño y etiqueta de accesibilidad', async () => {
@@ -41,12 +43,30 @@ describe('tabIcons', () => {
     );
   });
 
-  test('TabMovementsIcon expone etiqueta Movimientos', async () => {
+  test('TabWithdrawIcon expone etiqueta Retirar', async () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
-      root = ReactTestRenderer.create(<TabMovementsIcon color="#fff" />);
+      root = ReactTestRenderer.create(<TabWithdrawIcon color="#fff" />);
+    });
+    const svg = root!.root.findByProps({accessibilityLabel: 'Retirar'});
+    expect(svg).toBeTruthy();
+  });
+
+  test('TabPaymentsIcon expone etiqueta Pagos', async () => {
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<TabPaymentsIcon color="#000" />);
     });
     const img = root!.root.findByType('Image' as never);
-    expect(img.props.accessibilityLabel).toBe('Movimientos');
+    expect(img.props.accessibilityLabel).toBe('Pagos');
+  });
+
+  test('TabOthersIcon expone etiqueta Otros', async () => {
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<TabOthersIcon color="#000" />);
+    });
+    const svg = root!.root.findByProps({accessibilityLabel: 'Otros'});
+    expect(svg).toBeTruthy();
   });
 });
