@@ -12,6 +12,15 @@ export interface PostLoginEnrollmentDeps {
   login: (user: User) => Promise<void>;
 }
 
+export interface NavigatePostLoginEnrollmentOptions {
+  /**
+   * Primer login tras alias: ignorar `hasBiometricRegistration` (en iOS puede dar
+   * falso positivo por Keychain/storage) y siempre mostrar `BiometricOffer`
+   * salvo declinación previa.
+   */
+  forceShowBiometricOffer?: boolean;
+}
+
 /**
  * Tras OTP y registro de alias: misma rama que antes vivía en OtpValidationScreen
  * (biometría existente, declinación previa u oferta biométrica).
@@ -21,12 +30,20 @@ export async function navigatePostLoginEnrollment(
   user: User,
   email: string,
   deps: PostLoginEnrollmentDeps,
+  options?: NavigatePostLoginEnrollmentOptions,
 ): Promise<void> {
   const {biometricRSAAuthOrchestrator, secureStorageService, login} = deps;
-  const hasBio = await biometricRSAAuthOrchestrator.hasBiometricRegistration();
-  if (hasBio) {
-    await login(user);
-    return;
+  if (!options?.forceShowBiometricOffer) {
+    let hasBio = false;
+    try {
+      hasBio = await biometricRSAAuthOrchestrator.hasBiometricRegistration();
+    } catch {
+      hasBio = false;
+    }
+    if (hasBio) {
+      await login(user);
+      return;
+    }
   }
   const declined = await secureStorageService.get(
     SecureStorageKeys.BIOMETRIC_OFFER_DECLINED,
