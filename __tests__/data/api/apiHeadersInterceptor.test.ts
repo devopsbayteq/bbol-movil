@@ -147,7 +147,7 @@ describe('attachApiHeadersInterceptor', () => {
     });
 
     expect(out.headers.get('X-FingerPrint')).toBe('');
-    expect(out.headers.has('X-Secret')).toBe(false);
+    expect(out.headers.get('X-Secret')).toBe('');
     expect(mockedRsa).not.toHaveBeenCalled();
   });
 

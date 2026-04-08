@@ -18,16 +18,21 @@ import type {ServerPublicKeySessionStore} from '../../domain/services/ServerPubl
 
 const LOG = 'ApiHeaders/interceptor';
 
-/** Misma ruta que `SecurityRemoteDataSource.getPublicKey` — sin X-Secret ni huella cifrada. */
-const PUBLIC_KEY_PATH_SEGMENT = 'Security/public-key';
+/**
+ * Rutas de bootstrap: no disponen de public key en sesión todavía,
+ * por lo que X-Secret se envía vacío y la huella cifrada también.
+ */
+const BOOTSTRAP_PATH_SEGMENTS = [
+  'Security/public-key',
+  'security/certificate',
+] as const;
 
-function isPublicKeyRequest(config: InternalAxiosRequestConfig): boolean {
+function isBootstrapRequest(config: InternalAxiosRequestConfig): boolean {
   const pathOnly = (config.url ?? '').split('?')[0] ?? '';
-  if (pathOnly.includes(PUBLIC_KEY_PATH_SEGMENT)) {
-    return true;
-  }
   const absolute = `${config.baseURL ?? ''}${pathOnly}`;
-  return absolute.includes(PUBLIC_KEY_PATH_SEGMENT);
+  return BOOTSTRAP_PATH_SEGMENTS.some(
+    segment => pathOnly.includes(segment) || absolute.includes(segment),
+  );
 }
 
 export type ApiHeadersInterceptorDeps = {
@@ -87,7 +92,7 @@ export function attachApiHeadersInterceptor(
       try {
         config.baseURL = deps.baseURL;
         const timeStamp = String(Math.floor(Date.now() / 1000));
-        const skipPublicKeyBootstrap = isPublicKeyRequest(config);
+        const skipPublicKeyBootstrap = isBootstrapRequest(config);
 
         const serverPublicKeyPemBase64 = skipPublicKeyBootstrap
           ? ''
@@ -146,9 +151,7 @@ export function attachApiHeadersInterceptor(
         set('X-Brand', snapshot.brand);
         set('X-Content', xContent);
         set('X-Time', timeStamp);
-        if (!skipPublicKeyBootstrap) {
-          set('X-Secret', xSecret);
-        }
+        set('X-Secret', xSecret);
         set('X-FingerPrint', xFingerPrint);
         set('X-RequestId', deps.requestId);                
         config.headers = headers;
