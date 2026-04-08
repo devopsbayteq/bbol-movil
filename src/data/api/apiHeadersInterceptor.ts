@@ -14,10 +14,11 @@ import {
   infoFingerprintModelToJson,
 } from './infoFingerprintModel';
 import type {DeviceSecurityService} from '../../domain/services/DeviceSecurityService';
+import type {ServerPublicKeySessionStore} from '../../domain/services/ServerPublicKeySessionStore';
 
 const LOG = 'ApiHeaders/interceptor';
 
-/** Misma ruta que `SecurityRemoteDataSource.getPublicKey` — ahí aún no aplica enviar huella cifrada. */
+/** Misma ruta que `SecurityRemoteDataSource.getPublicKey` — sin X-Secret ni huella cifrada. */
 const PUBLIC_KEY_PATH_SEGMENT = 'Security/public-key';
 
 function isPublicKeyRequest(config: InternalAxiosRequestConfig): boolean {
@@ -34,24 +35,19 @@ export type ApiHeadersInterceptorDeps = {
   secretKey: string;
   requestId: string;
   secureStorage: SecureStorageService;
-  /**
-   * Clave pública embebida (bootstrap). Si ya existe la guardada por
-   * `GetPublicKeyUseCase` en `SecureStorageKeys.SERVER_PUBLIC_KEY`, se usa esa
-   * — misma fuente que `LoginUseCase` tras `getPublicKeyUseCase.execute()`.
-   */
+  /** PEM en memoria tras el primer GET a public-key; si no hay, fallback embebido. */
+  serverPublicKeySessionStore: ServerPublicKeySessionStore;
   serverPublicPemBase64: string;
   deviceSecurityService: DeviceSecurityService;
 };
 
-/** Misma lógica de material que el login: PEM del servicio persistido, o fallback embebido. */
-async function resolveServerPublicKeyPemBase64ForHeaders(
-  secureStorage: SecureStorageService,
+function resolveServerPublicKeyPemBase64ForHeaders(
+  sessionStore: ServerPublicKeySessionStore,
   embeddedFallbackPemBase64: string,
-): Promise<string> {
-  const stored = await secureStorage.get(SecureStorageKeys.SERVER_PUBLIC_KEY);
-  const trimmed = stored?.trim() ?? '';
-  if (trimmed) {
-    return trimmed;
+): string {
+  const fromSession = sessionStore.get()?.trim() ?? '';
+  if (fromSession) {
+    return fromSession;
   }
   return embeddedFallbackPemBase64;
 }
@@ -91,17 +87,18 @@ export function attachApiHeadersInterceptor(
       try {
         config.baseURL = deps.baseURL;
         const timeStamp = String(Math.floor(Date.now() / 1000));
-        const skipFingerprint = isPublicKeyRequest(config);
+        const skipPublicKeyBootstrap = isPublicKeyRequest(config);
 
-        const serverPublicKeyPemBase64 =
-          await resolveServerPublicKeyPemBase64ForHeaders(
-            deps.secureStorage,
-            deps.serverPublicPemBase64,
-          );
+        const serverPublicKeyPemBase64 = skipPublicKeyBootstrap
+          ? ''
+          : resolveServerPublicKeyPemBase64ForHeaders(
+              deps.serverPublicKeySessionStore,
+              deps.serverPublicPemBase64,
+            );
 
         const [
           authorization,
-          deviceId,          
+          deviceId,
           xSecret,
           xFingerPrint,
           snapshot,
@@ -110,14 +107,15 @@ export function attachApiHeadersInterceptor(
             .get(SecureStorageKeys.AUTH_TOKEN)
             .then(t => t ?? ''),
           ensureDeviceId(deps.secureStorage),
-          
-          Promise.resolve(
-            rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
-              serverPublicKeyPemBase64,
-              deps.secretKey,
-            ),
-          ),
-          skipFingerprint
+          skipPublicKeyBootstrap
+            ? Promise.resolve('')
+            : Promise.resolve(
+                rsaOaepEncryptUtf8MaterialPemBase64ToDoubleBase64(
+                  serverPublicKeyPemBase64,
+                  deps.secretKey,
+                ),
+              ),
+          skipPublicKeyBootstrap
             ? Promise.resolve('')
             : buildEncryptedFingerprint(
                 serverPublicKeyPemBase64,
@@ -148,7 +146,9 @@ export function attachApiHeadersInterceptor(
         set('X-Brand', snapshot.brand);
         set('X-Content', xContent);
         set('X-Time', timeStamp);
-        set('X-Secret', xSecret);            
+        if (!skipPublicKeyBootstrap) {
+          set('X-Secret', xSecret);
+        }
         set('X-FingerPrint', xFingerPrint);
         set('X-RequestId', deps.requestId);                
         config.headers = headers;

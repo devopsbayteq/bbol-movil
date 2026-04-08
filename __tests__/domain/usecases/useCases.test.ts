@@ -8,6 +8,7 @@ import {ValidateOtpUseCase} from '../../../src/domain/usecases/ValidateOtpUseCas
 import {ValidateTransactionAmountUseCase} from '../../../src/domain/usecases/ValidateTransactionAmountUseCase';
 import {ExecuteTransferUseCase} from '../../../src/domain/usecases/ExecuteTransferUseCase';
 import * as rsaUtils from '../../../src/security/certificate/rsaUtils';
+import {ServerPublicKeySessionStoreImpl} from '../../../src/data/services/ServerPublicKeySessionStoreImpl';
 
 describe('domain use cases', () => {
   test('LoginUseCase trims credentials, persists session and returns user', async () => {
@@ -116,43 +117,42 @@ describe('domain use cases', () => {
     expect(secureStorage.save).not.toHaveBeenCalled();
   });
 
-  test('GetPublicKeyUseCase trims and stores the received key', async () => {
+  test('GetPublicKeyUseCase normaliza la clave y la guarda en sesión (una sola llamada al repo)', async () => {
     const securityRepository = {
       getPublicKey: jest.fn().mockResolvedValue({value: '  PUBLIC_KEY  '}),
     };
-    const secureStorage = {
-      save: jest.fn().mockResolvedValue(undefined),
-    };
+    const sessionStore = new ServerPublicKeySessionStoreImpl();
     const useCase = new GetPublicKeyUseCase(
       securityRepository as never,
-      secureStorage as never,
-      'server-key',
+      sessionStore,
     );
 
     const result = await useCase.execute();
 
     expect(securityRepository.getPublicKey).toHaveBeenCalledTimes(1);
-    expect(secureStorage.save).toHaveBeenCalledWith('server-key', 'PUBLIC/KEY');
     expect(result).toEqual({value: 'PUBLIC/KEY'});
+
+    await useCase.execute();
+    expect(securityRepository.getPublicKey).toHaveBeenCalledTimes(1);
   });
 
   test('GetPublicKeyUseCase rejects an empty public key', async () => {
     const securityRepository = {
       getPublicKey: jest.fn().mockResolvedValue({value: '   '}),
     };
-    const secureStorage = {
-      save: jest.fn(),
+    const sessionStore = {
+      get: jest.fn().mockReturnValue(null),
+      set: jest.fn(),
     };
     const useCase = new GetPublicKeyUseCase(
       securityRepository as never,
-      secureStorage as never,
-      'server-key',
+      sessionStore as never,
     );
 
     await expect(useCase.execute()).rejects.toThrow(
       'La clave pública recibida no es válida',
     );
-    expect(secureStorage.save).not.toHaveBeenCalled();
+    expect(sessionStore.set).not.toHaveBeenCalled();
   });
 
   test('GetAccountMovementsUseCase returns paginated movements', async () => {

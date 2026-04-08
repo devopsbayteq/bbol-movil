@@ -25,16 +25,11 @@ export class BiometricRSAAuthOrchestrator {
     private readonly keyStorage: BiometricKeyStorageService,
     private readonly secureStorage: SecureStorageService,
     private readonly getPublicKeyUseCase: GetPublicKeyUseCase,
-    private readonly serverPublicKeyStorageKey: string,
     private readonly biometricAuth: BiometricAuthService,
     private readonly enrollmentBinding: BiometricEnrollmentBinding,
   ) {}
 
   private async resolveServerPublicKeyPemBase64(): Promise<string> {
-    const stored = await this.secureStorage.get(this.serverPublicKeyStorageKey);
-    if (stored?.trim()) {
-      return stored.trim();
-    }
     const pk = await this.getPublicKeyUseCase.execute();
     return pk.value.trim();
   }

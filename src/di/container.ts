@@ -19,6 +19,7 @@ import {TransferRemoteDataSource} from '../data/datasources/transaction';
 import {TransactionListRemoteDataSource} from '../data/datasources/transaction/TransactionListRemoteDataSource';
 import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
+import {ServerPublicKeySessionStoreImpl} from '../data/services/ServerPublicKeySessionStoreImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
 import {DeviceSecurityServiceImpl} from '../data/services/DeviceSecurityServiceImpl';
 import {createApiSecretKey} from '../security/http/apiSecretKey';
@@ -63,6 +64,7 @@ export interface AppContainer {
 
 export function createContainer(): AppContainer {
   const secureStorageService = new SecureStorageServiceImpl();
+  const serverPublicKeySessionStore = new ServerPublicKeySessionStoreImpl();
   const deviceSecurityService = new DeviceSecurityServiceImpl();
   const secretKey = createApiSecretKey();
   const requestId = uuidv4();
@@ -72,6 +74,7 @@ export function createContainer(): AppContainer {
     secretKey,
     requestId,
     secureStorage: secureStorageService,
+    serverPublicKeySessionStore,
     serverPublicPemBase64: SERVER_PUBLIC_KEY_PEM_BASE64,
     deviceSecurityService,
   });
@@ -106,8 +109,7 @@ export function createContainer(): AppContainer {
 
   const getPublicKeyUseCase = new GetPublicKeyUseCase(
     securityRepository,
-    secureStorageService,
-    SecureStorageKeys.SERVER_PUBLIC_KEY,
+    serverPublicKeySessionStore,
   );
 
   const loginUseCase = new LoginUseCase(
@@ -141,7 +143,6 @@ export function createContainer(): AppContainer {
     biometricKeyStorageService,
     secureStorageService,
     getPublicKeyUseCase,
-    SecureStorageKeys.SERVER_PUBLIC_KEY,
     biometricAuthService,
     biometricEnrollmentBinding,
   );

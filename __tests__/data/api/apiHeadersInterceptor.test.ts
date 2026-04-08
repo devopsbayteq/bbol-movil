@@ -79,9 +79,6 @@ describe('attachApiHeadersInterceptor', () => {
         if (key === SecureStorageKeys.AUTH_TOKEN) {
           return Promise.resolve('my-jwt');
         }
-        if (key === SecureStorageKeys.SERVER_PUBLIC_KEY) {
-          return Promise.resolve('');
-        }
         return Promise.resolve(null);
       }),
       save: jest.fn(),
@@ -104,6 +101,7 @@ describe('attachApiHeadersInterceptor', () => {
       secretKey: 'secret-k',
       requestId: 'req-uuid',
       secureStorage: secureStorage as never,
+      serverPublicKeySessionStore: {get: () => null, set: jest.fn()},
       serverPublicPemBase64: 'EMBEDDED_PEM_B64',
       deviceSecurityService: deviceSecurityService as never,
     });
@@ -120,7 +118,7 @@ describe('attachApiHeadersInterceptor', () => {
     expect(mockedRsa).toHaveBeenCalled();
   });
 
-  it('omite X-FingerPrint en solicitud de clave pública', async () => {
+  it('omite X-Secret y X-FingerPrint en solicitud de clave pública', async () => {
     const secureStorage = {
       get: jest.fn((key: string) => {
         if (key === SecureStorageKeys.AUTH_TOKEN) {
@@ -138,6 +136,7 @@ describe('attachApiHeadersInterceptor', () => {
       secretKey: 'sk',
       requestId: 'r1',
       secureStorage: secureStorage as never,
+      serverPublicKeySessionStore: {get: () => null, set: jest.fn()},
       serverPublicPemBase64: 'PEM',
       deviceSecurityService: {getSnapshot: jest.fn()} as never,
     });
@@ -148,14 +147,13 @@ describe('attachApiHeadersInterceptor', () => {
     });
 
     expect(out.headers.get('X-FingerPrint')).toBe('');
+    expect(out.headers.has('X-Secret')).toBe(false);
+    expect(mockedRsa).not.toHaveBeenCalled();
   });
 
-  it('usa SERVER_PUBLIC_KEY del almacén cuando existe', async () => {
+  it('usa la clave de sesión en memoria para X-Secret cuando existe', async () => {
     const secureStorage = {
       get: jest.fn((key: string) => {
-        if (key === SecureStorageKeys.SERVER_PUBLIC_KEY) {
-          return Promise.resolve('  FROM_STORAGE  ');
-        }
         if (key === SecureStorageKeys.AUTH_TOKEN) {
           return Promise.resolve('');
         }
@@ -171,6 +169,10 @@ describe('attachApiHeadersInterceptor', () => {
       secretKey: 'sk',
       requestId: 'r',
       secureStorage: secureStorage as never,
+      serverPublicKeySessionStore: {
+        get: () => 'FROM_SESSION',
+        set: jest.fn(),
+      },
       serverPublicPemBase64: 'EMBEDDED',
       deviceSecurityService: {
         getSnapshot: jest.fn().mockResolvedValue({
@@ -185,7 +187,7 @@ describe('attachApiHeadersInterceptor', () => {
 
     await runRequest({url: '/x'});
 
-    expect(mockedRsa.mock.calls.some(c => c[0] === 'FROM_STORAGE')).toBe(true);
+    expect(mockedRsa.mock.calls.some(c => c[0] === 'FROM_SESSION')).toBe(true);
   });
 
   it('rechaza la petición si el interceptor falla', async () => {
@@ -202,6 +204,7 @@ describe('attachApiHeadersInterceptor', () => {
       secretKey: 'sk',
       requestId: 'r',
       secureStorage: secureStorage as never,
+      serverPublicKeySessionStore: {get: () => null, set: jest.fn()},
       serverPublicPemBase64: 'PEM',
       deviceSecurityService: {
         getSnapshot: jest.fn().mockResolvedValue({
