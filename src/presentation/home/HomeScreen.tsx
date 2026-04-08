@@ -27,7 +27,7 @@ import {useAuth} from '../../providers';
 import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
-import type {AccountKind} from '../../domain/entities/ContractBalance';
+import type {AccountKind, FrequentPayment} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
 import {ProductFilterTabs} from './components/ProductFilterTabs';
 import {
@@ -349,6 +349,16 @@ export function HomeScreen() {
     setDevModalVisible(true);
   };
 
+  const openFrequentPayments = useCallback(
+    (_item: FrequentPayment, index: number) => {
+      navigation.navigate('FrequentPayments', {
+        items: frequentPaymentsForHome,
+        initialIndex: index,
+      });
+    },
+    [navigation, frequentPaymentsForHome],
+  );
+
   return (
     <View testID="home-screen" style={styles.root}>
       <ScrollView
@@ -459,7 +469,7 @@ export function HomeScreen() {
                   <HomeBannersCarousel banners={bannersForHome} />
                   <FrequentActionsSection
                     items={frequentPaymentsForHome}
-                    onItemPress={openDevelopmentModal}
+                    onItemPress={openFrequentPayments}
                   />
                   <UpcomingPaymentsRow
                     summary={upcomingPaymentsSummary}

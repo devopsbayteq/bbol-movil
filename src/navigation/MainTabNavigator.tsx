@@ -127,7 +127,8 @@ export function MainTabNavigator() {
           const hideTabBar =
             focused === 'CardDetail' ||
             focused === 'InvestmentDetail' ||
-            focused === 'LoanDetail';
+            focused === 'LoanDetail' ||
+            focused === 'FrequentPayments';
           return {
             title: 'Inicio',
             tabBarIcon: tabBarIconHome,

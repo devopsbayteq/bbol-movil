@@ -587,7 +587,7 @@ function useStyles(colors: ThemeColors) {
           textAlign: 'center',
         },
         heroDivider: {
-          height: StyleSheet.hairlineWidth,
+          height: 1,
           backgroundColor: colors.balanceDivider,
           alignSelf: 'stretch',
         },

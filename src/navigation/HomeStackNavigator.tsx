@@ -1,6 +1,7 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import type {
+  FrequentPayment,
   InvestmentBalance,
   LoanBalance,
 } from '../domain/entities/ContractBalance';
@@ -8,6 +9,7 @@ import {HomeScreen} from '../presentation/home/HomeScreen';
 import {CardDetailScreen} from '../presentation/cardDetail/CardDetailScreen';
 import {InvestmentDetailScreen} from '../presentation/investmentDetail/InvestmentDetailScreen';
 import {LoanDetailScreen} from '../presentation/loanDetail/LoanDetailScreen';
+import {FrequentPaymentsScreen} from '../presentation/frequentPayments/FrequentPaymentsScreen';
 
 export type HomeStackParamList = {
   HomeMain: {refreshHome?: number} | undefined;
@@ -20,6 +22,10 @@ export type HomeStackParamList = {
   LoanDetail: {
     loanGuid: string;
     loanBalance?: LoanBalance;
+  };
+  FrequentPayments: {
+    items: FrequentPayment[];
+    initialIndex: number;
   };
 };
 
@@ -39,6 +45,10 @@ export function HomeStackNavigator() {
         component={InvestmentDetailScreen}
       />
       <Stack.Screen name="LoanDetail" component={LoanDetailScreen} />
+      <Stack.Screen
+        name="FrequentPayments"
+        component={FrequentPaymentsScreen}
+      />
     </Stack.Navigator>
   );
 }

@@ -95,7 +95,7 @@ export const LightColors: ThemeColors = {
   warning: '#D97706',
   warningBg: '#FFFBEB',
   white: '#FFFFFF',
-  balanceDivider: 'rgba(255,255,255,0.2)',
+  balanceDivider: '#94e0ed',
   shadowSoft: 'rgb(0, 0, 0)',
   homeHeaderBackground: '#0B515C',
   homeAvatarCircle: '#94E0ED',
