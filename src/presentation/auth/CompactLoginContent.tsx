@@ -438,7 +438,9 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 14,
           borderRadius: 12,
           backgroundColor: colors.surface,
+          marginTop: 40,
           marginBottom: 8,
+          height: 48,
         },
         productCardPressed: {
           opacity: 0.92,
@@ -457,7 +459,7 @@ function useStyles(colors: ThemeColors) {
         },
         productCardTitle: {
           flex: 1,
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 24,
           color: colors.textPrimary,

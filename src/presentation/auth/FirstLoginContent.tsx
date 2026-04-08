@@ -79,7 +79,12 @@ export function FirstLoginContent({
           accessibilityIgnoresInvertColors
         />
 
-        <Text style={styles.heroTitle}>Bienvenido a tu banca móvil</Text>
+        
+        <Text style={styles.heroTitleContainer} accessibilityRole="text">
+        <Text style={styles.heroTitle}>Bienvenido a</Text>
+        {'\n'}
+        <Text style={styles.heroTitle}>tu banca móvil</Text>
+        </Text>
         <Text style={styles.heroSubtitle}>
           Ingresa con usuario y contraseña
         </Text>
@@ -231,15 +236,21 @@ function useStyles(colors: ThemeColors) {
         logoMark: {
           width: 72,
           height: 72,
+          marginTop: 30,
         },
         heroTitle: {
           fontFamily: Lexend.regular,
-          fontSize: 32,
-          lineHeight: 42,
+          color: colors.textPrimary,
+          textAlign: 'center',
+          width: '65%',
+        },
+        heroTitleContainer: {
+          fontFamily: Lexend.regular,
+          fontSize: 20,
           color: colors.textPrimary,
           textAlign: 'center',
           paddingTop: 24,
-          paddingBottom: 6,
+          paddingBottom: 8,
           width: '65%',
         },
         heroSubtitle: {
@@ -349,7 +360,7 @@ function useStyles(colors: ThemeColors) {
         },
         productCardTitle: {
           flex: 1,
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 24,
           color: colors.textPrimary,
