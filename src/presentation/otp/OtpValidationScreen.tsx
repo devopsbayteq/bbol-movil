@@ -10,7 +10,6 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Platform,
 } from 'react-native';
 import {RouteProp, StackActions, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -72,7 +71,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
             biometricRSAAuthOrchestrator,
             secureStorageService,
             login,
-          }, Platform.OS === 'ios' ? {forceShowBiometricOffer: true} : undefined);
+          });
         } else {
           rootNav.navigate('RegisterAlias', {
             user: params.user,
