@@ -20,7 +20,18 @@ import {
 } from './MovementsStackNavigator';
 import {useTheme} from '../providers/theme';
 import {Lexend} from '../theme/lexend';
-import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './tabIcons';
+import {
+  TabHomeIcon,
+  TabOthersIcon,
+  TabPaymentsIcon,
+  TabTransferIcon,
+  TabWithdrawIcon,
+} from './tabIcons';
+import {
+  OthersTabScreen,
+  PaymentsTabScreen,
+  WithdrawTabScreen,
+} from '../presentation/placeholders/TabSectionPlaceholderScreen';
 
 const TAB_BAR_HEIGHT = 60;
 
@@ -28,8 +39,9 @@ export type MainTabParamList = {
   /** Stack Inicio: `HomeMain` acepta `refreshHome` para forzar recarga al volver desde transferencia. */
   Home: NavigatorScreenParams<HomeStackParamList> | undefined;
   Transfer: undefined;
-  /** Stack: lista + detalle. Params iniciales van a `MovementsList`. */
-  Movements: NavigatorScreenParams<MovementsStackParamList> | undefined;
+  Withdraw: undefined;
+  Payments: undefined;
+  Others: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -44,8 +56,16 @@ const tabBarIconTransfer = ({color, size}: TabBarIconProps) => (
   <TabTransferIcon color={color} size={size ?? 24} />
 );
 
-const tabBarIconMovements = ({color, size}: TabBarIconProps) => (
-  <TabMovementsIcon color={color} size={size ?? 24} />
+const tabBarIconWithdraw = ({color, size}: TabBarIconProps) => (
+  <TabWithdrawIcon color={color} size={size ?? 24} />
+);
+
+const tabBarIconPayments = ({color, size}: TabBarIconProps) => (
+  <TabPaymentsIcon color={color} size={size ?? 24} />
+);
+
+const tabBarIconOthers = ({color, size}: TabBarIconProps) => (
+  <TabOthersIcon color={color} size={size ?? 24} />
 );
 
 function UnmountOnBlur({children}: {children: React.ReactNode}) {
@@ -155,35 +175,27 @@ export function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Movements"
-        component={MovementsStackNavigator}
-        listeners={({navigation}) => ({
-          tabPress: e => {
-            e.preventDefault();
-            navigation.navigate('Movements', {
-              screen: 'MovementsList',
-              params: {resetFilters: Date.now()},
-            });
-          },
-        })}
-        options={({route}) => {
-          const focused =
-            getFocusedRouteNameFromRoute(route) ?? 'MovementsList';
-          const hideTabBar = focused === 'MovementDetail';
-          return {
-            title: 'Movimientos',
-            tabBarIcon: tabBarIconMovements,
-            tabBarStyle: hideTabBar
-              ? {display: 'none'}
-              : {
-                  backgroundColor: colors.white,
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderTopColor: colors.borderLight,
-                  height: TAB_BAR_HEIGHT + insets.bottom,
-                  paddingBottom: Math.max(insets.bottom, 4),
-                  paddingTop: 4,
-                },
-          };
+        name="Withdraw"
+        component={WithdrawTabScreen}
+        options={{
+          title: 'Retirar',
+          tabBarIcon: tabBarIconWithdraw,
+        }}
+      />
+      <Tab.Screen
+        name="Payments"
+        component={PaymentsTabScreen}
+        options={{
+          title: 'Pagos',
+          tabBarIcon: tabBarIconPayments,
+        }}
+      />
+      <Tab.Screen
+        name="Others"
+        component={OthersTabScreen}
+        options={{
+          title: 'Otros',
+          tabBarIcon: tabBarIconOthers,
         }}
       />
     </Tab.Navigator>

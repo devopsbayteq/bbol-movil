@@ -7,15 +7,15 @@ name: Lista de transacciones y estados visibles
 - runFlow:
     file: ../../subflows/ensure-authenticated.yaml
 
-- tapOn: "Movimientos"
+- tapOn: "Retirar"
 
 - extendedWaitUntil:
     visible:
       id: "home-screen"
     timeout: 30000
 
-# Navegar al tab Movimientos.
-- tapOn: "Movimientos"
+# Navegar al tab Retirar (lista de movimientos).
+- tapOn: "Retirar"
 
 - extendedWaitUntil:
     visible:
