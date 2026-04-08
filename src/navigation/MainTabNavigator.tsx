@@ -14,10 +14,6 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeStackNavigator} from './HomeStackNavigator';
 import type {HomeStackParamList} from './HomeStackNavigator';
 import {TransferStackNavigator} from '../features/transfer/navigation/TransferStackNavigator';
-import {
-  MovementsStackNavigator,
-  type MovementsStackParamList,
-} from './MovementsStackNavigator';
 import {useTheme} from '../providers/theme';
 import {Lexend} from '../theme/lexend';
 import {
@@ -147,7 +143,9 @@ export function MainTabNavigator() {
           const hideTabBar =
             focused === 'CardDetail' ||
             focused === 'InvestmentDetail' ||
-            focused === 'LoanDetail';
+            focused === 'LoanDetail' ||
+            focused === 'MovementsList' ||
+            focused === 'MovementDetail';
           return {
             title: 'Inicio',
             tabBarIcon: tabBarIconHome,

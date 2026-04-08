@@ -391,7 +391,10 @@ describe('HomeScreen', () => {
     act(() => {
       accountTouch?.props?.onPress?.();
     });
-    expect(mockNavigate).toHaveBeenCalledWith('Movements', expect.any(Object));
+    expect(mockNavigate).toHaveBeenCalledWith('MovementsList', {
+      accountGuid: 'g-c',
+      resetFilters: expect.any(Number),
+    });
   });
 
   it('navigates to Movements when a savings account card is pressed', () => {
@@ -406,7 +409,10 @@ describe('HomeScreen', () => {
     act(() => {
       accountTouch?.props?.onPress?.();
     });
-    expect(mockNavigate).toHaveBeenCalledWith('Movements', expect.any(Object));
+    expect(mockNavigate).toHaveBeenCalledWith('MovementsList', {
+      accountGuid: 'g-s',
+      resetFilters: expect.any(Number),
+    });
   });
 
   it('navigates to Movements when an "other" kind account card is pressed', () => {
@@ -421,6 +427,9 @@ describe('HomeScreen', () => {
     act(() => {
       accountTouch?.props?.onPress?.();
     });
-    expect(mockNavigate).toHaveBeenCalledWith('Movements', expect.any(Object));
+    expect(mockNavigate).toHaveBeenCalledWith('MovementsList', {
+      accountGuid: 'g-o',
+      resetFilters: expect.any(Number),
+    });
   });
 });
