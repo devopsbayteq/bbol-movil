@@ -17,10 +17,13 @@ import {
   useFocusEffect,
   useNavigation,
   useRoute,
+  type CompositeNavigationProp,
   type RouteProp,
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
+import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
@@ -78,9 +81,14 @@ export function HomeScreen() {
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
-  const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
+  const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
   const navigation =
-    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+    useNavigation<
+      CompositeNavigationProp<
+        NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
+        BottomTabNavigationProp<MainTabParamList, 'Home'>
+      >
+    >();
 
   const {
     data,
@@ -202,13 +210,24 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <CreditCardPreview
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              maskedCardNumber={card.maskedCardNumber}
-              totalDue={card.totalDue}
-              maxPaymentDate={card.maxPaymentDate}
-            />
+              onPress={() =>
+                navigation.navigate('CardDetail', {
+                  maskedCardNumber: card.maskedCardNumber,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de tarjeta">
+              <CreditCardPreview
+                style={styles.cardFill}
+                maskedCardNumber={card.maskedCardNumber}
+                totalDue={card.totalDue}
+                maxPaymentDate={card.maxPaymentDate}
+              />
+            </TouchableOpacity>
           ),
         });
       }
@@ -220,13 +239,24 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <InvestmentCard
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              productName={inv.productName}
-              currentValue={inv.currentValue}
-              currency={inv.currency}
-            />
+              onPress={() =>
+                navigation.navigate('InvestmentDetail', {
+                  investmentGuid: inv.investmentGuid,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de inversión">
+              <InvestmentCard
+                style={styles.cardFill}
+                productName={inv.productName}
+                currentValue={inv.currentValue}
+                currency={inv.currency}
+              />
+            </TouchableOpacity>
           ),
         });
       }
@@ -238,13 +268,22 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <LoanCard
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              outstandingBalance={loan.outstandingBalance}
-              nextInstallmentAmount={loan.nextInstallmentAmount}
-              nextInstallmentDate={loan.nextInstallmentDate}
-            />
+              onPress={() =>
+                navigation.navigate('LoanDetail', {loanGuid: loan.loanGuid})
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de préstamo">
+              <LoanCard
+                style={styles.cardFill}
+                outstandingBalance={loan.outstandingBalance}
+                nextInstallmentAmount={loan.nextInstallmentAmount}
+                nextInstallmentDate={loan.nextInstallmentDate}
+              />
+            </TouchableOpacity>
           ),
         });
       }

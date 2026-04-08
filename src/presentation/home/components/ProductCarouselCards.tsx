@@ -8,6 +8,7 @@ import {
   type ViewStyle,
   Platform,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
@@ -243,43 +244,51 @@ export function CreditCardPreview({
   const [masked, setMasked] = useState(true);
 
   return (
-    <View style={[styles.card, style]}>
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.title}>Tarjeta</Text>
-          <Text style={styles.subtitle}>{maskedCardNumber}</Text>
-        </View>
-        <View style={styles.chipPill}>
-          <View style={styles.chipDot} />
-          <View style={[styles.chipDot, styles.chipDotMuted]} />
-        </View>
-      </View>
-      <View style={styles.bottomRow}>
-        <View style={styles.amountCol}>
-          <View style={styles.payRow}>
-            <Text style={styles.mutedLabel}>Total a pagar</Text>
-            <View style={styles.datePill}>
-              <Text style={styles.dateText}>
-                {formatShortDueDate(maxPaymentDate)}
-              </Text>
+    <View style={[styles.cardOuter, style]} accessibilityLabel="Tarjeta de crédito">
+      <LinearGradient
+        colors={[
+          colors.homeCreditCardGradientTop,
+          colors.homeCreditCardGradientBottom,
+        ]}
+        style={styles.cardGradient}>
+        <View style={styles.cardTop}>
+          <View style={styles.headerRow}>
+            <Text style={styles.cardTitle}>Tarjeta</Text>
+            <View style={styles.mastercardBadge}>
+              <View style={[styles.mcDot, styles.mcDotBack]} />
+              <View style={[styles.mcDot, styles.mcDotFront]} />
             </View>
           </View>
-          <Text style={styles.amount} numberOfLines={1}>
-            {masked ? '$**.**' : formatCurrency(totalDue)}
-          </Text>
+          <Text style={styles.cardNumber}>{maskedCardNumber}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.eyeBtn}
-          onPress={() => setMasked(m => !m)}
-          accessibilityRole="button"
-          accessibilityLabel={masked ? 'Mostrar saldo' : 'Ocultar saldo'}>
-          {masked ? (
-            <EyeSlashIcon color={colors.primary} size={14} />
-          ) : (
-            <EyeIcon color={colors.primary} size={14} />
-          )}
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.cardBottom}>
+          <View style={styles.balanceTextCol}>
+            <View style={styles.amountAndDateRow}>
+              <Text style={styles.amountMain} numberOfLines={1}>
+                {masked ? '$**.**' : formatCurrency(totalDue)}
+              </Text>
+              <View style={styles.datePill}>
+                <Text style={styles.datePillText}>
+                  {formatShortDueDate(maxPaymentDate)}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.totalLabel}>Total a pagar</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setMasked(m => !m)}
+            accessibilityRole="button"
+            accessibilityLabel={masked ? 'Mostrar total' : 'Ocultar total'}>
+            {masked ? (
+              <EyeSlashIcon color={colors.white} size={16} />
+            ) : (
+              <EyeIcon color={colors.white} size={16} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -288,107 +297,106 @@ function useCreditStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        card: {
+        cardOuter: {
           flex: 1,
-          padding: 10,
-          borderRadius: 16,
-          
-          backgroundColor: colors.homeCreditCardSurface,
-          borderWidth: StyleSheet.hairlineWidth,
+          borderRadius: 8,
+          borderWidth: 1,
           borderColor: colors.textTertiary,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 12,
-            },
-          }),
+          overflow: 'hidden',
         },
-        topRow: {
+        cardGradient: {
+          flex: 1,
+          padding: 12,
+          justifyContent: 'space-between',
+        },
+        cardTop: {
+          gap: 0,
+        },
+        headerRow: {
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
+          alignItems: 'center',
         },
-        title: {
+        cardTitle: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
-          lineHeight: 18,
+          lineHeight: 20,
           color: colors.white,
         },
-        subtitle: {
-          fontFamily: Lexend.regular,
-          fontSize: 10,
-          lineHeight: 17,
-          color: colors.white,
-          opacity: 0.9,
-        },
-        chipPill: {
+        mastercardBadge: {
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          borderRadius: 3,
-          borderWidth: 0.4,
-          borderColor: 'rgba(255,255,255,0.05)',
-          paddingHorizontal: 6,
+          height: 18,
+          paddingLeft: 2,
+          paddingRight: 8,
           paddingVertical: 2,
-          gap: 4,
+          borderRadius: 3,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: 'rgba(255,255,255,0.05)',
+          backgroundColor: 'rgba(255,255,255,0.1)',
         },
-        chipDot: {
+        mcDot: {
           width: 10,
           height: 10,
           borderRadius: 5,
+        },
+        mcDotBack: {
           backgroundColor: 'rgba(255,255,255,0.2)',
         },
-        chipDotMuted: {
+        mcDotFront: {
+          marginLeft: -5,
           backgroundColor: 'rgba(255,255,255,0.1)',
         },
-        bottomRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          marginTop: 'auto',
+        cardNumber: {
+          marginTop: 4,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.white,
         },
-        amountCol: {
+        cardBottom: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          gap: 10,
+        },
+        balanceTextCol: {
           flex: 1,
           minWidth: 0,
-          paddingRight: 6,
         },
-        payRow: {
+        amountAndDateRow: {
           flexDirection: 'row',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 6,
+          gap: 4,
         },
-        mutedLabel: {
-          fontFamily: Lexend.regular,
-          fontSize: 10,
-          lineHeight: 17,
+        amountMain: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 24,
           color: colors.white,
         },
         datePill: {
-          borderWidth: 0.8,
+          borderWidth: 1,
           borderColor: colors.textTertiary,
           borderRadius: 3,
           paddingHorizontal: 3,
+          paddingVertical: 1,
         },
-        dateText: {
+        datePillText: {
           fontFamily: Lexend.regular,
-          fontSize: 8.4,
+          fontSize: 9,
+          lineHeight: 16,
           color: colors.white,
         },
-        amount: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
+        totalLabel: {
+          marginTop: 0,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
           lineHeight: 20,
           color: colors.white,
-          marginTop: 4,
         },
         eyeBtn: {
-          backgroundColor: colors.homeBalanceToggleBg,
+          backgroundColor: colors.textTertiary,
           borderRadius: 4,
           padding: 4,
         },

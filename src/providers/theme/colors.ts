@@ -44,11 +44,17 @@ export interface ThemeColors {
   homeBalanceToggleBg: string;
   /** Tarjeta de crédito preview (fila productos). */
   homeCreditCardSurface: string;
+  /** Gradiente superior — tarjeta crédito carousel (home). */
+  homeCreditCardGradientTop: string;
+  /** Gradiente inferior — tarjeta crédito carousel (home). */
+  homeCreditCardGradientBottom: string;
   homeLoanCardBackground: string;
   homeLoanCardBorder: string;
   homeBorderSoft: string;
   homePrimaryHover: string;
   lineSeparator: string;
+  /** Color de acento para gráficas (segmento terciario del donut). */
+  chartAccent: string;
 
 }
 
@@ -90,11 +96,14 @@ export const LightColors: ThemeColors = {
   homeChipSelectedBorder: '#D0F0F6',
   homeBalanceToggleBg: '#d0f0f6',
   homeCreditCardSurface: '#262626',
+  homeCreditCardGradientTop: '#323232',
+  homeCreditCardGradientBottom: '#1A1A1A',
   homeLoanCardBackground: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
   lineSeparator: '#d6d6d6',
+  chartAccent: '#962DFF',
 };
 
 export const DarkColors: ThemeColors = {
@@ -135,9 +144,12 @@ export const DarkColors: ThemeColors = {
   homeChipSelectedBorder: '#D0F0F6',
   homeBalanceToggleBg: '#94E0ED',
   homeCreditCardSurface: '#262626',
+  homeCreditCardGradientTop: '#323232',
+  homeCreditCardGradientBottom: '#1A1A1A',
   homeLoanCardBackground: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
   lineSeparator: '#374151',
+  chartAccent: '#B76EFF',
 };

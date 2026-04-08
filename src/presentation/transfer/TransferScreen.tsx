@@ -87,7 +87,7 @@ export function TransferScreen() {
     const onBack = () => {
         const tabNav =
             navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate('Home',{});
+        tabNav?.navigate('Home', {screen: 'HomeMain'});
     };
 
     return (
