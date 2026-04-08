@@ -1,16 +1,22 @@
 import {DarkColors, LightColors} from '../../../src/providers/theme/colors';
 import {
+  IGNORE_SYSTEM_DARK_MODE,
   resolveColors,
   resolveIsDark,
   useThemeStore,
 } from '../../../src/providers/theme/useThemeStore';
 
 describe('useThemeStore helpers', () => {
-  test('resolveIsDark follows mode and system', () => {
+  test('resolveIsDark follows mode; system follows OS only if IGNORE_SYSTEM_DARK_MODE is false', () => {
     expect(resolveIsDark('light', false)).toBe(false);
     expect(resolveIsDark('dark', false)).toBe(true);
-    expect(resolveIsDark('system', true)).toBe(true);
-    expect(resolveIsDark('system', false)).toBe(false);
+    if (IGNORE_SYSTEM_DARK_MODE) {
+      expect(resolveIsDark('system', true)).toBe(false);
+      expect(resolveIsDark('system', false)).toBe(false);
+    } else {
+      expect(resolveIsDark('system', true)).toBe(true);
+      expect(resolveIsDark('system', false)).toBe(false);
+    }
   });
 
   test('resolveColors picks palette by boolean', () => {
@@ -46,9 +52,14 @@ describe('useThemeStore actions', () => {
     expect(useThemeStore.getState().mode).toBe('dark');
   });
 
-  test('toggleTheme when in system mode uses systemIsDark', () => {
+  test('toggleTheme when in system mode reflects resolved appearance', () => {
     useThemeStore.setState({mode: 'system', systemIsDark: true});
     useThemeStore.getState().toggleTheme();
-    expect(useThemeStore.getState().mode).toBe('light');
+    if (IGNORE_SYSTEM_DARK_MODE) {
+      // Con IGNORE: la UI ya es clara; el toggle pasa a oscuro explícito.
+      expect(useThemeStore.getState().mode).toBe('dark');
+    } else {
+      expect(useThemeStore.getState().mode).toBe('light');
+    }
   });
 });
