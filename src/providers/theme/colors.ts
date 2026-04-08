@@ -97,7 +97,7 @@ export const LightColors: ThemeColors = {
   error: '#DC2626',
   errorBg: '#FEF2F2',
   errorBorder: '#FECACA',
-  success: '#059669',
+  success: '#0b7110',
   successBg: '#ECFDF5',
   warning: '#D97706',
   warningBg: '#FFFBEB',
