@@ -34,19 +34,13 @@ export function RecentActivitySection({
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Actividad reciente</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity
-            onPress={onPressListIcon}
-            accessibilityRole="button"
-            accessibilityLabel="Vista de lista"
-            hitSlop={8}>
-            <ListBulletsIcon color={colors.primary} size={20} />
-          </TouchableOpacity>
+        
           <TouchableOpacity
             onPress={onPressCalendarIcon}
             accessibilityRole="button"
             accessibilityLabel="Calendario"
             hitSlop={8}>
-            <CalendarIcon color={colors.textTertiary} size={20} />
+            <CalendarIcon color={colors.primary} size={20} />
           </TouchableOpacity>
         </View>
       </View>
