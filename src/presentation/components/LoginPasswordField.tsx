@@ -5,57 +5,18 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
-import {Platform} from 'react-native';
 import {LOGIN_INPUT_OUTER_HEIGHT} from './loginFieldLayout';
+import EyeOnSvg from '../../../assets/images/svg/eye.svg';
+import EyeOffSvg from '../../../assets/images/svg/eye-slash.svg';
 
-function EyeOnIcon({color}: {color: string}) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-        stroke={color}
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M12 15a3 3 0 100-6 3 3 0 000 6z"
-        stroke={color}
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
-
-function EyeOffIcon({color}: {color: string}) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-        stroke={color}
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M1 1l22 22"
-        stroke={color}
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
+const EYE_ICON_SIZE = 20;
 
 type LoginPasswordFieldVariant = 'flat' | 'elevated';
 
@@ -115,9 +76,17 @@ export function LoginPasswordField({
           style={styles.eyeButton}
           hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
           {visible ? (
-            <EyeOnIcon color={colors.iconPrimary} />
+            <EyeOnSvg
+              width={EYE_ICON_SIZE}
+              height={EYE_ICON_SIZE}
+              color={colors.iconPrimary}
+            />
           ) : (
-            <EyeOffIcon color={colors.iconPrimary} />
+            <EyeOffSvg
+              width={EYE_ICON_SIZE}
+              height={EYE_ICON_SIZE}
+              color={colors.iconPrimary}
+            />
           )}
         </TouchableOpacity>
       </View>

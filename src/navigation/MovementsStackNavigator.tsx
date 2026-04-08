@@ -4,14 +4,17 @@ import type {AccountMovement} from '../domain/entities/AccountMovement';
 import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
 import {MovementDetailScreen} from '../presentation/transactions/MovementDetailScreen';
 
+/** Params compartidos con `HomeStackParamList.MovementsList` (misma pantalla, otro stack). */
+export type MovementsListRouteParams =
+  | {
+      accountGuid?: string;
+      /** Dispara reset de filtros al cambiar (p. ej. entrada desde tab o Inicio). */
+      resetFilters?: number;
+    }
+  | undefined;
+
 export type MovementsStackParamList = {
-  MovementsList:
-    | {
-        accountGuid?: string;
-        /** Dispara reset de filtros al cambiar (p. ej. entrada desde tab o Inicio). */
-        resetFilters?: number;
-      }
-    | undefined;
+  MovementsList: MovementsListRouteParams;
   MovementDetail: {movement: AccountMovement};
 };
 

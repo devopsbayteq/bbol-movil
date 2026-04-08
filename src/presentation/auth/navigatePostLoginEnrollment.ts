@@ -14,9 +14,8 @@ export interface PostLoginEnrollmentDeps {
 
 export interface NavigatePostLoginEnrollmentOptions {
   /**
-   * Primer login tras alias: ignorar `hasBiometricRegistration` (en iOS puede dar
-   * falso positivo por Keychain/storage) y siempre mostrar `BiometricOffer`
-   * salvo declinación previa.
+   * Si es true, no usa `hasBiometricRegistration` y sigue la rama de oferta
+   * biométrica (útil solo en casos excepcionales o tests).
    */
   forceShowBiometricOffer?: boolean;
 }

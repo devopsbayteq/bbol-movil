@@ -6,9 +6,15 @@ export interface AccountBalance {
   accountGuid: string;
   maskedAccountNumber: string;
   accountKind: string;
-  accountTypeLabel: string;
+
   balance: number;
   beneficiary: BeneficiaryContact;
+  /** Máscara de cuenta para vistas tipo home (ej. `******0101`). */
+  maskedAccountHome: string;
+  /** Etiqueta legible del tipo de cuenta (ej. `Cta. Ahorros`). */
+  accountTypeLabel: string;
+  /** Alias definido por el cliente (ej. `Gastos`). */
+  accountAlias?: string;
 }
 
 export interface CreditCardBalance {
@@ -41,6 +47,7 @@ export interface HomeBanner {
   buttonText: string;
   buttonLink: string;
   landscape: string;
+  durationMilliseconds?: number;
 }
 
 export interface HomeDashboardIcon {
