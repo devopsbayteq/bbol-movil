@@ -4,6 +4,8 @@ export interface ThemeColors {
   primary: string;
   primaryLight: string;
   textPrimary: string;
+  textBlack: string;
+  nextPayCircleBg: string;
   textSecondary: string;
   textTertiary: string;
   textLabel: string;
@@ -30,6 +32,7 @@ export interface ThemeColors {
   /** Home: cabecera oscura (marca; mismo valor en light/dark). */
   homeHeaderBackground: string;
   homeAvatarCircle: string;
+  homeLink: string;
   /** Botón icono (logout) sobre cabecera Home. */
   homeHeaderIconButtonBg: string;
   /** Tarjeta de producto clara (cuentas). */
@@ -46,6 +49,7 @@ export interface ThemeColors {
   homeBorderSoft: string;
   homePrimaryHover: string;
   lineSeparator: string;
+
 }
 
 export const LightColors: ThemeColors = {
@@ -54,6 +58,8 @@ export const LightColors: ThemeColors = {
   primary: '#008292',
   primaryLight: '#B3E5EC',
   textPrimary: '#1A1A1A',
+  textBlack: '#000000',
+  nextPayCircleBg: '#d2e4f0',
   textSecondary: '#474747',
   textTertiary: '#757575',
   textLabel: '#1A1A1A',
@@ -65,6 +71,7 @@ export const LightColors: ThemeColors = {
   buttonSecondaryBg: '#E2E2E2',
   iconPrimary: '#000000',
   linkPrimary: '#008292',
+  homeLink: '#0167ae',
   error: '#DC2626',
   errorBg: '#FEF2F2',
   errorBorder: '#FECACA',
@@ -96,6 +103,8 @@ export const DarkColors: ThemeColors = {
   primary: '#22D3EE',
   primaryLight: '#164E63',
   textPrimary: '#F9FAFB',
+  textBlack: '#000000',
+  nextPayCircleBg: '#d2e4f0',
   textSecondary: '#D1D5DB',
   textTertiary: '#9CA3AF',
   textLabel: '#E5E7EB',
@@ -107,6 +116,7 @@ export const DarkColors: ThemeColors = {
   buttonSecondaryBg: '#374151',
   iconPrimary: '#F9FAFB',
   linkPrimary: '#22D3EE',
+  homeLink: '#0167ae',
   error: '#F87171',
   errorBg: '#451A1A',
   errorBorder: '#7F1D1D',

@@ -28,7 +28,7 @@ export function UpcomingPaymentsRow({summary, onPress}: Props) {
       accessibilityRole="button"
       accessibilityLabel={`${summary.summaryLine}. ${summary.amountLabel}`}>
       <View style={styles.iconCircle}>
-        <CreditCardOutlineIcon color={colors.primary} size={22} />
+        <CreditCardOutlineIcon color={colors.homeLink} size={24} />
       </View>
       <View style={styles.centerBlock}>
         <Text style={styles.summary}>{summary.summaryLine}</Text>
@@ -50,26 +50,17 @@ function useStyles(colors: ThemeColors) {
           alignItems: 'center',
           gap: 12,
           backgroundColor: colors.surface,
-          borderRadius: 12,
+          borderRadius: 16,
           paddingHorizontal: 14,
-          paddingVertical: 14,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 3,
-            },
-          }),
+          paddingVertical: 14,         
+          borderWidth: 2,
+          borderColor: colors.border,
         },
         iconCircle: {
           width: 44,
           height: 44,
-          borderRadius: 22,
-          backgroundColor: colors.primaryLight,
+          borderRadius: 28,
+          backgroundColor: colors.nextPayCircleBg,
           alignItems: 'center',
           justifyContent: 'center',
         },
@@ -78,17 +69,16 @@ function useStyles(colors: ThemeColors) {
           gap: 2,
         },
         summary: {
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 14,
           lineHeight: 20,
-          color: colors.textPrimary,
+          color: colors.textBlack,
         },
         link: {
           fontFamily: Lexend.regular,
-          fontSize: 13,
-          lineHeight: 18,
-          color: colors.linkPrimary,
-          textDecorationLine: 'underline',
+          fontSize: 14,
+          lineHeight: 16,
+          color: colors.homeLink,    
         },
         rightBlock: {
           flexDirection: 'row',

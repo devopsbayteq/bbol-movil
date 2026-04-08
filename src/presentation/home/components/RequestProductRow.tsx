@@ -20,7 +20,7 @@ export function RequestProductRow({onPress}: Props) {
       accessibilityRole="button"
       accessibilityLabel="Solicita un producto"
       disabled={!onPress}>
-      <BankBuildingIcon color={colors.primaryLight} size={44} />
+      <BankBuildingIcon color={colors.homeProductCardSurface} size={48} />
       <Text style={styles.label}>Solicitar productos</Text>
       <ChevronRightIcon color={colors.textTertiary} size={18} />
     </TouchableOpacity>
@@ -36,26 +36,18 @@ function useStyles(colors: ThemeColors) {
           alignItems: 'center',
           gap: 12,
           backgroundColor: colors.surface,
-          borderRadius: 12,
-          paddingHorizontal: 14,
-          paddingVertical: 14,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 3,
-            },
-          }),
+          borderRadius: 16,
+          paddingHorizontal: 16,
+          paddingVertical: 16,
+         
         },
         label: {
           flex: 1,
           fontFamily: Lexend.semiBold,
           fontSize: 14,
           lineHeight: 20,
+          marginRight: 42,
+          marginLeft: 6,
           color: colors.textPrimary,
         },
       }),

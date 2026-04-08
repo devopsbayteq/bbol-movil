@@ -193,21 +193,10 @@ function useStyles(colors: ThemeColors) {
           alignItems: 'center',
           gap: 10,
           backgroundColor: colors.surface,
-          borderRadius: 12,
+          borderRadius: 16,
           paddingHorizontal: 16,
           paddingVertical: 20,
-          minHeight: 72,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 3,
-            },
-          }),
+          minHeight: 72,        
         },
         visual: {
           width: 56,

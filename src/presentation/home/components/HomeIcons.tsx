@@ -102,7 +102,7 @@ export function ChevronRightIcon({color, size = 16}: IconProps) {
  * `size` es el diámetro del círculo (p. ej. 44).
  */
 export function BankBuildingIcon({color, size = 44}: IconProps) {
-  const inner = Math.round(size * 0.5);
+  const inner = Math.round(size * 0.6);
   return (
     <View
       style={[

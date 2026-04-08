@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   type StyleProp,
   type ViewStyle,
+  Platform,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
@@ -131,10 +132,18 @@ function useSavingsStyles(colors: ThemeColors) {
           backgroundColor: colors.homeProductCardSurface,
           borderWidth: 1,
           borderColor: colors.homeProductCardBorder,
-          shadowColor: colors.shadowSoft,
-          shadowOffset: {width: 16, height: 12},
-          shadowRadius: 12,
-          elevation: 24,
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+
+            },
+          }),
 
         },
         topRow: {
@@ -286,6 +295,17 @@ function useCreditStyles(colors: ThemeColors) {
           backgroundColor: colors.homeCreditCardSurface,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.textTertiary,
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+            },
+          }),
         },
         topRow: {
           flexDirection: 'row',
@@ -420,6 +440,17 @@ function useLoanStyles(colors: ThemeColors) {
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.homeLoanCardBorder,
           justifyContent: 'space-between',
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+            },
+          }),
         },
         title: {
           fontFamily: Lexend.semiBold,
@@ -521,6 +552,17 @@ function useInvestmentStyles(colors: ThemeColors) {
           shadowOpacity: 1,
           shadowRadius: 6,
           elevation: 3,
+          ...Platform.select({
+            ios: {
+              shadowColor: colors.shadowSoft,
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            },
+            android: {
+              elevation: 12,
+            },
+          }),
         },
         topRow: {
           flexDirection: 'row',
