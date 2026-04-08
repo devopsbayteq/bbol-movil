@@ -1,0 +1,131 @@
+export const MAX_TRANSFER_CENTS = 999_999_999_999;
+
+const MAX_TRANSFER_CENTS_BIGINT = BigInt(MAX_TRANSFER_CENTS);
+
+/**
+ * Normalizes raw input: strips `$`, commas, spaces; keeps digits and at most one `.`;
+ * after `.`, at most two fractional digits.
+ */
+export function sanitizeTransferAmountInput(raw: string): string {
+  const normalized = raw.replace(/[$,\s]/g, '');
+  let result = '';
+  let dotIndex = -1;
+  for (let i = 0; i < normalized.length; i++) {
+    const c = normalized[i];
+    if (c === '.' && dotIndex === -1) {
+      dotIndex = result.length;
+      result += '.';
+    } else if (c >= '0' && c <= '9') {
+      if (dotIndex !== -1) {
+        const fracLen = result.length - dotIndex - 1;
+        if (fracLen >= 2) {
+          continue;
+        }
+      }
+      result += c;
+    }
+  }
+  return result;
+}
+
+function clampCents(cents: bigint): number {
+  if (cents < 0n) {
+    return 0;
+  }
+  if (cents > MAX_TRANSFER_CENTS_BIGINT) {
+    return MAX_TRANSFER_CENTS;
+  }
+  return Number(cents);
+}
+
+/**
+ * Parses sanitized transfer amount: without `.`, value is whole dollars; with `.`,
+ * up to two decimal places (cents). Returns `null` when there is no monetary value yet.
+ */
+export function parseTransferAmountInputToCents(sanitized: string): number | null {
+  if (sanitized === '' || sanitized === '.') {
+    return null;
+  }
+
+  const dotIdx = sanitized.indexOf('.');
+  if (dotIdx === -1) {
+    if (!/^\d+$/.test(sanitized)) {
+      return null;
+    }
+    const dollars = BigInt(sanitized);
+    const cents = dollars * 100n;
+    return clampCents(cents);
+  }
+
+  const wholeStr = sanitized.slice(0, dotIdx);
+  const fracStr = sanitized.slice(dotIdx + 1);
+
+  if (wholeStr !== '' && !/^\d+$/.test(wholeStr)) {
+    return null;
+  }
+  if (fracStr !== '' && !/^\d+$/.test(fracStr)) {
+    return null;
+  }
+
+  const wholePart = wholeStr === '' ? 0n : BigInt(wholeStr);
+  const fracPadded =
+    fracStr.length === 0 ? '00' : fracStr.length === 1 ? `${fracStr}0` : fracStr.slice(0, 2);
+  const fracNum = parseInt(fracPadded, 10);
+  if (Number.isNaN(fracNum)) {
+    return null;
+  }
+  const cents = wholePart * 100n + BigInt(fracNum);
+  return clampCents(cents);
+}
+
+export const transferAmountMessages = {
+  requiredPositive: 'Ingresa un monto mayor a cero.',
+  exceedsBalance: 'El monto supera el saldo disponible.',
+  exceedsMax: 'El monto excede el máximo permitido.',
+} as const;
+
+export function balanceDollarsToCents(balance: number): number {
+  if (!Number.isFinite(balance)) {
+    return 0;
+  }
+
+  return Math.round(balance * 100);
+}
+
+export function validateTransferAmountForSubmit(
+  amountCents: number,
+  availableBalanceCents: number,
+): string | null {
+  if (!Number.isFinite(amountCents) || amountCents <= 0) {
+    return transferAmountMessages.requiredPositive;
+  }
+
+  if (amountCents > MAX_TRANSFER_CENTS) {
+    return transferAmountMessages.exceedsMax;
+  }
+
+  if (amountCents > availableBalanceCents) {
+    return transferAmountMessages.exceedsBalance;
+  }
+
+  return null;
+}
+
+export function getLiveTransferAmountError(
+  amountCents: number,
+  availableBalanceCents: number,
+): string | null {
+  if (amountCents <= 0) {
+    return null;
+  }
+
+  if (amountCents > MAX_TRANSFER_CENTS) {
+    return transferAmountMessages.exceedsMax;
+  }
+
+  if (amountCents > availableBalanceCents) {
+    return transferAmountMessages.exceedsBalance;
+  }
+
+  return null;
+}

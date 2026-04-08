@@ -11,7 +11,7 @@ import {
     type NavigatorScreenParams,
 } from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {TransferStackNavigator} from './TransferStackNavigator';
+import {TransferStackNavigator} from '../features/transfer/navigation/TransferStackNavigator';
 import {
     MovementsStackNavigator,
     type MovementsStackParamList,

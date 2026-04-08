@@ -1,3 +1,17 @@
+jest.mock('react-native-screenguard', () => ({}));
+
+jest.mock('react-native-view-shot', () => ({
+  __esModule: true,
+  default: 'ViewShot',
+}));
+
+jest.mock('react-native-share', () => ({
+  __esModule: true,
+  default: {
+    open: jest.fn(),
+  },
+}));
+
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
@@ -18,18 +32,18 @@ const getFocusedRouteNameFromRouteMock =
 
 jest.mock('@react-navigation/bottom-tabs', () => ({
   createBottomTabNavigator: () => {
-    const React = require('react');
+    const R = require('react');
     const {View, Text} = require('react-native');
     return {
-      Navigator: ({children}: {children: React.ReactNode}) =>
-        React.createElement(View, {testID: 'tab-navigator'}, children),
+      Navigator: ({children}: {children: R.ReactNode}) =>
+        R.createElement(View, {testID: 'tab-navigator'}, children),
       Screen: ({
         name,
         component: Comp,
         options,
       }: {
         name: string;
-        component: React.ComponentType;
+        component: R.ComponentType;
         options?:
           | {title?: string; tabBarStyle?: {display?: string}}
           | ((args: {route: {name: string}}) => {
@@ -44,46 +58,55 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
         const label = resolved?.title ?? name;
         const tabBarHidden =
           resolved?.tabBarStyle?.display === 'none' ? 'yes' : 'no';
-        return React.createElement(
+        return R.createElement(
           View,
           {key: name, testID: `tab-screen-${name}`},
-          React.createElement(
+          R.createElement(
             Text,
             {testID: `tab-bar-visibility-${name}`},
             tabBarHidden,
           ),
-          React.createElement(Text, null, label),
-          Comp ? React.createElement(Comp) : null,
+          R.createElement(Text, null, label),
+          Comp ? R.createElement(Comp) : null,
         );
       },
     };
   },
 }));
 
-jest.mock('../../src/presentation/home/HomeScreen', () => {
-  const React = require('react');
+jest.mock('../../src/navigation/HomeStackNavigator.tsx', () => {
+  const R = require('react');
   const {Text} = require('react-native');
   return {
-    HomeScreen: () =>
-      React.createElement(Text, {testID: 'screen-home'}, 'HomeScreen'),
+    HomeStackNavigator: () =>
+      R.createElement(Text, {testID: 'screen-home'}, 'HomeScreen'),
   };
 });
 
-jest.mock('../../src/navigation/TransferStackNavigator', () => {
-  const React = require('react');
+jest.mock('../../src/features/transfer/navigation/TransferStackNavigator', () => {
+  const R = require('react');
   const {Text} = require('react-native');
   return {
     TransferStackNavigator: () =>
-      React.createElement(Text, {testID: 'screen-transfer-stack'}, 'TransferStack'),
+      R.createElement(Text, {testID: 'screen-transfer-stack'}, 'TransferStack'),
   };
 });
 
 jest.mock('../../src/navigation/MovementsStackNavigator', () => {
-  const React = require('react');
+  const R = require('react');
   const {Text} = require('react-native');
   return {
     MovementsStackNavigator: () =>
-      React.createElement(Text, {testID: 'screen-movements'}, 'Movements'),
+      R.createElement(Text, {testID: 'screen-movements'}, 'Movements'),
+  };
+});
+
+jest.mock('../../src/presentation/myProfile/MyProfileScreen.tsx', () => {
+  const R = require('react');
+  const {Text} = require('react-native');
+  return {
+    MyProfileScreen: () =>
+      R.createElement(Text, {testID: 'screen-my-profile'}, 'MyProfile'),
   };
 });
 
@@ -113,11 +136,13 @@ describe('MainTabNavigator', () => {
     expect(tree.findByProps({testID: 'screen-home'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-transfer-stack'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-movements'})).toBeTruthy();
+    expect(tree.findByProps({testID: 'screen-my-profile'})).toBeTruthy();
 
     const flat = JSON.stringify(root!.toJSON());
     expect(flat).toContain('Inicio');
     expect(flat).toContain('Transferir');
     expect(flat).toContain('Movimientos');
+    expect(flat).toContain('Perfil');
   });
 
   test('oculta la barra de pestañas en Movimientos cuando la ruta enfocada es MovementDetail', async () => {

@@ -3,7 +3,7 @@ import ReactTestRenderer, {act} from 'react-test-renderer';
 import type {ReactTestRendererJSON} from 'react-test-renderer';
 import {ActivityIndicator, TouchableOpacity} from 'react-native';
 import {TransferScreen} from '../../../src/presentation/transfer/TransferScreen';
-import {formatMoneyEc} from '../../../src/utils/formatMoneyEc';
+import {formatMoneyUsdDisplay} from '../../../src/utils/formatMoneyUsdDisplay';
 import type {AccountBalance} from '../../../src/domain/entities/ContractBalance';
 
 /** Evita JSON.stringify sobre el árbol (referencias circulares en algunos nodos). */
@@ -234,7 +234,7 @@ describe('TransferScreen', () => {
       root = ReactTestRenderer.create(<TransferScreen />);
     });
     const flat = renderedText(root!.toJSON());
-    expect(flat).toContain(formatMoneyEc(250.75));
+    expect(flat).toContain(formatMoneyUsdDisplay(250.75));
     expect(flat).toContain('Hacia');
   });
 

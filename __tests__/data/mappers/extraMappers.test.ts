@@ -1,10 +1,6 @@
 import {mapOtpContentToEntity} from '../../../src/data/mappers/OtpMapper';
 import {mapBeneficiaryContactsContentToEntities} from '../../../src/data/mappers/beneficiaryMapper';
-import {
-  ACCOUNT_TYPE_CHECKING,
-  ACCOUNT_TYPE_SAVINGS,
-  mapContractBalanceContentToEntity,
-} from '../../../src/data/mappers/contractBalanceMapper';
+import {mapContractBalanceContentToEntity} from '../../../src/data/mappers/contractBalanceMapper';
 
 describe('OtpMapper', () => {
   test('mapOtpContentToEntity maps userMessage to entity message', () => {
@@ -22,7 +18,9 @@ describe('beneficiaryMapper', () => {
           beneficiaryGuid: 'g1',
           contactName: 'Luis',
           bankName: 'BB',
-          accountType: 2,
+          accountType: 'checking',
+          accountTypeLabel: 'Corriente',
+          beneficiaryAccountNumber: '0000000000',
           lastFourDigits: '9999',
         },
       ],
@@ -33,7 +31,9 @@ describe('beneficiaryMapper', () => {
         beneficiaryGuid: 'g1',
         contactName: 'Luis',
         bankName: 'BB',
-        accountType: 2,
+        accountType: 'checking',
+        accountTypeLabel: 'Corriente',
+        beneficiaryAccountNumber: '0000000000',
         lastFourDigits: '9999',
       },
     ]);
@@ -47,20 +47,50 @@ describe('contractBalanceMapper', () => {
         {
           accountGuid: 'a1',
           maskedAccountNumber: '****1111',
-          accountType: ACCOUNT_TYPE_SAVINGS,
+          accountType: 'savings',
+          accountTypeLabel: 'Ahorros',
           balance: 10,
+          beneficiary: {
+            beneficiaryGuid: 'b1',
+            contactName: 'X',
+            bankName: 'BB',
+            accountType: 'savings',
+            accountTypeLabel: 'Ahorros',
+            beneficiaryAccountNumber: '0000000000',
+            lastFourDigits: '1111',
+          },
         },
         {
           accountGuid: 'a2',
           maskedAccountNumber: '****2222',
-          accountType: ACCOUNT_TYPE_CHECKING,
+          accountType: 'checking',
+          accountTypeLabel: 'Corriente',
           balance: 20,
+          beneficiary: {
+            beneficiaryGuid: 'b2',
+            contactName: 'X',
+            bankName: 'BB',
+            accountType: 'checking',
+            accountTypeLabel: 'Corriente',
+            beneficiaryAccountNumber: '0000000000',
+            lastFourDigits: '2222',
+          },
         },
         {
           accountGuid: 'a3',
           maskedAccountNumber: '****3333',
-          accountType: 99,
+          accountType: 'other',
+          accountTypeLabel: 'Otra',
           balance: 30,
+          beneficiary: {
+            beneficiaryGuid: 'b3',
+            contactName: 'X',
+            bankName: 'BB',
+            accountType: 'other',
+            accountTypeLabel: 'Otra',
+            beneficiaryAccountNumber: '0000000000',
+            lastFourDigits: '3333',
+          },
         },
       ],
       creditCards: [
