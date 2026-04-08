@@ -35,7 +35,7 @@ export function QuickActionsRow({onPress}: QuickActionsRowProps) {
         onPress={onPress}
       />
       <QuickActionButton
-        icon={<CalendarIcon color={iconColor} size={20} />}
+        icon={<CalendarIcon color={iconColor} size={24} />}
         label="Programadas"
         onPress={onPress}
       />
