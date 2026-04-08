@@ -87,12 +87,12 @@ export function TransferScreen() {
     }, [selectedFromAccount]);
 
     const fromBalanceLabel = useMemo(
-        () => (selectedFromAccount != null ? formatMoneyEc(selectedFromAccount.balance) : ''),
+        () => (selectedFromAccount != null ? formatMoneyUsdDisplay(selectedFromAccount.balance) : ''),
         [selectedFromAccount],
     );
 
     const toBalanceLabel = useMemo(
-        () => (selectedToAccount != null ? formatMoneyEc(selectedToAccount.balance) : ''),
+        () => (selectedToAccount != null ? formatMoneyUsdDisplay(selectedToAccount.balance) : ''),
         [selectedToAccount],
     );
 

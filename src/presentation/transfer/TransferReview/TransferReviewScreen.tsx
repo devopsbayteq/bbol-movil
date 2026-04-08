@@ -19,8 +19,6 @@ import {Lexend} from '../../../theme/lexend';
 import {ErrorMessage} from '../../components';
 import {
     TransferIconArrowsRetweet,
-    TransferIconUser,
-    TransferIconWallet,
 } from '../components/transferIcons.tsx';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
@@ -28,6 +26,9 @@ import {
     TransferModalSuccess,
     type TransferDataResume,
 } from '../transferResult/TransferModalSuccess.tsx';
+
+import WalletTransfer from "../../../../assets/images/svg/walletransfer.svg"
+import UserTransferIcon from "../../../../assets/images/svg/user_transfer.svg"
 
 export function TransferReviewScreen() {
     const {colors} = useTheme();
@@ -139,7 +140,7 @@ export function TransferReviewScreen() {
                         accessibilityRole="button"
                         accessibilityLabel="Volver para cambiar cuenta de origen">
                         <View style={styles.iconChip}>
-                            <TransferIconWallet color={colors.primary} size={16} />
+                            <WalletTransfer color={colors.primary} size={16} />
                         </View>
                         <View style={styles.cardBody}>
                             <Text style={styles.desdeLabel}>Desde</Text>
@@ -155,7 +156,7 @@ export function TransferReviewScreen() {
 
                     <View style={styles.paraRow}>
                         <View style={styles.iconChip}>
-                            <TransferIconUser color={colors.primary} size={16} />
+                            <UserTransferIcon color={colors.primary} size={16} />
                         </View>
                         <View style={styles.cardBody}>
                             <Text style={styles.haciaLabel}>Hacia</Text>
