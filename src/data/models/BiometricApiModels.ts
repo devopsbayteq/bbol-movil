@@ -18,6 +18,10 @@ export interface BiometricLoginRequest {
   challengeSignBase64: string;
 }
 
+/** Misma forma que el login por credenciales; el backend puede devolver `firstName` y tiempos de sesión. */
 export interface BiometricLoginContent {
   accessToken: string;
+  firstName?: string;
+  sessionTimeSeconds?: number;
+  inactivityTimeoutSeconds?: number;
 }

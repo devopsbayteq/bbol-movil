@@ -181,9 +181,12 @@ describe('BiometricRSAAuthOrchestrator', () => {
     const remote = {
       postBiometricChallenge: jest.fn().mockResolvedValue({challenge: 'ch2'}),
       postBiometricRegistration: jest.fn(),
-      postBiometricLogin: jest
-        .fn()
-        .mockResolvedValue({accessToken: 'tok'}),
+      postBiometricLogin: jest.fn().mockResolvedValue({
+        accessToken: 'tok',
+        firstName: 'Usuario',
+        sessionTimeSeconds: 3600,
+        inactivityTimeoutSeconds: 300,
+      }),
     };
     const crypto = {
       generateKeyPair: jest.fn(),
@@ -228,18 +231,25 @@ describe('BiometricRSAAuthOrchestrator', () => {
 
     expect(runCert.execute).toHaveBeenCalled();
     expect(enrollmentBinding.verify).toHaveBeenCalled();
-    expect(result.accessToken).toBe('tok');
+    expect(result.token).toBe('tok');
     expect(result.email).toBe('user@test.com');
+    expect(result.firstName).toBe('Usuario');
+    expect(result.name).toBe('Usuario');
     expect(remote.postBiometricLogin).toHaveBeenCalledWith(
       expect.objectContaining({
         challenge: 'ch2',
         challengeSignBase64: 'sign2',
       }),
     );
-    expect(secure.save).toHaveBeenCalledWith(
-      SecureStorageKeys.USER_LOGIN_DATA,
-      JSON.stringify({accessToken: 'tok'}),
+    const loginDataSave = secure.save.mock.calls.find(
+      c => c[0] === SecureStorageKeys.USER_LOGIN_DATA,
     );
+    expect(loginDataSave).toBeDefined();
+    expect(JSON.parse(String(loginDataSave?.[1]))).toMatchObject({
+      email: 'user@test.com',
+      firstName: 'Usuario',
+      token: 'tok',
+    });
   });
 
   it('loginWithBiometric falla si enrollmentBinding.verify detecta cambio', async () => {
