@@ -21,7 +21,7 @@ import {ErrorMessage, OtpCodeInput} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {useOtpValidationViewModel} from './useOtpValidationViewModel';
 import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
-import {TransferStackParamList} from '../../navigation/TransferStackNavigator.tsx';
+import type {TransferStackParamList} from '../../features/transfer/navigation/TransferStackNavigator';
 import {navigatePostLoginEnrollment} from '../auth/navigatePostLoginEnrollment';
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');

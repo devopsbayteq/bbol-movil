@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useTransferReviewViewModel} from '../../../src/presentation/transfer/TransferReview/useTransferReviewViewModel';
+import {formatMoneyEc} from '../../../src/utils/formatMoneyEc';
 
 // ── Módulos nativos ──────────────────────────────────────────────────────────
 jest.mock('react-native-encrypted-storage', () => ({
@@ -22,7 +23,7 @@ jest.mock('react-native-biometrics', () =>
 // ── Mocks de navegación ──────────────────────────────────────────────────────
 const defaultRouteParams = {
   amountCents: 5000,
-  displayAmount: '$50,00',
+  displayAmount: '$50.00',
   beneficiary: {
     id: 'ben-001',
     name: 'Ana Pérez',
@@ -32,6 +33,14 @@ const defaultRouteParams = {
   },
   fromHolderName: 'Titular Demo',
   fromAccountLine: 'Ahorros ****1111',
+  fromAccountTitle: 'Ahorros',
+  fromAccountSubtitle: 'Cuenta de Ahorros ****1111',
+  fromAccountSubtitleMasked: 'Ahorros ****1111',
+  toAccountTitle: 'Ana Pérez',
+  toAccountSubtitle: 'Cta. corriente ****4321',
+  toAccountSubtitleMasked: 'Cta. corriente ****4321',
+  fromBalanceDisplay: formatMoneyEc(1000),
+  toBalanceDisplay: formatMoneyEc(500),
   accountId: 'acc-savings-001',
   concept: 'Pago servicios',
 };
@@ -95,10 +104,12 @@ describe('useTransferReviewViewModel', () => {
   test('expone los parámetros de ruta correctamente', async () => {
     await mount();
     expect(latest?.amountCents).toBe(5000);
-    expect(latest?.displayAmount).toBe('$50,00');
+    expect(latest?.displayAmount).toBe('$50.00');
     expect(latest?.beneficiary.name).toBe('Ana Pérez');
     expect(latest?.fromHolderName).toBe('Titular Demo');
     expect(latest?.fromAccountLine).toBe('Ahorros ****1111');
+    expect(latest?.toAccountTitle).toBe('Ana Pérez');
+    expect(latest?.toAccountSubtitle).toBe('Cta. corriente ****4321');
     expect(latest?.accountId).toBe('acc-savings-001');
     expect(latest?.concept).toBe('Pago servicios');
   });
@@ -161,25 +172,36 @@ describe('useTransferReviewViewModel', () => {
     expect(latest?.conceptDisplay).toBe('—');
   });
 
-  // ── transferDateLabel ────────────────────────────────────────────────────
-  test('transferDateLabel es una cadena no vacía', async () => {
+  // ── commissionDisplay ───────────────────────────────────────────────────
+  test('commissionDisplay muestra comisión monetaria cuando es Sin cargo', async () => {
     await mount();
-    expect(typeof latest?.transferDateLabel).toBe('string');
-    expect(latest?.transferDateLabel.length).toBeGreaterThan(0);
+    expect(latest?.commissionDisplay).toBe(formatMoneyEc(0));
   });
 
   // ── onConfirm — cuenta propia ────────────────────────────────────────────
-  test('onConfirm muestra error para cuenta propia', async () => {
+  test('onConfirm con beneficiario cuenta propia llama a validate y navigateOtp cuando isValid es true', async () => {
     mockRouteParams = {
       ...defaultRouteParams,
-      beneficiary: {id: 'own-001', name: 'Mi cuenta', kind: 'own_account'},
+      beneficiary: {
+        id: 'own-001',
+        name: 'Mi cuenta',
+        kind: 'own_account',
+        bankName: 'Banco',
+        accountHint: '****4321',
+      },
     };
+    mockValidateTransactionAmount.execute.mockResolvedValue({isValid: true});
     await mount();
     await act(async () => {
       await latest?.onConfirm();
     });
-    expect(latest?.confirmError).toContain('propias');
-    expect(mockValidateTransactionAmount.execute).not.toHaveBeenCalled();
+    expect(mockValidateTransactionAmount.execute).toHaveBeenCalledWith({
+      amount: 50,
+      beneficiaryGuid: 'own-001',
+      accountGuid: 'acc-savings-001',
+      concept: 'Pago servicios',
+    });
+    expect(navigateOtpMock).toHaveBeenCalled();
   });
 
   // ── onConfirm — sin email ────────────────────────────────────────────────
@@ -227,6 +249,10 @@ describe('useTransferReviewViewModel', () => {
       expect.objectContaining({
         transactionIdentifier: 'TXN-999',
         amountCents: '5000',
+        fromAccountTitle: 'Ahorros',
+        fromAccountSubtitle: 'Ahorros ****1111',
+        toAccountTitle: 'Ana Pérez',
+        toAccountSubtitle: 'Cta. corriente ****4321',
       }),
     );
     expect(navigateOtpMock).not.toHaveBeenCalled();
@@ -273,7 +299,11 @@ describe('useTransferReviewViewModel', () => {
     expect(onTransferSuccess).toHaveBeenCalledWith(
       expect.objectContaining({
         transactionIdentifier: 'TXN-123',
-        displayAmount: '$50,00',
+        displayAmount: '$50.00',
+        fromAccountTitle: 'Ahorros',
+        fromAccountSubtitle: 'Ahorros ****1111',
+        toAccountTitle: 'Ana Pérez',
+        toAccountSubtitle: 'Cta. corriente ****4321',
       }),
     );
   });

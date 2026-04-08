@@ -296,7 +296,7 @@ export function TransferScreen() {
                                             ]}>
                                             <View style={styles.accountPickLeft}>
                                                 <Text style={styles.accountPickType}>
-                                                    {accountTypeModalLabel(item)}
+                                                    {item.accountTypeLabel}
                                                 </Text>
                                                 <Text style={styles.accountPickNumber}>
                                                     {item.maskedAccountNumber}

@@ -1,9 +1,53 @@
 import {
   balanceDollarsToCents,
   getLiveTransferAmountError,
+  MAX_TRANSFER_CENTS,
+  parseTransferAmountInputToCents,
+  sanitizeTransferAmountInput,
   transferAmountMessages,
   validateTransferAmountForSubmit,
 } from '../../../src/domain/validation';
+
+describe('sanitizeTransferAmountInput', () => {
+  test('keeps digits without dot', () => {
+    expect(sanitizeTransferAmountInput('500')).toBe('500');
+  });
+
+  test('allows one dot and at most two decimals', () => {
+    expect(sanitizeTransferAmountInput('20.053')).toBe('20.05');
+  });
+
+  test('strips currency symbols and thousands separators from paste', () => {
+    expect(sanitizeTransferAmountInput('$1,234.56')).toBe('1234.56');
+  });
+});
+
+describe('parseTransferAmountInputToCents', () => {
+  test('returns null for empty or lone dot', () => {
+    expect(parseTransferAmountInputToCents('')).toBeNull();
+    expect(parseTransferAmountInputToCents('.')).toBeNull();
+  });
+
+  test('without dot, treats input as whole dollars', () => {
+    expect(parseTransferAmountInputToCents('1')).toBe(100);
+    expect(parseTransferAmountInputToCents('500')).toBe(50000);
+  });
+
+  test('with dot, combines dollars and up to two decimal digits', () => {
+    expect(parseTransferAmountInputToCents('20.')).toBe(2000);
+    expect(parseTransferAmountInputToCents('20.05')).toBe(2005);
+    expect(parseTransferAmountInputToCents('.5')).toBe(50);
+    expect(parseTransferAmountInputToCents('0.01')).toBe(1);
+  });
+
+  test('clamps to MAX_TRANSFER_CENTS', () => {
+    expect(
+      parseTransferAmountInputToCents(
+        '9999999999999', // > max when interpreted as dollars
+      ),
+    ).toBe(MAX_TRANSFER_CENTS);
+  });
+});
 
 describe('transferAmount validation', () => {
   test('converts balance dollars to cents', () => {

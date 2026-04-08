@@ -22,8 +22,8 @@ name: Transferencias — validación al continuar sin datos
 
 - tapOn:
     id: "transfer-amount-input"
-# 1 centavo; requiere saldo disponible > 0 en la cuenta de origen.
-- inputText: "1"
+# US$ 0,01; requiere saldo disponible > 0 en la cuenta de origen.
+- inputText: "0.01"
 - hideKeyboard
 
 - tapOn:

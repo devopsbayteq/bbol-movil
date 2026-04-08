@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {useMemo} from 'react';
-import QRCode from 'react-native-qrcode-svg';
 import {ThemeColors, useTheme} from '../../../providers';
 import {Lexend} from '../../../theme/lexend';
 import {CardViewContainer} from './CardViewContainer';

@@ -15,10 +15,10 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
       id: "transfer-amount-input"
     timeout: 15000
 
-# Monto: 100 centavos = US$ 1,00
+# Monto: US$ 1,00 (entrada en dólares)
 - tapOn:
     id: "transfer-amount-input"
-- inputText: "100"
+- inputText: "1"
 - hideKeyboard
 
 - tapOn:

@@ -13,7 +13,7 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {HomeStackNavigator} from './HomeStackNavigator';
 import type {HomeStackParamList} from './HomeStackNavigator';
-import {TransferStackNavigator} from './TransferStackNavigator';
+import {TransferStackNavigator} from '../features/transfer/navigation/TransferStackNavigator';
 import {
   MovementsStackNavigator,
   type MovementsStackParamList,
