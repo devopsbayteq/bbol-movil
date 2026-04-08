@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {HOME_PRIMARY_LAYER, HOME_PRIMARY_PRESSED} from '../homeConstants';
 
 type Props = {
   icon: React.ReactNode;
@@ -10,6 +10,9 @@ type Props = {
 };
 
 export function QuickActionButton({icon, label, onPress}: Props) {
+  const {colors} = useTheme();
+  const styles = useStyles(colors);
+
   return (
     <TouchableOpacity
       style={styles.button}
@@ -26,25 +29,31 @@ export function QuickActionButton({icon, label, onPress}: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    flex: 1,
-    backgroundColor: HOME_PRIMARY_LAYER,
-    borderRadius: 8,
-    paddingTop: 8,
-    paddingBottom: 4,
-    paddingHorizontal: 8,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  iconWrap: {
-    marginBottom: 2,
-  },
-  label: {
-    fontFamily: Lexend.regular,
-    fontSize: 8,
-    lineHeight: 20,
-    color: HOME_PRIMARY_PRESSED,
-    textAlign: 'center',
-  },
-});
+function useStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        button: {
+          flex: 1,
+          backgroundColor: colors.homeProductCardSurface,
+          borderRadius: 8,
+          paddingTop: 8,
+          paddingBottom: 4,
+          paddingHorizontal: 8,
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+        },
+        iconWrap: {
+          marginBottom: 2,
+        },
+        label: {
+          fontFamily: Lexend.regular,
+          fontSize: 8,
+          lineHeight: 20,
+          color: colors.homeHeaderIconButtonBg,
+          textAlign: 'center',
+        },
+      }),
+    [colors],
+  );
+}

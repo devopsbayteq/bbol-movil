@@ -35,11 +35,11 @@ describe('useRegisterAliasViewModel', () => {
       expect(ok).toBe(false);
     });
 
-    expect(latest?.inlineError).toBe('Ingresa un alias.');
+    expect(latest?.inlineError).toBe('El alias es requerido');
     expect(mockedUseDI().registerAliasUseCase.execute).not.toHaveBeenCalled();
   });
 
-  test('onChangeAlias filtra caracteres no alfanuméricos', async () => {
+  test('onChangeAlias marca error de juego de caracteres con @ y #', async () => {
     await act(async () => {
       ReactTestRenderer.create(<Harness />);
     });
@@ -47,7 +47,10 @@ describe('useRegisterAliasViewModel', () => {
     act(() => {
       latest?.onChangeAlias('mi@Alias#1');
     });
-    expect(latest?.alias).toBe('miAlias1');
+    expect(latest?.alias).toBe('mi@Alias#1');
+    expect(latest?.inlineError).toBe(
+      'El alias solo puede contener letras, números, punto (.), guion (-) y guion bajo (_).',
+    );
   });
 
   test('submit con alias válido llama execute y devuelve true', async () => {
@@ -61,7 +64,7 @@ describe('useRegisterAliasViewModel', () => {
     });
 
     act(() => {
-      latest?.onChangeAlias('miAlias');
+      latest?.onChangeAlias('miAlias123456');
     });
 
     await act(async () => {
@@ -69,7 +72,7 @@ describe('useRegisterAliasViewModel', () => {
       expect(ok).toBe(true);
     });
 
-    expect(execute).toHaveBeenCalledWith('miAlias');
+    expect(execute).toHaveBeenCalledWith('miAlias123456');
     expect(latest?.isLoading).toBe(false);
   });
 
@@ -84,7 +87,7 @@ describe('useRegisterAliasViewModel', () => {
     });
 
     act(() => {
-      latest?.onChangeAlias('valido');
+      latest?.onChangeAlias('valido123456');
     });
 
     await act(async () => {
@@ -106,7 +109,7 @@ describe('useRegisterAliasViewModel', () => {
     });
 
     act(() => {
-      latest?.onChangeAlias('okalias');
+      latest?.onChangeAlias('okalias123456');
     });
 
     await act(async () => {
@@ -127,7 +130,7 @@ describe('useRegisterAliasViewModel', () => {
     expect(latest?.inlineError).toBeTruthy();
 
     act(() => {
-      latest?.onChangeAlias('ab');
+      latest?.onChangeAlias('aliasvalido12');
     });
     expect(latest?.inlineError).toBeNull();
   });
@@ -143,7 +146,7 @@ describe('useRegisterAliasViewModel', () => {
     });
 
     act(() => {
-      latest?.onChangeAlias('validalias');
+      latest?.onChangeAlias('validalias123');
     });
 
     await act(async () => {
@@ -152,7 +155,7 @@ describe('useRegisterAliasViewModel', () => {
     expect(latest?.submitError).toBeTruthy();
 
     act(() => {
-      latest?.onChangeAlias('otro');
+      latest?.onChangeAlias('otroalias1234');
     });
     expect(latest?.submitError).toBeNull();
   });

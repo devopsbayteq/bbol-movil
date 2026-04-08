@@ -1,10 +1,7 @@
 import {useCallback, useState} from 'react';
 
 import {useDI} from '../../di';
-import {
-  sanitizeRegisterAliasInput,
-  validateRegisterAliasInput,
-} from '../../domain/validation/registerAlias';
+import {validateRegisterAliasInput} from '../../domain/validation/registerAlias';
 
 export function useRegisterAliasViewModel() {
   const {registerAliasUseCase} = useDI();
@@ -14,7 +11,7 @@ export function useRegisterAliasViewModel() {
   const [isLoading, setIsLoading] = useState(false);
 
   const onChangeAlias = useCallback((value: string) => {
-    setAlias(sanitizeRegisterAliasInput(value));
+    setAlias(value);
     if (inlineError) {
       setInlineError(null);
     }
@@ -24,8 +21,7 @@ export function useRegisterAliasViewModel() {
   }, [inlineError, submitError]);
 
   const submit = useCallback(async (): Promise<boolean> => {
-    const normalized = sanitizeRegisterAliasInput(alias);
-    const validation = validateRegisterAliasInput(normalized);
+    const validation = validateRegisterAliasInput(alias);
     if (validation) {
       setInlineError(validation);
       return false;
@@ -36,7 +32,7 @@ export function useRegisterAliasViewModel() {
     setInlineError(null);
 
     try {
-      await registerAliasUseCase.execute(normalized);
+      await registerAliasUseCase.execute(alias);
       return true;
     } catch (err) {
       const message =

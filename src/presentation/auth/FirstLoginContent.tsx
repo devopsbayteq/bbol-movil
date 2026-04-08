@@ -14,14 +14,11 @@ import {
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
-import UserPlusSvg from '../../../assets/images/svg/user-plus.svg';
-import MenuIconSvg from '../../../assets/images/svg/menu-icon.svg';
-import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
+const institutionIcon = require('../../../assets/images/institution.png');
+const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
+const loginSubmitArrowIcon = require('../../../assets/images/arrow-right-from-bracket.png');
 
 const bankMark = require('../../../assets/images/BBIcon.png');
-
-const FOOTER_SVG_SIZE = 28;
-const LOGIN_SUBMIT_ICON_SIZE = 24;
 
 export interface FirstLoginContentProps {
   email: string;
@@ -79,7 +76,12 @@ export function FirstLoginContent({
           accessibilityIgnoresInvertColors
         />
 
-        <Text style={styles.heroTitle}>Bienvenido a tu banca móvil</Text>
+        
+        <Text style={styles.heroTitleContainer} accessibilityRole="text">
+        <Text style={styles.heroTitle}>Bienvenido a</Text>
+        {'\n'}
+        <Text style={styles.heroTitle}>tu banca móvil</Text>
+        </Text>
         <Text style={styles.heroSubtitle}>
           Ingresa con usuario y contraseña
         </Text>
@@ -98,7 +100,6 @@ export function FirstLoginContent({
           autoCorrect={false}
           editable={!isBusy}
           autoComplete="username"
-          variant="elevated"
         />
         <Pressable
           onPress={showDevelopmentNotice}
@@ -143,44 +144,59 @@ export function FirstLoginContent({
           title="Iniciar sesión"
           onPress={onLogin}
           iconRightTintColor={colors.white}
-          // iconNodeRight={
-          //   <LoginSubmitArrowSvg
-          //     width={LOGIN_SUBMIT_ICON_SIZE}
-          //     height={LOGIN_SUBMIT_ICON_SIZE}
-          //   />
-          // }
+          iconSourceRight={loginSubmitArrowIcon}
           loading={isLoadingLogin}
           disabled={submitDisabled}
+          disabledBackgroundColor={"#c8c8c8"}
           variant="loginPrimary"
         />
       </View>
 
-      <View style={styles.footerQuickRow}>
+      <View style={styles.actionsSecondary}>
         <Pressable
+          testID="login-create-user"
           onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
+          style={({pressed}) => [
+            styles.createUserLinkHit,
+            pressed && styles.createUserLinkHitPressed,
+          ]}
+          accessibilityRole="link"
           accessibilityLabel="Crear usuario">
-          <View style={styles.footerQuickIconWrap}>
-            <UserPlusSvg width={FOOTER_SVG_SIZE} height={FOOTER_SVG_SIZE} />
-          </View>
-          <Text style={styles.footerQuickLabel}>Crear usuario</Text>
-        </Pressable>
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Solicitar producto">
-          <View style={styles.footerQuickIconWrap}>
-            <MenuIconSvg width={FOOTER_SVG_SIZE} height={FOOTER_SVG_SIZE} />
-          </View>
-          <Text style={styles.footerQuickLabel}>Solicitar producto</Text>
+          <Text style={styles.createUserLinkText}>Crear usuario</Text>
         </Pressable>
       </View>
 
+      <Pressable
+        testID="login-request-product"
+        onPress={showDevelopmentNotice}
+        style={({pressed}) => [
+          styles.productCard,
+          pressed && styles.productCardPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Solicitar productos">
+        <View style={styles.productIconCircle}>
+          <Image
+            source={institutionIcon}
+            style={styles.productIconImage}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+        <Text style={styles.productCardTitle}>Solicitar productos</Text>
+        <View style={styles.arrowRightIconWrap}>
+          <Image
+            source={arrowRightIcon}
+            style={styles.arrowRightIcon}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+      </Pressable>
+
       <TertiaryLinkButton
         testID="login-contact-us"
-        title="Contáctate con nosotros"
+        title="¿Necesitas ayuda?"
         onPress={showDevelopmentNotice}
         style={styles.contactLink}
         labelStyle={styles.contactLinkLabel}
@@ -215,22 +231,28 @@ function useStyles(colors: ThemeColors) {
         logoMark: {
           width: 72,
           height: 72,
+          marginTop: 30,
         },
         heroTitle: {
           fontFamily: Lexend.regular,
-          fontSize: 32,
-          lineHeight: 42,
+          color: colors.textPrimary,
+          textAlign: 'center',
+          width: '65%',
+        },
+        heroTitleContainer: {
+          fontFamily: Lexend.regular,
+          fontSize: 20,
           color: colors.textPrimary,
           textAlign: 'center',
           paddingTop: 24,
-          paddingBottom: 6,
+          paddingBottom: 25,
           width: '65%',
         },
         heroSubtitle: {
           fontFamily: Lexend.regular,
-          fontSize: 16,
+          fontSize: 17,
           lineHeight: 26,
-          color: colors.textSecondary,
+          color: colors.textTertiary,
           textAlign: 'center',
         },
         inputs: {
@@ -244,9 +266,10 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 4,
         },
         forgotText: {
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 14,
           lineHeight: 22,
+          opacity: 0.8,
           color: colors.textSecondary,
         },
         errorBanner: {
@@ -255,6 +278,28 @@ function useStyles(colors: ThemeColors) {
         actions: {
           marginTop: 8,
           gap: 8,
+          marginBottom: 16,
+        },
+        /** Misma caja táctil que `Button` outline (`base`: 14/24, radio 12). */
+        createUserLinkHit: {
+          alignSelf: 'stretch',
+          borderRadius: 12,
+          paddingVertical: 4,
+          paddingHorizontal: 24,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 24
+        },
+        createUserLinkHitPressed: {
+          opacity: 0.85,
+        },
+        createUserLinkText: {
+          fontFamily: Lexend.bold,
+          fontSize: 16,
+          lineHeight: 26,
+          color: colors.linkPrimary,
+        },
+        actionsSecondary: {
           marginBottom: 16,
         },
         footerQuickRow: {
@@ -302,6 +347,51 @@ function useStyles(colors: ThemeColors) {
           color: colors.textTertiary,
           textAlign: 'center',
           marginBottom: 8,
+        },
+        productCard: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'center',
+          width: '100%',
+          maxWidth: 280,
+          gap: 12,
+          paddingVertical: 12,
+          paddingHorizontal: 14,
+          borderRadius: 12,
+          backgroundColor: colors.surface,
+          marginTop: 40,
+          marginBottom: 8,
+          height: 48,
+        },
+        productCardPressed: {
+          opacity: 0.92,
+        },
+        productIconCircle: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        productIconImage: {
+          width: 40,
+          height: 40,
+        },
+        productCardTitle: {
+          flex: 1,
+          fontFamily: Lexend.regular,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.textPrimary,
+        },
+        arrowRightIconWrap: {
+          width: 24,
+          height: 24,
+        },
+        arrowRightIcon: {
+          width: 24,
+          height: 24,
         },
       }),
     [colors],

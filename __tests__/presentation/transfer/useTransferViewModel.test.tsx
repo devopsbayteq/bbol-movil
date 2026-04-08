@@ -1,10 +1,8 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
-import type {AccountBalance} from '../../../src/domain/entities/ContractBalance';
-import type {BeneficiaryContact} from '../../../src/domain/entities/BeneficiaryContact';
 import {useTransferViewModel} from '../../../src/presentation/transfer/useTransferViewModel';
-import {formatMoneyUsdDisplay} from '../../../src/utils/formatMoneyUsdDisplay';
 
+// ── Módulos nativos ──────────────────────────────────────────────────────────
 jest.mock('react-native-encrypted-storage', () => ({
   __esModule: true,
   default: {
@@ -21,17 +19,14 @@ jest.mock('react-native-biometrics', () =>
   })),
 );
 
+// ── Providers ────────────────────────────────────────────────────────────────
 jest.mock('../../../src/providers', () => ({
   useAuth: () => ({user: {name: 'Titular Demo', email: 'titular@demo.com'}, logout: jest.fn()}),
   useTheme: () => ({colors: {}}),
 }));
 
-const mockHomeData: {
-  data: {accounts: AccountBalance[]} | null;
-  isLoading: boolean;
-  error: string;
-  retry: jest.Mock;
-} = {
+// ── useHomeViewModel ─────────────────────────────────────────────────────────
+const mockHomeData: {data: {accounts: {accountGuid: string; accountKind: string; balance: number; maskedAccountNumber: string}[]} | null; isLoading: boolean; error: string; retry: jest.Mock} = {
   data: null,
   isLoading: false,
   error: '',
@@ -42,6 +37,7 @@ jest.mock('../../../src/presentation/home/useHomeViewModel', () => ({
   useHomeViewModel: () => mockHomeData,
 }));
 
+// ── Harness ──────────────────────────────────────────────────────────────────
 let latest: ReturnType<typeof useTransferViewModel> | undefined;
 
 function Harness() {
@@ -55,36 +51,30 @@ async function mount() {
   });
 }
 
-function mockBen(id: string, name: string): BeneficiaryContact {
-  return {
-    beneficiaryGuid: id,
-    contactName: name,
-    bankName: 'Banco Test',
-    accountType: 'savings',
-    accountTypeLabel: 'Ahorros',
-    beneficiaryAccountNumber: '1234567890',
-    lastFourDigits: '4321',
-  };
-}
-
-const savingsAccount: AccountBalance = {
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const savingsAccount = {
   accountGuid: 'acc-savings',
-  maskedAccountNumber: '****1111',
-  accountKind: 'savings',
-  accountTypeLabel: 'Ahorros',
+  accountKind: 'savings' as const,
   balance: 1000,
-  beneficiary: mockBen('ben-savings', 'Cuenta propia A'),
+  maskedAccountNumber: '****1111',
 };
 
-const checkingAccount: AccountBalance = {
+const checkingAccount = {
   accountGuid: 'acc-checking',
-  maskedAccountNumber: '****2222',
-  accountKind: 'checking',
-  accountTypeLabel: 'Corriente',
+  accountKind: 'checking' as const,
   balance: 500,
-  beneficiary: mockBen('ben-checking', 'Cuenta propia B'),
+  maskedAccountNumber: '****2222',
 };
 
+const contactBeneficiary = {
+  id: 'ben-001',
+  name: 'Ana Pérez',
+  kind: 'contact' as const,
+  bankName: 'Banco Pichincha',
+  accountHint: '****4321',
+};
+
+// ────────────────────────────────────────────────────────────────────────────
 describe('useTransferViewModel', () => {
   beforeEach(() => {
     latest = undefined;
@@ -94,15 +84,15 @@ describe('useTransferViewModel', () => {
     mockHomeData.error = '';
   });
 
-  test('estado inicial: amountCents null, amountInputText vacío, concepto vacío, modales cerrados', async () => {
+  // ── Estado inicial ───────────────────────────────────────────────────────
+  test('initial state: amountCents 0, no beneficiary, empty concept', async () => {
     await mount();
-    expect(latest?.amountCents).toBeNull();
-    expect(latest?.amountInputText).toBe('');
+    expect(latest?.amountCents).toBe(0);
+    expect(latest?.beneficiary).toBeNull();
     expect(latest?.concept).toBe('');
     expect(latest?.validationMessage).toBeNull();
-    expect(latest?.fromAccountModalVisible).toBe(false);
-    expect(latest?.toAccountModalVisible).toBe(false);
-    expect(latest?.accountBeneficiaryModalVisible).toBe(false);
+    expect(latest?.accountModalVisible).toBe(false);
+    expect(latest?.beneficiarySelectorVisible).toBe(false);
   });
 
   test('expone isLoading y error del homeViewModel', async () => {
@@ -113,25 +103,24 @@ describe('useTransferViewModel', () => {
     expect(latest?.error).toBe('Sin conexión');
   });
 
-  test('onAmountChange interpreta dígitos sin punto como dólares enteros', async () => {
+  // ── onAmountChange ───────────────────────────────────────────────────────
+  test('onAmountChange parsea dígitos y actualiza amountCents', async () => {
     await mount();
     act(() => {
       latest?.onAmountChange('500');
     });
-    expect(latest?.amountInputText).toBe('500');
-    expect(latest?.amountCents).toBe(50000);
+    expect(latest?.amountCents).toBe(500);
   });
 
-  test('onAmountChange con texto vacío resetea amountCents a null', async () => {
+  test('onAmountChange ignora texto vacío y resetea a cero', async () => {
     await mount();
     act(() => {
-      latest?.onAmountChange('1');
+      latest?.onAmountChange('100');
     });
     act(() => {
       latest?.onAmountChange('');
     });
-    expect(latest?.amountCents).toBeNull();
-    expect(latest?.amountInputText).toBe('');
+    expect(latest?.amountCents).toBe(0);
   });
 
   test('onAmountChange filtra caracteres no numéricos', async () => {
@@ -145,6 +134,7 @@ describe('useTransferViewModel', () => {
   test('onAmountChange limita al máximo permitido', async () => {
     await mount();
     act(() => {
+      // Valor más grande que MAX_TRANSFER_CENTS = 999_999_999_999
       latest?.onAmountChange('9999999999999');
     });
     expect(latest?.amountCents).toBe(999999999999);
@@ -156,11 +146,12 @@ describe('useTransferViewModel', () => {
       latest?.setValidationMessage('Monto requerido');
     });
     act(() => {
-      latest?.onAmountChange('2');
+      latest?.onAmountChange('200');
     });
     expect(latest?.validationMessage).toBeNull();
   });
 
+  // ── onConceptChange ──────────────────────────────────────────────────────
   test('onConceptChange sanitiza la entrada', async () => {
     await mount();
     act(() => {
@@ -169,65 +160,73 @@ describe('useTransferViewModel', () => {
     expect(latest?.concept).toBe('Pago de servicios');
   });
 
-  test('inicializa el índice de origen en la cuenta de ahorros por defecto', async () => {
+  // ── Cuenta por defecto ───────────────────────────────────────────────────
+  test('inicializa el índice de cuenta en la cuenta de ahorros por defecto', async () => {
     mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
     await mount();
-    expect(latest?.fromAccountIndex).toBe(1);
-    expect(latest?.selectedFromAccount?.accountKind).toBe('savings');
-  });
-
-  test('cuando hay más de una cuenta, destino distinto al origen', async () => {
-    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
-    await mount();
-    expect(latest?.fromAccountIndex).toBe(1);
-    expect(latest?.toAccountIndex).toBe(0);
-    expect(latest?.selectedToAccount?.accountGuid).toBe(checkingAccount.accountGuid);
+    // defaultAccountIndex elige savings (índice 1)
+    expect(latest?.accountIndex).toBe(1);
+    expect(latest?.selectedAccount?.accountKind).toBe('savings');
   });
 
   test('usa índice 0 cuando no hay cuenta de ahorros', async () => {
     mockHomeData.data = {accounts: [checkingAccount]};
     await mount();
-    expect(latest?.fromAccountIndex).toBe(0);
+    expect(latest?.accountIndex).toBe(0);
   });
 
-  test('selectedFromAccount es null cuando no hay cuentas', async () => {
+  test('selectedAccount es null cuando no hay cuentas', async () => {
     mockHomeData.data = {accounts: []};
     await mount();
-    expect(latest?.selectedFromAccount).toBeNull();
-    expect(latest?.selectedToAccount).toBeNull();
+    expect(latest?.selectedAccount).toBeNull();
   });
 
-  test('openFromAccountPicker abre el modal cuando hay más de una cuenta', async () => {
+  // ── openAccountPicker / selectAccount ────────────────────────────────────
+  test('openAccountPicker abre el modal cuando hay más de una cuenta', async () => {
     mockHomeData.data = {accounts: [savingsAccount, checkingAccount]};
     await mount();
     act(() => {
-      latest?.openFromAccountPicker();
+      latest?.openAccountPicker();
     });
-    expect(latest?.fromAccountModalVisible).toBe(true);
+    expect(latest?.accountModalVisible).toBe(true);
   });
 
-  test('openFromAccountPicker no abre el modal con una sola cuenta', async () => {
+  test('openAccountPicker no abre el modal con una sola cuenta', async () => {
     mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.openFromAccountPicker();
+      latest?.openAccountPicker();
     });
-    expect(latest?.fromAccountModalVisible).toBe(false);
+    expect(latest?.accountModalVisible).toBe(false);
   });
 
-  test('selectFromAccount actualiza índice y cierra modal', async () => {
+  test('selectAccount actualiza índice y cierra modal', async () => {
     mockHomeData.data = {accounts: [savingsAccount, checkingAccount]};
     await mount();
     act(() => {
-      latest?.openFromAccountPicker();
+      latest?.openAccountPicker();
     });
     act(() => {
-      latest?.selectFromAccount(1);
+      latest?.selectAccount(1);
     });
-    expect(latest?.fromAccountIndex).toBe(1);
-    expect(latest?.fromAccountModalVisible).toBe(false);
+    expect(latest?.accountIndex).toBe(1);
+    expect(latest?.accountModalVisible).toBe(false);
   });
 
+  // ── selectBeneficiary ────────────────────────────────────────────────────
+  test('selectBeneficiary establece beneficiario y limpia validationMessage', async () => {
+    await mount();
+    act(() => {
+      latest?.setValidationMessage('Selecciona un beneficiario.');
+    });
+    act(() => {
+      latest?.selectBeneficiary(contactBeneficiary);
+    });
+    expect(latest?.beneficiary).toEqual(contactBeneficiary);
+    expect(latest?.validationMessage).toBeNull();
+  });
+
+  // ── prepareTransferReview ────────────────────────────────────────────────
   test('prepareTransferReview falla cuando el monto es cero', async () => {
     mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
@@ -238,44 +237,41 @@ describe('useTransferViewModel', () => {
     }
   });
 
-  test('prepareTransferReview falla por saldo cuando no hay cuentas y hay monto', async () => {
-    mockHomeData.data = {accounts: []};
+  test('prepareTransferReview falla cuando no hay beneficiario', async () => {
+    mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('1');
+      latest?.onAmountChange('100');
     });
     const result = latest?.prepareTransferReview();
     expect(result?.ok).toBe(false);
     if (!result?.ok) {
-      expect(result?.message).toMatch(/saldo|monto/i);
+      expect(result?.message).toContain('beneficiario');
     }
   });
 
   test('prepareTransferReview retorna ok con params cuando es válido', async () => {
-    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
+    mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('5');
+      latest?.onAmountChange('500');
+      latest?.selectBeneficiary(contactBeneficiary);
     });
     const result = latest?.prepareTransferReview();
     expect(result?.ok).toBe(true);
     if (result?.ok) {
       expect(result.params.amountCents).toBe(500);
-      expect(result.params.displayAmount).toBe(formatMoneyUsdDisplay(5));
-      expect(result.params.beneficiary.name).toBe('Cuenta propia B');
-      expect(result.params.beneficiary.id).toBe('ben-checking');
-      expect(result.params.fromAccountTitle).toBe('Ahorros');
-      expect(result.params.fromAccountSubtitle).toBe('Ahorros ****1111');
-      expect(result.params.fromBalanceDisplay).toBe(formatMoneyUsdDisplay(1000));
-      expect(result.params.toBalanceDisplay).toBe(formatMoneyUsdDisplay(500));
+      expect(result.params.beneficiary).toEqual(contactBeneficiary);
+      expect(result.params.accountId).toBe(savingsAccount.accountGuid);
     }
   });
 
   test('prepareTransferReview incluye concepto en los params', async () => {
-    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
+    mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('3');
+      latest?.onAmountChange('300');
+      latest?.selectBeneficiary(contactBeneficiary);
       latest?.onConceptChange('Pago renta');
     });
     const result = latest?.prepareTransferReview();
@@ -285,6 +281,7 @@ describe('useTransferViewModel', () => {
     }
   });
 
+  // ── fromAccountDescription ───────────────────────────────────────────────
   test('fromAccountDescription retorna cadena vacía cuando no hay cuenta', async () => {
     mockHomeData.data = {accounts: []};
     await mount();
@@ -298,11 +295,12 @@ describe('useTransferViewModel', () => {
     expect(latest?.fromAccountDescription.length).toBeGreaterThan(0);
   });
 
+  // ── availableBalanceCents / amountFieldError ─────────────────────────────
   test('amountFieldError es null cuando el monto es válido', async () => {
     mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('100'); // US$100
+      latest?.onAmountChange('100');
     });
     expect(latest?.amountFieldError).toBeNull();
   });
@@ -311,64 +309,34 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [{...savingsAccount, balance: 0.5}]};
     await mount();
     act(() => {
-      latest?.onAmountChange('100'); // US$100 > US$0.50
+      // 10000 centavos = $100 > saldo 0.5
+      latest?.onAmountChange('10000');
     });
     expect(latest?.amountFieldError).not.toBeNull();
   });
 
-  test('canContinueToReview es false con monto cero aunque origen y destino sean distintos', async () => {
-    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
-    await mount();
-    expect(latest?.canContinueToReview).toBe(false);
-  });
-
-  test('canContinueToReview es true con origen y destino distintos y monto válido', async () => {
-    mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
+  // ── setAccountModalVisible / setBeneficiarySelectorVisible ───────────────
+  test('setAccountModalVisible controla la visibilidad del modal de cuentas', async () => {
     await mount();
     act(() => {
-      latest?.onAmountChange('500'); // US$500
+      latest?.setAccountModalVisible(true);
     });
-    expect(latest?.canContinueToReview).toBe(true);
+    expect(latest?.accountModalVisible).toBe(true);
+    act(() => {
+      latest?.setAccountModalVisible(false);
+    });
+    expect(latest?.accountModalVisible).toBe(false);
   });
 
-  test('canContinueToReview es false con una sola cuenta (origen y destino coinciden)', async () => {
-    mockHomeData.data = {accounts: [savingsAccount]};
+  test('setBeneficiarySelectorVisible controla la visibilidad del selector de beneficiarios', async () => {
     await mount();
     act(() => {
-      latest?.onAmountChange('1');
+      latest?.setBeneficiarySelectorVisible(true);
     });
-    expect(latest?.canContinueToReview).toBe(false);
+    expect(latest?.beneficiarySelectorVisible).toBe(true);
   });
 
-  test('canContinueToReview es false cuando el monto supera el saldo', async () => {
-    mockHomeData.data = {accounts: [{...savingsAccount, balance: 0.5}, checkingAccount]};
-    await mount();
-    act(() => {
-      latest?.onAmountChange('100'); // US$100 > US$0.50
-    });
-    expect(latest?.canContinueToReview).toBe(false);
-  });
-
-  test('setFromAccountModalVisible controla la visibilidad del modal de origen', async () => {
-    await mount();
-    act(() => {
-      latest?.setFromAccountModalVisible(true);
-    });
-    expect(latest?.fromAccountModalVisible).toBe(true);
-    act(() => {
-      latest?.setFromAccountModalVisible(false);
-    });
-    expect(latest?.fromAccountModalVisible).toBe(false);
-  });
-
-  test('setToAccountModalVisible controla la visibilidad del modal de destino', async () => {
-    await mount();
-    act(() => {
-      latest?.setToAccountModalVisible(true);
-    });
-    expect(latest?.toAccountModalVisible).toBe(true);
-  });
-
+  // ── retry ────────────────────────────────────────────────────────────────
   test('retry delega al homeViewModel', async () => {
     const retryMock = jest.fn().mockResolvedValue(undefined);
     mockHomeData.retry = retryMock;

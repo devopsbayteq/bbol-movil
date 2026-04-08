@@ -1,26 +1,20 @@
-/** Longitud máxima del alias en registro (alfanumérico). */
-export const REGISTER_ALIAS_MAX_LENGTH = 16;
+import {isControlCharacter} from './textSafety';
 
-const ALIAS_MIN_LENGTH = 1;
-const ALIAS_PATTERN = /^[a-zA-Z0-9]+$/;
-
-/**
- * Deja solo letras y números ASCII y recorta a la longitud máxima permitida.
- */
-export function sanitizeRegisterAliasInput(raw: string): string {
-  return raw.replace(/[^a-zA-Z0-9]/g, '').slice(0, REGISTER_ALIAS_MAX_LENGTH);
-}
+const ALIAS_MIN_LENGTH = 2;
+const ALIAS_MAX_LENGTH = 64;
 
 export function validateRegisterAliasInput(raw: string): string | null {
   const trimmed = raw.trim();
   if (trimmed.length < ALIAS_MIN_LENGTH) {
-    return 'Ingresa un alias.';
+    return 'Ingresa un alias de al menos 2 caracteres.';
   }
-  if (trimmed.length > REGISTER_ALIAS_MAX_LENGTH) {
-    return `El alias no puede superar ${REGISTER_ALIAS_MAX_LENGTH} caracteres.`;
+  if (trimmed.length > ALIAS_MAX_LENGTH) {
+    return 'El alias no puede superar 64 caracteres.';
   }
-  if (!ALIAS_PATTERN.test(trimmed)) {
-    return 'El alias solo puede contener letras y números.';
+  for (let i = 0; i < trimmed.length; i += 1) {
+    if (isControlCharacter(trimmed[i])) {
+      return 'El alias contiene caracteres no válidos.';
+    }
   }
   return null;
 }

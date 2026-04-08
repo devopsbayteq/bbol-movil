@@ -1,5 +1,4 @@
 export {AuthProvider, useAuth} from './AuthProvider';
-export type {LogoutOptions} from './AuthProvider';
 export {SecurityProvider, useSecurity} from './SecurityProvider';
 export {SessionTimeoutProvider, useSessionTimeout} from './SessionTimeoutProvider';
 export {ThemeProvider, useTheme, useThemeStore} from './theme';

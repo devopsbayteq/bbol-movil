@@ -1,41 +1,22 @@
-import {Image, Platform, StyleSheet, View} from 'react-native';
-import {ThemeColors, useTheme} from '../../../providers';
-import React, {useMemo} from 'react';
+import {StyleSheet, View} from "react-native";
+import {ThemeColors, useTheme} from "../../../providers";
+import React, {useMemo} from "react";
 
-const BANK_LOGO = require('../../../../assets/images/BBIcon.png');
-
-type WatermarkSpec = {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-};
-
-const WATERMARK_SPECS: WatermarkSpec[] = [
-    {top: -16, left: -24, width: 50, height: 50},
-    {top: 48, left: 20, width: 96, height: 20},
-    {top: 120, left: -16, width: 50, height: 50},
-    {top: 200, left: 88, width: 20, height: 20},
-];
 
 type CardViewContainerProps = {
     children: React.ReactNode;
 };
+export const CardViewContainer = ({children}:CardViewContainerProps) => {
 
-export function CardViewContainer({children}: CardViewContainerProps) {
-    const {colors} = useTheme();
-    const styles = useStyles(colors);
+    const {colors} = useTheme()
+    const style = useStyles(colors)
+
 
     return (
-        <View style={styles.cardInfoContainer}>
-            <View style={styles.watermarkLayer} pointerEvents="none">
-               <Image
-               source={require("./../../../../assets/images/voucher_background.png")}
-               />
-            </View>
-            <View style={styles.foreground}>{children}</View>
+        <View style={style.cardInfoContainer}>
+            {children}
         </View>
-    );
+    )
 }
 
 function useStyles(colors: ThemeColors) {
@@ -45,25 +26,11 @@ function useStyles(colors: ThemeColors) {
                 cardInfoContainer: {
                     backgroundColor: colors.surface,
                     borderRadius: 12,
+                    padding: 12,
                     alignSelf: 'center',
                     width: '100%',
-                    padding:8,
-                    overflow: 'hidden',
-                },
-                watermarkLayer: {
-                    ...StyleSheet.absoluteFillObject,
-                },
-                watermarkImg: {
-                    position: 'absolute',
-                    opacity: 0.35,
-                    transform: [{rotate: '-30deg'}],
-                },
-                foreground: {
+                    maxWidth: 312,
                     gap: 24,
-                    width: '100%',
-                    zIndex: 1,
                 },
-            }),
-        [colors],
-    );
+            }), [colors])
 }

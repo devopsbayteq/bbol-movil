@@ -8,7 +8,15 @@ import type {TransferStackParamList} from '../../../navigation/TransferStackNavi
 import {useDI} from '../../../di';
 import {useAuth} from '../../../providers';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess.tsx';
-import {formatMoneyEc} from '../../../utils/formatMoneyEc';
+
+
+function formatReviewDate(date: Date): string {
+    const day = date.getDate();
+    const month = date.toLocaleDateString('es-EC', {month: 'long'});
+    const capMonth = month.charAt(0).toUpperCase() + month.slice(1);
+    const year = date.getFullYear();
+    return `${day} de ${capMonth}, ${year}`;
+}
 
 function beneficiaryAccountLine(
     bankName?: string,
@@ -79,12 +87,7 @@ export function useTransferReviewViewModel(
 
     const conceptDisplay = concept.trim() ? concept.trim() : '—';
 
-    const commissionDisplay = useMemo(() => {
-        if (commission === 'Con cargo') {
-            return 'Con cargo';
-        }
-        return formatMoneyEc(0);
-    }, [commission]);
+    const transferDateLabel = useMemo(() => formatReviewDate(new Date()), []);
 
     const doTransacction = useCallback(async () => {
         setConfirmError(null);
@@ -140,12 +143,25 @@ export function useTransferReviewViewModel(
     const onConfirm = useCallback(async () => {
         setConfirmError(null);
 
+        if (beneficiary.kind === 'own_account') {
+            setConfirmError(
+                'Las transferencias entre cuentas propias serán habilitadas próximamente.',
+            );
+            return;
+        }
+
         const email = user?.email?.trim() ?? '';
         if (!email) {
             setConfirmError('No hay un correo en la sesión para continuar con la autenticación.');
             return;
         }
 
+        if (beneficiary.kind === 'own_account') {
+            setConfirmError(
+                'No puedes confirmar transferencias a cuentas propias en este flujo.',
+            );
+            return;
+        }
 
         setConfirmLoading(true);
         try {
@@ -225,12 +241,12 @@ export function useTransferReviewViewModel(
         concept,
         commission,
         commissionLoading,
-        commissionDisplay,
         confirmLoading,
         confirmError,
         setConfirmError,
         paraSubline,
         conceptDisplay,
+        transferDateLabel,
         onConfirm,
         doTransacction
     };

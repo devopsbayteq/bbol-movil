@@ -1,4 +1,5 @@
-/* eslint-env node */
+'use strict';
+
 const React = require('react');
 const {View} = require('react-native');
 
@@ -7,4 +8,5 @@ function SvgMock(props) {
 }
 
 module.exports = SvgMock;
+module.exports.__esModule = true;
 module.exports.default = SvgMock;

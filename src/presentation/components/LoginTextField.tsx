@@ -11,15 +11,13 @@ import {
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
-
-type LoginTextFieldVariant = 'flat' | 'elevated';
+import {LOGIN_INPUT_OUTER_HEIGHT} from './loginFieldLayout';
 
 interface LoginTextFieldProps extends Omit<TextInputProps, 'style'> {
   label?: string;
   hasError?: boolean;
   errorMessage?: string;
   containerStyle?: StyleProp<ViewStyle>;
-  variant?: LoginTextFieldVariant;
   testID?: string;
   errorTestID?: string;
 }
@@ -29,7 +27,6 @@ export function LoginTextField({
   hasError = false,
   errorMessage,
   containerStyle,
-  variant = 'flat',
   testID,
   errorTestID,
   ...textInputProps
@@ -45,7 +42,6 @@ export function LoginTextField({
         testID={testID}
         style={[
           styles.input,
-          variant === 'elevated' && styles.inputElevated,
           (hasError || !!errorMessage) && styles.inputError,
         ]}
         placeholderTextColor={colors.placeholder}
@@ -81,14 +77,15 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.inputBg,
           borderRadius: 8,
           paddingHorizontal: 16,
-          height: 52,
+          height: LOGIN_INPUT_OUTER_HEIGHT,
           ...(Platform.OS === 'ios'
-            ? {paddingTop: 0, paddingBottom: 3}
-            : {paddingVertical: 0, textAlignVertical: 'center'}),
+            ? {paddingTop: 12, paddingBottom: 18}
+            : {
+                paddingVertical: 14,
+                textAlignVertical: 'center' as const,
+              }),
           borderWidth: 0,
         },
-        /** Misma apariencia base que `flat`; sin sombra (diseño login). */
-        inputElevated: {},
         inputError: {
           borderWidth: 1,
           borderColor: colors.error,

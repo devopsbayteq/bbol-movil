@@ -1,13 +1,6 @@
 appId: com.bbapp
 ---
-# Post-OTP de login (RootStack): el comportamiento depende de si el dispositivo ya tenía usuario vinculado.
-#
-# - Primer ingreso (sin DEVICE_BOUND_* o tras "Otro usuario"): OtpValidation → RegisterAlias →
-#   modal de éxito → oferta biométrica (si aplica) → Inicio.
-# - Siguiente ingreso en el mismo dispositivo: OtpValidation con skipRegisterAlias → sin pantalla de alias;
-#   puede ir directo a Inicio o a oferta biométrica según navigatePostLoginEnrollment.
-#
-# PIN demo válido: 123457
+# PIN demo fijo: 123457
 - extendedWaitUntil:
     visible:
       id: "otp-screen"
@@ -17,55 +10,27 @@ appId: com.bbapp
     id: "otp-input"
 - inputText: "123457"
 
-# Registro de alias solo aparece en el primer flujo de enrolamiento en el dispositivo.
-# Si no aparece en este tiempo, asumimos login en dispositivo ya vinculado (sin registro de alias).
+# Registro obligatorio de alias (post-OTP, pre-biometría)
 - extendedWaitUntil:
     visible:
       id: "register-alias-screen"
-    timeout: 10000
-    optional: true
+    timeout: 30000
 
-- runFlow:
-    when:
-      visible:
-        id: "register-alias-screen"
-    commands:
-      - tapOn:
-          id: "register-alias-input"
-      - inputText: "demoalias"
-      - hideKeyboard
-      - tapOn:
-          id: "register-alias-continue"
+- tapOn:
+    id: "register-alias-input"
+- inputText: "demoalias"
 
-# Modal "¡TODO LISTO!" — tap explícito o cierre automático (~5s).
-- extendedWaitUntil:
-    visible:
-      id: "device-registration-success-continue"
-    timeout: 6000
-    optional: true
+- tapOn:
+    id: "register-alias-continue"
 
-- runFlow:
-    when:
-      visible:
-        id: "device-registration-success-continue"
-    commands:
-      - tapOn:
-          id: "device-registration-success-continue"
-
-# Oferta de biometría (si no hay huella registrada ni declinación previa).
+# Modal de éxito (~5s) o cierre manual; luego oferta biométrica o Inicio
 - extendedWaitUntil:
     visible:
       id: "biometric-offer-screen"
     timeout: 20000
-    optional: true
 
-- runFlow:
-    when:
-      visible:
-        id: "biometric-offer-screen"
-    commands:
-      - tapOn:
-          id: "biometric-offer-skip"
+- tapOn:
+    id: "biometric-offer-skip"
 
 - extendedWaitUntil:
     visible:

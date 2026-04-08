@@ -2,6 +2,18 @@ import {mapOtpContentToEntity} from '../../../src/data/mappers/OtpMapper';
 import {mapBeneficiaryContactsContentToEntities} from '../../../src/data/mappers/beneficiaryMapper';
 import {mapContractBalanceContentToEntity} from '../../../src/data/mappers/contractBalanceMapper';
 
+function mockBeneficiary(suffix: string) {
+  return {
+    beneficiaryGuid: `ben-${suffix}`,
+    contactName: 'Nombre',
+    bankName: 'BB',
+    accountType: 'savings',
+    accountTypeLabel: 'Ahorros',
+    beneficiaryAccountNumber: '****0000',
+    lastFourDigits: '0000',
+  };
+}
+
 describe('OtpMapper', () => {
   test('mapOtpContentToEntity maps userMessage to entity message', () => {
     expect(mapOtpContentToEntity({userMessage: 'Listo'})).toEqual({
@@ -18,9 +30,9 @@ describe('beneficiaryMapper', () => {
           beneficiaryGuid: 'g1',
           contactName: 'Luis',
           bankName: 'BB',
-          accountType: 'checking',
+          accountType: '2',
           accountTypeLabel: 'Corriente',
-          beneficiaryAccountNumber: '0000000000',
+          beneficiaryAccountNumber: '****9999',
           lastFourDigits: '9999',
         },
       ],
@@ -31,9 +43,9 @@ describe('beneficiaryMapper', () => {
         beneficiaryGuid: 'g1',
         contactName: 'Luis',
         bankName: 'BB',
-        accountType: 'checking',
+        accountType: '2',
         accountTypeLabel: 'Corriente',
-        beneficiaryAccountNumber: '0000000000',
+        beneficiaryAccountNumber: '****9999',
         lastFourDigits: '9999',
       },
     ]);
@@ -48,49 +60,25 @@ describe('contractBalanceMapper', () => {
           accountGuid: 'a1',
           maskedAccountNumber: '****1111',
           accountType: 'savings',
-          accountTypeLabel: 'Ahorros',
+          accountTypeLabel: 'Cta. Ahorros',
           balance: 10,
-          beneficiary: {
-            beneficiaryGuid: 'b1',
-            contactName: 'X',
-            bankName: 'BB',
-            accountType: 'savings',
-            accountTypeLabel: 'Ahorros',
-            beneficiaryAccountNumber: '0000000000',
-            lastFourDigits: '1111',
-          },
+          beneficiary: mockBeneficiary('a1'),
         },
         {
           accountGuid: 'a2',
           maskedAccountNumber: '****2222',
           accountType: 'checking',
-          accountTypeLabel: 'Corriente',
+          accountTypeLabel: 'Cta. corriente',
           balance: 20,
-          beneficiary: {
-            beneficiaryGuid: 'b2',
-            contactName: 'X',
-            bankName: 'BB',
-            accountType: 'checking',
-            accountTypeLabel: 'Corriente',
-            beneficiaryAccountNumber: '0000000000',
-            lastFourDigits: '2222',
-          },
+          beneficiary: mockBeneficiary('a2'),
         },
         {
           accountGuid: 'a3',
           maskedAccountNumber: '****3333',
           accountType: 'other',
-          accountTypeLabel: 'Otra',
+          accountTypeLabel: 'Cuenta',
           balance: 30,
-          beneficiary: {
-            beneficiaryGuid: 'b3',
-            contactName: 'X',
-            bankName: 'BB',
-            accountType: 'other',
-            accountTypeLabel: 'Otra',
-            beneficiaryAccountNumber: '0000000000',
-            lastFourDigits: '3333',
-          },
+          beneficiary: mockBeneficiary('a3'),
         },
       ],
       creditCards: [
@@ -133,5 +121,8 @@ describe('contractBalanceMapper', () => {
     expect(entity.loans[0].loanGuid).toBe('l1');
     expect(entity.investments[0].currency).toBe('USD');
     expect(entity.frequentPayments[0].beneficiaryName).toBe('Servicio');
+    expect(entity.banners).toEqual([]);
+    expect(entity.homeDashboardIcons).toEqual([]);
+    expect(entity.recentTransactions).toEqual([]);
   });
 });

@@ -18,9 +18,8 @@ import {Button, ErrorMessage} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
 import {mapBiometricError} from './useLoginViewModel';
-import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
 
-const BIOMETRIC_HERO_ICON_SIZE = 76;
+const fingerprintIcon = require('../../../assets/images/fingerprint.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 const shieldKeyholeIcon = require('../../../assets/images/shield-keyhole.png');
 
@@ -36,6 +35,9 @@ export function BiometricOfferScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const trimmedEmail = email.trim();
+
+  const biometricHeroIcon =
+    Platform.OS === 'ios' ? faceViewfinderIcon : fingerprintIcon;
 
   const heroAccessibilityLabel =
     Platform.OS === 'ios'
@@ -77,31 +79,24 @@ export function BiometricOfferScreen() {
         showsVerticalScrollIndicator={false}>
         <View style={styles.contentColumn}>
           <View style={styles.iconCircle}>
-            {Platform.OS === 'ios' ? (
-              <Image
-                source={faceViewfinderIcon}
-                style={styles.iconInner}
-                resizeMode="contain"
-                accessibilityIgnoresInvertColors
-                accessibilityLabel={heroAccessibilityLabel}
-              />
-            ) : (
-              <FingerprintSvg
-                width={BIOMETRIC_HERO_ICON_SIZE}
-                height={BIOMETRIC_HERO_ICON_SIZE}
-                color={colors.primary}
-                accessibilityLabel={heroAccessibilityLabel}
-              />
-            )}
+            <Image
+              source={biometricHeroIcon}
+              style={styles.iconInner}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+              accessibilityLabel={heroAccessibilityLabel}
+            />
           </View>
 
-          <Text style={styles.title}>Activa tu acceso biométrico</Text>
-          <Text style={styles.body}>
-            Accede de forma más rápida y segura con tu huella digital o
-            reconocimiento facial. Podrás realizar transacciones y consultas al
-            instante.
+          <Text style={styles.title}>
+            Activa tu acceso{'\n'}biométrico
           </Text>
-
+          <Text style={styles.body}>
+            {/* Accede de forma más rápida y segura con tu huella digital o
+            reconocimiento facial. Podrás realizar transacciones y consultas al
+            instante. */}
+            Accede de forma más rápida y segura con tu huella digital o reconocimiento facial.
+          </Text>
           {error ? (
             <ErrorMessage message={error} style={styles.errorBanner} />
           ) : null}
@@ -168,29 +163,18 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.white,
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 28,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 4},
-              shadowOpacity: 1,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 4,
-            },
-          }),
+          marginBottom: 8,
         },
         iconInner: {
-          width: BIOMETRIC_HERO_ICON_SIZE,
-          height: BIOMETRIC_HERO_ICON_SIZE,
+          width: 76,
+          height: 76,
         },
         title: {
           fontFamily: Lexend.regular,
-          fontSize: 28,
-          lineHeight: 42,
+          fontSize: 20,
+          lineHeight: 28,
           color: colors.textPrimary,
-          marginBottom: 12,
+          marginBottom: 26,
           textAlign: 'center',
         },
         body: {
@@ -212,7 +196,7 @@ function useStyles(colors: ThemeColors) {
         },
         skipPressable: {
           alignSelf: 'center',
-          paddingVertical: 12,
+          paddingVertical: 8,
           paddingHorizontal: 8,
         },
         skipLabel: {
@@ -223,7 +207,7 @@ function useStyles(colors: ThemeColors) {
           textAlign: 'center',
         },
         footerNote: {
-          marginTop: 16,
+          marginTop: 8,
           fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 20,

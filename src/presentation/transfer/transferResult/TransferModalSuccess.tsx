@@ -1,13 +1,20 @@
-import {Modal, Text, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {
+    Modal,
+    Text,
+    StyleSheet,
+    View,
+    TouchableOpacity, Platform, BackHandler,
+} from 'react-native';
 import {ThemeColors, useTheme} from '../../../providers';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {CardAccountItem} from '../components/CardAccountItem.tsx';
 import {BeneficiaryOption} from '../../beneficiary/transferTypes.ts';
 import {Lexend} from '../../../theme/lexend.ts';
-import {TransactionHeaderInformation} from '../components/TransactionHeaderInformation.tsx';
-import {CardViewContainer} from '../components/CardViewContainer.tsx';
-import {VoucherConceptRow} from '../components/VoucherConceptRow.tsx';
+import {TransactionHeaderInformation} from "../components/TransactionHeaderInformation.tsx";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {TransferStackParamList} from "../../../navigation/TransferStackNavigator.tsx";
 
 interface TransferModalSuccessProps {
     visible: boolean;
@@ -27,11 +34,8 @@ export interface TransferDataResume {
     accountId: string;
     concept: string;
     transactionIdentifier: string;
+    /** Fecha mostrada en el comprobante; si no se envía, se usa la fecha actual. */
     voucherDisplayDate?: string;
-    toAccountSubtitle: string;
-    toAccountTitle: string;
-    fromAccountTitle:string;
-    fromAccountSubtitle:string;
 }
 
 export const TransferModalSuccess = ({
@@ -40,13 +44,12 @@ export const TransferModalSuccess = ({
                                          navigateToTransfer,
                                          navigateToHome,
                                          transactionData,
-                                         openVoucher,
+                                         openVoucher
                                      }: TransferModalSuccessProps) => {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
-    const showConcept =
-        transactionData.concept != null && transactionData.concept.trim() !== '';
+
 
     return (
         <Modal
@@ -69,27 +72,22 @@ export const TransferModalSuccess = ({
                     ]}
                     testID="transfer-success-modal">
                     <View style={styles.sheetInner}>
-                        <CardViewContainer>
+                        <View style={styles.cardInfoContainer}>
                             <TransactionHeaderInformation transferResume={transactionData}/>
                             <View style={styles.accountsBlock}>
                                 <CardAccountItem
                                     origin="Desde"
-                                    accountType={transactionData.fromHolderName}
-                                    name={transactionData.fromAccountLine}
+                                    accountType={transactionData.fromAccountLine}
+                                    name={transactionData.fromHolderName}
                                     showBottomBorder
-                                    icon="wallet"
                                 />
                                 <CardAccountItem
-                                    origin="Hacia"
-                                    accountType={transactionData.beneficiary.name}
-                                    name={transactionData.beneficiary.accountHint}
-                                    icon="user"
+                                    origin="Para"
+                                    accountType={transactionData.beneficiary.accountHint}
+                                    name={transactionData.beneficiary.name}
                                 />
                             </View>
-                            {showConcept ? (
-                                <VoucherConceptRow concept={transactionData.concept.trim()}/>
-                            ) : null}
-                        </CardViewContainer>
+                        </View>
 
                         <View style={styles.buttonContainer}>
                             <TouchableOpacity
@@ -153,6 +151,14 @@ function useStyles(colors: ThemeColors) {
                 },
                 accountsBlock: {
                     width: '100%',
+                },
+                cardInfoContainer: {
+                    backgroundColor: colors.surface,
+                    borderRadius: 12,
+                    padding: 12,
+                    width: '100%',
+                    maxWidth: 312,
+                    gap: 24,
                 },
                 buttonContainer: {
                     width: '100%',

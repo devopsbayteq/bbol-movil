@@ -3,8 +3,63 @@ import ReactTestRenderer, {act} from 'react-test-renderer';
 import type {ReactTestRendererJSON} from 'react-test-renderer';
 import {ActivityIndicator, RefreshControl, Text, TouchableOpacity} from 'react-native';
 import {HomeScreen} from '../../../src/presentation/home/HomeScreen';
+import {
+  FALLBACK_HOME_BANNERS,
+  FALLBACK_HOME_FREQUENT_PAYMENTS,
+  MOCK_RECENT_ACTIVITY,
+  MOCK_UPCOMING_PAYMENTS_SUMMARY,
+} from '../../../src/presentation/home/homeDashboardMocks';
+
+const emptyBalance = {
+  accounts: [] as [],
+  creditCards: [] as [],
+  loans: [] as [],
+  investments: [] as [],
+  frequentPayments: [] as [],
+  banners: [] as [],
+  homeDashboardIcons: [] as [],
+  recentTransactions: [] as [],
+};
 
 const mockUseHomeViewModel = jest.fn();
+
+function buildHomeVm(overrides: {
+  data?: typeof emptyBalance | Record<string, unknown> | null;
+  isLoading?: boolean;
+  isRefreshing?: boolean;
+  error?: string | null;
+  refresh?: jest.Mock;
+  retry?: jest.Mock;
+}) {
+  const refresh = overrides.refresh ?? jest.fn();
+  const retry = overrides.retry ?? jest.fn();
+  const data = overrides.data ?? null;
+  const base = {
+    data,
+    isLoading: overrides.isLoading ?? false,
+    isRefreshing: overrides.isRefreshing ?? false,
+    error: overrides.error ?? '',
+    refresh,
+    retry,
+    bannersForHome: [] as unknown[],
+    frequentPaymentsForHome: [] as unknown[],
+    upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
+    recentActivityItems: MOCK_RECENT_ACTIVITY,
+  };
+  if (data && typeof data === 'object' && 'banners' in data) {
+    const d = data as {
+      banners?: unknown[];
+      frequentPayments?: unknown[];
+    };
+    base.bannersForHome =
+      d.banners && d.banners.length > 0 ? d.banners : FALLBACK_HOME_BANNERS;
+    base.frequentPaymentsForHome =
+      d.frequentPayments && d.frequentPayments.length > 0
+        ? d.frequentPayments
+        : FALLBACK_HOME_FREQUENT_PAYMENTS;
+  }
+  return base;
+}
 
 /** Evita JSON.stringify sobre el árbol (p. ej. RefreshControl puede introducir referencias circulares). */
 function renderedText(
@@ -65,14 +120,6 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-const emptyBalance = {
-  accounts: [] as [],
-  creditCards: [] as [],
-  loans: [] as [],
-  investments: [] as [],
-  frequentPayments: [] as [],
-};
-
 describe('HomeScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -80,14 +127,9 @@ describe('HomeScreen', () => {
   });
 
   test('muestra el indicador de carga cuando isLoading es true', async () => {
-    mockUseHomeViewModel.mockReturnValue({
-      data: null,
-      isLoading: true,
-      isRefreshing: false,
-      error: null,
-      refresh: jest.fn(),
-      retry: jest.fn(),
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({data: null, isLoading: true, error: ''}),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -101,14 +143,9 @@ describe('HomeScreen', () => {
 
   test('muestra error y Reintentar cuando hay fallo', async () => {
     const retry = jest.fn();
-    mockUseHomeViewModel.mockReturnValue({
-      data: emptyBalance,
-      isLoading: false,
-      isRefreshing: false,
-      error: 'Error de red',
-      refresh: jest.fn(),
-      retry,
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({data: emptyBalance, error: 'Error de red', retry}),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -121,29 +158,26 @@ describe('HomeScreen', () => {
   });
 
   test('muestra secciones y productos cuando hay datos', async () => {
-    mockUseHomeViewModel.mockReturnValue({
-      data: {
-        accounts: [
-          {
-            accountGuid: 'a1',
-            maskedAccountNumber: '****4242',
-            accountKind: 'savings' as const,
-            balance: 1500,
-          },
-        ],
-        creditCards: [],
-        loans: [],
-        investments: [],
-        frequentPayments: [
-          {beneficiaryName: 'Pago luz', beneficiaryType: 'servicio luz'},
-        ],
-      },
-      isLoading: false,
-      isRefreshing: false,
-      error: null,
-      refresh: jest.fn(),
-      retry: jest.fn(),
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({
+        data: {
+          accounts: [
+            {
+              accountGuid: 'a1',
+              maskedAccountNumber: '****4242',
+              accountKind: 'savings' as const,
+              balance: 1500,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+        },
+      }),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -152,22 +186,18 @@ describe('HomeScreen', () => {
 
     const flat = renderedText(root!.toJSON());
     expect(flat).toContain('Cuentas');
-    expect(flat).toContain('Pagos frecuentes');
+    expect(flat).toContain('Acciones frecuentes');
     expect(flat).toContain('****4242');
     expect(flat).toContain('Pago luz');
+    expect(flat).toContain('Actividad reciente');
   });
 
   test('refreshHome en params dispara refresh y limpia el parámetro', async () => {
     const refresh = jest.fn().mockResolvedValue(undefined);
     mockUseRoute.mockReturnValue({params: {refreshHome: 42}});
-    mockUseHomeViewModel.mockReturnValue({
-      data: emptyBalance,
-      isLoading: false,
-      isRefreshing: false,
-      error: null,
-      refresh,
-      retry: jest.fn(),
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({data: emptyBalance, refresh}),
+    );
 
     await act(async () => {
       ReactTestRenderer.create(<HomeScreen />);
@@ -178,26 +208,25 @@ describe('HomeScreen', () => {
   });
 
   test('muestra tarjetas de crédito en filtro Tarjetas', async () => {
-    mockUseHomeViewModel.mockReturnValue({
-      data: {
-        accounts: [],
-        creditCards: [
-          {
-            maskedCardNumber: '****9999',
-            totalDue: 50,
-            maxPaymentDate: '2026-05-01',
-          },
-        ],
-        loans: [],
-        investments: [],
-        frequentPayments: [],
-      },
-      isLoading: false,
-      isRefreshing: false,
-      error: null,
-      refresh: jest.fn(),
-      retry: jest.fn(),
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({
+        data: {
+          accounts: [],
+          creditCards: [
+            {
+              maskedCardNumber: '****9999',
+              totalDue: 50,
+              maxPaymentDate: '2026-05-01',
+            },
+          ],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+        },
+      }),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -226,14 +255,9 @@ describe('HomeScreen', () => {
 
   test('Reintentar llama a retry del view model', async () => {
     const retry = jest.fn();
-    mockUseHomeViewModel.mockReturnValue({
-      data: emptyBalance,
-      isLoading: false,
-      isRefreshing: false,
-      error: 'fallo',
-      refresh: jest.fn(),
-      retry,
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({data: emptyBalance, error: 'fallo', retry}),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -258,14 +282,9 @@ describe('HomeScreen', () => {
 
   test('pull-to-refresh invoca refresh', async () => {
     const refresh = jest.fn();
-    mockUseHomeViewModel.mockReturnValue({
-      data: emptyBalance,
-      isLoading: false,
-      isRefreshing: true,
-      error: null,
-      refresh,
-      retry: jest.fn(),
-    });
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({data: emptyBalance, isRefreshing: true, refresh}),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
@@ -279,62 +298,54 @@ describe('HomeScreen', () => {
     expect(refresh).toHaveBeenCalled();
   });
 
-  test('muestra préstamos en filtro Préstamos', async () => {
-    mockUseHomeViewModel.mockReturnValue({
-      data: {
-        accounts: [],
-        creditCards: [],
-        loans: [
-          {
-            loanGuid: 'lg1',
-            outstandingBalance: 1000,
-            nextInstallmentAmount: 50,
-            nextInstallmentDate: '2026-06-01',
-          },
-        ],
-        investments: [],
-        frequentPayments: [],
-      },
-      isLoading: false,
-      isRefreshing: false,
-      error: null,
-      refresh: jest.fn(),
-      retry: jest.fn(),
-    });
+  test('muestra créditos en filtro Créditos', async () => {
+    mockUseHomeViewModel.mockReturnValue(
+      buildHomeVm({
+        data: {
+          accounts: [],
+          creditCards: [],
+          loans: [
+            {
+              loanGuid: 'lg1',
+              outstandingBalance: 1000,
+              nextInstallmentAmount: 50,
+              nextInstallmentDate: '2026-06-01',
+            },
+          ],
+          investments: [],
+          frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+        },
+      }),
+    );
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
       root = ReactTestRenderer.create(<HomeScreen />);
     });
 
-    const prestamosTab = root!.root
+    const creditosTab = root!.root
       .findAllByType(TouchableOpacity as never)
       .find(inst => {
         try {
-          return inst.findByType(Text as never).props.children === 'Préstamos';
+          return inst.findByType(Text as never).props.children === 'Créditos';
         } catch {
           return false;
         }
       });
-    expect(prestamosTab).toBeDefined();
+    expect(creditosTab).toBeDefined();
     await act(async () => {
-      prestamosTab!.props.onPress();
+      creditosTab!.props.onPress();
     });
     const flat = renderedText(root!.toJSON());
     expect(flat).toContain('Préstamo');
-    expect(flat).toContain('Saldo pendiente');
-    expect(flat).toMatch(/1[.,\s]000/);
+    expect(flat).toContain('Cuota');
+    expect(flat).toContain('$**.**');
   });
 
   test('muestra mensaje vacío cuando no hay productos en el filtro', async () => {
-    mockUseHomeViewModel.mockReturnValue({
-      data: emptyBalance,
-      isLoading: false,
-      isRefreshing: false,
-      error: null,
-      refresh: jest.fn(),
-      retry: jest.fn(),
-    });
+    mockUseHomeViewModel.mockReturnValue(buildHomeVm({data: emptyBalance}));
 
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {

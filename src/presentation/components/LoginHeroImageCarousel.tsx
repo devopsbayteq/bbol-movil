@@ -15,7 +15,7 @@ const FADE_MS = 700;
 export interface LoginHeroImageCarouselProps {
   sourceA: ImageSourcePropType;
   sourceB: ImageSourcePropType;
-  /** Altura fija del área de ilustración. */
+  /** Altura del contenedor; las imágenes usan `resizeMode="contain"` para caber sin recortes. */
   height?: number;
 }
 
@@ -72,15 +72,13 @@ export function LoginHeroImageCarousel({
       <Animated.Image
         source={sourceA}
         style={[styles.image, {opacity: opacity0}]}
-        resizeMode="none"
-        height={height}
+        resizeMode="contain"
         accessibilityIgnoresInvertColors
       />
       <Animated.Image
         source={sourceB}
         style={[styles.image, {opacity: opacity1}]}
-        resizeMode="none"
-        height={height}
+        resizeMode="contain"
         accessibilityIgnoresInvertColors
       />
     </View>
@@ -93,6 +91,7 @@ function useCarouselStyles(colors: ThemeColors, height: number) {
       StyleSheet.create({
         root: {
           alignSelf: 'stretch',
+          width: '100%',
           height,
           borderRadius: 16,
           overflow: 'hidden',
@@ -100,6 +99,8 @@ function useCarouselStyles(colors: ThemeColors, height: number) {
         },
         image: {
           ...StyleSheet.absoluteFillObject,
+          width: '100%',
+          height: '100%',
         },
       }),
     [colors.background, height],

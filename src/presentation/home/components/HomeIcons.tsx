@@ -1,5 +1,9 @@
 import React from 'react';
+import {Image, StyleSheet, View} from 'react-native';
 import Svg, {Path, G} from 'react-native-svg';
+
+const ARROW_RIGHT_BLACK = require('../../../../assets/images/arrow_right_black.png');
+const BANK_PNG = require('../../../../assets/images/frequent_payments/bank.png');
 
 type IconProps = {color: string; size?: number};
 
@@ -84,10 +88,68 @@ export function CalendarIcon({color, size = 20}: IconProps) {
 
 export function ChevronRightIcon({color, size = 16}: IconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 320 512">
+    <Image
+      source={ARROW_RIGHT_BLACK}
+
+    
+      accessibilityIgnoresInvertColors
+    />
+  );
+}
+
+/**
+ * Círculo con fondo (`color`) e icono `bank.png`.
+ * `size` es el diámetro del círculo (p. ej. 44).
+ */
+export function BankBuildingIcon({color, size = 44}: IconProps) {
+  const inner = Math.round(size * 0.6);
+  return (
+    <View
+      style={[
+        bankBuildingStyles.circle,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: color,
+        },
+      ]}>
+      <Image
+        source={BANK_PNG}
+        style={{width: inner, height: inner}}
+        resizeMode="contain"
+        accessibilityIgnoresInvertColors
+      />
+    </View>
+  );
+}
+
+const bankBuildingStyles = StyleSheet.create({
+  circle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+/** Tarjeta — resumen de pagos próximos. */
+export function CreditCardOutlineIcon({color, size = 22}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"
+        d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"
+      />
+    </Svg>
+  );
+}
+
+/** Lista con viñetas — cabecera actividad reciente. */
+export function ListBulletsIcon({color, size = 20}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M4 6h2v2H4V6zm0 5h2v2H4v-2zm0 5h2v2H4v-2zM8 7h12v2H8V7zm0 5h12v2H8v-2zm0 5h12v2H8v-2z"
       />
     </Svg>
   );

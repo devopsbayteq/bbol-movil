@@ -1,4 +1,11 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {View, StyleSheet, Alert, ActivityIndicator, AppState} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -19,10 +26,18 @@ import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 export function LoginScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {login, consumeSuppressCompactLoginAutoBiometricOnce} = useAuth();
-  const [suppressAutoBiometricPromptOnce] = useState(() =>
-    consumeSuppressCompactLoginAutoBiometricOnce(),
-  );
+  const {login, suppressCompactAutoBiometricGeneration} = useAuth();
+  const [suppressAutoBiometricPromptOnce, setSuppressAutoBiometricPromptOnce] =
+    useState(false);
+  const lastHandledSuppressGenerationRef = useRef(0);
+
+  useLayoutEffect(() => {
+    const gen = suppressCompactAutoBiometricGeneration;
+    if (gen > lastHandledSuppressGenerationRef.current) {
+      lastHandledSuppressGenerationRef.current = gen;
+      setSuppressAutoBiometricPromptOnce(true);
+    }
+  }, [suppressCompactAutoBiometricGeneration]);
   const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
@@ -34,6 +49,8 @@ export function LoginScreen() {
   );
   const [deviceBoundGreetingName, setDeviceBoundGreetingName] =
     useState<string>('');
+  const [deviceBoundGreetingFirstName, setDeviceBoundGreetingFirstName] =
+    useState<string>('');
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -43,15 +60,19 @@ export function LoginScreen() {
   }, []);
 
   const loadDeviceBoundProfile = useCallback(async () => {
-    const [id, name] = await Promise.all([
+    const [id, name, firstName] = await Promise.all([
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+      secureStorageService.get(
+        SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      ),
     ]);
     if (!isMountedRef.current) {
       return;
     }
     setDeviceBoundLoginId(id?.trim() ?? '');
     setDeviceBoundGreetingName(name?.trim() ?? '');
+    setDeviceBoundGreetingFirstName(firstName?.trim() ?? '');
   }, [secureStorageService]);
 
   const loadBiometricAvailability = useCallback(async () => {
@@ -118,7 +139,9 @@ export function LoginScreen() {
         mode: 'login',
         user,
         email: user.email,
-        ...(isDeviceBoundCredentialsFlow ? {skipRegisterAlias: true} : {}),
+        ...(isDeviceBoundCredentialsFlow || user.alias != null
+          ? {skipRegisterAlias: true}
+          : {}),
       });
     },
     user => {
@@ -150,11 +173,15 @@ export function LoginScreen() {
     await Promise.allSettled([
       secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
       secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+      secureStorageService.remove(
+        SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      ),
       // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
       secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED),
     ]);
     setDeviceBoundLoginId('');
     setDeviceBoundGreetingName('');
+    setDeviceBoundGreetingFirstName('');
     setShowBiometricLogin(false);
     resetForDifferentUser();
   };
@@ -186,6 +213,7 @@ export function LoginScreen() {
               />
             ) : showCompactLayout ? (
               <CompactLoginContent
+                greetingFirstName={deviceBoundGreetingFirstName}
                 greetingName={compactGreetingName}
                 password={password}
                 passwordError={passwordError}

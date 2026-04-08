@@ -7,6 +7,7 @@ import {
   Pressable,
   ActivityIndicator,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import {getVersion, getBuildNumber} from 'react-native-device-info';
 
@@ -24,15 +25,17 @@ import {Lexend} from '../../theme/lexend';
 import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
 import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
 
-const bankBanner = require('../../../assets/images/BBBanner.png');
+// const bankBanner = require('../../../assets/images/BBBanner.png');
+const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const institutionIcon = require('../../../assets/images/institution.png');
-const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
+const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 
 const LOGIN_SUBMIT_ICON_SIZE = 24;
-const SUBMIT_SQUARE_SIZE = 56;
+const SUBMIT_SQUARE_SIZE_WIDTH = 60;
+const SUBMIT_SQUARE_SIZE_HEIGHT = 52;
 const BIOMETRIC_ICON_SIZE = 24;
 const IS_IOS = Platform.OS === 'ios';
 const BIOMETRIC_LABEL = IS_IOS ? 'Face ID' : 'Huella';
@@ -40,8 +43,14 @@ const BIOMETRIC_ACCESSIBILITY_LABEL = IS_IOS
   ? 'Iniciar sesión con Face ID'
   : 'Iniciar sesión con huella';
 const AUTO_BIOMETRIC_PROMPT_DELAY_MS = 250;
+/** Mismo `paddingHorizontal` que `LoginScreen` scrollContent (24 + 24). */
+const LOGIN_SCREEN_HORIZONTAL_INSET = 48;
+/** `maxWidth` de `contentColumn` en LoginScreen. */
+const LOGIN_CONTENT_MAX_WIDTH = 400;
 
 export interface CompactLoginContentProps {
+  /** Nombre de pila del API; si está vacío no se muestra prefijo en el saludo. */
+  greetingFirstName?: string;
   greetingName: string;
   password: string;
   passwordError: string | null;
@@ -59,6 +68,7 @@ export interface CompactLoginContentProps {
 }
 
 export function CompactLoginContent({
+  greetingFirstName = '',
   greetingName,
   password,
   passwordError,
@@ -74,6 +84,15 @@ export function CompactLoginContent({
   onChangeUser,
 }: CompactLoginContentProps) {
   const {colors} = useTheme();
+  const {width: windowWidth} = useWindowDimensions();
+  const heroCarouselWidth = Math.min(
+    windowWidth - LOGIN_SCREEN_HORIZONTAL_INSET,
+    LOGIN_CONTENT_MAX_WIDTH,
+  );
+  const heroHeight = Math.max(
+    160,
+    Math.min(230, Math.round(heroCarouselWidth * 0.55)),
+  );
   const styles = useStyles(colors);
   const [devNoticeVisible, setDevNoticeVisible] = useState(false);
   const autoBiometricTriggeredRef = useRef(false);
@@ -116,9 +135,23 @@ export function CompactLoginContent({
   }, []);
 
   const notYouTitle = useMemo(
-    () => `¿No eres ${greetingName}?`,
-    [greetingName],
+    () => {
+      const first = greetingFirstName.trim();
+      if (!first) {
+        return `¿No eres ${greetingName}?`;
+      }
+      return `¿No eres ${first}?`;
+    },
+    [greetingFirstName, greetingName],
   );
+
+  const welcomeBoldName = useMemo(() => {
+    const first = greetingFirstName.trim();
+    if (!first) {
+      return greetingName;
+    }
+    return `${first}`;
+  }, [greetingFirstName, greetingName]);
 
   const loginSubmitDisabled = isBusy || isLoadingLogin;
 
@@ -126,7 +159,7 @@ export function CompactLoginContent({
     <View style={styles.column}>
       <View style={styles.topRow}>
         <Image
-          source={bankBanner}
+          source={bankBannerTwoLines}
           style={styles.bankLogo}
           resizeMode="contain"
           accessibilityLabel="Banco Bolivariano"
@@ -137,13 +170,15 @@ export function CompactLoginContent({
         <LoginHeroImageCarousel
           sourceA={heroLoginA}
           sourceB={heroLoginB}
-          height={210}
+          height={heroHeight}
         />
       </View>
 
       <Text style={styles.welcomeLine} accessibilityRole="text">
-        <Text style={styles.welcomePrefix}>Bienvenido a tu banca móvil, </Text>
-        <Text style={styles.welcomeName}>{greetingName}</Text>
+        <Text style={styles.welcomePrefix}>Bienvenido a tu banca </Text>
+        {'\n'}
+        <Text style={styles.welcomePrefix}>móvil, </Text>
+        <Text style={styles.welcomeName}>{welcomeBoldName}</Text>
       </Text>
 
       <View style={styles.inputs}>
@@ -249,7 +284,7 @@ export function CompactLoginContent({
           pressed && styles.productCardPressed,
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Solicita un producto">
+        accessibilityLabel="Solicitar productos">
         <View style={styles.productIconCircle}>
           <Image
             source={institutionIcon}
@@ -258,7 +293,7 @@ export function CompactLoginContent({
             accessibilityIgnoresInvertColors
           />
         </View>
-        <Text style={styles.productCardTitle}>Solicita un producto</Text>
+        <Text style={styles.productCardTitle}>Solicitar productos</Text>
         <View style={styles.arrowRightIconWrap}>
           <Image
             source={arrowRightIcon}
@@ -301,12 +336,12 @@ function useStyles(colors: ThemeColors) {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          marginTop: 6,
-          marginBottom: 14,
+          marginTop: 30,
+          marginBottom: 24,
         },
         bankLogo: {
-          width: 196,
-          height: 30,
+          width: 147,
+          height: 41,
         },
         versionText: {
           fontFamily: Lexend.regular,
@@ -322,7 +357,7 @@ function useStyles(colors: ThemeColors) {
         },
         welcomeLine: {
           fontFamily: Lexend.regular,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textSecondary,
           marginBottom: 20,
@@ -330,31 +365,32 @@ function useStyles(colors: ThemeColors) {
         },
         welcomePrefix: {
           fontFamily: Lexend.regular,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textSecondary,
         },
         welcomeName: {
           fontFamily: Lexend.bold,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textPrimary,
         },
         inputs: {
           marginBottom: 12,
+          height: SUBMIT_SQUARE_SIZE_HEIGHT
         },
         passwordRow: {
           flexDirection: 'row',
           alignItems: 'flex-start',
-          gap: 10,
+          gap: 16,
         },
         passwordFieldWrap: {
           flex: 1,
           minWidth: 0,
         },
         submitSquare: {
-          width: SUBMIT_SQUARE_SIZE,
-          height: SUBMIT_SQUARE_SIZE,
+          width: SUBMIT_SQUARE_SIZE_WIDTH,
+          height: SUBMIT_SQUARE_SIZE_HEIGHT,
           borderRadius: 12,
           backgroundColor: colors.primary,
           alignItems: 'center',
@@ -369,7 +405,7 @@ function useStyles(colors: ThemeColors) {
         },
         changeUserLink: {
           alignSelf: 'center',
-          marginTop: 12,
+          marginTop: 8,
           marginBottom: 20,
         },
         errorBanner: {
@@ -381,12 +417,13 @@ function useStyles(colors: ThemeColors) {
           justifyContent: 'center',
           gap: 12,
           paddingVertical: 14,
-          paddingHorizontal: 16,
+          paddingHorizontal: 24,
           borderRadius: 12,
           backgroundColor: colors.borderLight,
           borderWidth: 1,
           borderColor: colors.primary,
-          marginBottom: 8,
+          marginTop: 12,
+          marginBottom: 2,
         },
         biometricButtonDisabled: {
           opacity: 0.6,
@@ -415,7 +452,9 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 14,
           borderRadius: 12,
           backgroundColor: colors.surface,
+          marginTop: 40,
           marginBottom: 8,
+          height: 48,
         },
         productCardPressed: {
           opacity: 0.92,
@@ -434,7 +473,7 @@ function useStyles(colors: ThemeColors) {
         },
         productCardTitle: {
           flex: 1,
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 24,
           color: colors.textPrimary,

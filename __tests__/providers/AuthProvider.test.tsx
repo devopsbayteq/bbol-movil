@@ -75,6 +75,7 @@ describe('AuthProvider', () => {
     const user = {
       id: '1',
       email: 'a@b.com',
+      firstName: 'Ana',
       name: 'Ana',
       token: 'tok',
       sessionExpiresAt: Date.now() + 60_000,
@@ -104,6 +105,10 @@ describe('AuthProvider', () => {
       SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
       'Ana',
     );
+    expect(secureStorage.save).toHaveBeenCalledWith(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      'Ana',
+    );
     expect(ctx?.isAuthenticated).toBe(true);
     expect(ctx?.user).toEqual(user);
   });
@@ -130,6 +135,7 @@ describe('AuthProvider', () => {
       await ctx?.login({
         id: '1',
         email: 'a@b.com',
+        firstName: 'Ana',
         name: 'Ana',
         token: 't',
         sessionExpiresAt: Date.now() + 1000,
@@ -151,7 +157,7 @@ describe('AuthProvider', () => {
     expect(ctx?.isAuthenticated).toBe(false);
   });
 
-  it('logout con suppressCompactLoginAutoBiometricOnce activa el flag hasta consumirlo', async () => {
+  it('logout con suppressCompactLoginAutoBiometricOnce incrementa generation; logout normal la resetea', async () => {
     let ctx: ReturnType<typeof useAuth> | undefined;
     function Read() {
       ctx = useAuth();
@@ -169,14 +175,19 @@ describe('AuthProvider', () => {
       await Promise.resolve();
     });
 
-    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(false);
+    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(0);
 
     await act(async () => {
       await ctx?.logout({suppressCompactLoginAutoBiometricOnce: true});
     });
 
-    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(true);
-    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(false);
+    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(1);
+
+    await act(async () => {
+      await ctx?.logout();
+    });
+
+    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(0);
   });
 
   it('registra listener de AppState que borra USER_LOGIN_DATA al ir a background', async () => {

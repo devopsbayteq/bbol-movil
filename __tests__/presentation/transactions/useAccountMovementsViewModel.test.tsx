@@ -79,6 +79,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -147,6 +150,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -189,6 +195,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -238,6 +247,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -282,6 +294,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -326,6 +341,9 @@ describe('useAccountMovementsViewModel', () => {
             loans: [],
             investments: [],
             frequentPayments: [],
+            banners: [],
+            homeDashboardIcons: [],
+            recentTransactions: [],
           }),
         },
         getAccountMovementsUseCase: {
@@ -395,6 +413,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -421,6 +442,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -523,6 +547,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -561,6 +588,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -602,6 +632,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -640,6 +673,9 @@ describe('useAccountMovementsViewModel', () => {
           loans: [],
           investments: [],
           frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {

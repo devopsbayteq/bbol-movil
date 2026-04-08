@@ -4,51 +4,34 @@ import React, {useMemo} from "react";
 import {ThemeColors, useTheme} from "../../../providers";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Lexend} from "../../../theme/lexend.ts";
-import BackNavigationArrow  from '../../../../assets/images/svg/arrow-back-left.svg'
+
 interface ToolbarAppProps {
-    title?: string;
-    onBackPress?: () => void;
-    titleFont?: 'regular' | 'semibold';
-    showBottomDivider?: boolean;
+    title?: string,
+    onBackPress?: () => void
 }
 
-export const ToolbarApp = ({
-    title = '',
-    onBackPress,
-    titleFont = 'semibold',
-    showBottomDivider = false,
-}: ToolbarAppProps) => {
+export const ToolbarApp = ({title = "", onBackPress}: ToolbarAppProps) => {
+
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
 
     const styles = useStyles(colors);
     return (
-        <View
-            style={[
-                styles.header,
-                {paddingTop: insets.top},
-                showBottomDivider && styles.headerWithDivider,
-            ]}>
+        <View style={[styles.header, {paddingTop: insets.top}]}>
             {onBackPress != null && (
                 <TouchableOpacity
                     onPress={() => {
-                        onBackPress();
+                        onBackPress()
                     }}
-                    style={styles.backBtn}>
-                    <BackNavigationArrow color={colors.iconPrimary} size={20} />
-                </TouchableOpacity>
-            )}
-            <Text
-                style={[
-                    styles.headerTitle,
-                    titleFont === 'regular' && styles.headerTitleRegular,
-                ]}>
-                {title}
-            </Text>
-            <View style={styles.headerRightSpacer} />
+                    style={styles.backBtn}
+                >
+                    <TransferIconArrowLeft color={colors.iconPrimary} size={20}/>
+                </TouchableOpacity>)}
+            <Text style={styles.headerTitle}>{title}</Text>
+            <View style={styles.headerRightSpacer}/>
         </View>
-    );
-};
+    )
+}
 
 function useStyles(colors: ThemeColors) {
     return useMemo(
@@ -62,13 +45,9 @@ function useStyles(colors: ThemeColors) {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    minHeight: 72,
+                    minHeight: 64,
                     paddingHorizontal: 16,
                     backgroundColor: colors.white,
-                },
-                headerWithDivider: {
-                    borderBottomWidth: StyleSheet.hairlineWidth,
-                    borderBottomColor: colors.borderLight,
                 },
                 backBtn: {
                     width: 44,
@@ -83,10 +62,6 @@ function useStyles(colors: ThemeColors) {
                     fontSize: 14,
                     lineHeight: 22,
                     color: colors.textPrimary,
-                },
-                headerTitleRegular: {
-                    fontFamily: Lexend.regular,
-                    fontWeight: '400',
                 },
                 headerRightSpacer: {
                     width: 44,

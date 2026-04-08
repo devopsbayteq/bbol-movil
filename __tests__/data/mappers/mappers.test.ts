@@ -8,18 +8,40 @@ import {mapLoginResponseToUser} from '../../../src/data/mappers/UserMapper';
 describe('data mappers', () => {
   test('mapLoginResponseToUser maps token and derives name from email', () => {
     const result = mapLoginResponseToUser(
-      {accessToken: 'token-123', sessionTimeSeconds: 3600, inactivityTimeoutSeconds: 300},
+      {
+        accessToken: 'token-123',
+        firstName: 'Cliente',
+        sessionTimeSeconds: 3600,
+        inactivityTimeoutSeconds: 300,
+      },
       'cliente@banco.com',
     );
 
     expect(result).toMatchObject({
       id: 'cliente@banco.com',
       email: 'cliente@banco.com',
+      firstName: 'Cliente',
       name: 'cliente',
       token: 'token-123',
       inactivityTimeoutSeconds: 300,
     });
+    expect(result.alias).toBeUndefined();
     expect(typeof result.sessionExpiresAt).toBe('number');
+  });
+
+  test('mapLoginResponseToUser incluye alias cuando el servidor lo envía', () => {
+    const result = mapLoginResponseToUser(
+      {
+        accessToken: 'token-123',
+        firstName: 'Cliente',
+        alias: 'usuario-demo12',
+        sessionTimeSeconds: 3600,
+        inactivityTimeoutSeconds: 300,
+      },
+      'cliente@banco.com',
+    );
+
+    expect(result.alias).toBe('usuario-demo12');
   });
 
   test('mapPublicKeyContentToEntity maps the public key value', () => {

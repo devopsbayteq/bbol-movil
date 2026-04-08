@@ -1,8 +1,6 @@
 appId: com.bbapp
 ---
-# En el mismo dispositivo, tras un login previo la app muestra modo compacto (solo contraseña / biometría).
-# Para E2E que deben usar usuario + contraseña explícitos (p. ej. usuario-demo12), pulsar "Otro usuario"
-# reproduce el flujo de primer ingreso en pantalla (FirstLoginContent).
+# Tras un login previo en el mismo dispositivo la app puede ocultar el campo usuario (modo compacto).
 - tapOn:
     id: "login-change-user"
     optional: true
