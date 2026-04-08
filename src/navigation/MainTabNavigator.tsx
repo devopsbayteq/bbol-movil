@@ -125,7 +125,9 @@ export function MainTabNavigator() {
         options={({route}) => {
           const focused = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
           const hideTabBar =
-            focused === 'CardDetail' || focused === 'InvestmentDetail';
+            focused === 'CardDetail' ||
+            focused === 'InvestmentDetail' ||
+            focused === 'LoanDetail';
           return {
             title: 'Inicio',
             tabBarIcon: tabBarIconHome,

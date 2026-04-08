@@ -268,13 +268,22 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <LoanCard
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              outstandingBalance={loan.outstandingBalance}
-              nextInstallmentAmount={loan.nextInstallmentAmount}
-              nextInstallmentDate={loan.nextInstallmentDate}
-            />
+              onPress={() =>
+                navigation.navigate('LoanDetail', {loanGuid: loan.loanGuid})
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de préstamo">
+              <LoanCard
+                style={styles.cardFill}
+                outstandingBalance={loan.outstandingBalance}
+                nextInstallmentAmount={loan.nextInstallmentAmount}
+                nextInstallmentDate={loan.nextInstallmentDate}
+              />
+            </TouchableOpacity>
           ),
         });
       }

@@ -3,11 +3,13 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {HomeScreen} from '../presentation/home/HomeScreen';
 import {CardDetailScreen} from '../presentation/cardDetail/CardDetailScreen';
 import {InvestmentDetailScreen} from '../presentation/investmentDetail/InvestmentDetailScreen';
+import {LoanDetailScreen} from '../presentation/loanDetail/LoanDetailScreen';
 
 export type HomeStackParamList = {
   HomeMain: {refreshHome?: number} | undefined;
   CardDetail: {maskedCardNumber: string};
   InvestmentDetail: {investmentGuid: string};
+  LoanDetail: {loanGuid: string};
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -25,6 +27,7 @@ export function HomeStackNavigator() {
         name="InvestmentDetail"
         component={InvestmentDetailScreen}
       />
+      <Stack.Screen name="LoanDetail" component={LoanDetailScreen} />
     </Stack.Navigator>
   );
 }
