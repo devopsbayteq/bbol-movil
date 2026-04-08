@@ -20,6 +20,7 @@ describe('data mappers', () => {
     expect(result).toMatchObject({
       id: 'cliente@banco.com',
       email: 'cliente@banco.com',
+      firstName: 'Cliente',
       name: 'cliente',
       token: 'token-123',
       inactivityTimeoutSeconds: 300,

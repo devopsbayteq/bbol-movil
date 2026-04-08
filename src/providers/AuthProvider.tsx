@@ -114,6 +114,10 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
           SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
           greetingName,
         );
+        await secureStorage.save(
+          SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+          user.firstName.trim(),
+        );
       }
       setState({user, isAuthenticated: true, isLoading: false});
     },

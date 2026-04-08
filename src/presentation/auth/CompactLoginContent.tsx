@@ -44,6 +44,8 @@ const BIOMETRIC_ACCESSIBILITY_LABEL = IS_IOS
 const AUTO_BIOMETRIC_PROMPT_DELAY_MS = 250;
 
 export interface CompactLoginContentProps {
+  /** Nombre de pila del API; si está vacío no se muestra prefijo en el saludo. */
+  greetingFirstName?: string;
   greetingName: string;
   password: string;
   passwordError: string | null;
@@ -61,6 +63,7 @@ export interface CompactLoginContentProps {
 }
 
 export function CompactLoginContent({
+  greetingFirstName = '',
   greetingName,
   password,
   passwordError,
@@ -118,9 +121,23 @@ export function CompactLoginContent({
   }, []);
 
   const notYouTitle = useMemo(
-    () => `¿No eres ${greetingName}?`,
-    [greetingName],
+    () => {
+      const first = greetingFirstName.trim();
+      if (!first) {
+        return `¿No eres ${greetingName}?`;
+      }
+      return `¿No eres ${first}?`;
+    },
+    [greetingFirstName, greetingName],
   );
+
+  const welcomeBoldName = useMemo(() => {
+    const first = greetingFirstName.trim();
+    if (!first) {
+      return greetingName;
+    }
+    return `${first}`;
+  }, [greetingFirstName, greetingName]);
 
   const loginSubmitDisabled = isBusy || isLoadingLogin;
 
@@ -144,9 +161,10 @@ export function CompactLoginContent({
       </View>
 
       <Text style={styles.welcomeLine} accessibilityRole="text">
-        <Text style={styles.welcomePrefix}>Bienvenido a tu banca </Text> 
+        <Text style={styles.welcomePrefix}>Bienvenido a tu banca </Text>
         {'\n'}
-        <Text style={styles.welcomePrefix}>móvil, </Text><Text style={styles.welcomeName}>{greetingName}</Text>
+        <Text style={styles.welcomePrefix}>móvil, </Text>
+        <Text style={styles.welcomeName}>{welcomeBoldName}</Text>
       </Text>
 
       <View style={styles.inputs}>
@@ -252,7 +270,7 @@ export function CompactLoginContent({
           pressed && styles.productCardPressed,
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Solicita un producto">
+        accessibilityLabel="Solicitar productos">
         <View style={styles.productIconCircle}>
           <Image
             source={institutionIcon}
@@ -261,7 +279,7 @@ export function CompactLoginContent({
             accessibilityIgnoresInvertColors
           />
         </View>
-        <Text style={styles.productCardTitle}>Solicita un producto</Text>
+        <Text style={styles.productCardTitle}>Solicitar productos</Text>
         <View style={styles.arrowRightIconWrap}>
           <Image
             source={arrowRightIcon}
@@ -373,7 +391,7 @@ function useStyles(colors: ThemeColors) {
         },
         changeUserLink: {
           alignSelf: 'center',
-          marginTop: 12,
+          marginTop: 8,
           marginBottom: 20,
         },
         errorBanner: {
@@ -385,12 +403,13 @@ function useStyles(colors: ThemeColors) {
           justifyContent: 'center',
           gap: 12,
           paddingVertical: 14,
-          paddingHorizontal: 16,
+          paddingHorizontal: 24,
           borderRadius: 12,
           backgroundColor: colors.borderLight,
           borderWidth: 1,
           borderColor: colors.primary,
-          marginBottom: 8,
+          marginTop: 12,
+          marginBottom: 2,
         },
         biometricButtonDisabled: {
           opacity: 0.6,

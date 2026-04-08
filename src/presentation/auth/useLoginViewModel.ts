@@ -268,6 +268,7 @@ export function useLoginViewModel(
       const user: User = {
         id: result.email,
         email: result.email,
+        firstName: '',
         name: result.email.split('@')[0] || 'User',
         token: result.accessToken,
         sessionExpiresAt: Date.now() + 3600 * 1000,

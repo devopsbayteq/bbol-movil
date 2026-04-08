@@ -34,6 +34,8 @@ export function LoginScreen() {
   );
   const [deviceBoundGreetingName, setDeviceBoundGreetingName] =
     useState<string>('');
+  const [deviceBoundGreetingFirstName, setDeviceBoundGreetingFirstName] =
+    useState<string>('');
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -43,15 +45,19 @@ export function LoginScreen() {
   }, []);
 
   const loadDeviceBoundProfile = useCallback(async () => {
-    const [id, name] = await Promise.all([
+    const [id, name, firstName] = await Promise.all([
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
       secureStorageService.get(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+      secureStorageService.get(
+        SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      ),
     ]);
     if (!isMountedRef.current) {
       return;
     }
     setDeviceBoundLoginId(id?.trim() ?? '');
     setDeviceBoundGreetingName(name?.trim() ?? '');
+    setDeviceBoundGreetingFirstName(firstName?.trim() ?? '');
   }, [secureStorageService]);
 
   const loadBiometricAvailability = useCallback(async () => {
@@ -152,11 +158,15 @@ export function LoginScreen() {
     await Promise.allSettled([
       secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_LOGIN_ID),
       secureStorageService.remove(SecureStorageKeys.DEVICE_BOUND_GREETING_NAME),
+      secureStorageService.remove(
+        SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      ),
       // Otro usuario en el mismo dispositivo debe poder ver de nuevo la oferta biométrica.
       secureStorageService.remove(SecureStorageKeys.BIOMETRIC_OFFER_DECLINED),
     ]);
     setDeviceBoundLoginId('');
     setDeviceBoundGreetingName('');
+    setDeviceBoundGreetingFirstName('');
     setShowBiometricLogin(false);
     resetForDifferentUser();
   };
@@ -188,6 +198,7 @@ export function LoginScreen() {
               />
             ) : showCompactLayout ? (
               <CompactLoginContent
+                greetingFirstName={deviceBoundGreetingFirstName}
                 greetingName={compactGreetingName}
                 password={password}
                 passwordError={passwordError}

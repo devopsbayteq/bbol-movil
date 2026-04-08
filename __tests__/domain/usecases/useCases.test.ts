@@ -14,6 +14,7 @@ describe('domain use cases', () => {
     const user = {
       id: 'usuario-demo12',
       email: 'usuario-demo12',
+      firstName: 'Demo',
       name: 'Usuario Demo',
       token: 'jwt-token',
       sessionExpiresAt: Date.now() + 3600 * 1000,

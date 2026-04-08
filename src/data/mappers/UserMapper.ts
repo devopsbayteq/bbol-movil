@@ -8,6 +8,7 @@ export function mapLoginResponseToUser(
   return {
     id: email,
     email,
+    firstName: (model.firstName ?? '').trim(),
     name: email.split('@')[0] || 'User',
     ...(model.alias != null ? {alias: model.alias} : {}),
     token: model.accessToken,

@@ -75,6 +75,7 @@ describe('AuthProvider', () => {
     const user = {
       id: '1',
       email: 'a@b.com',
+      firstName: 'Ana',
       name: 'Ana',
       token: 'tok',
       sessionExpiresAt: Date.now() + 60_000,
@@ -104,6 +105,10 @@ describe('AuthProvider', () => {
       SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
       'Ana',
     );
+    expect(secureStorage.save).toHaveBeenCalledWith(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      'Ana',
+    );
     expect(ctx?.isAuthenticated).toBe(true);
     expect(ctx?.user).toEqual(user);
   });
@@ -130,6 +135,7 @@ describe('AuthProvider', () => {
       await ctx?.login({
         id: '1',
         email: 'a@b.com',
+        firstName: 'Ana',
         name: 'Ana',
         token: 't',
         sessionExpiresAt: Date.now() + 1000,

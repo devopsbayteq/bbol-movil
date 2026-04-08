@@ -174,7 +174,7 @@ export function FirstLoginContent({
           pressed && styles.productCardPressed,
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Solicita un producto">
+        accessibilityLabel="Solicitar productos">
         <View style={styles.productIconCircle}>
           <Image
             source={institutionIcon}
@@ -183,7 +183,7 @@ export function FirstLoginContent({
             accessibilityIgnoresInvertColors
           />
         </View>
-        <Text style={styles.productCardTitle}>Solicita un producto</Text>
+        <Text style={styles.productCardTitle}>Solicitar productos</Text>
         <View style={styles.arrowRightIconWrap}>
           <Image
             source={arrowRightIcon}
