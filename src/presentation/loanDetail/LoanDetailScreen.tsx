@@ -298,6 +298,7 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 24,
           paddingBottom: 32,
           gap: 16,
+          paddingTop: 16,
         },
         centered: {
           flex: 1,
@@ -319,8 +320,8 @@ function useStyles(colors: ThemeColors) {
         },
         headerTitle: {
           flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 14,
+          fontFamily: Lexend.semiBold,
+          letterSpacing: 1,
           color: colors.textPrimary,
           textAlign: 'center',
           textTransform: 'uppercase',
