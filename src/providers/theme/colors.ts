@@ -4,7 +4,6 @@ export interface ThemeColors {
   primary: string;
   primaryLight: string;
   primaryIconContainerBg: string;
-  /** Fondo del bloque superior en pantalla de transferencia (Figma blue-50). */
   transferSectionBg: string;
   textPrimary: string;
   textSecondary: string;

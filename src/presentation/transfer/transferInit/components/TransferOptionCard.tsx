@@ -2,7 +2,7 @@ import React, {useMemo, type ReactNode} from 'react';
 import {Platform, Pressable, StyleSheet, Text, View} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../../providers';
 import {Lexend} from '../../../../theme/lexend.ts';
-import {TransferIconArrowRight} from '../../components/transferIcons.tsx';
+import ArrowTransfer from '../../../../../assets/images/svg/arrow-transfer.svg'
 
 export interface TransferOptionCardProps {
     title: string;
@@ -47,9 +47,8 @@ export function TransferOptionCard({
                         {description}
                     </Text>
                 </View>
-                <TransferIconArrowRight
-                    color={enabled ? colors.iconPrimary : colors.textTertiary}
-                    size={16}
+                <ArrowTransfer
+                    color={colors.primary}
                 />
             </View>
         </Pressable>
@@ -94,8 +93,7 @@ function useStyles(colors: ThemeColors) {
                     alignItems: 'center',
                     gap: 16,
                     padding: 16,
-                    borderRadius: 12,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.background,
                 },
                 iconWrap: {
                     width: 48,

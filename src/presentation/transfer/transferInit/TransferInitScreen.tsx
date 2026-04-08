@@ -8,16 +8,15 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
-import {
-  TransferIconArrowsRetweet,
-  TransferIconUsersGroup,
-} from '../components/transferIcons.tsx';
 import {ThemeColors, useTheme} from '../../../providers';
 import {Lexend} from '../../../theme/lexend.ts';
 import type {TransferStackParamList} from '../../../navigation/TransferStackNavigator.tsx';
 import {useTransferInitViewModel} from './useTransferInitViewModel.tsx';
 import {ErrorBannerComponent} from './components/ErrorBannerComponent.tsx';
 import {TransferOptionCard} from './components/TransferOptionCard.tsx';
+
+import AccountTransferIcon from '../../../../assets/images/svg/arrows-retweet.svg'
+import AccountUserTransferIcon from '../../../../assets/images/svg/users_transfer.svg'
 
 export function TransferInitScreen() {
   const {colors} = useTheme();
@@ -73,7 +72,8 @@ export function TransferInitScreen() {
               }}
               testID="transfer-init-between-accounts"
               leadingIcon={
-                <TransferIconArrowsRetweet color={colors.primary} size={24} />
+                <AccountTransferIcon color={colors.primary}/>
+
               }
             />
             <TransferOptionCard
@@ -83,7 +83,8 @@ export function TransferInitScreen() {
               onPress={() => {}}
               testID="transfer-init-third-party"
               leadingIcon={
-                <TransferIconUsersGroup color={colors.primary} size={24} />
+
+                <AccountUserTransferIcon color={colors.primary} size={24} />
               }
             />
           </View>

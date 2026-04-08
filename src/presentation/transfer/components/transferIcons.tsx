@@ -220,7 +220,6 @@ export function TransferIconCheck({color, size = 22}: IconProps) {
   );
 }
 
-/** Flechas horizontales opuestas (entre cuentas propias). */
 export function TransferIconArrowsRetweet({color, size = 24}: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -234,8 +233,21 @@ export function TransferIconArrowsRetweet({color, size = 24}: IconProps) {
     </Svg>
   );
 }
+export function TransferAccountsIcon({color, size = 24}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+        stroke={color}
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
 
-/** Grupo de personas (a terceros). */
+
 export function TransferIconUsersGroup({color, size = 24}: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
