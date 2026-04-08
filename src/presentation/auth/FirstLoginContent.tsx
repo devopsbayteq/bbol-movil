@@ -156,19 +156,23 @@ export function FirstLoginContent({
           }
           loading={isLoadingLogin}
           disabled={submitDisabled}
-          disabledBackgroundColor={colors.textTertiary}
+          disabledBackgroundColor={"#c8c8c8"}
           variant="loginPrimary"
         />
       </View>
 
-      <View style={styles.actions}>
-        <Button
+      <View style={styles.actionsSecondary}>
+        <Pressable
           testID="login-create-user"
-          title="Crear usuario"
           onPress={showDevelopmentNotice}
-          disabledBackgroundColor={colors.textTertiary}
-          variant="outline"
-        />
+          style={({pressed}) => [
+            styles.createUserLinkHit,
+            pressed && styles.createUserLinkHitPressed,
+          ]}
+          accessibilityRole="link"
+          accessibilityLabel="Crear usuario">
+          <Text style={styles.createUserLinkText}>Crear usuario</Text>
+        </Pressable>
       </View>
 
       <Pressable
@@ -201,7 +205,7 @@ export function FirstLoginContent({
 
       <TertiaryLinkButton
         testID="login-contact-us"
-        title="Contáctate con nosotros"
+        title="¿Necesitas ayuda?"
         onPress={showDevelopmentNotice}
         style={styles.contactLink}
         labelStyle={styles.contactLinkLabel}
@@ -250,14 +254,14 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
           textAlign: 'center',
           paddingTop: 24,
-          paddingBottom: 8,
+          paddingBottom: 25,
           width: '65%',
         },
         heroSubtitle: {
           fontFamily: Lexend.regular,
-          fontSize: 16,
+          fontSize: 17,
           lineHeight: 26,
-          color: colors.textSecondary,
+          color: colors.textTertiary,
           textAlign: 'center',
         },
         inputs: {
@@ -274,6 +278,7 @@ function useStyles(colors: ThemeColors) {
           fontFamily: Lexend.regular,
           fontSize: 14,
           lineHeight: 22,
+          opacity: 0.8,
           color: colors.textSecondary,
         },
         errorBanner: {
@@ -282,6 +287,28 @@ function useStyles(colors: ThemeColors) {
         actions: {
           marginTop: 8,
           gap: 8,
+          marginBottom: 16,
+        },
+        /** Misma caja táctil que `Button` outline (`base`: 14/24, radio 12). */
+        createUserLinkHit: {
+          alignSelf: 'stretch',
+          borderRadius: 12,
+          paddingVertical: 4,
+          paddingHorizontal: 24,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 24
+        },
+        createUserLinkHitPressed: {
+          opacity: 0.85,
+        },
+        createUserLinkText: {
+          fontFamily: Lexend.bold,
+          fontSize: 16,
+          lineHeight: 26,
+          color: colors.linkPrimary,
+        },
+        actionsSecondary: {
           marginBottom: 16,
         },
         footerQuickRow: {
