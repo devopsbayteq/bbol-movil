@@ -3,6 +3,9 @@ export interface AccountBalanceModel {
   maskedAccountNumber: string;
   accountType: number;
   balance: number;
+  maskedAccountHome?: string;
+  accountTypeLabel?: string;
+  accountAlias?: string;
 }
 
 export interface CreditCardBalanceModel {

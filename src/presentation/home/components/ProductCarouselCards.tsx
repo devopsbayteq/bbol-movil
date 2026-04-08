@@ -87,7 +87,7 @@ type SavingsCardProps = {
 
 export function SavingsAccountCard({
   style,
-  title = 'Cta. ahorros',
+  title,
   maskedAccountNumber,
   balance,
 }: SavingsCardProps) {
@@ -579,10 +579,7 @@ export function InvestmentCard({
   const styles = useInvestmentStyles(colors);
   const [masked, setMasked] = useState(true);
 
-  const maskedLine = useMemo(
-    () => formatInvestmentMaskedLine(investmentGuid),
-    [investmentGuid],
-  );
+ 
 
   return (
     <View style={[styles.cardOuter, style]} accessibilityLabel="Inversión">
@@ -598,7 +595,7 @@ export function InvestmentCard({
           <Text style={styles.productTitle} numberOfLines={2}>
             {productName}
           </Text>
-          <Text style={styles.maskedAccount}>{maskedLine}</Text>
+          <Text style={styles.maskedAccount}>{investmentGuid}</Text>
         </View>
         <View style={styles.bottomRow}>
           <View style={styles.balanceCol}>

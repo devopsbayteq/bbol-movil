@@ -5,6 +5,12 @@ export interface AccountBalance {
   maskedAccountNumber: string;
   accountKind: AccountKind;
   balance: number;
+  /** Máscara de cuenta para vistas tipo home (ej. `******0101`). */
+  maskedAccountHome: string;
+  /** Etiqueta legible del tipo de cuenta (ej. `Cta. Ahorros`). */
+  accountTypeLabel: string;
+  /** Alias definido por el cliente (ej. `Gastos`). */
+  accountAlias?: string;
 }
 
 export interface CreditCardBalance {

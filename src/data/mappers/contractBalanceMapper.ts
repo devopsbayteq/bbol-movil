@@ -42,6 +42,9 @@ function mapAccount(model: AccountBalanceModel): AccountBalance {
     maskedAccountNumber: model.maskedAccountNumber,
     accountKind: mapAccountKind(model.accountType),
     balance: model.balance,
+    maskedAccountHome: model.maskedAccountHome,
+    accountTypeLabel: model.accountTypeLabel,
+    accountAlias: model.accountAlias,
   };
 }
 
