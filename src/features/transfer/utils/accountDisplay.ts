@@ -1,4 +1,4 @@
-import type {AccountBalance} from '../domain/entities/ContractBalance';
+import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 
 export function accountProductTitle(account: AccountBalance): string {
   if (account.accountKind === 'savings') {

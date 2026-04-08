@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import type {AccountBalance} from '../domain/entities/ContractBalance';
+import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 import {
     balanceDollarsToCents,
     getLiveTransferAmountError,

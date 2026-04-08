@@ -1,4 +1,4 @@
-import type {ContractBalance} from '../entities/ContractBalance';
+import type {ContractBalance} from '../../../../domain/entities/ContractBalance';
 
 export interface ContractBalanceRepository {
   getHomeBalance(): Promise<ContractBalance>;

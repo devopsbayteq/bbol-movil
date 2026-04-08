@@ -1,4 +1,4 @@
-import type {ContractBalance} from '../entities/ContractBalance';
+import type {ContractBalance} from '../../../../domain/entities/ContractBalance';
 import type {ContractBalanceRepository} from '../repositories/ContractBalanceRepository';
 
 export class GetHomeContractBalanceUseCase {
