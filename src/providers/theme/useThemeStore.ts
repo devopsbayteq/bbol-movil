@@ -3,6 +3,13 @@ import {DarkColors, LightColors, type ThemeColors} from './colors';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
+/**
+ * Si es `true`, con `mode === 'system'` la app **no** sigue el modo oscuro del SO:
+ * siempre usa la paleta clara hasta que el usuario elija explícitamente "oscuro" en la app.
+ * Complementar con apariencia nativa: iOS `UIUserInterfaceStyle` y tema Light en Android.
+ */
+export const IGNORE_SYSTEM_DARK_MODE = true;
+
 interface ThemeState {
   mode: ThemeMode;
   systemIsDark: boolean;
@@ -25,6 +32,9 @@ export const useThemeStore = create<ThemeState>(set => ({
 
 export function resolveIsDark(mode: ThemeMode, systemIsDark: boolean): boolean {
   if (mode === 'system') {
+    if (IGNORE_SYSTEM_DARK_MODE) {
+      return false;
+    }
     return systemIsDark;
   }
   return mode === 'dark';

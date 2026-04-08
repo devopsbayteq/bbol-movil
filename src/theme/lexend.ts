@@ -2,23 +2,24 @@ import {Platform} from 'react-native';
 
 /**
  * Lexend after native linking (`assets/fonts` + `react-native.config.js`).
- * Android: font name matches the `.ttf` filename without extension.
- * iOS: use PostScript/family name from the font; often matches the filename for these assets.
+ * Android: nombre según el `.ttf` sin extensión (`react-native link` / autolinking).
+ * iOS: debe ser el PostScript name dentro del TTF (no el nombre del archivo).
+ * Verificado en assets: Regular → Lexend-Regular, SemiBold → Lexend-SemiBold, Bold → Lexend-Bold.
  */
 export const Lexend = {
   regular: Platform.select({
-    ios: 'Lexend_400Regular',
+    ios: 'Lexend-Regular',
     android: 'Lexend_400Regular',
-    default: 'Lexend_400Regular',
+    default: 'Lexend-Regular',
   }) as string,
   semiBold: Platform.select({
-    ios: 'Lexend_600SemiBold',
+    ios: 'Lexend-SemiBold',
     android: 'Lexend_600SemiBold',
-    default: 'Lexend_600SemiBold',
+    default: 'Lexend-SemiBold',
   }) as string,
   bold: Platform.select({
-    ios: 'Lexend_700Bold',
+    ios: 'Lexend-Bold',
     android: 'Lexend_700Bold',
-    default: 'Lexend_700Bold',
+    default: 'Lexend-Bold',
   }) as string,
 };
