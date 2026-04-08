@@ -8,6 +8,7 @@ import {
   type ViewStyle,
   Platform,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
@@ -24,16 +25,24 @@ function formatShortDueDate(iso: string): string {
   })}`;
 }
 
-function formatInstallmentDate(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return '—';
+/** Máscara tipo Figma (`137*****`) determinista por guid. */
+function formatLoanMaskedLine(loanGuid: string): string {
+  let h = 0;
+  for (let i = 0; i < loanGuid.length; i += 1) {
+    h = (h * 31 + loanGuid.charCodeAt(i)) % 2147483647;
   }
-  return d.toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  const n = 100 + (Math.abs(h) % 900);
+  return `${String(n).padStart(3, '0').slice(0, 3)}*****`;
+}
+
+/** Máscara tipo Figma (`**** *678`) determinista por guid. */
+function formatInvestmentMaskedLine(investmentGuid: string): string {
+  let h = 0;
+  for (let i = 0; i < investmentGuid.length; i += 1) {
+    h = (h * 31 + investmentGuid.charCodeAt(i)) % 2147483647;
+  }
+  const n = 100 + (Math.abs(h) % 900);
+  return `**** *${n}`;
 }
 
 function ShareIcon({color, size = 16}: {color: string; size?: number}) {
@@ -243,43 +252,51 @@ export function CreditCardPreview({
   const [masked, setMasked] = useState(true);
 
   return (
-    <View style={[styles.card, style]}>
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.title}>Tarjeta</Text>
-          <Text style={styles.subtitle}>{maskedCardNumber}</Text>
-        </View>
-        <View style={styles.chipPill}>
-          <View style={styles.chipDot} />
-          <View style={[styles.chipDot, styles.chipDotMuted]} />
-        </View>
-      </View>
-      <View style={styles.bottomRow}>
-        <View style={styles.amountCol}>
-          <View style={styles.payRow}>
-            <Text style={styles.mutedLabel}>Total a pagar</Text>
-            <View style={styles.datePill}>
-              <Text style={styles.dateText}>
-                {formatShortDueDate(maxPaymentDate)}
-              </Text>
+    <View style={[styles.cardOuter, style]} accessibilityLabel="Tarjeta de crédito">
+      <LinearGradient
+        colors={[
+          colors.homeCreditCardGradientTop,
+          colors.homeCreditCardGradientBottom,
+        ]}
+        style={styles.cardGradient}>
+        <View style={styles.cardTop}>
+          <View style={styles.headerRow}>
+            <Text style={styles.cardTitle}>Tarjeta</Text>
+            <View style={styles.mastercardBadge}>
+              <View style={[styles.mcDot, styles.mcDotBack]} />
+              <View style={[styles.mcDot, styles.mcDotFront]} />
             </View>
           </View>
-          <Text style={styles.amount} numberOfLines={1}>
-            {masked ? '$**.**' : formatCurrency(totalDue)}
-          </Text>
+          <Text style={styles.cardNumber}>{maskedCardNumber}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.eyeBtn}
-          onPress={() => setMasked(m => !m)}
-          accessibilityRole="button"
-          accessibilityLabel={masked ? 'Mostrar saldo' : 'Ocultar saldo'}>
-          {masked ? (
-            <EyeSlashIcon color={colors.primary} size={14} />
-          ) : (
-            <EyeIcon color={colors.primary} size={14} />
-          )}
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.cardBottom}>
+          <View style={styles.balanceTextCol}>
+            <View style={styles.amountAndDateRow}>
+              <Text style={styles.amountMain} numberOfLines={1}>
+                {masked ? '$**.**' : formatCurrency(totalDue)}
+              </Text>
+              <View style={styles.datePill}>
+                <Text style={styles.datePillText}>
+                  {formatShortDueDate(maxPaymentDate)}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.totalLabel}>Total a pagar</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setMasked(m => !m)}
+            accessibilityRole="button"
+            accessibilityLabel={masked ? 'Mostrar total' : 'Ocultar total'}>
+            {masked ? (
+              <EyeSlashIcon color={colors.white} size={16} />
+            ) : (
+              <EyeIcon color={colors.white} size={16} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -288,107 +305,106 @@ function useCreditStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        card: {
+        cardOuter: {
           flex: 1,
-          padding: 10,
-          borderRadius: 16,
-          
-          backgroundColor: colors.homeCreditCardSurface,
-          borderWidth: StyleSheet.hairlineWidth,
+          borderRadius: 8,
+          borderWidth: 1,
           borderColor: colors.textTertiary,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 12,
-            },
-          }),
+          overflow: 'hidden',
         },
-        topRow: {
+        cardGradient: {
+          flex: 1,
+          padding: 12,
+          justifyContent: 'space-between',
+        },
+        cardTop: {
+          gap: 0,
+        },
+        headerRow: {
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
+          alignItems: 'center',
         },
-        title: {
+        cardTitle: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
-          lineHeight: 18,
+          lineHeight: 20,
           color: colors.white,
         },
-        subtitle: {
-          fontFamily: Lexend.regular,
-          fontSize: 10,
-          lineHeight: 17,
-          color: colors.white,
-          opacity: 0.9,
-        },
-        chipPill: {
+        mastercardBadge: {
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          borderRadius: 3,
-          borderWidth: 0.4,
-          borderColor: 'rgba(255,255,255,0.05)',
-          paddingHorizontal: 6,
+          height: 18,
+          paddingLeft: 2,
+          paddingRight: 8,
           paddingVertical: 2,
-          gap: 4,
+          borderRadius: 3,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: 'rgba(255,255,255,0.05)',
+          backgroundColor: 'rgba(255,255,255,0.1)',
         },
-        chipDot: {
+        mcDot: {
           width: 10,
           height: 10,
           borderRadius: 5,
+        },
+        mcDotBack: {
           backgroundColor: 'rgba(255,255,255,0.2)',
         },
-        chipDotMuted: {
+        mcDotFront: {
+          marginLeft: -5,
           backgroundColor: 'rgba(255,255,255,0.1)',
         },
-        bottomRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          marginTop: 'auto',
+        cardNumber: {
+          marginTop: 4,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.white,
         },
-        amountCol: {
+        cardBottom: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          gap: 10,
+        },
+        balanceTextCol: {
           flex: 1,
           minWidth: 0,
-          paddingRight: 6,
         },
-        payRow: {
+        amountAndDateRow: {
           flexDirection: 'row',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: 6,
+          gap: 4,
         },
-        mutedLabel: {
-          fontFamily: Lexend.regular,
-          fontSize: 10,
-          lineHeight: 17,
+        amountMain: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 24,
           color: colors.white,
         },
         datePill: {
-          borderWidth: 0.8,
+          borderWidth: 1,
           borderColor: colors.textTertiary,
           borderRadius: 3,
           paddingHorizontal: 3,
+          paddingVertical: 1,
         },
-        dateText: {
+        datePillText: {
           fontFamily: Lexend.regular,
-          fontSize: 8.4,
+          fontSize: 9,
+          lineHeight: 16,
           color: colors.white,
         },
-        amount: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
+        totalLabel: {
+          marginTop: 0,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
           lineHeight: 20,
           color: colors.white,
-          marginTop: 4,
         },
         eyeBtn: {
-          backgroundColor: colors.homeBalanceToggleBg,
+          backgroundColor: colors.textTertiary,
           borderRadius: 4,
           padding: 4,
         },
@@ -399,32 +415,67 @@ function useCreditStyles(colors: ThemeColors) {
 
 type LoanCardProps = {
   style?: StyleProp<ViewStyle>;
-  outstandingBalance: number;
+  loanGuid: string;
   nextInstallmentAmount: number;
   nextInstallmentDate: string;
 };
 
 export function LoanCard({
   style,
-  outstandingBalance,
+  loanGuid,
   nextInstallmentAmount,
   nextInstallmentDate,
 }: LoanCardProps) {
   const {colors} = useTheme();
   const styles = useLoanStyles(colors);
+  const [masked, setMasked] = useState(true);
+
+  const maskedLine = useMemo(
+    () => formatLoanMaskedLine(loanGuid),
+    [loanGuid],
+  );
 
   return (
-    <View style={[styles.card, style]} accessibilityLabel="Crédito">
-      <Text style={styles.title}>Crédito</Text>
-      <Text style={styles.label}>Saldo pendiente</Text>
-      <Text style={styles.amount} numberOfLines={1}>
-        {formatCurrency(outstandingBalance)}
-      </Text>
-      <Text style={styles.label}>Próxima cuota</Text>
-      <Text style={styles.subAmount} numberOfLines={1}>
-        {formatCurrency(nextInstallmentAmount)}
-      </Text>
-      <Text style={styles.date}>{formatInstallmentDate(nextInstallmentDate)}</Text>
+    <View style={[styles.cardOuter, style]} accessibilityLabel="Préstamo">
+      <LinearGradient
+        colors={[
+          colors.homeLoanCardGradientStart,
+          colors.homeLoanCardGradientEnd,
+        ]}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={styles.cardGradient}>
+        <View>
+          <Text style={styles.productTitle}>Préstamo</Text>
+          <Text style={styles.maskedAccount}>{maskedLine}</Text>
+        </View>
+        <View style={styles.bottomRow}>
+          <View style={styles.balanceCol}>
+            <View style={styles.amountRow}>
+              <Text style={styles.amountValue} numberOfLines={1}>
+                {masked ? '$**.**' : formatCurrency(nextInstallmentAmount)}
+              </Text>
+              <View style={styles.datePill}>
+                <Text style={styles.datePillText}>
+                  {formatShortDueDate(nextInstallmentDate)}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.cuotaLabel}>Cuota</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setMasked(m => !m)}
+            accessibilityRole="button"
+            accessibilityLabel={masked ? 'Mostrar cuota' : 'Ocultar cuota'}>
+            {masked ? (
+              <EyeSlashIcon color={colors.primary} size={16} />
+            ) : (
+              <EyeIcon color={colors.primary} size={16} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -433,61 +484,76 @@ function useLoanStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        card: {
+        cardOuter: {
           flex: 1,
-          padding: 10,
           borderRadius: 8,
-          backgroundColor: colors.homeLoanCardBackground,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.homeLoanCardBorder,
-          justifyContent: 'space-between',
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 12,
-            },
-          }),
+          borderWidth: 1,
+          borderColor: colors.homePrimaryHover,
+          overflow: 'hidden',
         },
-        title: {
+        cardGradient: {
+          flex: 1,
+          padding: 12,
+          justifyContent: 'space-between',
+        },
+        productTitle: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
-          lineHeight: 18,
-          color: colors.white,
-          marginBottom: 6,
+          lineHeight: 20,
+          color: colors.homeAvatarCircle,
         },
-        label: {
+        maskedAccount: {
+          marginTop: 4,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.white,
+        },
+        bottomRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          gap: 10,
+        },
+        balanceCol: {
+          flex: 1,
+          minWidth: 0,
+        },
+        amountRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 4,
+        },
+        amountValue: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.white,
+        },
+        datePill: {
+          borderWidth: 1,
+          borderColor: colors.homeAvatarCircle,
+          borderRadius: 3,
+          paddingHorizontal: 3,
+          paddingVertical: 1,
+        },
+        datePillText: {
           fontFamily: Lexend.regular,
           fontSize: 9,
-          lineHeight: 14,
-          color: colors.white,
-          opacity: 0.9,
-        },
-        amount: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 13,
-          lineHeight: 18,
-          color: colors.white,
-          marginBottom: 6,
-        },
-        subAmount: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 11,
           lineHeight: 16,
           color: colors.white,
-          marginTop: 2,
         },
-        date: {
+        cuotaLabel: {
+          marginTop: 0,
           fontFamily: Lexend.regular,
-          fontSize: 9,
-          lineHeight: 14,
-          color: colors.white,
-          opacity: 0.85,
-          marginTop: 4,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.homeAvatarCircle,
+        },
+        eyeBtn: {
+          backgroundColor: colors.homeAvatarCircle,
+          borderRadius: 4,
+          padding: 4,
         },
       }),
     [colors],
@@ -496,6 +562,7 @@ function useLoanStyles(colors: ThemeColors) {
 
 type InvestmentCardProps = {
   style?: StyleProp<ViewStyle>;
+  investmentGuid: string;
   productName: string;
   currentValue: number;
   currency: string;
@@ -503,6 +570,7 @@ type InvestmentCardProps = {
 
 export function InvestmentCard({
   style,
+  investmentGuid,
   productName,
   currentValue,
   currency,
@@ -511,28 +579,49 @@ export function InvestmentCard({
   const styles = useInvestmentStyles(colors);
   const [masked, setMasked] = useState(true);
 
+  const maskedLine = useMemo(
+    () => formatInvestmentMaskedLine(investmentGuid),
+    [investmentGuid],
+  );
+
   return (
-    <View style={[styles.card, style]} accessibilityLabel="Inversión">
-      <View style={styles.topRow}>
-        <Text style={styles.title} numberOfLines={2}>
-          {productName}
-        </Text>
-        <TouchableOpacity
-          style={styles.eyeBtn}
-          onPress={() => setMasked(m => !m)}
-          accessibilityRole="button"
-          accessibilityLabel={masked ? 'Mostrar valor' : 'Ocultar valor'}>
-          {masked ? (
-            <EyeSlashIcon color={colors.primary} size={14} />
-          ) : (
-            <EyeIcon color={colors.primary} size={14} />
-          )}
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.label}>Valor actual</Text>
-      <Text style={styles.amount} numberOfLines={1}>
-        {masked ? '$**.**' : `${formatCurrency(currentValue)} ${currency}`}
-      </Text>
+    <View style={[styles.cardOuter, style]} accessibilityLabel="Inversión">
+      <LinearGradient
+        colors={[
+          colors.homeInvestmentCardGradientStart,
+          colors.homeInvestmentCardGradientEnd,
+        ]}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={styles.cardGradient}>
+        <View style={styles.topBlock}>
+          <Text style={styles.productTitle} numberOfLines={2}>
+            {productName}
+          </Text>
+          <Text style={styles.maskedAccount}>{maskedLine}</Text>
+        </View>
+        <View style={styles.bottomRow}>
+          <View style={styles.balanceCol}>
+            <Text style={styles.amountValue} numberOfLines={1}>
+              {masked
+                ? '$**.**'
+                : `${formatCurrency(currentValue)} ${currency}`}
+            </Text>
+            <Text style={styles.saldoLabel}>Saldo</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setMasked(m => !m)}
+            accessibilityRole="button"
+            accessibilityLabel={masked ? 'Mostrar valor' : 'Ocultar valor'}>
+            {masked ? (
+              <EyeSlashIcon color={colors.primary} size={16} />
+            ) : (
+              <EyeIcon color={colors.primary} size={16} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -541,60 +630,58 @@ function useInvestmentStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        card: {
+        cardOuter: {
           flex: 1,
-          padding: 10,
           borderRadius: 8,
-          backgroundColor: colors.homeProductCardSurface,
           borderWidth: 1,
-          borderColor: colors.homeProductCardBorder,
-          shadowColor: colors.shadowSoft,
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 1,
-          shadowRadius: 6,
-          elevation: 3,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 12,
-            },
-          }),
+          borderColor: colors.homeLoanCardBackground,
+          overflow: 'hidden',
         },
-        topRow: {
-          flexDirection: 'row',
+        cardGradient: {
+          flex: 1,
+          padding: 12,
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: 8,
-          marginBottom: 8,
         },
-        title: {
+        topBlock: {
+          gap: 0,
+        },
+        productTitle: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
-          lineHeight: 18,
-          color: colors.textPrimary,
-          flex: 1,
-          minHeight: 36,
-        },
-        label: {
-          fontFamily: Lexend.regular,
-          fontSize: 9,
-          lineHeight: 14,
-          color: colors.textSecondary,
-        },
-        amount: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
           lineHeight: 20,
-          color: colors.textPrimary,
+          color: colors.homeAvatarCircle,
+        },
+        maskedAccount: {
           marginTop: 4,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.white,
+        },
+        bottomRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          gap: 10,
+        },
+        balanceCol: {
+          flex: 1,
+          minWidth: 0,
+        },
+        amountValue: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.white,
+        },
+        saldoLabel: {
+          marginTop: 0,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.homeAvatarCircle,
         },
         eyeBtn: {
-          backgroundColor: colors.homeBalanceToggleBg,
+          backgroundColor: colors.nextPayCircleBg,
           borderRadius: 4,
           padding: 4,
         },

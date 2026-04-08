@@ -12,13 +12,14 @@ import {
 } from './homeDashboardMocks';
 import {mapHomeRecentTransactionToActivityItem} from './mapHomeRecentTransactionToActivityItem';
 
-const HOME_BALANCE_KEY = ['homeContractBalance'] as const;
+/** Compartido con `useCardDetailViewModel` para reutilizar caché de React Query. */
+export const HOME_CONTRACT_BALANCE_QUERY_KEY = ['homeContractBalance'] as const;
 
 export function useHomeViewModel() {
   const {getHomeContractBalanceUseCase} = useDI();
 
   const query = useQuery({
-    queryKey: HOME_BALANCE_KEY,
+    queryKey: HOME_CONTRACT_BALANCE_QUERY_KEY,
     queryFn: () => getHomeContractBalanceUseCase.execute(),
   });
 

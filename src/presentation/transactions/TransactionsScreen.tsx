@@ -5,11 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  SectionList,
+  FlatList,
   RefreshControl,
-  Dimensions,
   ActivityIndicator,
-  SectionListData,
   Pressable,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -21,7 +19,7 @@ import {
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import Svg, {Path} from 'react-native-svg';
+import Svg, {Path, Circle, G, Text as SvgText} from 'react-native-svg';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import type {MovementsStackParamList} from '../../navigation/MovementsStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
@@ -35,63 +33,33 @@ import {MovementsAmountFilterModal} from './components/MovementsAmountFilterModa
 import {MovementsTypeFilterModal} from './components/MovementsTypeFilterModal';
 import {Button, EmptyState, ErrorMessage, DevelopmentNoticeModal} from '../components';
 
-const QUICK_ACTION_BG = '#D0F0F6';
+// ─── helpers ────────────────────────────────────────────────────────────────
 
-function accountKindLabel(kind: AccountKind): string {
-  if (kind === 'savings') {
-    return 'Cuenta de ahorros';
-  }
-  if (kind === 'checking') {
-    return 'Cuenta corriente';
-  }
+function accountShortLabel(kind: AccountKind): string {
+  if (kind === 'savings') return 'Ahorros';
+  if (kind === 'checking') return 'Corriente';
   return 'Cuenta';
 }
 
-function sectionTitleForDate(d: Date, now: Date): string {
-  const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const t1 = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const diffDays = Math.round((t0 - t1) / 864e5);
-  if (diffDays === 0) {
-    return 'HOY';
-  }
-  if (diffDays === 1) {
-    return 'AYER';
-  }
-  return d.toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+function accountKindText(kind: AccountKind): string {
+  if (kind === 'savings') return 'ahorros';
+  if (kind === 'checking') return 'corriente';
+  return 'cuenta';
 }
 
-function buildSections(
-  movements: AccountMovement[],
-): SectionListData<AccountMovement>[] {
-  const now = new Date();
-  const map = new Map<string, AccountMovement[]>();
-  const order: string[] = [];
-  for (const item of movements) {
-    const d = new Date(item.transferDate);
-    const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    if (!map.has(key)) {
-      map.set(key, []);
-      order.push(key);
-    }
-    map.get(key)!.push(item);
-  }
-  return order.map(key => {
-    const list = map.get(key)!;
-    const d = new Date(list[0].transferDate);
-    return {
-      title: sectionTitleForDate(d, now),
-      data: list,
-    };
-  });
+function monthAbbr(date: Date): string {
+  return date
+    .toLocaleDateString('es-EC', {month: 'short'})
+    .toUpperCase()
+    .replace('.', '')
+    .slice(0, 3);
 }
+
+// ─── SVG icons ───────────────────────────────────────────────────────────────
 
 function BackIcon({color}: {color: string}) {
   return (
-    <Svg width={24} height={24} viewBox="0 0 24 24">
+    <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
@@ -113,7 +81,7 @@ function ShareIcon({color}: {color: string}) {
 
 function EyeIcon({color}: {color: string}) {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24">
+    <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
@@ -124,7 +92,7 @@ function EyeIcon({color}: {color: string}) {
 
 function EyeSlashIcon({color}: {color: string}) {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24">
+    <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-2.76-2.24-5-5-5l-.17.01z"
@@ -133,38 +101,159 @@ function EyeSlashIcon({color}: {color: string}) {
   );
 }
 
+function ChevronDownIcon({color}: {color: string}) {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+      />
+    </Svg>
+  );
+}
+
 function ChevronRightIcon({color}: {color: string}) {
+  return (
+    <Svg width={14} height={14} viewBox="0 0 24 24">
+      <Path fill={color} d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+    </Svg>
+  );
+}
+
+function TransferIcon({color}: {color: string}) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
+        d="M9 3L5 7h3v4h2V7h3zm7 11h-3v-4h-2v4H8l4 4z"
       />
     </Svg>
   );
 }
 
-function ArrowOutIcon({color}: {color: string}) {
+function LightbulbIcon({color}: {color: string}) {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24">
+    <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z"
+        d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"
       />
     </Svg>
   );
 }
 
-function ArrowInIcon({color}: {color: string}) {
+function FileIcon({color}: {color: string}) {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24">
+    <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M19 9h-2v6.59L5.41 4 4 5.41 15.59 17H9v2h10z"
+        d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"
       />
     </Svg>
   );
 }
+
+function CreditCardIcon({color}: {color: string}) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"
+      />
+    </Svg>
+  );
+}
+
+function SearchIcon({color}: {color: string}) {
+  return (
+    <Svg width={16} height={16} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+      />
+    </Svg>
+  );
+}
+
+// ─── Donut chart ─────────────────────────────────────────────────────────────
+
+interface ExpenseSegment {
+  label: string;
+  amount: number;
+  percentage: number;
+  color: string;
+}
+
+function DonutChart({segments}: {segments: ExpenseSegment[]}) {
+  const size = 186;
+  const cx = size / 2;
+  const cy = size / 2;
+  const outerR = 88;
+  const innerR = 54;
+  const strokeWidth = outerR - innerR;
+  const r = innerR + strokeWidth / 2;
+  const circumference = 2 * Math.PI * r;
+
+  let cumFraction = 0;
+  const arcs = segments.map(seg => {
+    const fraction = seg.percentage / 100;
+    const dashLength = fraction * circumference;
+    const gap = circumference - dashLength;
+    const dashOffset = -cumFraction * circumference;
+    const midFraction = cumFraction + fraction / 2;
+    const svgAngle = midFraction * 360 - 90;
+    const rad = (svgAngle * Math.PI) / 180;
+    const labelX = cx + r * Math.cos(rad);
+    const labelY = cy + r * Math.sin(rad);
+    cumFraction += fraction;
+    return {color: seg.color, percentage: seg.percentage, dashLength, gap, dashOffset, labelX, labelY};
+  });
+
+  return (
+    <Svg width={size} height={size}>
+      <Circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="none"
+        stroke="#E8E8E8"
+        strokeWidth={strokeWidth}
+      />
+      <G rotation="-90" origin={`${cx},${cy}`}>
+        {arcs.map((arc, i) => (
+          <Circle
+            key={i}
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke={arc.color}
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${arc.dashLength} ${arc.gap}`}
+            strokeDashoffset={arc.dashOffset}
+          />
+        ))}
+      </G>
+      {arcs.map((arc, i) =>
+        arc.percentage >= 8 ? (
+          <SvgText
+            key={i}
+            x={arc.labelX}
+            y={arc.labelY}
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fill="white"
+            fontSize={10}
+            fontWeight="600">
+            {`${arc.percentage}%`}
+          </SvgText>
+        ) : null,
+      )}
+    </Svg>
+  );
+}
+
+// ─── Main screen ─────────────────────────────────────────────────────────────
 
 export function TransactionsScreen() {
   const {colors} = useTheme();
@@ -189,17 +278,11 @@ export function TransactionsScreen() {
     React.useState(false);
 
   const vm = useAccountMovementsViewModel(accountGuid);
-  const {
-    refresh: refreshMovements,
-    clearAllFilters,
-    hasActiveFilters,
-  } = vm;
+  const {refresh: refreshMovements, clearAllFilters, hasActiveFilters} = vm;
 
   const prevAccountGuidRef = React.useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (resetFiltersToken === undefined) {
-      return;
-    }
+    if (resetFiltersToken === undefined) return;
     clearAllFilters();
   }, [resetFiltersToken, clearAllFilters]);
 
@@ -225,56 +308,94 @@ export function TransactionsScreen() {
   );
 
   const styles = useStyles(colors);
-  const width = Dimensions.get('window').width;
 
-  const sections = useMemo(
-    () => buildSections(vm.items),
-    [vm.items],
-  );
+  // Compute expense categories from current month's outgoing transactions
+  const chartSegments: ExpenseSegment[] = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const outgoing = vm.items.filter(item => {
+      const d = new Date(item.transferDate);
+      return (
+        item.amount < 0 &&
+        d.getMonth() === currentMonth &&
+        d.getFullYear() === currentYear
+      );
+    });
+    const totals = new Map<string, number>();
+    for (const item of outgoing) {
+      const label = item.transactionTypeLabel || 'Otros';
+      totals.set(label, (totals.get(label) ?? 0) + Math.abs(item.amount));
+    }
+    const totalAmount = [...totals.values()].reduce((a, b) => a + b, 0);
+    if (totalAmount === 0) return [];
+    const segColors = [
+      colors.homePrimaryHover,
+      colors.homeAvatarCircle,
+      colors.chartAccent,
+    ];
+    return [...totals.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([label, amount], i) => ({
+        label,
+        amount,
+        percentage: Math.round((amount / totalAmount) * 100),
+        color: segColors[i % segColors.length],
+      }));
+  }, [vm.items, colors]);
 
   const onBack = useCallback(() => {
-    tabNavigation?.navigate('Home', {});
+    tabNavigation?.navigate('Home', {screen: 'HomeMain'});
   }, [tabNavigation]);
 
-  const renderMovementRow = useCallback(
-    ({item}: {item: AccountMovement}) => {
+  const totalItems = vm.items.length;
+
+  const renderItem = useCallback(
+    ({item, index}: {item: AccountMovement; index: number}) => {
+      const d = new Date(item.transferDate);
+      const day = d.getDate().toString();
+      const month = monthAbbr(d);
+      const isFirst = index === 0;
+      const isLast = index === totalItems - 1;
       const incoming = item.amount > 0;
-      const amountColor = incoming ? colors.success : colors.textPrimary;
-      const amountPrefix = incoming ? '' : '-';
+      const amountColor = incoming ? colors.success : colors.textSecondary;
       const displayAbs = formatCurrency(Math.abs(item.amount));
+      const prefix = incoming ? '' : '-';
+
       return (
         <Pressable
           testID="movement-row"
           style={({pressed}) => [
-            styles.movementCard,
-            pressed && styles.movementCardPressed,
+            styles.movRow,
+            isFirst && styles.movRowFirst,
+            isLast && styles.movRowLast,
+            !isLast && styles.movRowDivider,
+            pressed && styles.movRowPressed,
           ]}
           onPress={() =>
             navigation.navigate('MovementDetail', {movement: item})
           }
           accessibilityRole="button"
           accessibilityLabel={`Movimiento ${item.beneficiaryName}`}>
-          <View style={styles.movementIconWrap}>
-            {incoming ? (
-              <ArrowInIcon color={colors.success} />
-            ) : (
-              <ArrowOutIcon color={colors.textPrimary} />
-            )}
+          <View style={styles.movDateCol}>
+            <Text style={styles.movDay}>{day}</Text>
+            <Text style={styles.movMonth}>{month}</Text>
           </View>
-          <View style={styles.movementCenter}>
-            <Text style={styles.movementName} numberOfLines={1}>
+          <View style={styles.movCenter}>
+            <Text style={styles.movName} numberOfLines={1}>
               {item.beneficiaryName}
             </Text>
-            <Text style={styles.movementSub} numberOfLines={1}>
+            <Text style={styles.movSub} numberOfLines={1}>
               {item.transactionTypeLabel}
             </Text>
           </View>
-          <View style={styles.movementRight}>
-            <Text style={[styles.movementAmount, {color: amountColor}]}>
-              {amountPrefix}
+          <View style={styles.movRight}>
+            <Text style={[styles.movAmount, {color: amountColor}]}>
+              {prefix}
               {displayAbs}
             </Text>
-            <Text style={styles.movementBalance}>
+            <Text style={styles.movBalance}>
               {formatCurrency(item.balanceAfterTransaction)}
             </Text>
           </View>
@@ -282,149 +403,131 @@ export function TransactionsScreen() {
         </Pressable>
       );
     },
-    [colors, styles, navigation],
+    [totalItems, colors, styles, navigation],
   );
 
-  const listHeader = (
-    <View>
-      <View style={[styles.hero, {paddingTop: insets.top + 8}]}>
-        <View style={styles.heroTop}>
-          <TouchableOpacity
-            onPress={onBack}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Volver al inicio">
-            <BackIcon color={colors.white} />
-          </TouchableOpacity>
-          <Text style={styles.heroTitle}>MOVIMIENTOS</Text>
-          <View style={styles.heroTopSpacer} />
-        </View>
+  const listHeader = useMemo(() => {
+    if (!vm.selectedAccount) return null;
+    const acc = vm.selectedAccount;
+    const maskedLabel = `Cta. ${accountKindText(acc.accountKind)} ${acc.maskedAccountNumber}`;
 
-        {vm.selectedAccount ? (
-          <View style={styles.accountBlock}>
-            <View style={styles.accountRow}>
-              <View>
-                <Text style={styles.accountKind}>
-                  {accountKindLabel(vm.selectedAccount.accountKind)}
+    return (
+      <View>
+        {/* Account overview card */}
+        <View style={styles.accountCard}>
+          <View style={styles.accountCardRow}>
+            <View style={styles.accountInfoBlock}>
+              <View style={styles.accountLabelRow}>
+                <Text style={styles.accountShortLabel}>
+                  {accountShortLabel(acc.accountKind)}
                 </Text>
-                <Text style={styles.accountMask}>
-                  {vm.selectedAccount.maskedAccountNumber}
-                </Text>
-              </View>
-              <View style={styles.accountActions}>
                 <TouchableOpacity
                   onPress={() => setDevModalVisible(true)}
+                  hitSlop={8}
                   accessibilityLabel="Compartir">
-                  <ShareIcon color={colors.white} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.eyeBox}
-                  onPress={() => setBalanceVisible(v => !v)}
-                  accessibilityLabel={
-                    balanceVisible ? 'Ocultar saldo' : 'Mostrar saldo'
-                  }>
-                  {balanceVisible ? (
-                    <EyeIcon color={colors.white} />
-                  ) : (
-                    <EyeSlashIcon color={colors.white} />
-                  )}
+                  <ShareIcon color={colors.primary} />
                 </TouchableOpacity>
               </View>
+              <Text style={styles.accountMaskText}>{maskedLabel}</Text>
             </View>
-            <Text style={styles.balanceBig}>
-              {balanceVisible
-                ? formatCurrency(vm.selectedAccount.balance)
-                : '$**.**'}
-            </Text>
-            <Text style={styles.balanceLbl}>Saldo</Text>
-          </View>
-        ) : null}
-
-        <Svg
-          width={width}
-          height={20}
-          style={styles.wave}
-          viewBox={`0 0 ${width} 20`}
-          preserveAspectRatio="none">
-          <Path
-            d={`M0,10 Q${width * 0.25},20 ${width * 0.5},10 T${width},10 L${width},0 L0,0 Z`}
-            fill={colors.background}
-          />
-        </Svg>
-      </View>
-
-      <View style={styles.quickRow}>
-        <TouchableOpacity
-          style={styles.quickCard}
-          onPress={() => tabNavigation?.navigate('Transfer')}
-          accessibilityRole="button"
-          accessibilityLabel="Transferir">
-          <Text style={styles.quickIcon}>⇅</Text>
-          <Text style={styles.quickLabel}>Transferir</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.quickCard}
-          onPress={() => setDevModalVisible(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Pagar servicio">
-          <Text style={styles.quickIcon}>💡</Text>
-          <Text style={styles.quickLabel}>Pagar servicio</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.quickCard}
-          onPress={() => setDevModalVisible(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Cobrar con QR">
-          <Text style={styles.quickIcon}>▦</Text>
-          <Text style={styles.quickLabel}>Cobrar con QR</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.quickCard}
-          onPress={() => setDevModalVisible(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Programadas">
-          <Text style={styles.quickIcon}>📅</Text>
-          <Text style={styles.quickLabel}>Programadas</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.sectionHeading}>Movimientos</Text>
-      <View style={styles.searchWrap}>
-        <Text style={styles.searchIcon}>🔍</Text>
-        <TextInput
-          testID="movements-search-input"
-          style={styles.searchInput}
-          placeholder="Buscar por nombre"
-          placeholderTextColor={colors.textTertiary}
-          value={vm.searchQuery}
-          onChangeText={vm.setSearchQuery}
-        />
-      </View>
-      <View style={styles.chipsSection}>
-        <View style={styles.chipsRowFirst}>
-          <View style={styles.chipsRowLeft}>
             <TouchableOpacity
-              testID="movements-date-filter-chip"
-              style={styles.chip}
-              onPress={() => setDateFilterModalVisible(true)}
-              accessibilityRole="button">
-              <Text style={styles.chipText} numberOfLines={1}>
-                {vm.dateFilterLabel}
-              </Text>
-              <Text style={styles.chipChevron}>▼</Text>
+              onPress={() => {}}
+              hitSlop={8}
+              accessibilityLabel="Cambiar cuenta">
+              <ChevronDownIcon color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
-          {hasActiveFilters ? (
-            <Pressable
-              testID="movements-clear-all-filters"
-              onPress={clearAllFilters}
-              accessibilityRole="button"
-              accessibilityLabel="Limpiar filtros">
-              <Text style={styles.chipsClearLink}>Limpiar filtros</Text>
-            </Pressable>
-          ) : null}
+
+          <View style={styles.accountBalanceRow}>
+            <View>
+              <Text style={styles.balanceBig}>
+                {balanceVisible
+                  ? formatCurrency(acc.balance)
+                  : '$**.**'}
+              </Text>
+              <Text style={styles.balanceSubLabel}>
+                {`Saldo contable: ${balanceVisible ? formatCurrency(acc.balance) : '$**.**'}`}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.eyeBtn}
+              onPress={() => setBalanceVisible(v => !v)}
+              accessibilityLabel={
+                balanceVisible ? 'Ocultar saldo' : 'Mostrar saldo'
+              }>
+              {balanceVisible ? (
+                <EyeIcon color={colors.primary} />
+              ) : (
+                <EyeSlashIcon color={colors.primary} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.chipsRow}>
+
+        {/* Quick actions */}
+        <View style={styles.quickRow}>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() => tabNavigation?.navigate('Transfer')}
+            accessibilityRole="button"
+            accessibilityLabel="Transferir">
+            <TransferIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Transferir</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() => setDevModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Pagar servicios">
+            <LightbulbIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Pagar servicios</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() => setDevModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Estado de cuenta">
+            <FileIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Estado de cuenta</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() => setDevModalVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Retirar sin tarjeta">
+            <CreditCardIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Retirar sin tarjeta</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Movements section header */}
+        <Text style={styles.sectionHeading}>Movimientos</Text>
+
+        {/* Search */}
+        <View style={styles.searchWrap}>
+          <SearchIcon color={colors.textTertiary} />
+          <TextInput
+            testID="movements-search-input"
+            style={styles.searchInput}
+            placeholder="Buscar por nombre"
+            placeholderTextColor={colors.textTertiary}
+            value={vm.searchQuery}
+            onChangeText={vm.setSearchQuery}
+          />
+        </View>
+
+        {/* Filter chips — single row */}
+        <View style={styles.filtersRow}>
+          <TouchableOpacity
+            testID="movements-date-filter-chip"
+            style={styles.chip}
+            onPress={() => setDateFilterModalVisible(true)}
+            accessibilityRole="button">
+            <Text style={styles.chipText} numberOfLines={1}>
+              {vm.dateFilterLabel}
+            </Text>
+            <ChevronDownIcon color={colors.textSecondary} />
+          </TouchableOpacity>
           <TouchableOpacity
             testID="movements-type-filter-chip"
             style={styles.chip}
@@ -433,7 +536,6 @@ export function TransactionsScreen() {
             <Text style={styles.chipText} numberOfLines={1}>
               {vm.typeFilterLabel}
             </Text>
-            <Text style={styles.chipChevron}>▼</Text>
           </TouchableOpacity>
           <TouchableOpacity
             testID="movements-amount-filter-chip"
@@ -443,18 +545,76 @@ export function TransactionsScreen() {
             <Text style={styles.chipText} numberOfLines={1}>
               {vm.amountFilterLabel}
             </Text>
-            <Text style={styles.chipChevron}>▼</Text>
           </TouchableOpacity>
+          {hasActiveFilters ? (
+            <Pressable
+              testID="movements-clear-all-filters"
+              onPress={clearAllFilters}
+              accessibilityRole="button"
+              accessibilityLabel="Limpiar filtros"
+              style={styles.clearFiltersBtn}>
+              <Text style={styles.clearFiltersText}>✕</Text>
+            </Pressable>
+          ) : null}
         </View>
       </View>
-    </View>
-  );
+    );
+  }, [
+    vm.selectedAccount,
+    vm.searchQuery,
+    vm.setSearchQuery,
+    vm.dateFilterLabel,
+    vm.typeFilterLabel,
+    vm.amountFilterLabel,
+    balanceVisible,
+    hasActiveFilters,
+    clearAllFilters,
+    colors,
+    styles,
+    tabNavigation,
+  ]);
+
+  const listFooter = useMemo(() => {
+    if (vm.isLoadingMore) {
+      return (
+        <ActivityIndicator
+          style={styles.footerLoader}
+          color={colors.primary}
+        />
+      );
+    }
+    if (chartSegments.length === 0) return null;
+    return (
+      <View style={styles.chartCard}>
+        <Text style={styles.chartTitle}>Tus gastos del mes</Text>
+        <View style={styles.chartDivider} />
+        <View style={styles.chartCenter}>
+          <DonutChart segments={chartSegments} />
+        </View>
+        <View style={styles.chartLegend}>
+          {chartSegments.map((seg, i) => (
+            <View key={i} style={styles.legendRow}>
+              <View
+                style={[styles.legendDot, {backgroundColor: seg.color}]}
+              />
+              <Text style={styles.legendLabel} numberOfLines={1}>
+                {seg.label}
+              </Text>
+              <Text style={styles.legendAmount}>
+                {formatCurrency(seg.amount)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  }, [vm.isLoadingMore, chartSegments, colors, styles]);
 
   if (vm.isLoadingAccount) {
     return (
       <View
         testID="transactions-screen"
-        style={[styles.root, {paddingTop: insets.top}]}>
+        style={[styles.root, {paddingTop: insets.top + 64}]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -464,7 +624,7 @@ export function TransactionsScreen() {
     return (
       <View
         testID="transactions-screen"
-        style={[styles.root, {paddingTop: insets.top}]}>
+        style={[styles.root, {paddingTop: insets.top + 64}]}>
         <ErrorMessage message={vm.accountError} />
         <Button
           title="Reintentar"
@@ -478,20 +638,30 @@ export function TransactionsScreen() {
 
   return (
     <View testID="transactions-screen" style={styles.root}>
-      <SectionList
-        sections={sections}
+      {/* Fixed white top bar */}
+      <View style={[styles.topBar, {paddingTop: insets.top, height: insets.top + 64}]}>
+        <TouchableOpacity
+          onPress={onBack}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Volver al inicio">
+          <BackIcon color={colors.primary} />
+        </TouchableOpacity>
+        <Text style={styles.topBarTitle}>MOVIMIENTOS</Text>
+        <View style={styles.topBarSpacer} />
+      </View>
+
+      <FlatList
+        data={vm.items}
         keyExtractor={(item, index) => {
           const id =
             item.transactionGuid?.trim() ||
             `${item.transactionIdentifier}|${item.transferDate}`;
           return `${id}|${index}`;
         }}
-        renderItem={renderMovementRow}
-        renderSectionHeader={({section: {title}}) => (
-          <Text style={styles.groupHeader}>{title}</Text>
-        )}
+        renderItem={renderItem}
         ListHeaderComponent={listHeader}
-        stickySectionHeadersEnabled={false}
+        ListFooterComponent={listFooter}
         contentContainerStyle={styles.listContent}
         onEndReachedThreshold={0.4}
         onEndReached={() => {
@@ -527,12 +697,8 @@ export function TransactionsScreen() {
             <EmptyState message="No hay movimientos" />
           )
         }
-        ListFooterComponent={
-          vm.isLoadingMore ? (
-            <ActivityIndicator style={styles.footerLoader} color={colors.primary} />
-          ) : null
-        }
       />
+
       <DevelopmentNoticeModal
         visible={devModalVisible}
         onClose={() => setDevModalVisible(false)}
@@ -573,238 +739,310 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           backgroundColor: colors.background,
         },
-        hero: {
-          backgroundColor: colors.primary,
-          paddingHorizontal: 20,
-          paddingBottom: 0,
-        },
-        heroTop: {
+        // ─── Top bar ───────────────────────────────
+        topBar: {
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           justifyContent: 'space-between',
-          marginBottom: 20,
+          backgroundColor: colors.white,
+          paddingHorizontal: 24,
+          paddingBottom: 16,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.borderLight,
         },
-        heroTitle: {
+        topBarTitle: {
           fontFamily: Lexend.semiBold,
           fontSize: 14,
           letterSpacing: 1,
-          color: colors.white,
+          color: colors.textPrimary,
         },
-        heroTopSpacer: {
-          width: 24,
+        topBarSpacer: {
+          width: 22,
         },
-        accountBlock: {
-          marginBottom: 4,
+        // ─── Account card ──────────────────────────
+        accountCard: {
+          backgroundColor: colors.homeProductCardSurface,
+          paddingHorizontal: 24,
+          paddingVertical: 20,
+          gap: 16,
         },
-        accountRow: {
+        accountCardRow: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'flex-start',
+          justifyContent: 'space-between',
         },
-        accountKind: {
-          fontFamily: Lexend.regular,
-          fontSize: 14,
-          color: colors.white,
+        accountInfoBlock: {
+          gap: 4,
         },
-        accountMask: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 16,
-          color: colors.white,
-          marginTop: 4,
-        },
-        accountActions: {
+        accountLabelRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 12,
+          gap: 8,
         },
-        eyeBox: {
-          backgroundColor: 'rgba(255,255,255,0.2)',
-          borderRadius: 8,
-          padding: 6,
+        accountShortLabel: {
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          color: colors.primary,
+          opacity: 0.85,
+        },
+        accountMaskText: {
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        accountBalanceRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
         },
         balanceBig: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 32,
-          color: colors.white,
-          marginTop: 16,
+          fontFamily: Lexend.bold,
+          fontSize: 30,
+          lineHeight: 40,
+          color: colors.textPrimary,
         },
-        balanceLbl: {
+        balanceSubLabel: {
           fontFamily: Lexend.regular,
-          fontSize: 13,
-          color: colors.white,
-          opacity: 0.9,
-          marginTop: 4,
-          marginBottom: 8,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.primary,
+          opacity: 0.85,
+          marginTop: 2,
         },
-        wave: {
-          marginHorizontal: -20,
+        eyeBtn: {
+          backgroundColor: colors.homeBalanceToggleBg,
+          borderRadius: 6,
+          padding: 6,
         },
+        // ─── Quick actions ─────────────────────────
         quickRow: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           paddingHorizontal: 16,
-          marginTop: -4,
-          marginBottom: 20,
+          paddingVertical: 12,
           gap: 8,
+          backgroundColor: colors.background,
         },
         quickCard: {
           flex: 1,
-          backgroundColor: QUICK_ACTION_BG,
-          borderRadius: 12,
-          paddingVertical: 12,
+          backgroundColor: colors.white,
+          borderRadius: 8,
+          paddingVertical: 10,
           paddingHorizontal: 4,
           alignItems: 'center',
-          minHeight: 72,
-          justifyContent: 'center',
-        },
-        quickIcon: {
-          fontSize: 18,
-          marginBottom: 4,
-          color: colors.primary,
+          gap: 4,
         },
         quickLabel: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 10,
-          color: colors.primary,
+          fontFamily: Lexend.regular,
+          fontSize: 8,
+          color: colors.textPrimary,
           textAlign: 'center',
         },
+        // ─── Movements heading & search ────────────
         sectionHeading: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 18,
+          fontFamily: Lexend.regular,
+          fontSize: 16,
+          lineHeight: 24,
           color: colors.textPrimary,
-          paddingHorizontal: 20,
-          marginBottom: 12,
+          paddingHorizontal: 24,
+          paddingTop: 16,
+          paddingBottom: 8,
         },
         searchWrap: {
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: colors.white,
-          marginHorizontal: 20,
-          borderRadius: 24,
+          marginHorizontal: 24,
+          borderRadius: 48,
           paddingHorizontal: 16,
-          paddingVertical: 10,
+          paddingVertical: 12,
+          gap: 8,
           marginBottom: 12,
-        },
-        searchIcon: {
-          marginRight: 8,
-          opacity: 0.5,
+          borderWidth: 1,
+          borderColor: colors.white,
         },
         searchInput: {
           flex: 1,
           fontFamily: Lexend.regular,
-          fontSize: 15,
+          fontSize: 14,
           color: colors.textPrimary,
           paddingVertical: 0,
         },
-        chipsSection: {
-          paddingHorizontal: 20,
-          marginBottom: 16,
-          gap: 8,
-        },
-        chipsRowFirst: {
+        // ─── Filter chips ──────────────────────────
+        filtersRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 8,
+          paddingHorizontal: 24,
+          paddingBottom: 16,
           gap: 8,
-        },
-        chipsRowLeft: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          flex: 1,
-          gap: 8,
-        },
-        chipsClearLink: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 13,
-          color: colors.linkPrimary,
-        },
-        chipsRow: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: 8,
+          flexWrap: 'nowrap',
         },
         chip: {
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: colors.white,
-          paddingHorizontal: 14,
-          paddingVertical: 8,
-          borderRadius: 20,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.borderLight,
+          backgroundColor: colors.buttonSecondaryBg,
+          paddingHorizontal: 12,
+          paddingVertical: 4,
+          borderRadius: 12,
+          gap: 4,
         },
         chipText: {
           flexShrink: 1,
           fontFamily: Lexend.semiBold,
-          fontSize: 13,
-          color: colors.textPrimary,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textSecondary,
         },
-        chipChevron: {
-          fontSize: 10,
-          color: colors.textTertiary,
-          marginLeft: 4,
+        clearFiltersBtn: {
+          backgroundColor: colors.buttonSecondaryBg,
+          borderRadius: 12,
+          paddingHorizontal: 10,
+          paddingVertical: 4,
         },
-        listContent: {
-          paddingBottom: 32,
-        },
-        groupHeader: {
+        clearFiltersText: {
           fontFamily: Lexend.semiBold,
           fontSize: 12,
-          letterSpacing: 0.8,
-          color: colors.textTertiary,
-          paddingHorizontal: 20,
-          marginTop: 8,
-          marginBottom: 8,
+          color: colors.textSecondary,
         },
-        movementCard: {
+        // ─── Transaction rows ──────────────────────
+        movRow: {
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: colors.white,
-          marginHorizontal: 20,
+          marginHorizontal: 24,
+          paddingHorizontal: 8,
+          paddingVertical: 12,
+          gap: 8,
+        },
+        movRowFirst: {
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8,
+        },
+        movRowLast: {
+          borderBottomLeftRadius: 8,
+          borderBottomRightRadius: 8,
           marginBottom: 8,
-          padding: 14,
-          borderRadius: 12,
-          gap: 10,
         },
-        movementCardPressed: {
-          opacity: 0.92,
+        movRowDivider: {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.borderLight,
         },
-        movementIconWrap: {
-          width: 28,
+        movRowPressed: {
+          opacity: 0.88,
+        },
+        movDateCol: {
+          width: 34,
           alignItems: 'center',
+          justifyContent: 'center',
+          paddingBottom: 4,
         },
-        movementCenter: {
-          flex: 1,
-          minWidth: 0,
-        },
-        movementName: {
+        movDay: {
           fontFamily: Lexend.semiBold,
-          fontSize: 15,
-          color: colors.textPrimary,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.primary,
+          textAlign: 'right',
         },
-        movementSub: {
+        movMonth: {
           fontFamily: Lexend.regular,
           fontSize: 12,
+          lineHeight: 20,
           color: colors.textTertiary,
-          marginTop: 2,
+          textAlign: 'center',
         },
-        movementRight: {
-          alignItems: 'flex-end',
+        movCenter: {
+          flex: 1,
+          minWidth: 0,
+          gap: 2,
         },
-        movementAmount: {
+        movName: {
           fontFamily: Lexend.semiBold,
-          fontSize: 15,
-        },
-        movementBalance: {
-          fontFamily: Lexend.regular,
-          fontSize: 11,
+          fontSize: 12,
+          lineHeight: 20,
           color: colors.textTertiary,
-          marginTop: 2,
+        },
+        movSub: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textTertiary,
+        },
+        movRight: {
+          alignItems: 'flex-end',
+          gap: 2,
+        },
+        movAmount: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          textAlign: 'right',
+        },
+        movBalance: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textTertiary,
+        },
+        // ─── Chart footer card ─────────────────────
+        chartCard: {
+          backgroundColor: colors.white,
+          marginHorizontal: 24,
+          marginTop: 16,
+          marginBottom: 8,
+          borderRadius: 12,
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+        },
+        chartTitle: {
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          lineHeight: 20,
+          color: colors.textPrimary,
+        },
+        chartDivider: {
+          height: StyleSheet.hairlineWidth,
+          backgroundColor: colors.borderLight,
+          marginTop: 12,
+          marginBottom: 16,
+        },
+        chartCenter: {
+          alignItems: 'center',
+          marginBottom: 16,
+        },
+        chartLegend: {
+          gap: 10,
+        },
+        legendRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        },
+        legendDot: {
+          width: 9,
+          height: 9,
+          borderRadius: 5,
+          flexShrink: 0,
+        },
+        legendLabel: {
+          flex: 1,
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textSecondary,
+        },
+        legendAmount: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.textSecondary,
+          textAlign: 'right',
+        },
+        // ─── Misc ──────────────────────────────────
+        listContent: {
+          paddingBottom: 32,
         },
         emptyPad: {
           paddingVertical: 40,
-          paddingHorizontal: 20,
+          paddingHorizontal: 24,
         },
         retryBtn: {
           marginTop: 12,

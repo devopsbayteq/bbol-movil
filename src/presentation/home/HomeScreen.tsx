@@ -9,6 +9,7 @@ import {
   Animated,
   RefreshControl,
   ImageBackground,
+  useWindowDimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -17,10 +18,13 @@ import {
   useFocusEffect,
   useNavigation,
   useRoute,
+  type CompositeNavigationProp,
   type RouteProp,
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
+import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
@@ -61,10 +65,11 @@ function accountTitle(kind: AccountKind): string {
   return 'Cuenta';
 }
 
-const CARD_WIDTH = 204;
+/** Ancho de cada card del carousel como fracción del ancho de pantalla. */
+const CARD_WIDTH_SCREEN_FRACTION = 0.6;
 const CARD_HEIGHT = 130;
-const CARD_GAP = 12;
-const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
+/** Separación horizontal entre cards del carousel. */
+const CARD_GAP = 6;
 const MAIN_COLUMN_PADDING = 24;
 
 /** Altura aproximada de la imagen + franja teal bajo el header (fondo decorativo). */
@@ -73,14 +78,28 @@ const HERO_IMAGE_SECTION_HEIGHT = 150;
 export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
-  const styles = useStyles(colors);
+  const {width: windowWidth} = useWindowDimensions();
+  const cardLayout = useMemo(
+    () => ({
+      cardWidth: Math.round(windowWidth * CARD_WIDTH_SCREEN_FRACTION),
+      cardHeight: CARD_HEIGHT,
+    }),
+    [windowWidth],
+  );
+  const cardSnapInterval = cardLayout.cardWidth + CARD_GAP;
+  const styles = useStyles(colors, cardLayout);
 
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
-  const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
+  const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
   const navigation =
-    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+    useNavigation<
+      CompositeNavigationProp<
+        NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
+        BottomTabNavigationProp<MainTabParamList, 'Home'>
+      >
+    >();
 
   const {
     data,
@@ -202,13 +221,24 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <CreditCardPreview
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              maskedCardNumber={card.maskedCardNumber}
-              totalDue={card.totalDue}
-              maxPaymentDate={card.maxPaymentDate}
-            />
+              onPress={() =>
+                navigation.navigate('CardDetail', {
+                  maskedCardNumber: card.maskedCardNumber,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de tarjeta">
+              <CreditCardPreview
+                style={styles.cardFill}
+                maskedCardNumber={card.maskedCardNumber}
+                totalDue={card.totalDue}
+                maxPaymentDate={card.maxPaymentDate}
+              />
+            </TouchableOpacity>
           ),
         });
       }
@@ -220,13 +250,25 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <InvestmentCard
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              productName={inv.productName}
-              currentValue={inv.currentValue}
-              currency={inv.currency}
-            />
+              onPress={() =>
+                navigation.navigate('InvestmentDetail', {
+                  investmentGuid: inv.investmentGuid,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de inversión">
+              <InvestmentCard
+                style={styles.cardFill}
+                investmentGuid={inv.investmentGuid}
+                productName={inv.productName}
+                currentValue={inv.currentValue}
+                currency={inv.currency}
+              />
+            </TouchableOpacity>
           ),
         });
       }
@@ -238,13 +280,22 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <LoanCard
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              outstandingBalance={loan.outstandingBalance}
-              nextInstallmentAmount={loan.nextInstallmentAmount}
-              nextInstallmentDate={loan.nextInstallmentDate}
-            />
+              onPress={() =>
+                navigation.navigate('LoanDetail', {loanGuid: loan.loanGuid})
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de préstamo">
+              <LoanCard
+                style={styles.cardFill}
+                loanGuid={loan.loanGuid}
+                nextInstallmentAmount={loan.nextInstallmentAmount}
+                nextInstallmentDate={loan.nextInstallmentDate}
+              />
+            </TouchableOpacity>
           ),
         });
       }
@@ -278,7 +329,7 @@ export function HomeScreen() {
 
   const onCarouselScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / CARD_SNAP_INTERVAL);
+    const idx = Math.round(x / cardSnapInterval);
     if (idx >= 0 && idx < productItems.length) {
       animateSelection(idx);
     }
@@ -350,7 +401,7 @@ export function HomeScreen() {
                   ref={carouselRef}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  snapToInterval={CARD_SNAP_INTERVAL}
+                  snapToInterval={cardSnapInterval}
                   snapToAlignment="start"
                   decelerationRate="fast"
                   onMomentumScrollEnd={onCarouselScroll}
@@ -427,7 +478,10 @@ export function HomeScreen() {
   );
 }
 
-function useStyles(colors: ThemeColors) {
+function useStyles(
+  colors: ThemeColors,
+  layout: {cardWidth: number; cardHeight: number},
+) {
   return useMemo(
     () =>
       StyleSheet.create({
@@ -498,12 +552,12 @@ function useStyles(colors: ThemeColors) {
           gap: CARD_GAP,
         },
         carouselItem: {
-          width: CARD_WIDTH,
-          height: CARD_HEIGHT,
+          width: layout.cardWidth,
+          height: layout.cardHeight,
         },
         productCard: {
-          width: CARD_WIDTH,
-          height: CARD_HEIGHT,
+          width: layout.cardWidth,
+          height: layout.cardHeight,
         },
         cardFill: {
           flex: 1,
@@ -537,6 +591,6 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 16,
         },
       }),
-    [colors],
+    [colors, layout.cardWidth, layout.cardHeight],
   );
 }

@@ -38,7 +38,8 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.surface,
           borderRadius: 16,
           paddingHorizontal: 16,
-          paddingVertical: 16,
+          paddingVertical: 8,
+          height: 52,
          
         },
         label: {

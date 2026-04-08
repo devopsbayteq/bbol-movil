@@ -15,6 +15,6 @@ module.exports = {
     '\\.svg$': '<rootDir>/jest/svg-mock.js',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation/.*|react-native-quick-crypto|react-native-nitro-modules|react-native-quick-base64|uuid)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation/.*|react-native-quick-crypto|react-native-nitro-modules|react-native-quick-base64|uuid|react-native-linear-gradient)/)',
   ],
 };
