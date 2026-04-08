@@ -28,7 +28,7 @@ type Props = {
 /** Mismo valor que `MAIN_COLUMN_PADDING` en HomeScreen (padding del contenedor). */
 const SCREEN_PADDING_X = 24;
 
-const DEFAULT_AUTO_ADVANCE_MS = 5000;
+const DEFAULT_AUTO_ADVANCE_MS = 15000;
 
 function BannerLine({
   line,
