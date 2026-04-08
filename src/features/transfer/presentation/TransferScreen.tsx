@@ -146,7 +146,7 @@ export function TransferScreen() {
     return (
         <View style={styles.root} testID="transfer-main-screen">
             <ToolbarApp
-                title="TRANSFERIR v2"
+                title="TRANSFERIR"
                 onBackPress={() => {
                     onBack();
                 }}
