@@ -479,12 +479,12 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
         },
         arrowRightIconWrap: {
-          width: 24,
-          height: 24,
+          width: 15,
+          height: 15,
         },
         arrowRightIcon: {
-          width: 24,
-          height: 24,
+          width: 15,
+          height: 15,
         },
         contactLink: {
           alignSelf: 'center',
