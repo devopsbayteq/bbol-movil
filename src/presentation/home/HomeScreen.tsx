@@ -252,6 +252,7 @@ export function HomeScreen() {
               accessibilityLabel="Ver detalle de inversión">
               <InvestmentCard
                 style={styles.cardFill}
+                investmentGuid={inv.investmentGuid}
                 productName={inv.productName}
                 currentValue={inv.currentValue}
                 currency={inv.currency}
@@ -279,7 +280,7 @@ export function HomeScreen() {
               accessibilityLabel="Ver detalle de préstamo">
               <LoanCard
                 style={styles.cardFill}
-                outstandingBalance={loan.outstandingBalance}
+                loanGuid={loan.loanGuid}
                 nextInstallmentAmount={loan.nextInstallmentAmount}
                 nextInstallmentDate={loan.nextInstallmentDate}
               />

@@ -49,6 +49,14 @@ export interface ThemeColors {
   /** Gradiente inferior — tarjeta crédito carousel (home). */
   homeCreditCardGradientBottom: string;
   homeLoanCardBackground: string;
+  /** Gradiente inicio — tarjeta préstamo carousel (home). */
+  homeLoanCardGradientStart: string;
+  /** Gradiente fin — tarjeta préstamo carousel (home). */
+  homeLoanCardGradientEnd: string;
+  /** Gradiente inicio — tarjeta inversión carousel (home). */
+  homeInvestmentCardGradientStart: string;
+  /** Gradiente fin — tarjeta inversión carousel (home). */
+  homeInvestmentCardGradientEnd: string;
   homeLoanCardBorder: string;
   homeBorderSoft: string;
   homePrimaryHover: string;
@@ -99,6 +107,10 @@ export const LightColors: ThemeColors = {
   homeCreditCardGradientTop: '#323232',
   homeCreditCardGradientBottom: '#1A1A1A',
   homeLoanCardBackground: '#0067AE',
+  homeLoanCardGradientStart: '#096877',
+  homeLoanCardGradientEnd: '#008292',
+  homeInvestmentCardGradientStart: '#003960',
+  homeInvestmentCardGradientEnd: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
@@ -147,6 +159,10 @@ export const DarkColors: ThemeColors = {
   homeCreditCardGradientTop: '#323232',
   homeCreditCardGradientBottom: '#1A1A1A',
   homeLoanCardBackground: '#0067AE',
+  homeLoanCardGradientStart: '#096877',
+  homeLoanCardGradientEnd: '#008292',
+  homeInvestmentCardGradientStart: '#003960',
+  homeInvestmentCardGradientEnd: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
