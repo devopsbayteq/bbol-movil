@@ -28,7 +28,7 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
 import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
-import type {AccountKind} from '../../domain/entities/ContractBalance';
+import type {AccountKind, FrequentPayment} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
 import {ProductFilterTabs} from './components/ProductFilterTabs';
 import {
@@ -53,7 +53,7 @@ const PRODUCT_FILTERS = [
   'Cuentas',
   'Tarjetas',
   'Inversiones',
-  'Créditos',
+  'Préstamos',
 ] as const;
 
 function accountTitle(kind: AccountKind): string {
@@ -158,7 +158,7 @@ export function HomeScreen() {
     const showAccounts = all || filter === 'Cuentas';
     const showCards = all || filter === 'Tarjetas';
     const showInvestments = all || filter === 'Inversiones';
-    const showLoans = all || filter === 'Créditos';
+    const showLoans = all || filter === 'Préstamos';
 
     const items: ProductItem[] = [];
 
@@ -352,6 +352,16 @@ export function HomeScreen() {
     setDevModalVisible(true);
   };
 
+  const openFrequentPayments = useCallback(
+    (_item: FrequentPayment, index: number) => {
+      navigation.navigate('FrequentPayments', {
+        items: frequentPaymentsForHome,
+        initialIndex: index,
+      });
+    },
+    [navigation, frequentPaymentsForHome],
+  );
+
   return (
     <View testID="home-screen" style={styles.root}>
       <ScrollView
@@ -462,7 +472,7 @@ export function HomeScreen() {
                   <HomeBannersCarousel banners={bannersForHome} />
                   <FrequentActionsSection
                     items={frequentPaymentsForHome}
-                    onItemPress={openDevelopmentModal}
+                    onItemPress={openFrequentPayments}
                   />
                   <UpcomingPaymentsRow
                     summary={upcomingPaymentsSummary}

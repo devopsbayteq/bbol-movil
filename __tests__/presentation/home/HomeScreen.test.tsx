@@ -167,6 +167,8 @@ describe('HomeScreen', () => {
               maskedAccountNumber: '****4242',
               accountKind: 'savings' as const,
               balance: 1500,
+              maskedAccountHome: '****4242',
+              accountTypeLabel: 'Cta. Ahorros',
             },
           ],
           creditCards: [],
@@ -187,7 +189,9 @@ describe('HomeScreen', () => {
     const flat = renderedText(root!.toJSON());
     expect(flat).toContain('Cuentas');
     expect(flat).toContain('Acciones frecuentes');
+    expect(flat).toContain('Cta. Ahorros');
     expect(flat).toContain('****4242');
+    expect(flat).toContain('Agua casa');
     expect(flat).toContain('Pago luz');
     expect(flat).toContain('Actividad reciente');
   });
