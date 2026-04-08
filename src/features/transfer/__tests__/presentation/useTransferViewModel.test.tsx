@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
+import {Platform} from 'react-native';
 import type {AccountBalance} from '../../../../domain/entities/ContractBalance';
 import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
 import {useTransferViewModel} from '../../presentation/useTransferViewModel';
@@ -140,6 +141,47 @@ describe('useTransferViewModel', () => {
       latest?.onAmountChange('$1,234.56');
     });
     expect(latest?.amountCents).toBe(123456);
+  });
+
+  describe('onAmountChange coma decimal (iOS)', () => {
+    let prevOs: typeof Platform.OS;
+
+    beforeEach(() => {
+      prevOs = Platform.OS;
+    });
+
+    afterEach(() => {
+      Object.defineProperty(Platform, 'OS', {value: prevOs, configurable: true});
+    });
+
+    test('iOS convierte coma en separador decimal', async () => {
+      Object.defineProperty(Platform, 'OS', {value: 'ios', configurable: true});
+      await mount();
+      act(() => {
+        latest?.onAmountChange('12,34');
+      });
+      expect(latest?.amountInputText).toBe('12.34');
+      expect(latest?.amountCents).toBe(1234);
+    });
+
+    test('Android elimina coma sin convertir a punto', async () => {
+      Object.defineProperty(Platform, 'OS', {value: 'android', configurable: true});
+      await mount();
+      act(() => {
+        latest?.onAmountChange('12,34');
+      });
+      expect(latest?.amountInputText).toBe('1234');
+      expect(latest?.amountCents).toBe(123400);
+    });
+
+    test('iOS mantiene $1,234.56 como miles y decimales', async () => {
+      Object.defineProperty(Platform, 'OS', {value: 'ios', configurable: true});
+      await mount();
+      act(() => {
+        latest?.onAmountChange('$1,234.56');
+      });
+      expect(latest?.amountCents).toBe(123456);
+    });
   });
 
   test('onAmountChange limita al máximo permitido', async () => {

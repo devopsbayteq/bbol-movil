@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Platform} from 'react-native';
 import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 import {
     balanceDollarsToCents,
@@ -23,6 +24,17 @@ function defaultAccountIndex(accounts: AccountBalance[]): number {
         a => a.accountKind.toLowerCase() === 'savings',
     );
     return savingsIdx >= 0 ? savingsIdx : 0;
+}
+
+/** On iOS, numeric keyboards often emit `,` as decimal separator; map to `.` before sanitize. */
+function normalizeIosAmountDecimalComma(text: string): string {
+    if (Platform.OS !== 'ios') {
+        return text;
+    }
+    if (text.includes('.')) {
+        return text;
+    }
+    return text.replace(/,/g, '.');
 }
 
 export function useTransferViewModel() {
@@ -154,7 +166,8 @@ export function useTransferViewModel() {
 
     const onAmountChange = useCallback((text: string) => {
         setValidationMessage(null);
-        const sanitized = sanitizeTransferAmountInput(text);
+        const raw = normalizeIosAmountDecimalComma(text);
+        const sanitized = sanitizeTransferAmountInput(raw);
         setAmountInputText(sanitized);
         if (sanitized === '') {
             setAmountCents(null);
