@@ -194,6 +194,7 @@ export function HomeScreen() {
                   style={styles.cardFill}
                   maskedAccountNumber={acc.maskedAccountNumber}
                   balance={acc.balance}
+                  isFirst={items.length === 0}
                 />
               </TouchableOpacity>
             ),
@@ -222,6 +223,7 @@ export function HomeScreen() {
                   title={acc.accountAlias}
                   maskedAccountNumber={acc.accountTypeLabel + '' + acc.maskedAccountHome}
                   balance={acc.balance}
+                  isFirst={items.length === 0}
                 />
               </TouchableOpacity>
             ),
