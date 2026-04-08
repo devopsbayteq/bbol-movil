@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Svg, {Circle, Path, Polyline} from 'react-native-svg';
+import Svg, {Circle, Line, Path, Polyline, Text as SvgText} from 'react-native-svg';
 import {
   useNavigation,
   useRoute,
@@ -58,27 +58,160 @@ function RepeatClockIcon({color}: {color: string}) {
   );
 }
 
-function buildChartPolylinePoints(
-  values: number[],
-  width: number,
-  height: number,
-): string {
-  if (values.length === 0) {
-    return '';
-  }
-  const minV = Math.min(...values) * 0.9;
-  const maxV = Math.max(...values) * 1.05;
-  const padY = 8;
-  const innerH = height - padY * 2;
-  const step = values.length > 1 ? width / (values.length - 1) : width;
-  return values
-    .map((v, i) => {
-      const x = i * step;
-      const t = maxV > minV ? (v - minV) / (maxV - minV) : 0.5;
-      const y = padY + innerH * (1 - t);
-      return `${x},${y}`;
-    })
-    .join(' ');
+/** viewBox Figma `1838:1183` — Historial (314×183). */
+const HISTORY_CHART_VB = {w: 314, h: 183};
+
+type HistoryChartProps = {
+  colors: ThemeColors;
+  points: {monthLabel: string; amountLabel: string}[];
+};
+
+function HistoryLineChart({colors, points}: HistoryChartProps) {
+  const p0 = points[0];
+  const p1 = points[1];
+  const p2 = points[2];
+  const gridStroke = colors.borderLight;
+  const lineStroke = colors.chartAccent;
+
+  return (
+    <Svg
+      width="100%"
+      height={HISTORY_CHART_VB.h}
+      viewBox={`0 0 ${HISTORY_CHART_VB.w} ${HISTORY_CHART_VB.h}`}
+      preserveAspectRatio="xMidYMid meet">
+      <Line
+        x1={12.33}
+        y1={29.67}
+        x2={275.67}
+        y2={29.67}
+        stroke={gridStroke}
+        strokeWidth={0.66}
+        strokeDasharray="1.97 1.97"
+        strokeLinecap="round"
+      />
+      <Line
+        x1={12.33}
+        y1={86.67}
+        x2={275.67}
+        y2={86.67}
+        stroke={gridStroke}
+        strokeWidth={0.66}
+        strokeDasharray="1.97 1.97"
+        strokeLinecap="round"
+      />
+      <Line
+        x1={12.33}
+        y1={143.67}
+        x2={275.67}
+        y2={143.67}
+        stroke={gridStroke}
+        strokeWidth={0.66}
+        strokeDasharray="1.97 1.97"
+        strokeLinecap="round"
+      />
+      <Polyline
+        points="48.5,127 148,120.34 260.5,54"
+        fill="none"
+        stroke={lineStroke}
+        strokeWidth={1.29}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Circle
+        cx={46.17}
+        cy={127.18}
+        r={4.17}
+        fill={colors.white}
+        stroke={lineStroke}
+        strokeWidth={1.52}
+        strokeLinecap="round"
+      />
+      <Circle
+        cx={149.18}
+        cy={120.18}
+        r={4.17}
+        fill={colors.white}
+        stroke={lineStroke}
+        strokeWidth={1.52}
+        strokeLinecap="round"
+      />
+      <Circle
+        cx={262.18}
+        cy={54.17}
+        r={4.17}
+        fill={colors.white}
+        stroke={lineStroke}
+        strokeWidth={1.52}
+        strokeLinecap="round"
+      />
+      {p0 ? (
+        <SvgText
+          x={46}
+          y={142}
+          fill={colors.textTertiary}
+          fontSize={8}
+          fontFamily={Lexend.regular}
+          textAnchor="middle">
+          {p0.amountLabel}
+        </SvgText>
+      ) : null}
+      {p1 ? (
+        <SvgText
+          x={149}
+          y={137}
+          fill={colors.textTertiary}
+          fontSize={8}
+          fontFamily={Lexend.regular}
+          textAnchor="middle">
+          {p1.amountLabel}
+        </SvgText>
+      ) : null}
+      {p2 ? (
+        <SvgText
+          x={262}
+          y={71}
+          fill={colors.textTertiary}
+          fontSize={8}
+          fontFamily={Lexend.regular}
+          textAnchor="middle">
+          {p2.amountLabel}
+        </SvgText>
+      ) : null}
+      {p0 ? (
+        <SvgText
+          x={48}
+          y={175}
+          fill={colors.textSecondary}
+          fontSize={12}
+          fontFamily={Lexend.regular}
+          textAnchor="middle">
+          {p0.monthLabel}
+        </SvgText>
+      ) : null}
+      {p1 ? (
+        <SvgText
+          x={149}
+          y={175}
+          fill={colors.textSecondary}
+          fontSize={12}
+          fontFamily={Lexend.regular}
+          textAnchor="middle">
+          {p1.monthLabel}
+        </SvgText>
+      ) : null}
+      {p2 ? (
+        <SvgText
+          x={262}
+          y={175}
+          fill={colors.textSecondary}
+          fontSize={12}
+          fontFamily={Lexend.regular}
+          textAnchor="middle">
+          {p2.monthLabel}
+        </SvgText>
+      ) : null}
+    </Svg>
+  );
 }
 
 export function FrequentPaymentsScreen() {
@@ -98,16 +231,6 @@ export function FrequentPaymentsScreen() {
     () => (selected ? getFrequentPaymentScreenMock(selected) : null),
     [selected],
   );
-
-  const chartW = 260;
-  const chartH = 88;
-  const linePoints = useMemo(() => {
-    if (!mock) {
-      return '';
-    }
-    const vals = mock.chartPoints.map(p => p.value);
-    return buildChartPolylinePoints(vals, chartW, chartH);
-  }, [mock]);
 
   const openDev = useCallback(() => setDevVisible(true), []);
   const closeDev = useCallback(() => setDevVisible(false), []);
@@ -221,55 +344,7 @@ export function FrequentPaymentsScreen() {
 
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>{mock.historyTitle}</Text>
-          <View style={styles.chartArea}>
-            <Svg width={chartW} height={chartH} viewBox={`0 0 ${chartW} ${chartH}`}>
-              <Polyline
-                points={linePoints}
-                fill="none"
-                stroke={colors.chartAccent}
-                strokeWidth={2.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {mock.chartPoints.map((pt, i) => {
-                const vals = mock.chartPoints.map(p => p.value);
-                const step = chartW / Math.max(1, mock.chartPoints.length - 1);
-                const x = i * step;
-                const minV = Math.min(...vals) * 0.9;
-                const maxV = Math.max(...vals) * 1.05;
-                const padY = 8;
-                const innerH = chartH - padY * 2;
-                const t =
-                  maxV > minV ? (pt.value - minV) / (maxV - minV) : 0.5;
-                const cy = padY + innerH * (1 - t);
-                return (
-                  <Circle
-                    key={`${pt.monthLabel}-${i}`}
-                    cx={x}
-                    cy={cy}
-                    r={4}
-                    fill={colors.white}
-                    stroke={colors.chartAccent}
-                    strokeWidth={2}
-                  />
-                );
-              })}
-            </Svg>
-            <View style={styles.chartLabelsRow}>
-              {mock.chartPoints.map(pt => (
-                <Text key={pt.monthLabel} style={styles.chartMonth}>
-                  {pt.monthLabel}
-                </Text>
-              ))}
-            </View>
-            <View style={styles.chartAmountsRow}>
-              {mock.chartPoints.map(pt => (
-                <Text key={pt.monthLabel} style={styles.chartAmount}>
-                  {pt.amountLabel}
-                </Text>
-              ))}
-            </View>
-          </View>
+          <HistoryLineChart colors={colors} points={mock.chartPoints} />
         </View>
 
         <View style={styles.activityCard}>
@@ -523,31 +598,6 @@ function useStyles(colors: ThemeColors) {
           fontFamily: Lexend.regular,
           fontSize: 14,
           color: colors.textPrimary,
-        },
-        chartArea: {
-          gap: 8,
-        },
-        chartLabelsRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 8,
-        },
-        chartMonth: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.textSecondary,
-        },
-        chartAmountsRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 4,
-        },
-        chartAmount: {
-          fontFamily: Lexend.regular,
-          fontSize: 8,
-          lineHeight: 20,
-          color: colors.textTertiary,
         },
         activityCard: {
           backgroundColor: colors.white,
