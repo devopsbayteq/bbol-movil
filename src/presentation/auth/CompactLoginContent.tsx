@@ -24,7 +24,8 @@ import {Lexend} from '../../theme/lexend';
 import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
 import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
 
-const bankBanner = require('../../../assets/images/BBBanner.png');
+// const bankBanner = require('../../../assets/images/BBBanner.png');
+const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const institutionIcon = require('../../../assets/images/institution.png');
@@ -32,7 +33,8 @@ const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 
 const LOGIN_SUBMIT_ICON_SIZE = 24;
-const SUBMIT_SQUARE_SIZE = 56;
+const SUBMIT_SQUARE_SIZE_WIDTH = 60;
+const SUBMIT_SQUARE_SIZE_HEIGHT = 48;
 const BIOMETRIC_ICON_SIZE = 24;
 const IS_IOS = Platform.OS === 'ios';
 const BIOMETRIC_LABEL = IS_IOS ? 'Face ID' : 'Huella';
@@ -126,7 +128,7 @@ export function CompactLoginContent({
     <View style={styles.column}>
       <View style={styles.topRow}>
         <Image
-          source={bankBanner}
+          source={bankBannerTwoLines}
           style={styles.bankLogo}
           resizeMode="contain"
           accessibilityLabel="Banco Bolivariano"
@@ -142,8 +144,9 @@ export function CompactLoginContent({
       </View>
 
       <Text style={styles.welcomeLine} accessibilityRole="text">
-        <Text style={styles.welcomePrefix}>Bienvenido a tu banca móvil, </Text>
-        <Text style={styles.welcomeName}>{greetingName}</Text>
+        <Text style={styles.welcomePrefix}>Bienvenido a tu banca </Text> 
+        {'\n'}
+        <Text style={styles.welcomePrefix}>móvil, </Text><Text style={styles.welcomeName}>{greetingName}</Text>
       </Text>
 
       <View style={styles.inputs}>
@@ -301,12 +304,12 @@ function useStyles(colors: ThemeColors) {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          marginTop: 6,
-          marginBottom: 14,
+          marginTop: 30,
+          marginBottom: 24,
         },
         bankLogo: {
-          width: 196,
-          height: 30,
+          width: 147,
+          height: 41,
         },
         versionText: {
           fontFamily: Lexend.regular,
@@ -346,15 +349,15 @@ function useStyles(colors: ThemeColors) {
         passwordRow: {
           flexDirection: 'row',
           alignItems: 'flex-start',
-          gap: 10,
+          gap: 16,
         },
         passwordFieldWrap: {
           flex: 1,
           minWidth: 0,
         },
         submitSquare: {
-          width: SUBMIT_SQUARE_SIZE,
-          height: SUBMIT_SQUARE_SIZE,
+          width: SUBMIT_SQUARE_SIZE_WIDTH,
+          height: SUBMIT_SQUARE_SIZE_HEIGHT,
           borderRadius: 12,
           backgroundColor: colors.primary,
           alignItems: 'center',
