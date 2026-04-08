@@ -239,13 +239,24 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <InvestmentCard
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              productName={inv.productName}
-              currentValue={inv.currentValue}
-              currency={inv.currency}
-            />
+              onPress={() =>
+                navigation.navigate('InvestmentDetail', {
+                  investmentGuid: inv.investmentGuid,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de inversión">
+              <InvestmentCard
+                style={styles.cardFill}
+                productName={inv.productName}
+                currentValue={inv.currentValue}
+                currency={inv.currency}
+              />
+            </TouchableOpacity>
           ),
         });
       }

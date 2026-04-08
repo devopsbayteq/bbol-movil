@@ -124,7 +124,8 @@ export function MainTabNavigator() {
         component={HomeStackNavigator}
         options={({route}) => {
           const focused = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
-          const hideTabBar = focused === 'CardDetail';
+          const hideTabBar =
+            focused === 'CardDetail' || focused === 'InvestmentDetail';
           return {
             title: 'Inicio',
             tabBarIcon: tabBarIconHome,
