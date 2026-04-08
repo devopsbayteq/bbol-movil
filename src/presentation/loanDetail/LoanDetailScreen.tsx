@@ -75,9 +75,12 @@ export function LoanDetailScreen() {
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<HomeStackParamList, 'LoanDetail'>>();
-  const {loanGuid} = route.params;
+  const {loanGuid, loanBalance} = route.params;
 
-  const {detail, isLoading, errorMessage} = useLoanDetailViewModel(loanGuid);
+  const {detail, isLoading, errorMessage} = useLoanDetailViewModel(
+    loanGuid,
+    loanBalance,
+  );
 
   const [devModalVisible, setDevModalVisible] = useState(false);
   const openHistoryDev = useCallback(() => setDevModalVisible(true), []);
@@ -298,6 +301,7 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 24,
           paddingBottom: 32,
           gap: 16,
+          paddingTop: 16,
         },
         centered: {
           flex: 1,
@@ -319,8 +323,8 @@ function useStyles(colors: ThemeColors) {
         },
         headerTitle: {
           flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 14,
+          fontFamily: Lexend.semiBold,
+          letterSpacing: 1,
           color: colors.textPrimary,
           textAlign: 'center',
           textTransform: 'uppercase',

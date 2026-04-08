@@ -101,12 +101,14 @@ jest.mock('../../src/navigation/MovementsStackNavigator', () => {
   };
 });
 
-jest.mock('../../src/presentation/myProfile/MyProfileScreen.tsx', () => {
+jest.mock('../../src/presentation/placeholders/TabSectionPlaceholderScreen', () => {
   const R = require('react');
   const {Text} = require('react-native');
   return {
-    MyProfileScreen: () =>
-      R.createElement(Text, {testID: 'screen-my-profile'}, 'MyProfile'),
+    PaymentsTabScreen: () =>
+      R.createElement(Text, {testID: 'screen-payments'}, 'PaymentsTab'),
+    OthersTabScreen: () =>
+      R.createElement(Text, {testID: 'screen-others'}, 'OthersTab'),
   };
 });
 
@@ -136,13 +138,15 @@ describe('MainTabNavigator', () => {
     expect(tree.findByProps({testID: 'screen-home'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-transfer-stack'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-movements'})).toBeTruthy();
-    expect(tree.findByProps({testID: 'screen-my-profile'})).toBeTruthy();
+    expect(tree.findByProps({testID: 'screen-payments'})).toBeTruthy();
+    expect(tree.findByProps({testID: 'screen-others'})).toBeTruthy();
 
     const flat = JSON.stringify(root!.toJSON());
     expect(flat).toContain('Inicio');
     expect(flat).toContain('Transferir');
-    expect(flat).toContain('Movimientos');
-    expect(flat).toContain('Perfil');
+    expect(flat).toContain('Retirar');
+    expect(flat).toContain('Pagos');
+    expect(flat).toContain('Otros');
   });
 
   test('oculta la barra de pestañas en Movimientos cuando la ruta enfocada es MovementDetail', async () => {

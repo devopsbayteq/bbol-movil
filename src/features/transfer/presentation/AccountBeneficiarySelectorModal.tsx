@@ -4,7 +4,7 @@ import {TransferIconClose} from "./components/transferIcons.tsx";
 import {accountTypeModalLabel} from '../utils/accountDisplay';
 import {formatMoneyEc} from '../utils/formatMoneyEc';
 import React, {useMemo} from 'react';
-import {AccountBalance} from '../domain/entities/ContractBalance';
+import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 import {ThemeColors, useTheme} from '../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../theme/lexend';
