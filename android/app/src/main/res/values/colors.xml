@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Alineado con ThemeColors.primary (modo claro); evita franja blanca en la barra de navegación. -->
-    <color name="bb_primary">#008292</color>
-</resources>

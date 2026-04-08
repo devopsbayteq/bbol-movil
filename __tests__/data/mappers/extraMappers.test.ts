@@ -121,5 +121,8 @@ describe('contractBalanceMapper', () => {
     expect(entity.loans[0].loanGuid).toBe('l1');
     expect(entity.investments[0].currency).toBe('USD');
     expect(entity.frequentPayments[0].beneficiaryName).toBe('Servicio');
+    expect(entity.banners).toEqual([]);
+    expect(entity.homeDashboardIcons).toEqual([]);
+    expect(entity.recentTransactions).toEqual([]);
   });
 });

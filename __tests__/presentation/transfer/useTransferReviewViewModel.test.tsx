@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useTransferReviewViewModel} from '../../../src/presentation/transfer/TransferReview/useTransferReviewViewModel';
-import {formatMoneyEc} from '../../../src/utils/formatMoneyEc';
 
 // ── Módulos nativos ──────────────────────────────────────────────────────────
 jest.mock('react-native-encrypted-storage', () => ({
@@ -33,10 +32,6 @@ const defaultRouteParams = {
   },
   fromHolderName: 'Titular Demo',
   fromAccountLine: 'Ahorros ****1111',
-  fromAccountTitle: 'Ahorros',
-  fromAccountSubtitle: 'Cuenta de Ahorros ****1111',
-  fromBalanceDisplay: formatMoneyEc(1000),
-  toBalanceDisplay: formatMoneyEc(500),
   accountId: 'acc-savings-001',
   concept: 'Pago servicios',
 };
@@ -166,10 +161,11 @@ describe('useTransferReviewViewModel', () => {
     expect(latest?.conceptDisplay).toBe('—');
   });
 
-  // ── commissionDisplay ───────────────────────────────────────────────────
-  test('commissionDisplay muestra comisión monetaria cuando es Sin cargo', async () => {
+  // ── transferDateLabel ────────────────────────────────────────────────────
+  test('transferDateLabel es una cadena no vacía', async () => {
     await mount();
-    expect(latest?.commissionDisplay).toBe(formatMoneyEc(0));
+    expect(typeof latest?.transferDateLabel).toBe('string');
+    expect(latest?.transferDateLabel.length).toBeGreaterThan(0);
   });
 
   // ── onConfirm — cuenta propia ────────────────────────────────────────────

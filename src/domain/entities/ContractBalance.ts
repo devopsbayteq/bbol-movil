@@ -1,14 +1,10 @@
-import {BeneficiaryContact} from "./BeneficiaryContact.ts";
-
-export type AccountKind = 'Savings' | 'Checking' | 'other';
+export type AccountKind = 'savings' | 'checking' | 'other';
 
 export interface AccountBalance {
   accountGuid: string;
   maskedAccountNumber: string;
-  accountKind: string;
-  accountTypeLabel:string;
+  accountKind: AccountKind;
   balance: number;
-  beneficiary:BeneficiaryContact
 }
 
 export interface CreditCardBalance {
@@ -36,10 +32,47 @@ export interface FrequentPayment {
   beneficiaryType: string;
 }
 
+export interface HomeBanner {
+  text: string;
+  buttonText: string;
+  buttonLink: string;
+  landscape: string;
+}
+
+export interface HomeDashboardIcon {
+  iconCode: string;
+  text: string;
+}
+
+/** Movimiento reciente en home (`recentTransactions` del API). */
+export interface HomeRecentTransaction {
+  transactionGuid: string;
+  transactionIdentifier: string;
+  beneficiaryName: string;
+  beneficiaryAccountType: string;
+  beneficiaryAccountTypeLabel: string;
+  beneficiaryAccountNumber: string;
+  ownerAccountType: string;
+  ownerAccountLabel: string;
+  accountNumber: string;
+  accountType: string;
+  accountTypeLabel: string;
+  amount: number;
+  transferDate: string;
+  transactionTypeLabel: string;
+  transactionType: string;
+  concept: string;
+  balanceAfterTransaction: number;
+  allowedShared: boolean;
+}
+
 export interface ContractBalance {
   accounts: AccountBalance[];
   creditCards: CreditCardBalance[];
   loans: LoanBalance[];
   investments: InvestmentBalance[];
   frequentPayments: FrequentPayment[];
+  banners: HomeBanner[];
+  homeDashboardIcons: HomeDashboardIcon[];
+  recentTransactions: HomeRecentTransaction[];
 }

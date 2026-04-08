@@ -1,16 +1,7 @@
 import {useCallback, useState} from 'react';
 
 import {useDI} from '../../di';
-import {
-  hasDisallowedLoginUsernameCharacters,
-  LOGIN_USERNAME_MAX_LENGTH,
-  sanitizeLoginUsernameInput,
-} from '../../domain/validation/loginCredentials';
-import {
-  registerAliasValidationMessages,
-  sanitizeRegisterAliasInput,
-  validateRegisterAliasInput,
-} from '../../domain/validation/registerAlias';
+import {validateRegisterAliasInput} from '../../domain/validation/registerAlias';
 
 export function useRegisterAliasViewModel() {
   const {registerAliasUseCase} = useDI();
@@ -20,27 +11,17 @@ export function useRegisterAliasViewModel() {
   const [isLoading, setIsLoading] = useState(false);
 
   const onChangeAlias = useCallback((value: string) => {
-    const sanitized = sanitizeLoginUsernameInput(value);
-
-    if (sanitized.length > LOGIN_USERNAME_MAX_LENGTH) {
-      setAlias(sanitized.slice(0, LOGIN_USERNAME_MAX_LENGTH));
-      setInlineError(registerAliasValidationMessages.usernameTooLong);
-    } else {
-      const aliasError = hasDisallowedLoginUsernameCharacters(value)
-        ? registerAliasValidationMessages.usernameInvalidCharacters
-        : sanitized
-          ? validateRegisterAliasInput(sanitized)
-          : null;
-      setAlias(sanitized);
-      setInlineError(aliasError);
+    setAlias(value);
+    if (inlineError) {
+      setInlineError(null);
     }
-
-    setSubmitError(prev => (prev ? null : prev));
-  }, []);
+    if (submitError) {
+      setSubmitError(null);
+    }
+  }, [inlineError, submitError]);
 
   const submit = useCallback(async (): Promise<boolean> => {
-    const normalized = sanitizeRegisterAliasInput(alias);
-    const validation = validateRegisterAliasInput(normalized);
+    const validation = validateRegisterAliasInput(alias);
     if (validation) {
       setInlineError(validation);
       return false;
@@ -51,7 +32,7 @@ export function useRegisterAliasViewModel() {
     setInlineError(null);
 
     try {
-      await registerAliasUseCase.execute(normalized);
+      await registerAliasUseCase.execute(alias);
       return true;
     } catch (err) {
       const message =

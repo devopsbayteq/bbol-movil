@@ -233,7 +233,7 @@ export function TransactionsScreen() {
   );
 
   const onBack = useCallback(() => {
-    tabNavigation?.navigate('ConsolidatedPosition', {});
+    tabNavigation?.navigate('Home', {});
   }, [tabNavigation]);
 
   const renderMovementRow = useCallback(

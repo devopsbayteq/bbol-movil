@@ -3,10 +3,9 @@ export interface ThemeColors {
   surface: string;
   primary: string;
   primaryLight: string;
-  primaryIconContainerBg: string;
-  /** Fondo del bloque superior en pantalla de transferencia (Figma blue-50). */
-  transferSectionBg: string;
   textPrimary: string;
+  textBlack: string;
+  nextPayCircleBg: string;
   textSecondary: string;
   textTertiary: string;
   textLabel: string;
@@ -29,6 +28,28 @@ export interface ThemeColors {
   balanceDivider: string;
   /** Sombra suave (p. ej. celdas OTP en iOS). */
   shadowSoft: string;
+
+  /** Home: cabecera oscura (marca; mismo valor en light/dark). */
+  homeHeaderBackground: string;
+  homeAvatarCircle: string;
+  homeLink: string;
+  /** Botón icono (logout) sobre cabecera Home. */
+  homeHeaderIconButtonBg: string;
+  /** Tarjeta de producto clara (cuentas). */
+  homeProductCardSurface: string;
+  homeProductCardBorder: string;
+  /** Chip filtro seleccionado — borde acento claro. */
+  homeChipSelectedBorder: string;
+  /** Botón mostrar/ocultar saldo sobre tarjeta clara. */
+  homeBalanceToggleBg: string;
+  /** Tarjeta de crédito preview (fila productos). */
+  homeCreditCardSurface: string;
+  homeLoanCardBackground: string;
+  homeLoanCardBorder: string;
+  homeBorderSoft: string;
+  homePrimaryHover: string;
+  lineSeparator: string;
+
 }
 
 export const LightColors: ThemeColors = {
@@ -36,9 +57,9 @@ export const LightColors: ThemeColors = {
   surface: '#FFFFFF',
   primary: '#008292',
   primaryLight: '#B3E5EC',
-  primaryIconContainerBg: '#D0F0F6',
-  transferSectionBg: '#EBF3F9',
   textPrimary: '#1A1A1A',
+  textBlack: '#000000',
+  nextPayCircleBg: '#d2e4f0',
   textSecondary: '#474747',
   textTertiary: '#757575',
   textLabel: '#1A1A1A',
@@ -50,6 +71,7 @@ export const LightColors: ThemeColors = {
   buttonSecondaryBg: '#E2E2E2',
   iconPrimary: '#000000',
   linkPrimary: '#008292',
+  homeLink: '#0167ae',
   error: '#DC2626',
   errorBg: '#FEF2F2',
   errorBorder: '#FECACA',
@@ -59,7 +81,20 @@ export const LightColors: ThemeColors = {
   warningBg: '#FFFBEB',
   white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.2)',
-  shadowSoft: 'rgba(0,0,0,0.08)',
+  shadowSoft: 'rgb(0, 0, 0)',
+  homeHeaderBackground: '#0B515C',
+  homeAvatarCircle: '#94E0ED',
+  homeHeaderIconButtonBg: '#096877',
+  homeProductCardSurface: '#eff6f7',
+  homeProductCardBorder: '#FFFFFF',
+  homeChipSelectedBorder: '#D0F0F6',
+  homeBalanceToggleBg: '#d0f0f6',
+  homeCreditCardSurface: '#262626',
+  homeLoanCardBackground: '#0067AE',
+  homeLoanCardBorder: '#E0EBFF',
+  homeBorderSoft: '#EFF6F7',
+  homePrimaryHover: '#06A3B6',
+  lineSeparator: '#d6d6d6',
 };
 
 export const DarkColors: ThemeColors = {
@@ -67,9 +102,9 @@ export const DarkColors: ThemeColors = {
   surface: '#1F2937',
   primary: '#22D3EE',
   primaryLight: '#164E63',
-  primaryIconContainerBg: '#1E3A4A',
-  transferSectionBg: '#1E293B',
   textPrimary: '#F9FAFB',
+  textBlack: '#000000',
+  nextPayCircleBg: '#d2e4f0',
   textSecondary: '#D1D5DB',
   textTertiary: '#9CA3AF',
   textLabel: '#E5E7EB',
@@ -81,6 +116,7 @@ export const DarkColors: ThemeColors = {
   buttonSecondaryBg: '#374151',
   iconPrimary: '#F9FAFB',
   linkPrimary: '#22D3EE',
+  homeLink: '#0167ae',
   error: '#F87171',
   errorBg: '#451A1A',
   errorBorder: '#7F1D1D',
@@ -91,4 +127,17 @@ export const DarkColors: ThemeColors = {
   white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.15)',
   shadowSoft: 'rgba(0,0,0,0.35)',
+  homeHeaderBackground: '#0B515C',
+  homeAvatarCircle: '#94E0ED',
+  homeHeaderIconButtonBg: '#096877',
+  homeProductCardSurface: '#D0F0F6',
+  homeProductCardBorder: '#FFFFFF',
+  homeChipSelectedBorder: '#D0F0F6',
+  homeBalanceToggleBg: '#94E0ED',
+  homeCreditCardSurface: '#262626',
+  homeLoanCardBackground: '#0067AE',
+  homeLoanCardBorder: '#E0EBFF',
+  homeBorderSoft: '#EFF6F7',
+  homePrimaryHover: '#06A3B6',
+  lineSeparator: '#374151',
 };

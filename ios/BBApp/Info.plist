@@ -41,8 +41,6 @@
 	<string></string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
-  <key>ITSAppUsesNonExemptEncryption</key>
-  <false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lexend_400Regular.ttf</string>

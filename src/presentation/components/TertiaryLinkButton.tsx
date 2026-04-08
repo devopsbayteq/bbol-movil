@@ -5,10 +5,9 @@ import {
   Image,
   StyleSheet,
   type StyleProp,
-  type TextStyle,
-  type ViewStyle
+  type ViewStyle,
 } from 'react-native';
-import {useTheme, type ThemeColors} from '../../providers';
+import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 
 interface TertiaryLinkButtonProps {
@@ -17,7 +16,6 @@ interface TertiaryLinkButtonProps {
   iconUri?: string;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
-  labelStyle?: StyleProp<TextStyle>;
   testID?: string;
 }
 
@@ -26,7 +24,6 @@ export function TertiaryLinkButton({
   iconUri,
   onPress,
   style,
-  labelStyle,
   testID,
 }: TertiaryLinkButtonProps) {
   const {colors} = useTheme();
@@ -47,7 +44,7 @@ export function TertiaryLinkButton({
           resizeMode="contain"
         />
       ) : null}
-      <Text style={[styles.label, labelStyle]}>{title}</Text>
+      <Text style={styles.label}>{title}</Text>
     </TouchableOpacity>
   );
 }

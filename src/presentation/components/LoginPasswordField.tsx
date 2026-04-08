@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
@@ -12,10 +13,6 @@ import {
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
-import {Platform} from 'react-native';
-
-import EyeSvg from '../../../assets/images/svg/eye.svg';
-import EyeSlashSvg from '../../../assets/images/svg/eye-slash.svg';
 
 function EyeOnIcon({color}: {color: string}) {
   return (
@@ -117,9 +114,9 @@ export function LoginPasswordField({
           style={styles.eyeButton}
           hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
           {visible ? (
-  <EyeSvg width={20} height={20} color={colors.iconPrimary} />
-) : (
-  <EyeSlashSvg width={20} height={20} color={colors.iconPrimary} />
+            <EyeOnIcon color={colors.iconPrimary} />
+          ) : (
+            <EyeOffIcon color={colors.iconPrimary} />
           )}
         </TouchableOpacity>
       </View>
@@ -154,11 +151,20 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           paddingLeft: 16,
           paddingRight: 12,
-          height: 52,
+          paddingVertical: 14,
           borderWidth: 0,
         },
-        /** Sin sombra; mantiene la prop `variant` por compatibilidad. */
-        inputRowElevated: {},
+        inputRowElevated:
+          Platform.OS === 'ios'
+            ? {
+                shadowColor: '#000000',
+                shadowOffset: {width: 0, height: 2},
+                shadowOpacity: 0.12,
+                shadowRadius: 6,
+              }
+            : {
+                elevation: 4,
+              },
         inputRowError: {
           borderWidth: 1,
           borderColor: colors.error,
@@ -167,11 +173,9 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           fontFamily: Lexend.regular,
           fontSize: 14,
-          ...(Platform.OS === 'android' ? {lineHeight: 22} : {}),
+          lineHeight: 22,
           color: colors.textPrimary,
-          ...(Platform.OS === 'ios'
-            ? {paddingTop: 0, paddingBottom: 3}
-            : {paddingVertical: 0, textAlignVertical: 'center'}),
+          paddingVertical: 0,
         },
         eyeButton: {
           padding: 4,

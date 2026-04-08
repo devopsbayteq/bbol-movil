@@ -76,19 +76,25 @@ function useStyles(colors: ThemeColors) {
         input: {
           fontFamily: Lexend.regular,
           fontSize: 14,
-          ...(Platform.OS === 'android' ? {lineHeight: 22} : {}),
+          lineHeight: 22,
           color: colors.textPrimary,
           backgroundColor: colors.inputBg,
           borderRadius: 8,
           paddingHorizontal: 16,
-          height: 52,
-          ...(Platform.OS === 'ios'
-            ? {paddingTop: 0, paddingBottom: 3}
-            : {paddingVertical: 0, textAlignVertical: 'center'}),
+          paddingVertical: 14,
           borderWidth: 0,
         },
-        /** Misma apariencia base que `flat`; sin sombra (diseño login). */
-        inputElevated: {},
+        inputElevated:
+          Platform.OS === 'ios'
+            ? {
+                shadowColor: '#000000',
+                shadowOffset: {width: 0, height: 2},
+                shadowOpacity: 0.12,
+                shadowRadius: 6,
+              }
+            : {
+                elevation: 4,
+              },
         inputError: {
           borderWidth: 1,
           borderColor: colors.error,
