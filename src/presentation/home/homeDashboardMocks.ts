@@ -12,7 +12,7 @@ export const FALLBACK_HOME_BANNERS: HomeBanner[] = [
 
 /** Datos de ejemplo cuando el API aún no envía iconos del dashboard. */
 export const FALLBACK_HOME_FREQUENT_PAYMENTS: FrequentPayment[] = [
-  {beneficiaryName: 'Andrea Briceño', beneficiaryType: 'user'},
+  {beneficiaryName: 'Agua casa', beneficiaryType: 'water'},
   {beneficiaryName: 'Pago luz', beneficiaryType: 'bulb'},
   {beneficiaryName: 'Jannet Ruiz', beneficiaryType: 'user'},
   {beneficiaryName: 'Centro Educativo', beneficiaryType: 'school'},

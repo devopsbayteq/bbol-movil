@@ -17,6 +17,17 @@ describe('buildLoanDetail', () => {
     expect(d.capitalPaid + d.outstandingBalance).toBeCloseTo(d.amountGranted, 2);
     expect(d.paidProgress).toBeGreaterThanOrEqual(0);
     expect(d.paidProgress).toBeLessThanOrEqual(1);
+    expect(d.totalToReceiveAmount).toBeGreaterThan(0);
+    expect(d.totalToReceiveAmount).toBeCloseTo(
+      d.amountGranted + d.interestAtMaturity,
+      2,
+    );
+    expect(d.primaryProgressRatio).toBeGreaterThanOrEqual(0);
+    expect(d.primaryProgressRatio).toBeLessThanOrEqual(1);
+    expect(d.secondaryProgressRatio).toBeLessThanOrEqual(d.primaryProgressRatio);
+    expect(d.monthsElapsed).toBeGreaterThanOrEqual(1);
+    expect(d.monthsElapsed).toBeLessThan(d.monthsTotal);
+    expect(d.termMonthsLabel).toMatch(/meses$/);
   });
 
   it('es determinista para el mismo guid', () => {
@@ -24,5 +35,7 @@ describe('buildLoanDetail', () => {
     const b = buildLoanDetail(base);
     expect(a.maskedAccountNumber).toBe(b.maskedAccountNumber);
     expect(a.productLabel).toBe(b.productLabel);
+    expect(a.totalToReceiveAmount).toBe(b.totalToReceiveAmount);
+    expect(a.maskedCreditAccount).toBe(b.maskedCreditAccount);
   });
 });
