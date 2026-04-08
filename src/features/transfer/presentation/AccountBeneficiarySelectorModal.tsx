@@ -93,10 +93,10 @@ export const AccountBeneficiarySelectorModal = ({
                                         ]}>
                                         <View style={styles.accountPickLeft}>
                                             <Text style={styles.accountPickType}>
-                                                {accountTypeModalLabel(item)}
+                                                {item.accountTypeLabel}
                                             </Text>
                                             <Text style={styles.accountPickNumber}>
-                                                {item.maskedAccountNumber}
+                                                {`${item.accountTypeLabel} ${item.beneficiary.lastFourDigits}`}
                                             </Text>
                                         </View>
                                         <View style={styles.accountPickRight}>
@@ -310,7 +310,7 @@ function useStyles(colors: ThemeColors) {
                 },
                 modalHeaderTitle: {
                     flex: 1,
-                    fontFamily: Lexend.semiBold,
+                    fontFamily: Lexend.regular,
                     fontSize: 14,
                     lineHeight: 22,
                     color: colors.iconPrimary,
