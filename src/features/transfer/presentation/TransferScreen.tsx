@@ -25,7 +25,7 @@ import {ErrorBannerComponent} from './transferInit/components/ErrorBannerCompone
 import {Button, TertiaryLinkButton} from './ui';
 import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal.tsx';
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
-import {SpacerView} from './ui/SpacerView';
+import {SpacerView} from './ui';
 import AngleArrow from '../../../../assets/images/svg/angles-down.svg';
 
 const AMOUNT_PLACEHOLDER = formatMoneyUsdDisplay(0);
@@ -42,7 +42,7 @@ export function TransferScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
 
-    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>();
+    const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
 
     const {
         amountDisplayText,
@@ -128,7 +128,7 @@ export function TransferScreen() {
     const onBack = () => {
         const tabNav =
             navigationTab.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate('ConsolidatedPosition', {});
+        tabNav?.navigate('Home');
     };
 
     const bridgeOverlayTop = useMemo(() => {
@@ -349,7 +349,6 @@ function useStyles(colors: ThemeColors) {
                     flexGrow: 1,
                 },
                 hero: {
-                    backgroundColor: colors.transferSectionBg,
                     paddingHorizontal: 24,
                     paddingTop: 34,
                     paddingBottom: 24,
@@ -375,7 +374,6 @@ function useStyles(colors: ThemeColors) {
                     width: BRIDGE_CIRCLE_SIZE,
                     height: BRIDGE_CIRCLE_SIZE,
                     borderRadius: BRIDGE_CIRCLE_SIZE / 2,
-                    backgroundColor: colors.primaryIconContainerBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                 },

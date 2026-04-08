@@ -29,7 +29,7 @@ export function TransactionHeaderInformation({
   return (
     <View style={styles.successHeader}>
       <Image
-        source={require('../../../../../assets/images/banck_logo_with_name.png')}
+        source={require('../../../../../assets/images/bank_logo_voucher.png')}
         style={styles.bankLogo}
         resizeMode="contain"
         accessibilityIgnoresInvertColors

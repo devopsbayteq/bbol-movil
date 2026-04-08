@@ -30,7 +30,7 @@ export function CardAccountItem({
         showBottomBorder && styles.cardItemWithBottomBorder,
       ]}>
       <View style={styles.iconChip}>
-        <IconComponent color={colors.primary} size={16} />
+        <IconComponent color={colors.primary} />
       </View>
       <View style={styles.textColumn}>
         <Text style={styles.label}>{origin}</Text>

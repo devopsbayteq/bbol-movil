@@ -43,7 +43,7 @@ function useStyles(colors: ThemeColors) {
                     transform: [{rotate: '-30deg'}],
                 },
                 foreground: {
-                    gap: 24,
+                
                     width: '100%',
                     zIndex: 1,
                 },

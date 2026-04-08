@@ -42,10 +42,7 @@ export const TransferVoucherScreen = () => {
     navigation.popToTop();
     const tabNav =
       navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-    tabNav?.navigate({
-      name: 'ConsolidatedPosition',
-      params: {refreshHome: Date.now()},
-    });
+    tabNav?.navigate('Home');
   }, [navigation]);
 
   const {viewShotRef, shareVoucher} = useTransferVoucherCaptureShare();

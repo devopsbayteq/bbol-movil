@@ -26,7 +26,6 @@ export interface ThemeColors {
   warningBg: string;
   white: string;
   balanceDivider: string;
-  /** Sombra suave (p. ej. celdas OTP en iOS). */
   shadowSoft: string;
 }
 

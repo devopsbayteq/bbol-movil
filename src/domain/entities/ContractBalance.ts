@@ -44,7 +44,6 @@ export interface HomeDashboardIcon {
   text: string;
 }
 
-/** Movimiento reciente en home (`recentTransactions` del API). */
 export interface HomeRecentTransaction {
   transactionGuid: string;
   transactionIdentifier: string;

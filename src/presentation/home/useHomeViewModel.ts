@@ -36,7 +36,7 @@ export function useHomeViewModel() {
     if (!d) {
       return [];
     }
-    return d.banners.length > 0 ? d.banners : FALLBACK_HOME_BANNERS;
+    return  FALLBACK_HOME_BANNERS;
   }, [query.data]);
 
   const frequentPaymentsForHome: FrequentPayment[] = useMemo(() => {
@@ -57,9 +57,7 @@ export function useHomeViewModel() {
     if (!d) {
       return [];
     }
-    if (d.recentTransactions?.length) {
-      return d.recentTransactions.map(mapHomeRecentTransactionToActivityItem);
-    }
+
     return MOCK_RECENT_ACTIVITY;
   }, [query.data]);
 

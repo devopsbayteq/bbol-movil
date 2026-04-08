@@ -54,10 +54,7 @@ export function TransferReviewScreen() {
         navigation.popToTop();
         const tabNav =
             navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-        tabNav?.navigate({
-            name: 'ConsolidatedPosition',
-            params: {refreshHome: Date.now()},
-        });
+        tabNav?.navigate('Home');
     }, [navigation]);
 
     const onTransferSuccess = useCallback((data: TransferDataResume) => {
@@ -138,7 +135,7 @@ export function TransferReviewScreen() {
                         accessibilityRole="button"
                         accessibilityLabel="Volver para cambiar cuenta de origen">
                         <View style={styles.iconChip}>
-                            <WalletTransfer color={colors.primary} size={16} />
+                            <WalletTransfer color={colors.primary}  />
                         </View>
                         <View style={styles.cardBody}>
                             <Text style={styles.desdeLabel}>Desde</Text>
@@ -154,7 +151,7 @@ export function TransferReviewScreen() {
 
                     <View style={styles.paraRow}>
                         <View style={styles.iconChip}>
-                            <UserTransferIcon color={colors.primary} size={16} />
+                            <UserTransferIcon color={colors.primary} />
                         </View>
                         <View style={styles.cardBody}>
                             <Text style={styles.haciaLabel}>Hacia</Text>
