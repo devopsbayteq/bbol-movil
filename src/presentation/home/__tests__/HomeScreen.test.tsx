@@ -63,6 +63,8 @@ const mockColors = {
   homeChipSelectedBorder: '#D0F0F6',
   homeBalanceToggleBg: '#94E0ED',
   homeCreditCardSurface: '#262626',
+  homeCreditCardGradientTop: '#323232',
+  homeCreditCardGradientBottom: '#1A1A1A',
   homeLoanCardBackground: '#0067AE',
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
