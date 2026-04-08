@@ -74,19 +74,7 @@ function useStyles(colors: ThemeColors) {
                     gap: 16,
                     padding: 16,
                     borderRadius: 12,
-                    backgroundColor: colors.surface,
-                    ...Platform.select({
-                        ios: {
-                            shadowColor: '#000',
-                            shadowOffset: {width: 0, height: 4},
-                            shadowOpacity: 0.08,
-                            shadowRadius: 4,
-                        },
-                        android: {
-                            elevation: 3,
-                        },
-                        default: {},
-                    }),
+                    backgroundColor: colors.surface
                 },
                 cardDisable: {
                     flexDirection: 'row',

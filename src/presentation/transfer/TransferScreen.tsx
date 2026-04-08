@@ -28,7 +28,6 @@ import {Button, TertiaryLinkButton} from '../components';
 import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal.tsx';
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
 import {SpacerView} from "../components/SpacerView.tsx";
-
 const ZERO_DISPLAY = formatMoneyUsdDisplay(0);
 
 export function TransferScreen() {

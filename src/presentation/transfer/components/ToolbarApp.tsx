@@ -4,7 +4,7 @@ import React, {useMemo} from "react";
 import {ThemeColors, useTheme} from "../../../providers";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Lexend} from "../../../theme/lexend.ts";
-
+import BackNavigationArrow  from '../../../../assets/images/svg/arrow-back-left.svg'
 interface ToolbarAppProps {
     title?: string;
     onBackPress?: () => void;
@@ -35,7 +35,7 @@ export const ToolbarApp = ({
                         onBackPress();
                     }}
                     style={styles.backBtn}>
-                    <TransferIconArrowLeft color={colors.iconPrimary} size={20} />
+                    <BackNavigationArrow color={colors.iconPrimary} size={20} />
                 </TouchableOpacity>
             )}
             <Text
@@ -62,7 +62,7 @@ function useStyles(colors: ThemeColors) {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    minHeight: 64,
+                    minHeight: 72,
                     paddingHorizontal: 16,
                     backgroundColor: colors.white,
                 },

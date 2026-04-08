@@ -1,7 +1,5 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
-  TransferIconArrowRight,
-  TransferIconArrowUp,
   TransferIconUser,
   TransferIconWallet,
 } from './transferIcons.tsx';
@@ -9,7 +7,9 @@ import React, {useMemo} from 'react';
 import type {AccountBalance} from '../../../domain/entities/ContractBalance.ts';
 import {ThemeColors, useTheme} from '../../../providers';
 import {Lexend} from '../../../theme/lexend.ts';
-
+import ArrowBack from "../../../../assets/images/svg/arrow-transfer.svg"
+import WalletTransfer from "../../../../assets/images/svg/walletransfer.svg"
+import UserTransferIcon from "../../../../assets/images/svg/user_transfer.svg"
 export type AccountSelectorVariant = 'from' | 'to';
 
 interface AccountSelectorButtonProps {
@@ -49,9 +49,9 @@ export function AccountSelectorButton({
       disabled={accounts.length <= 1}>
       <View style={styles.iconChip}>
         {variant === 'from' ? (
-          <TransferIconWallet color={colors.primary} size={16} />
+          <WalletTransfer color={colors.primary} size={16} />
         ) : (
-          <TransferIconUser color={colors.primary} size={16} />
+          <UserTransferIcon color={colors.primary} size={16} />
         )}
       </View>
       <View style={styles.cardBody}>
@@ -69,8 +69,8 @@ export function AccountSelectorButton({
         <View style={styles.trailingFrom}>
           <Text style={styles.balanceText}>{balanceLabel ?? ''}</Text>
           {accounts.length > 1 ? (
-            <View style={styles.chevronRotated}>
-              <TransferIconArrowUp color={colors.iconPrimary} size={16} />
+            <View >
+              <ArrowBack color={colors.iconPrimary} size={16} />
             </View>
           ) : (
             <View style={styles.cardChevronSpacer} />
@@ -80,7 +80,7 @@ export function AccountSelectorButton({
         <View style={styles.trailingTo}>
           <Text style={styles.balanceText}>{balanceLabel ?? ''}</Text>
           {accounts.length > 1 ? (
-            <TransferIconArrowRight color={colors.iconPrimary} size={16} />
+            <ArrowBack color={colors.iconPrimary} size={16} />
           ) : (
             <View style={styles.cardChevronSpacer} />
           )}
@@ -146,9 +146,6 @@ function useStyles(colors: ThemeColors) {
           fontSize: 12,
           lineHeight: 20,
           color: colors.textSecondary,
-        },
-        chevronRotated: {
-          transform: [{rotate: '90deg'}],
         },
         trailingTo: {
           flexDirection: 'row',
