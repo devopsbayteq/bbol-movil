@@ -13,6 +13,7 @@ import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 import {Platform} from 'react-native';
+import {LOGIN_INPUT_OUTER_HEIGHT} from './loginFieldLayout';
 
 function EyeOnIcon({color}: {color: string}) {
   return (
@@ -151,7 +152,7 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           paddingLeft: 16,
           paddingRight: 12,
-          height: 52,
+          height: LOGIN_INPUT_OUTER_HEIGHT,
           borderWidth: 0,
         },
         /** Sin sombra; mantiene la prop `variant` por compatibilidad. */

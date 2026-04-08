@@ -119,7 +119,6 @@ export function RegisterAliasScreen() {
             hasError={!!inlineError}
             errorMessage={inlineError ?? undefined}
             errorTestID="register-alias-input-error"
-            variant="elevated"
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="done"

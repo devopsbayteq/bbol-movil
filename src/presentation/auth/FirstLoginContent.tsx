@@ -100,7 +100,6 @@ export function FirstLoginContent({
           autoCorrect={false}
           editable={!isBusy}
           autoComplete="username"
-          variant="elevated"
         />
         <Pressable
           onPress={showDevelopmentNotice}
