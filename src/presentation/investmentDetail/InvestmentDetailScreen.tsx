@@ -218,6 +218,7 @@ export function InvestmentDetailScreen() {
             </View>
 
             <View style={styles.heroBalanceRow}>
+              <View style={styles.heroBalanceSide} />
               <View style={styles.heroAmountCol}>
                 <Text style={styles.heroAmount} numberOfLines={1}>
                   {amountMasked ? '$**.**' : formatCurrency(d.currentValue)}
@@ -226,19 +227,21 @@ export function InvestmentDetailScreen() {
                   Próximo pago: {formatInvestmentDate(d.nextPaymentDateIso)}
                 </Text>
               </View>
-              <TouchableOpacity
-                style={styles.eyeBtn}
-                onPress={() => setAmountMasked(m => !m)}
-                accessibilityRole="button"
-                accessibilityLabel={
-                  amountMasked ? 'Mostrar monto' : 'Ocultar monto'
-                }>
-                {amountMasked ? (
-                  <EyeSlashIcon color={colors.primary} size={16} />
-                ) : (
-                  <EyeIcon color={colors.primary} size={16} />
-                )}
-              </TouchableOpacity>
+              <View style={styles.heroBalanceSideEnd}>
+                <TouchableOpacity
+                  style={styles.eyeBtn}
+                  onPress={() => setAmountMasked(m => !m)}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    amountMasked ? 'Mostrar monto' : 'Ocultar monto'
+                  }>
+                  {amountMasked ? (
+                    <EyeSlashIcon color={colors.primary} size={16} />
+                  ) : (
+                    <EyeIcon color={colors.primary} size={16} />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.progressTrack}>
@@ -451,18 +454,26 @@ function useStyles(colors: ThemeColors) {
         heroBalanceRow: {
           flexDirection: 'row',
           alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: 12,
+        },
+        heroBalanceSide: {
+          flex: 1,
         },
         heroAmountCol: {
-          flex: 1,
+          alignItems: 'center',
           gap: 4,
+        },
+        heroBalanceSideEnd: {
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
         },
         heroAmount: {
           fontFamily: Lexend.bold,
           fontSize: 30,
           lineHeight: 40,
           color: colors.white,
+          textAlign: 'center',
         },
         heroNextPay: {
           fontFamily: Lexend.regular,
@@ -470,6 +481,7 @@ function useStyles(colors: ThemeColors) {
           lineHeight: 20,
           color: colors.homeAvatarCircle,
           opacity: 0.85,
+          textAlign: 'center',
         },
         eyeBtn: {
           backgroundColor: colors.homeBalanceToggleBg,
