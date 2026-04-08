@@ -19,13 +19,13 @@ appId: com.bbapp
       - runFlow:
           file: ensure-login-email-field-visible.yaml
 
-# Si hay sesión activa (home-screen), ir a Movimientos y cerrar sesión.
+# Si hay sesión activa (home-screen), ir a Retirar (movimientos) y cerrar sesión.
 - runFlow:
     when:
       visible:
         id: "home-screen"
     commands:
-      - tapOn: "Movimientos"
+      - tapOn: "Retirar"
       - extendedWaitUntil:
           visible:
             id: "transactions-screen"
