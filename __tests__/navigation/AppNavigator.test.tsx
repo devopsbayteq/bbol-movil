@@ -2,12 +2,19 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {AppNavigator} from '../../src/navigation/AppNavigator';
 
+jest.mock('react-native-screenguard', () => ({
+  __esModule: true,
+  default: {},
+  useSGScreenRecord: () => ({status: 'off'}),
+}));
+
 const mockUseAuth = jest.fn();
 const mockUseSecurity = jest.fn();
 
 jest.mock('../../src/providers', () => ({
   useAuth: () => mockUseAuth(),
   useSecurity: () => mockUseSecurity(),
+  useTheme: () => ({colors: {primary: '#000', textPrimary: '#111', white: '#fff'}}),
 }));
 
 jest.mock('@react-navigation/native-stack', () => {
@@ -76,6 +83,15 @@ jest.mock('../../src/presentation/auth/BiometricOfferScreen', () => {
   return {
     BiometricOfferScreen: () =>
       React.createElement(Text, {testID: 'bio-mock'}, 'Bio'),
+  };
+});
+
+jest.mock('../../src/presentation/securityMenu/SecurityMenuScreen', () => {
+  const React = require('react');
+  const {Text} = require('react-native');
+  return {
+    SecurityMenuScreen: () =>
+      React.createElement(Text, {testID: 'security-menu-mock'}, 'SecurityMenu'),
   };
 });
 

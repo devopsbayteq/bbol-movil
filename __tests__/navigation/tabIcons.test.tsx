@@ -4,7 +4,7 @@ import {
   TabHomeIcon,
   TabMovementsIcon,
   TabTransferIcon,
-} from '../../src/navigation/tabIcons';
+} from '../../src/navigation/components/tabIcons';
 
 describe('tabIcons', () => {
   test('TabHomeIcon aplica color, tamaño y etiqueta de accesibilidad', async () => {

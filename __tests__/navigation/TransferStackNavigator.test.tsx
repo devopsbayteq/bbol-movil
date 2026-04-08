@@ -26,6 +26,15 @@ jest.mock('@react-navigation/native-stack', () => {
   };
 });
 
+jest.mock('../../src/presentation/transfer/transferInit/TransferInitScreen', () => {
+  const React = require('react');
+  const {Text} = require('react-native');
+  return {
+    TransferInitScreen: () =>
+      React.createElement(Text, {testID: 'transfer-init'}, 'TransferInit'),
+  };
+});
+
 jest.mock('../../src/presentation/transfer/TransferScreen', () => {
   const React = require('react');
   const {Text} = require('react-native');
@@ -69,13 +78,16 @@ jest.mock(
 );
 
 describe('TransferStackNavigator', () => {
-  test('registra las cuatro pantallas del flujo de transferencia', async () => {
+  test('registra las pantallas del flujo de transferencia', async () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
       root = ReactTestRenderer.create(<TransferStackNavigator />);
     });
 
     expect(root!.root.findByProps({testID: 'transfer-stack'})).toBeTruthy();
+    expect(
+      root!.root.findByProps({testID: 'transfer-screen-TransferInit'}),
+    ).toBeTruthy();
     expect(
       root!.root.findByProps({testID: 'transfer-screen-TransferMain'}),
     ).toBeTruthy();

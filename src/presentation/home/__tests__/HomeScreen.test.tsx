@@ -74,6 +74,8 @@ jest.mock('../../../providers', () => ({
 }));
 
 // useHomeViewModel
+const mockSetShowDevelopmentMode = jest.fn();
+
 let mockViewModelState: {
   data: any;
   isLoading: boolean;

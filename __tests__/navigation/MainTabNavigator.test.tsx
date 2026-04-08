@@ -60,12 +60,21 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
   },
 }));
 
-jest.mock('../../src/presentation/home/HomeScreen', () => {
+jest.mock('../../src/navigation/HomeStackNavigator', () => {
   const React = require('react');
   const {Text} = require('react-native');
   return {
-    HomeScreen: () =>
-      React.createElement(Text, {testID: 'screen-home'}, 'HomeScreen'),
+    HomeStackNavigator: () =>
+      React.createElement(Text, {testID: 'screen-home'}, 'HomeStack'),
+  };
+});
+
+jest.mock('../../src/presentation/myProfile/MyProfileScreen', () => {
+  const React = require('react');
+  const {Text} = require('react-native');
+  return {
+    MyProfileScreen: () =>
+      React.createElement(Text, {testID: 'screen-profile'}, 'MyProfile'),
   };
 });
 
