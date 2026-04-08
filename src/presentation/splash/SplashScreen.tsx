@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {
   Animated,
   Easing,
@@ -6,15 +6,16 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {useTheme, type ThemeColors} from '../../providers';
+import SplashBackground from '../../../assets/images/svg/splasn_background.svg';
 
 const FIGMA_LOGO_URI =
   'https://www.figma.com/api/mcp/asset/d202396e-2cbe-4dff-b7eb-77b2627080b8';
 
-const SPLASH_GRADIENT = ['#005E6B', '#008292', '#4EC4D2'] as const;
-
 export function SplashScreen() {
+  const {colors} = useTheme();
+  const styles = useStyles(colors);
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.9)).current;
 
@@ -36,12 +37,14 @@ export function SplashScreen() {
   }, [opacity, scale]);
 
   return (
-    <LinearGradient
-      colors={[...SPLASH_GRADIENT]}
-      locations={[0, 0.42, 1]}
-      start={{x: 0.5, y: 0}}
-      end={{x: 0.5, y: 1}}
-      style={styles.gradient}>
+    <View style={styles.root}>
+      <View style={styles.backgroundLayer} pointerEvents="none">
+        <SplashBackground
+          width="100%"
+          height="100%"
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </View>
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         <Animated.View
           style={[
@@ -56,37 +59,46 @@ export function SplashScreen() {
           </View>
         </Animated.View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
-  safe: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerWrapper: {
-    width: 172.8,
-    height: 172.8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  decorativeRing: {
-    width: 172.8,
-    height: 172.8,
-    borderRadius: 86.4,
-    borderWidth: 1,
-    borderColor: '#EFF6F7',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 96,
-    height: 96,
-    borderRadius: 11,
-  },
-});
+function useStyles(colors: ThemeColors) {
+  return useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          flex: 1,
+        },
+        backgroundLayer: {
+          ...StyleSheet.absoluteFillObject,
+        },
+        safe: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        centerWrapper: {
+          width: 172.8,
+          height: 172.8,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        decorativeRing: {
+          width: 172.8,
+          height: 172.8,
+          borderRadius: 86.4,
+          borderWidth: 1,
+          borderColor: colors.homeBorderSoft,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        logo: {
+          width: 96,
+          height: 96,
+          borderRadius: 11,
+        },
+      }),
+    [colors],
+  );
+}
