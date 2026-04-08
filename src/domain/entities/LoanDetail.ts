@@ -21,4 +21,19 @@ export interface LoanDetail {
   maturityDateIso: string;
   agencyName: string;
   creditOfficerName: string;
+
+  /** Monto principal del hero y “Total a recibir” (capital + interés al vencimiento). */
+  totalToReceiveAmount: number;
+  periodInterestDateIso: string;
+  periodInterestAmount: number;
+  /** Progreso temporal para la barra (0–1). */
+  primaryProgressRatio: number;
+  secondaryProgressRatio: number;
+  monthsElapsed: number;
+  monthsTotal: number;
+  termMonthsLabel: string;
+  interestEarnedToPeriodAmount: number;
+  openingDateIso: string;
+  creditPurposeLabel: string;
+  maskedCreditAccount: string;
 }

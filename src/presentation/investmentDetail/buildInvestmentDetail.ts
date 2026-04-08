@@ -6,8 +6,8 @@ import {
 } from './investmentDetailMocks';
 
 export function buildInvestmentDetail(balance: InvestmentBalance): InvestmentDetail {
-  const mock = getMockInvestmentDetailSupplement(balance.investmentGuid);
   const totalToReceive = balance.currentValue;
+  const mock = getMockInvestmentDetailSupplement(balance.investmentGuid, totalToReceive);
   const {initialAmount, interestAtMaturity} =
     deriveAmountsFromCurrentValue(totalToReceive);
 
@@ -27,5 +27,16 @@ export function buildInvestmentDetail(balance: InvestmentBalance): InvestmentDet
     irfRetentionAmount: mock.irfRetentionAmount,
     paymentFrequencyLabel: mock.paymentFrequencyLabel,
     jointHolderName: mock.jointHolderName,
+    nextPaymentDateIso: mock.nextPaymentDateIso,
+    paidAmount: mock.paidAmount,
+    remainingToPayAmount: mock.remainingToPayAmount,
+    initialDebtAmount: mock.initialDebtAmount,
+    totalDebtAmount: mock.totalDebtAmount,
+    installmentsPaid: mock.installmentsPaid,
+    installmentsTotal: mock.installmentsTotal,
+    paidProgressRatio: mock.paidProgressRatio,
+    secondaryProgressRatio: mock.secondaryProgressRatio,
+    debitPurposeLabel: mock.debitPurposeLabel,
+    maskedDebitAccount: mock.maskedDebitAccount,
   };
 }

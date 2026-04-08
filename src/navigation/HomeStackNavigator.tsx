@@ -1,6 +1,7 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import type {
+  FrequentPayment,
   InvestmentBalance,
   LoanBalance,
 } from '../domain/entities/ContractBalance';
@@ -12,6 +13,7 @@ import {LoanDetailScreen} from '../presentation/loanDetail/LoanDetailScreen';
 import {TransactionsScreen} from '../presentation/transactions/TransactionsScreen';
 import {MovementDetailScreen} from '../presentation/transactions/MovementDetailScreen';
 import type {MovementsListRouteParams} from './MovementsStackNavigator';
+import {FrequentPaymentsScreen} from '../presentation/frequentPayments/FrequentPaymentsScreen';
 
 export type HomeStackParamList = {
   HomeMain: {refreshHome?: number} | undefined;
@@ -27,6 +29,10 @@ export type HomeStackParamList = {
   };
   MovementsList: MovementsListRouteParams;
   MovementDetail: {movement: AccountMovement};
+  FrequentPayments: {
+    items: FrequentPayment[];
+    initialIndex: number;
+  };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -47,6 +53,10 @@ export function HomeStackNavigator() {
       <Stack.Screen name="LoanDetail" component={LoanDetailScreen} />
       <Stack.Screen name="MovementsList" component={TransactionsScreen} />
       <Stack.Screen name="MovementDetail" component={MovementDetailScreen} />
+      <Stack.Screen
+        name="FrequentPayments"
+        component={FrequentPaymentsScreen}
+      />
     </Stack.Navigator>
   );
 }

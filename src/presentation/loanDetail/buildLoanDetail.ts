@@ -16,6 +16,12 @@ export function buildLoanDetail(loan: LoanBalance): LoanDetail {
       ? Math.min(1, Math.max(0, capitalPaid / amountGranted))
       : 0;
 
+  const totalToReceiveAmount =
+    Math.round((amountGranted + mock.interestAtMaturity) * 100) / 100;
+
+  const termMonths = Math.max(1, Math.round(mock.termDays / 30));
+  const termMonthsLabel = `${termMonths} meses`;
+
   return {
     loanGuid: loan.loanGuid,
     productLabel: mock.productLabel,
@@ -34,5 +40,17 @@ export function buildLoanDetail(loan: LoanBalance): LoanDetail {
     maturityDateIso: mock.maturityDateIso,
     agencyName: mock.agencyName,
     creditOfficerName: mock.creditOfficerName,
+    totalToReceiveAmount,
+    periodInterestDateIso: mock.periodInterestDateIso,
+    periodInterestAmount: mock.periodInterestAmount,
+    primaryProgressRatio: mock.primaryProgressRatio,
+    secondaryProgressRatio: mock.secondaryProgressRatio,
+    monthsElapsed: mock.monthsElapsed,
+    monthsTotal: mock.monthsTotal,
+    termMonthsLabel,
+    interestEarnedToPeriodAmount: mock.interestEarnedToPeriodAmount,
+    openingDateIso: mock.openingDateIso,
+    creditPurposeLabel: mock.creditPurposeLabel,
+    maskedCreditAccount: mock.maskedCreditAccount,
   };
 }
