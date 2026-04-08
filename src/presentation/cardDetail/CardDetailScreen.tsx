@@ -6,8 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  ImageBackground,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
@@ -28,6 +28,7 @@ import {SpendingDonutChart, type DonutSegment} from './SpendingDonutChart';
 
 const arrowBack = require('../../../assets/images/arrow-left.png');
 const arrowRight = require('../../../assets/images/arrow_right_black.png');
+const CARD_BANNER_BG = require('../../../assets/images/card_banner_background.png');
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'CardDetail'>;
 
@@ -199,25 +200,32 @@ export function CardDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']} testID="card-detail-screen">
-      <View style={styles.headerBar}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Volver">
-          <Image source={arrowBack} style={styles.backIcon} resizeMode="contain" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          BANKARD
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.heroOuter}>
-          <View style={styles.heroCard}>
+        <ImageBackground
+          source={CARD_BANNER_BG}
+          style={styles.bannerSection}
+          resizeMode="cover">
+          <View style={styles.headerBarBanner}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+              accessibilityLabel="Volver">
+              <Image
+                source={arrowBack}
+                style={styles.backIconOnBanner}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+            <Text style={styles.headerTitleOnBanner} numberOfLines={1}>
+              BANKARD
+            </Text>
+            <View style={styles.headerSpacer} />
+          </View>
+          <View style={styles.heroContentPad}>
+            <View style={styles.heroCard}>
             <View style={styles.heroTopRow}>
               <View style={styles.heroTitleBlock}>
                 <Text style={styles.heroLabel}>Tarjeta</Text>
@@ -263,8 +271,9 @@ export function CardDetailScreen() {
                 )}
               </TouchableOpacity>
             </View>
+            </View>
           </View>
-        </View>
+        </ImageBackground>
 
         <View style={styles.sectionPad}>
           <View style={styles.creditCard}>
@@ -426,6 +435,31 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 12,
           backgroundColor: colors.white,
         },
+        bannerSection: {
+          width: '100%',
+          alignSelf: 'stretch',
+          minHeight: 240,
+        },
+        headerBarBanner: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          backgroundColor: 'transparent',
+        },
+        backIconOnBanner: {
+          width: 20,
+          height: 20,
+          tintColor: colors.white,
+        },
+        headerTitleOnBanner: {
+          flex: 1,
+          fontFamily: Lexend.regular,
+          fontSize: 14,
+          color: colors.white,
+          textAlign: 'center',
+        },
         backIcon: {
           width: 20,
           height: 20,
@@ -459,29 +493,18 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           color: colors.linkPrimary,
         },
-        heroOuter: {
+        heroContentPad: {
+          width: '100%',
           paddingHorizontal: 24,
-          marginTop: 4,
+          paddingTop: 4,
+          paddingBottom: 20,
         },
         heroCard: {
           borderRadius: 12,
-          backgroundColor: colors.homeCreditCardSurface,
-          paddingHorizontal: 16,
-          paddingTop: 16,
-          paddingBottom: 20,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.textTertiary,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.12,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 6,
-            },
-          }),
+          backgroundColor: 'transparent',
+          paddingHorizontal: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
         },
         heroTopRow: {
           flexDirection: 'row',

@@ -339,9 +339,9 @@ describe('HomeScreen', () => {
       creditosTab!.props.onPress();
     });
     const flat = renderedText(root!.toJSON());
-    expect(flat).toContain('Crédito');
-    expect(flat).toContain('Saldo pendiente');
-    expect(flat).toMatch(/1[.,\s]000/);
+    expect(flat).toContain('Préstamo');
+    expect(flat).toContain('Cuota');
+    expect(flat).toContain('$**.**');
   });
 
   test('muestra mensaje vacío cuando no hay productos en el filtro', async () => {
