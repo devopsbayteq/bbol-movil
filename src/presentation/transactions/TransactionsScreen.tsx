@@ -409,7 +409,7 @@ export function TransactionsScreen() {
   const listHeader = useMemo(() => {
     if (!vm.selectedAccount) return null;
     const acc = vm.selectedAccount;
-    const maskedLabel = `Cta. ${accountKindText(acc.accountKind)} ${acc.maskedAccountNumber}`;
+    const maskedLabel = `${acc.accountTypeLabel} ${acc.maskedAccountHome}`;
 
     return (
       <View>
@@ -420,7 +420,7 @@ export function TransactionsScreen() {
             <View style={styles.accountInfoBlock}>
               <View style={styles.accountLabelRow}>
                 <Text style={styles.accountShortLabel}>
-                  {accountShortLabel(acc.accountKind)}
+                  {acc.accountAlias}
                 </Text>
                 
               </View>

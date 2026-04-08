@@ -3,6 +3,9 @@ export interface AccountBalanceModel {
   maskedAccountNumber: string;
   accountType: number;
   balance: number;
+  maskedAccountHome?: string;
+  accountTypeLabel?: string;
+  accountAlias?: string;
 }
 
 export interface CreditCardBalanceModel {
@@ -35,6 +38,7 @@ export interface HomeBannerModel {
   buttonText: string;
   buttonLink: string;
   landscape: string;
+  durationMilliseconds?: number;
 }
 
 export interface HomeDashboardIconModel {

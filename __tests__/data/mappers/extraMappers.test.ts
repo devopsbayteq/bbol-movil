@@ -117,6 +117,11 @@ describe('contractBalanceMapper', () => {
       'checking',
       'other',
     ]);
+    expect(entity.accounts[0]).toMatchObject({
+      maskedAccountHome: '******0101',
+      accountTypeLabel: 'Cta. Ahorros',
+      accountAlias: 'Gastos',
+    });
     expect(entity.creditCards[0].maskedCardNumber).toBe('****9999');
     expect(entity.loans[0].loanGuid).toBe('l1');
     expect(entity.investments[0].currency).toBe('USD');

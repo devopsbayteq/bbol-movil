@@ -56,6 +56,27 @@ function ShareIcon({color, size = 16}: {color: string; size?: number}) {
   );
 }
 
+function StarIconRelleno({color, size = 16}: {color: string; size?: number}) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        fill={color}
+        d="M30.3432 16.7951L40.139 18.2403C40.9502 18.3562 41.6319 18.9288 41.8909 19.7127C42.15 20.5035 41.9386 21.3624 41.3524 21.9486L34.2493 28.9154L35.9262 38.9089C36.0625 39.7269 35.7285 40.5586 35.0468 41.0426C34.372 41.5265 33.479 41.5879 32.7496 41.1993L23.9968 36.5298L15.2508 41.1993C14.5146 41.5879 13.6216 41.5265 12.9467 41.0426C12.2718 40.5586 11.931 39.7269 12.0741 38.9089L13.7511 28.9154L6.64658 21.9486C6.05965 21.3624 5.85106 20.5035 6.10873 19.7127C6.36573 18.9288 7.04536 18.3562 7.8627 18.2403L17.6503 16.7951L22.0403 7.7744C22.4016 7.02346 23.1651 6.54675 23.9968 6.54675C24.8352 6.54675 25.5987 7.02346 25.96 7.7744L30.3432 16.7951Z"
+      />
+    </Svg>
+  );
+}
+
+function StarIconVacio({color, size = 16}: {color: string; size?: number}) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        fill={color}
+        d="M23.9975 36.2721L14.5998 41.2641C14.1088 41.5574 13.4404 41.5097 12.9289 41.1482C12.4243 40.7868 12.1719 40.1593 12.2129 39.5456L14.061 28.9408L6.48491 21.4254C6.04435 20.9957 5.88818 20.3478 6.08186 19.7545C6.27486 19.168 6.7843 18.7384 7.3974 18.6497L17.846 17.1016L22.5244 7.46659C22.804 6.90253 23.3701 6.54456 23.9975 6.54456C24.6249 6.54456 25.1978 6.9026 25.4705 7.46659L30.1489 17.1016L40.6037 18.6497C41.2175 18.7384 41.7221 19.168 41.9199 19.7545C42.1109 20.3478 41.954 20.9957 41.5175 21.4254L33.9339 28.9408L35.7275 39.5456C35.8298 40.1593 35.5775 40.7868 35.066 41.1482C34.5613 41.5097 33.8316 41.5574 33.3406 41.2641L23.9975 36.2721ZM18.8281 17.579C18.6712 17.9063 18.3643 18.1314 18.0097 18.186L7.55699 19.7272C7.35239 19.7545 7.18258 19.8977 7.11847 20.0955C7.05368 20.2933 7.1062 20.5115 7.25282 20.6547L14.8317 28.1019C15.084 28.4156 15.1999 28.7703 15.1386 29.1181L13.3518 39.7297C13.3108 39.9343 13.3995 40.1389 13.5086 40.2616C13.7405 40.3844 13.9587 40.398 14.1429 40.2412L23.486 35.3105C23.8065 35.14 24.1952 35.14 24.5158 35.3105L33.8521 40.2412C34.0362 40.398 34.2613 40.3844 34.4318 40.2616C34.6023 40.1389 34.6841 39.9343 34.65 39.7297L32.8632 29.1181C32.7405 28.7703 32.9178 28.4156 33.1701 28.1019L40.7469 20.6547C40.8901 20.5047 40.9447 20.2933 40.8833 20.0955C40.8151 19.8977 40.6446 19.7545 40.44 19.7272L29.9921 18.186C29.6374 18.1314 29.3237 17.9063 29.1669 17.579L24.4885 7.9433C24.3998 7.75507 24.1475 7.57435 23.9975 7.57435C23.7929 7.57435 23.6019 7.75507 23.5064 7.9433L18.8281 17.579Z"
+      />
+    </Svg>
+  );
+}
 function EyeIcon({color, size = 16}: {color: string; size?: number}) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
@@ -83,13 +104,15 @@ type SavingsCardProps = {
   title?: string;
   maskedAccountNumber: string;
   balance: number;
+  isFirst?: boolean;
 };
 
 export function SavingsAccountCard({
   style,
-  title = 'Cta. ahorros',
+  title,
   maskedAccountNumber,
   balance,
+  isFirst = false,
 }: SavingsCardProps) {
   const {colors} = useTheme();
   const styles = useSavingsStyles(colors);
@@ -101,11 +124,27 @@ export function SavingsAccountCard({
       <View style={styles.topRow}>
         <View style={styles.titleCol}>
           <Text style={styles.title}>{title}</Text>
+          
           <Text style={styles.subtitle}>{maskedAccountNumber}</Text>
         </View>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir">
-          <ShareIcon color={colors.textSecondary} size={18} />
-        </TouchableOpacity>
+        <View style={styles.topRowActions}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={
+              isFirst ? 'Cuenta favorita' : 'Marcar como favorita'
+            }>
+            {isFirst ? (
+              <StarIconRelleno color={colors.homeStarIcon} size={22} />
+            ) : (
+              <StarIconVacio color={colors.homeStarIcon} size={22} />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Compartir">
+            <ShareIcon color={colors.textSecondary} size={18} />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.bottomRow}>
         <View style={styles.balanceCol}>
@@ -165,6 +204,11 @@ function useSavingsStyles(colors: ThemeColors) {
           minWidth: 0,
           paddingRight: 8,
         },
+        topRowActions: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+        },
         title: {
           fontFamily: Lexend.regular,
           fontSize: 14,
@@ -216,6 +260,7 @@ type CheckingCardProps = {
   title?: string;
   maskedAccountNumber: string;
   balance: number;
+  isFirst?: boolean;
 };
 
 export function CheckingAccountCard({
@@ -223,6 +268,7 @@ export function CheckingAccountCard({
   title = 'Cta. corriente',
   maskedAccountNumber,
   balance,
+  isFirst = false,
 }: CheckingCardProps) {
   return (
     <SavingsAccountCard
@@ -230,6 +276,7 @@ export function CheckingAccountCard({
       title={title}
       maskedAccountNumber={maskedAccountNumber}
       balance={balance}
+      isFirst={isFirst}
     />
   );
 }
@@ -611,10 +658,7 @@ export function InvestmentCard({
   const styles = useInvestmentStyles(colors);
   const [masked, setMasked] = useState(true);
 
-  const maskedLine = useMemo(
-    () => formatInvestmentMaskedLine(investmentGuid),
-    [investmentGuid],
-  );
+ 
 
   return (
     <View style={[styles.cardOuter, style]} accessibilityLabel="Inversión">
@@ -632,7 +676,7 @@ export function InvestmentCard({
           <Text style={styles.productTitle} numberOfLines={2}>
             {productName}
           </Text>
-          <Text style={styles.maskedAccount}>{maskedLine}</Text>
+          <Text style={styles.maskedAccount}>{investmentGuid}</Text>
         </View>
         <View style={styles.bottomRow}>
           <View style={styles.balanceCol}>

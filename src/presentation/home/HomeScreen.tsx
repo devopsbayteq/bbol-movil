@@ -194,6 +194,7 @@ export function HomeScreen() {
                   style={styles.cardFill}
                   maskedAccountNumber={acc.maskedAccountNumber}
                   balance={acc.balance}
+                  isFirst={items.length === 0}
                 />
               </TouchableOpacity>
             ),
@@ -219,9 +220,10 @@ export function HomeScreen() {
                 accessibilityLabel={`Ver movimientos de ${accountTitle(acc.accountKind)}`}>
                 <SavingsAccountCard
                   style={styles.cardFill}
-                  title={accountTitle(acc.accountKind)}
-                  maskedAccountNumber={acc.maskedAccountNumber}
+                  title={acc.accountAlias}
+                  maskedAccountNumber={acc.accountTypeLabel + '' + acc.maskedAccountHome}
                   balance={acc.balance}
+                  isFirst={items.length === 0}
                 />
               </TouchableOpacity>
             ),
