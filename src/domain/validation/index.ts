@@ -16,6 +16,8 @@ export {
   balanceDollarsToCents,
   getLiveTransferAmountError,
   MAX_TRANSFER_CENTS,
+  parseTransferAmountInputToCents,
+  sanitizeTransferAmountInput,
   transferAmountMessages,
   validateTransferAmountForSubmit,
 } from './transferAmount';

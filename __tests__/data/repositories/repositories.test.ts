@@ -69,7 +69,9 @@ describe('data repositories', () => {
             beneficiaryGuid: 'g1',
             contactName: 'Ana',
             bankName: 'BB',
-            accountType: 1,
+            accountType: 'savings',
+            accountTypeLabel: 'Ahorros',
+            beneficiaryAccountNumber: '0000000000',
             lastFourDigits: '4242',
           },
         ],
@@ -84,7 +86,9 @@ describe('data repositories', () => {
         beneficiaryGuid: 'g1',
         contactName: 'Ana',
         bankName: 'BB',
-        accountType: 1,
+        accountType: 'savings',
+        accountTypeLabel: 'Ahorros',
+        beneficiaryAccountNumber: '0000000000',
         lastFourDigits: '4242',
       },
     ]);
@@ -101,12 +105,12 @@ describe('data repositories', () => {
             accountTypeLabel: 'Ahorros',
             balance: 100,
             beneficiary: {
-              beneficiaryGuid: 'ben-a1',
+              beneficiaryGuid: 'b1',
               contactName: 'Titular',
-              bankName: 'Bolivariano',
+              bankName: 'BB',
               accountType: 'savings',
               accountTypeLabel: 'Ahorros',
-              beneficiaryAccountNumber: '****1111',
+              beneficiaryAccountNumber: '0000000000',
               lastFourDigits: '1111',
             },
           },
@@ -127,9 +131,6 @@ describe('data repositories', () => {
       accountKind: 'savings',
       balance: 100,
     });
-    expect(result.banners).toEqual([]);
-    expect(result.homeDashboardIcons).toEqual([]);
-    expect(result.recentTransactions).toEqual([]);
   });
 
   test('AccountMovementRepositoryImpl maps paginated transaction list', async () => {

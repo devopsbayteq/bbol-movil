@@ -20,6 +20,15 @@ describe('accountDisplay', () => {
     accountKind: 'savings' as const,
     accountTypeLabel: 'Cta. Ahorros',
     balance: 100,
+    beneficiary: {
+      beneficiaryGuid: 'bg',
+      contactName: 'N',
+      bankName: 'BB',
+      accountType: 'savings',
+      accountTypeLabel: 'Ahorros',
+      beneficiaryAccountNumber: '0000000000',
+      lastFourDigits: '****1234',
+    },
   };
   const checking = {
     ...savings,

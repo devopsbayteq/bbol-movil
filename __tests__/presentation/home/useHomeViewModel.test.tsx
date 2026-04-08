@@ -54,6 +54,7 @@ describe('useHomeViewModel', () => {
 
   afterEach(() => {
     queryClient.clear();
+    notifyManager.setScheduler(originalScheduler);
   });
 
   test('loads contract balance on mount', async () => {

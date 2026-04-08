@@ -36,7 +36,8 @@ export function useHomeViewModel() {
     if (!d) {
       return [];
     }
-    return d.banners.length > 0 ? d.banners : FALLBACK_HOME_BANNERS;
+    const banners = d.banners ?? [];
+    return banners.length > 0 ? banners : FALLBACK_HOME_BANNERS;
   }, [query.data]);
 
   const frequentPaymentsForHome: FrequentPayment[] = useMemo(() => {
@@ -44,8 +45,9 @@ export function useHomeViewModel() {
     if (!d) {
       return [];
     }
-    return d.frequentPayments.length > 0
-      ? d.frequentPayments
+    const frequentPayments = d.frequentPayments ?? [];
+    return frequentPayments.length > 0
+      ? frequentPayments
       : FALLBACK_HOME_FREQUENT_PAYMENTS;
   }, [query.data]);
 
@@ -57,9 +59,7 @@ export function useHomeViewModel() {
     if (!d) {
       return [];
     }
-    if (d.recentTransactions?.length) {
-      return d.recentTransactions.map(mapHomeRecentTransactionToActivityItem);
-    }
+
     return MOCK_RECENT_ACTIVITY;
   }, [query.data]);
 

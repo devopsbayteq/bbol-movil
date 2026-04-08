@@ -70,6 +70,8 @@ export interface ThemeColors {
   /** Color de acento para gráficas (segmento terciario del donut). */
   chartAccent: string;
 
+  primaryIconContainerBg: string;
+
 }
 
 export const LightColors: ThemeColors = {
@@ -125,6 +127,7 @@ export const LightColors: ThemeColors = {
   homePrimaryHover: '#06A3B6',
   lineSeparator: '#d6d6d6',
   chartAccent: '#962DFF',
+  primaryIconContainerBg: '#D0F0F6',
 };
 
 export const DarkColors: ThemeColors = {
@@ -180,4 +183,5 @@ export const DarkColors: ThemeColors = {
   homePrimaryHover: '#06A3B6',
   lineSeparator: '#374151',
   chartAccent: '#B76EFF',
+  primaryIconContainerBg: '#D0F0F6',
 };

@@ -50,9 +50,21 @@ export function useTransferReviewViewModel(
         beneficiary,
         fromHolderName,
         fromAccountLine,
+        fromAccountTitle,
+        fromAccountSubtitle,
+        fromAccountSubtitleMasked,
+        fromBalanceDisplay,
+        toBalanceDisplay,
         accountId,
         concept,
+        toAccountSubtitle,
+        toAccountSubtitleMasked,
+        toAccountTitle,
     } = route.params;
+
+    const voucherFromSubtitle =
+        fromAccountSubtitleMasked ?? fromAccountSubtitle;
+    const voucherToSubtitle = toAccountSubtitleMasked ?? toAccountSubtitle;
 
     const [commission, setCommission] = useState<
         'Sin cargo' | 'Con cargo' | null
@@ -97,6 +109,10 @@ export function useTransferReviewViewModel(
                 accountId,
                 concept: concept.trim(),
                 transactionIdentifier: execution.transactionIdentifier,
+                toAccountSubtitle: voucherToSubtitle,
+                toAccountTitle: toAccountTitle,
+                fromAccountTitle: fromAccountTitle,
+                fromAccountSubtitle: voucherFromSubtitle,
             };
             onTransferSuccess?.(payload);
             setConfirmLoading(false);
@@ -108,7 +124,21 @@ export function useTransferReviewViewModel(
             setConfirmLoading(false)
         }
 
-    },[accountId, amountCents, beneficiary, concept, displayAmount, executeTransferUseCase, fromAccountLine, fromHolderName, onTransferSuccess])
+    }, [
+        accountId,
+        amountCents,
+        beneficiary,
+        concept,
+        displayAmount,
+        executeTransferUseCase,
+        fromAccountLine,
+        fromHolderName,
+        fromAccountTitle,
+        onTransferSuccess,
+        toAccountTitle,
+        voucherFromSubtitle,
+        voucherToSubtitle,
+    ])
 
     const onConfirm = useCallback(async () => {
         setConfirmError(null);
@@ -159,6 +189,10 @@ export function useTransferReviewViewModel(
                     accountId,
                     concept: concept.trim(),
                     transactionIdentifier: execution.transactionIdentifier,
+                    toAccountSubtitle: voucherToSubtitle,
+                    toAccountTitle: toAccountTitle,
+                    fromAccountTitle: fromAccountTitle,
+                    fromAccountSubtitle: voucherFromSubtitle,
                 };
                 onTransferSuccess?.(payload);
                 return;
@@ -184,7 +218,11 @@ export function useTransferReviewViewModel(
         user?.email,
         validateTransactionAmountUseCase,
         executeTransferUseCase,
+        fromAccountTitle,
         onTransferSuccess,
+        toAccountTitle,
+        voucherFromSubtitle,
+        voucherToSubtitle,
     ]);
 
     return {
@@ -193,6 +231,12 @@ export function useTransferReviewViewModel(
         beneficiary,
         fromHolderName,
         fromAccountLine,
+        fromAccountTitle,
+        fromAccountSubtitle,
+        toAccountSubtitle,
+        toAccountTitle,
+        fromBalanceDisplay,
+        toBalanceDisplay,
         accountId,
         concept,
         commission,
