@@ -34,7 +34,7 @@ const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png')
 
 const LOGIN_SUBMIT_ICON_SIZE = 24;
 const SUBMIT_SQUARE_SIZE_WIDTH = 60;
-const SUBMIT_SQUARE_SIZE_HEIGHT = 48;
+const SUBMIT_SQUARE_SIZE_HEIGHT = 52;
 const BIOMETRIC_ICON_SIZE = 24;
 const IS_IOS = Platform.OS === 'ios';
 const BIOMETRIC_LABEL = IS_IOS ? 'Face ID' : 'Huella';
@@ -345,6 +345,7 @@ function useStyles(colors: ThemeColors) {
         },
         inputs: {
           marginBottom: 12,
+          height: SUBMIT_SQUARE_SIZE_HEIGHT
         },
         passwordRow: {
           flexDirection: 'row',
