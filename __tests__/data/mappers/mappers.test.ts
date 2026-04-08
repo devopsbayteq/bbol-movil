@@ -6,16 +6,22 @@ import {
 import {mapLoginResponseToUser} from '../../../src/data/mappers/UserMapper';
 
 describe('data mappers', () => {
-  test('mapLoginResponseToUser maps token and derives name from email', () => {
+  test('mapLoginResponseToUser maps token, firstName y name', () => {
     const result = mapLoginResponseToUser(
-      {accessToken: 'token-123', sessionTimeSeconds: 3600, inactivityTimeoutSeconds: 300},
+      {
+        accessToken: 'token-123',
+        firstName: 'María',
+        sessionTimeSeconds: 3600,
+        inactivityTimeoutSeconds: 300,
+      },
       'cliente@banco.com',
     );
 
     expect(result).toMatchObject({
       id: 'cliente@banco.com',
       email: 'cliente@banco.com',
-      name: 'cliente',
+      firstName: 'María',
+      name: 'María',
       token: 'token-123',
       inactivityTimeoutSeconds: 300,
     });

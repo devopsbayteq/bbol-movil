@@ -21,6 +21,7 @@ describe('mock data sources', () => {
 
     await expect(loginPromise).resolves.toEqual({
       accessToken: 'mock-jwt-token-xyz123',
+      firstName: 'Demo',
       sessionTimeSeconds: 3600,
       inactivityTimeoutSeconds: 300,
     });

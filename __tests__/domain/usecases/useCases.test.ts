@@ -15,6 +15,7 @@ describe('domain use cases', () => {
     const user = {
       id: 'usuario-demo12',
       email: 'usuario-demo12',
+      firstName: 'Usuario',
       name: 'Usuario Demo',
       token: 'jwt-token',
       sessionExpiresAt: Date.now() + 3600 * 1000,
@@ -246,7 +247,7 @@ describe('domain use cases', () => {
     };
     const useCase = new GetUserLoggedUseCase(secureStorage as never, '@key');
 
-    await expect(useCase.execute()).resolves.toEqual(user);
+    await expect(useCase.execute()).resolves.toEqual({...user, firstName: ''});
     expect(secureStorage.get).toHaveBeenCalledWith('@key');
   });
 

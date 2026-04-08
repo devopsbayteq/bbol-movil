@@ -86,7 +86,7 @@ function useStyles(colors: ThemeColors) {
           flexWrap: 'wrap',
         },
         greetingHola: {
-          fontFamily: Lexend.semiBold,
+          fontFamily: Lexend.regular,
           fontSize: 18,
           lineHeight: 28,
           color: colors.white,

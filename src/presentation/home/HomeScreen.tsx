@@ -383,7 +383,7 @@ export function HomeScreen() {
           <View style={styles.contentLayer}>
             <SafeAreaView edges={['top']} />
             <HomeHeader
-              userName={user?.name}
+              userName={user?.firstName?.trim() || user?.name}
               onLogout={handleLogout}
               onNotifications={openDevelopmentModal}
             />
