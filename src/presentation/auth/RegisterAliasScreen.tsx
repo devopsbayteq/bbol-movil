@@ -57,7 +57,9 @@ export function RegisterAliasScreen() {
         secureStorageService,
         login,
       },
-      {forceShowBiometricOffer: true},
+      Platform.OS === 'ios'
+        ? {forceShowBiometricOffer: true}
+        : undefined,
     );
   }, [
     navigation,
