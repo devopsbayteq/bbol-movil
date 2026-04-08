@@ -285,7 +285,7 @@ export function HomeScreen() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await logout({suppressCompactLoginAutoBiometricOnce: true});
   };
 
   const openDevelopmentModal = () => {

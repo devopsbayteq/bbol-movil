@@ -7,6 +7,7 @@ import {
   Pressable,
   ActivityIndicator,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import {getVersion, getBuildNumber} from 'react-native-device-info';
 
@@ -29,7 +30,7 @@ const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png'
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const institutionIcon = require('../../../assets/images/institution.png');
-const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
+const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 
 const LOGIN_SUBMIT_ICON_SIZE = 24;
@@ -42,6 +43,10 @@ const BIOMETRIC_ACCESSIBILITY_LABEL = IS_IOS
   ? 'Iniciar sesión con Face ID'
   : 'Iniciar sesión con huella';
 const AUTO_BIOMETRIC_PROMPT_DELAY_MS = 250;
+/** Mismo `paddingHorizontal` que `LoginScreen` scrollContent (24 + 24). */
+const LOGIN_SCREEN_HORIZONTAL_INSET = 48;
+/** `maxWidth` de `contentColumn` en LoginScreen. */
+const LOGIN_CONTENT_MAX_WIDTH = 400;
 
 export interface CompactLoginContentProps {
   /** Nombre de pila del API; si está vacío no se muestra prefijo en el saludo. */
@@ -79,6 +84,15 @@ export function CompactLoginContent({
   onChangeUser,
 }: CompactLoginContentProps) {
   const {colors} = useTheme();
+  const {width: windowWidth} = useWindowDimensions();
+  const heroCarouselWidth = Math.min(
+    windowWidth - LOGIN_SCREEN_HORIZONTAL_INSET,
+    LOGIN_CONTENT_MAX_WIDTH,
+  );
+  const heroHeight = Math.max(
+    160,
+    Math.min(230, Math.round(heroCarouselWidth * 0.55)),
+  );
   const styles = useStyles(colors);
   const [devNoticeVisible, setDevNoticeVisible] = useState(false);
   const autoBiometricTriggeredRef = useRef(false);
@@ -156,7 +170,7 @@ export function CompactLoginContent({
         <LoginHeroImageCarousel
           sourceA={heroLoginA}
           sourceB={heroLoginB}
-          height={210}
+          height={heroHeight}
         />
       </View>
 

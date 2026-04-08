@@ -8,7 +8,6 @@ import {BiometricOfferScreen} from '../presentation/auth/BiometricOfferScreen';
 import {RegisterAliasScreen} from '../presentation/auth/RegisterAliasScreen';
 import {useAuth, useSecurity} from '../providers';
 import {User} from '../domain/entities/User';
-import {SecurityMenuScreen} from "../presentation/securityMenu/SecurityMenuScreen.tsx";
 
 export type OtpValidationParams =
   | {
@@ -30,7 +29,6 @@ export type RootStackParamList = {
   RegisterAlias: {user: User; email: string};
   BiometricOffer: {user: User; email: string};
   Main: undefined;
-  SecurityMenu:undefined
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -80,7 +78,6 @@ export function AppNavigator() {
       {isAuthenticated ? (
         <>
           <Stack.Screen name="Main" component={MainTabNavigator} />
-          <Stack.Screen name="SecurityMenu" component={SecurityMenuScreen} />
         </>
       ) : (
         <>
