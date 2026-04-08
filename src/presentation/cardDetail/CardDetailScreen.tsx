@@ -5,11 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
-  ImageBackground,
+  Pressable,
   ActivityIndicator,
+  ImageBackground,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
 import {
   useNavigation,
@@ -26,11 +26,51 @@ import {useCardDetailViewModel} from './useCardDetailViewModel';
 import type {CardSpendingCategoryMock} from './cardDetailMocks';
 import {SpendingDonutChart, type DonutSegment} from './SpendingDonutChart';
 
-const arrowBack = require('../../../assets/images/arrow-left.png');
-const arrowRight = require('../../../assets/images/arrow_right_black.png');
 const CARD_BANNER_BG = require('../../../assets/images/card_banner_background.png');
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'CardDetail'>;
+
+/** Misma familia de iconos que `TransactionsScreen` (movimientos). */
+function BackIcon({color}: {color: string}) {
+  return (
+    <Svg width={22} height={22} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+      />
+    </Svg>
+  );
+}
+
+function ChevronDownIcon({
+  color,
+  width,
+  height,
+}: {
+  color: string;
+  width: number;
+  height: number;
+}) {
+  return (
+    <Svg width={width} height={height} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M17.2428 7.40683L10.6075 13.7644C10.3853 13.9519 10.177 14.0283 9.99988 14.0283C9.8228 14.0283 9.58426 13.9512 9.42384 13.796L2.75726 7.40683C2.42407 7.09086 2.41324 6.53184 2.73226 6.22976C3.0491 5.89556 3.57878 5.88469 3.90968 6.20481L9.99988 12.0422L16.0901 6.20893C16.4199 5.88883 16.9505 5.89969 17.2675 6.23388C17.5866 6.53184 17.5762 7.09086 17.2428 7.40683Z"
+      />
+    </Svg>
+  );
+}
+
+function ChevronRightIcon({color}: {color: string}) {
+  return (
+    <Svg width={28} height={26} viewBox="0 0 24 24">
+      <Path
+        fill={color}
+        d="M11.7487 5.74915L7.4628 10.0351C7.29672 10.2038 7.07706 10.2869 6.85741 10.2869C6.63776 10.2869 6.41864 10.2031 6.25149 10.0357C5.91665 9.70089 5.91665 9.15845 6.25149 8.82361L9.07537 6.00094H0.857139C0.383814 6.00094 0 5.61789 0 5.14376C0 4.66963 0.383814 4.28658 0.857139 4.28658H9.07537L6.25203 1.46324C5.91719 1.1284 5.91719 0.585964 6.25203 0.251127C6.58686 -0.0837092 7.1293 -0.0837092 7.46414 0.251127L11.75 4.53704C12.0835 4.87321 12.0835 5.41431 11.7487 5.74915Z"
+      />
+    </Svg>
+  );
+}
 
 function formatShortDueDate(iso: string): string {
   const d = new Date(iso);
@@ -58,7 +98,7 @@ function resolveCategoryColor(
 
 function CreditCardPayIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M4 9a2 2 0 012-2h12a2 2 0 012 2v1H4V9zm0 3h16v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7zm3 3.25h4v1.5H7v-1.5z"
@@ -69,7 +109,7 @@ function CreditCardPayIcon({color}: {color: string}) {
 
 function CalendarDeferIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M7 2a1 1 0 011 1v1h8V3a1 1 0 112 0v1h1a2 2 0 012 2v2H4V6a2 2 0 012-2h1V3a1 1 0 011-1zm12 8H5v9a1 1 0 001 1h12a1 1 0 001-1v-9zm-6 2h2v2h-2v-2z"
@@ -80,7 +120,7 @@ function CalendarDeferIcon({color}: {color: string}) {
 
 function StatementIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M6 2a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8.828a2 2 0 00-.586-1.414l-4.828-4.828A2 2 0 0013.172 2H6zm8 1.5L18.5 8H14a1 1 0 01-1-1V3.5zM8 12h8v1.5H8V12zm0 3h8V17H8v-2z"
@@ -91,19 +131,11 @@ function StatementIcon({color}: {color: string}) {
 
 function CashAdvanceIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M4 4h16v4H4V4zm0 6h16v10H4V10zm3 2v6h10v-6H7zm2 2h6v2H9v-2z"
       />
-    </Svg>
-  );
-}
-
-function ChevronDownIcon({color}: {color: string}) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
-      <Path fill={color} d="M7 10l5 5 5-5H7z" />
     </Svg>
   );
 }
@@ -132,6 +164,7 @@ function EyeSlashIcon({color}: {color: string}) {
 
 export function CardDetailScreen() {
   const {colors} = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<HomeStackParamList, 'CardDetail'>>();
@@ -159,31 +192,39 @@ export function CardDetailScreen() {
     [colors, spendingCategories],
   );
 
+  const topBar = useMemo(
+    () => (
+      <View
+        style={[styles.topBar, {paddingTop: insets.top, height: insets.top + 64}]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Volver">
+          <BackIcon color={colors.textBlack} />
+        </TouchableOpacity>
+        <Text style={styles.topBarTitle}>TARJETA</Text>
+        <View style={styles.topBarSpacer} />
+      </View>
+    ),
+    [colors.textBlack, insets.top, navigation, styles.topBar, styles.topBarSpacer, styles.topBarTitle],
+  );
+
   if (isLoading && !resolved) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top']} testID="card-detail-screen">
+      <View style={styles.root} testID="card-detail-screen">
+        {topBar}
         <View style={styles.centered}>
           <ActivityIndicator size="small" color={colors.primary} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (errorMessage || !resolved) {
     return (
-      <SafeAreaView style={styles.safe} edges={['top']} testID="card-detail-screen">
-        <View style={styles.headerBar}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            accessibilityRole="button"
-            accessibilityLabel="Volver">
-            <Image source={arrowBack} style={styles.backIcon} resizeMode="contain" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            BANKARD
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
+      <View style={styles.root} testID="card-detail-screen">
+        {topBar}
         <View style={styles.centered}>
           <Text style={styles.errorInline}>
             {errorMessage || 'No se encontró la información de esta tarjeta.'}
@@ -192,14 +233,17 @@ export function CardDetailScreen() {
             <Text style={styles.retryLink}>Volver</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   const {card, approvedLimit, utilized, available, utilizationRatio} = resolved;
+  const totalConsumptions = consumptions.length;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']} testID="card-detail-screen">
+    <View style={styles.root} testID="card-detail-screen">
+      {topBar}
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -208,208 +252,162 @@ export function CardDetailScreen() {
           source={CARD_BANNER_BG}
           style={styles.bannerSection}
           resizeMode="cover">
-          <View style={styles.headerBarBanner}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              accessibilityRole="button"
-              accessibilityLabel="Volver">
-              <Image
-                source={arrowBack}
-                style={styles.backIconOnBanner}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-            <Text style={styles.headerTitleOnBanner} numberOfLines={1}>
-              BANKARD
-            </Text>
-            <View style={styles.headerSpacer} />
-          </View>
           <View style={styles.heroContentPad}>
             <View style={styles.heroCard}>
-            <View style={styles.heroTopRow}>
-              <View style={styles.heroTitleBlock}>
-                <Text style={styles.heroLabel}>Tarjeta</Text>
-                <Text style={styles.heroMasked}>{card.maskedCardNumber}</Text>
+              <View style={styles.heroTopRow}>
+                <View style={styles.heroTitleBlock}>
+                  <Text style={styles.heroLabel}>Tarjeta</Text>
+                  <Text style={styles.heroMasked}>{card.maskedCardNumber}</Text>
+                </View>
+                <View style={styles.heroBrandRow}>
+                  <View style={styles.mcMark} accessibilityLabel="Marca de tarjeta">
+                    <View style={[styles.mcCircle, styles.mcCircleRed]} />
+                    <View style={[styles.mcCircle, styles.mcCircleOrange]} />
+                  </View>
+                  <TouchableOpacity
+                    onPress={openDev}
+                    accessibilityRole="button"
+                    accessibilityLabel="Seleccionar tarjeta">
+                    <ChevronDownIcon color={colors.white} width={24} height={24} />
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.heroBrandRow}>
-                <View style={styles.mcMark} accessibilityLabel="Marca de tarjeta">
-                  <View style={[styles.mcCircle, styles.mcCircleRed]} />
-                  <View style={[styles.mcCircle, styles.mcCircleOrange]} />
+
+              <View style={styles.heroBalanceRow}>
+                <View style={styles.heroAmountBlock}>
+                  <View style={styles.amountAndPill}>
+                    <Text style={styles.heroAmount} numberOfLines={1}>
+                      {balanceMasked ? '$**.**' : formatCurrency(card.totalDue)}
+                    </Text>
+                    <View style={styles.duePill}>
+                      <Text style={styles.duePillText}>
+                        {formatShortDueDate(card.maxPaymentDate)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.totalDueCaption}>Total a pagar</Text>
                 </View>
                 <TouchableOpacity
-                  onPress={openDev}
+                  style={styles.eyeWrap}
+                  onPress={() => setBalanceMasked(m => !m)}
                   accessibilityRole="button"
-                  accessibilityLabel="Seleccionar tarjeta">
-                  <ChevronDownIcon color={colors.white} />
+                  accessibilityLabel={balanceMasked ? 'Mostrar saldo' : 'Ocultar saldo'}>
+                  {balanceMasked ? (
+                    <EyeSlashIcon color={colors.white} />
+                  ) : (
+                    <EyeIcon color={colors.white} />
+                  )}
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View style={styles.heroBalanceRow}>
-              <View style={styles.heroAmountBlock}>
-                <View style={styles.amountAndPill}>
-                  <Text style={styles.heroAmount} numberOfLines={1}>
-                    {balanceMasked ? '$**.**' : formatCurrency(card.totalDue)}
-                  </Text>
-                  <View style={styles.duePill}>
-                    <Text style={styles.duePillText}>
-                      {formatShortDueDate(card.maxPaymentDate)}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.totalDueCaption}>Total a pagar</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.eyeWrap}
-                onPress={() => setBalanceMasked(m => !m)}
-                accessibilityRole="button"
-                accessibilityLabel={balanceMasked ? 'Mostrar saldo' : 'Ocultar saldo'}>
-                {balanceMasked ? (
-                  <EyeSlashIcon color={colors.white} />
-                ) : (
-                  <EyeIcon color={colors.white} />
-                )}
-              </TouchableOpacity>
-            </View>
             </View>
           </View>
         </ImageBackground>
 
-        <View style={styles.sectionPad}>
-          <View style={styles.creditCard}>
-            <Text style={styles.creditApproved}>
-              Cupo aprobado: {formatCurrency(approvedLimit)}
+        <View style={styles.creditCardWrap}>
+          <Text style={styles.creditApproved}>
+            Cupo aprobado: {formatCurrency(approvedLimit)}
+          </Text>
+          <View style={styles.creditRow}>
+            <Text style={styles.creditMuted}>
+              Utilizado:{' '}
+              <Text style={styles.creditStrong}>{formatCurrency(utilized)}</Text>
             </Text>
-            <View style={styles.creditRow}>
-              <Text style={styles.creditMuted}>
-                Utilizado:{' '}
-                <Text style={styles.creditStrong}>{formatCurrency(utilized)}</Text>
-              </Text>
-              <Text style={styles.creditMuted}>
-                Disponible:{' '}
-                <Text style={styles.creditStrong}>{formatCurrency(available)}</Text>
-              </Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <View
-                style={[styles.progressFill, {width: `${utilizationRatio * 100}%`}]}
-              />
-            </View>
+            <Text style={styles.creditMuted}>
+              Disponible:{' '}
+              <Text style={styles.creditStrong}>{formatCurrency(available)}</Text>
+            </Text>
           </View>
-
-          <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={styles.actionCell}
-              onPress={openDev}
-              accessibilityRole="button"
-              accessibilityLabel="Pagar tarjeta">
-              <CreditCardPayIcon color={colors.primary} />
-              <Text style={styles.actionLabel} numberOfLines={2}>
-                Pagar tarjeta
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionCell}
-              onPress={openDev}
-              accessibilityRole="button"
-              accessibilityLabel="Diferir consumos">
-              <CalendarDeferIcon color={colors.primary} />
-              <Text style={styles.actionLabel} numberOfLines={2}>
-                Diferir consumos
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionCell}
-              onPress={openDev}
-              accessibilityRole="button"
-              accessibilityLabel="Estado de cuenta">
-              <StatementIcon color={colors.primary} />
-              <Text style={styles.actionLabel} numberOfLines={2}>
-                Estado de cuenta
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionCell}
-              onPress={openDev}
-              accessibilityRole="button"
-              accessibilityLabel="Avances">
-              <CashAdvanceIcon color={colors.primary} />
-              <Text style={styles.actionLabel} numberOfLines={2}>
-                Avances
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionHeading}>Detalle de consumos</Text>
-          <View style={styles.txList}>
-            {consumptions.map((row, index) => {
-              const isLast = index === consumptions.length - 1;
-              const isCredit = row.amount < 0;
-              return (
-                <TouchableOpacity
-                  key={`${row.merchant}-${row.day}-${index}`}
-                  style={[styles.txRow, !isLast && styles.txRowBorder]}
-                  onPress={openDev}
-                  activeOpacity={0.85}
-                  accessibilityRole="button">
-                  <View style={styles.txDate}>
-                    <Text style={styles.txDay}>{row.day}</Text>
-                    <Text style={styles.txMonth}>{row.monthLabel}</Text>
-                  </View>
-                  <View style={styles.txMid}>
-                    <Text style={styles.txMerchant} numberOfLines={2}>
-                      {row.merchant}
-                    </Text>
-                  </View>
-                  <View style={styles.txRight}>
-                    <Text
-                      style={[
-                        styles.txAmount,
-                        isCredit && {color: colors.success},
-                      ]}>
-                      {isCredit
-                        ? `+${formatCurrency(Math.abs(row.amount))}`
-                        : formatCurrency(row.amount)}
-                    </Text>
-                    <Image
-                      source={arrowRight}
-                      style={styles.txArrow}
-                      resizeMode="contain"
-                    />
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <View style={styles.spendingCard}>
-            <Text style={styles.spendingTitle}>Tus gastos del mes</Text>
-            <SpendingDonutChart segments={donutSegments} />
-            <View style={styles.legend}>
-              {spendingCategories.map(c => (
-                <View key={c.id} style={styles.legendRow}>
-                  <View style={styles.legendLeft}>
-                    <View
-                      style={[
-                        styles.legendDot,
-                        {backgroundColor: resolveCategoryColor(colors, c.colorToken)},
-                      ]}
-                    />
-                    <Text style={styles.legendLabel}>{c.label}</Text>
-                  </View>
-                  <Text style={styles.legendAmount}>{formatCurrency(c.amount)}</Text>
-                </View>
-              ))}
-            </View>
+          <View style={styles.progressTrack}>
+            <View
+              style={[styles.progressFill, {width: `${utilizationRatio * 100}%`}]}
+            />
           </View>
         </View>
+
+        <View style={styles.quickRow}>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={openDev}
+            accessibilityRole="button"
+            accessibilityLabel="Pagar tarjeta">
+            <CreditCardPayIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Pagar tarjeta</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={openDev}
+            accessibilityRole="button"
+            accessibilityLabel="Diferir consumos">
+            <CalendarDeferIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Diferir consumos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={openDev}
+            accessibilityRole="button"
+            accessibilityLabel="Estado de cuenta">
+            <StatementIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Estado de cuenta</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={openDev}
+            accessibilityRole="button"
+            accessibilityLabel="Avances">
+            <CashAdvanceIcon color={colors.primary} />
+            <Text style={styles.quickLabel}>Avances</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.sectionHeading}>Detalle de consumos</Text>
+
+        {consumptions.map((row, index) => {
+          const isFirst = index === 0;
+          const isLast = index === totalConsumptions - 1;
+          const isAbono = row.amount < 0;
+          const amountColor = isAbono ? colors.success : colors.textSecondary;
+          const displayAbs = formatCurrency(Math.abs(row.amount));
+          const amountText = isAbono ? `+${displayAbs}` : formatCurrency(row.amount);
+
+          return (
+            <Pressable
+              key={`${row.merchant}-${row.day}-${index}`}
+              style={({pressed}) => [
+                styles.movRow,
+                isFirst && styles.movRowFirst,
+                isLast && styles.movRowLast,
+                !isLast && styles.movRowDivider,
+                pressed && styles.movRowPressed,
+              ]}
+              onPress={openDev}
+              accessibilityRole="button"
+              accessibilityLabel={`Consumo ${row.merchant}`}>
+              <View style={styles.movDateCol}>
+                <Text style={styles.movDay}>{row.day}</Text>
+                <Text style={styles.movMonth}>{row.monthLabel}</Text>
+              </View>
+              <View style={styles.movCenter}>
+                <Text style={styles.movName} numberOfLines={1}>
+                  {row.merchant}
+                </Text>
+                <Text style={styles.movSub} numberOfLines={1}>
+                  Tarjeta de crédito
+                </Text>
+              </View>
+              <View style={styles.movRight}>
+                <Text style={[styles.movAmount, {color: amountColor}]}>{amountText}</Text>
+              </View>
+              <ChevronRightIcon color={colors.textBlack} />
+            </Pressable>
+          );
+        })}      
       </ScrollView>
 
       <DevelopmentNoticeModal
         visible={devModalVisible}
         onClose={() => setDevModalVisible(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -417,7 +415,7 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        safe: {
+        root: {
           flex: 1,
           backgroundColor: colors.background,
         },
@@ -427,53 +425,24 @@ function useStyles(colors: ThemeColors) {
         scrollContent: {
           paddingBottom: 32,
         },
-        headerBar: {
+        topBar: {
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
           backgroundColor: colors.white,
+          paddingHorizontal: 24,
+          paddingBottom: 16,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.borderLight,
         },
-        bannerSection: {
-          width: '100%',
-          alignSelf: 'stretch',
-          minHeight: 240,
-        },
-        headerBarBanner: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          backgroundColor: 'transparent',
-        },
-        backIconOnBanner: {
-          width: 20,
-          height: 20,
-          tintColor: colors.white,
-        },
-        headerTitleOnBanner: {
-          flex: 1,
-          fontFamily: Lexend.regular,
+        topBarTitle: {
+          fontFamily: Lexend.semiBold,
           fontSize: 14,
-          color: colors.white,
-          textAlign: 'center',
-        },
-        backIcon: {
-          width: 20,
-          height: 20,
-          tintColor: colors.iconPrimary,
-        },
-        headerTitle: {
-          flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 14,
+          letterSpacing: 1,
           color: colors.textPrimary,
-          textAlign: 'center',
         },
-        headerSpacer: {
-          width: 20,
+        topBarSpacer: {
+          width: 22,
         },
         centered: {
           flex: 1,
@@ -493,18 +462,21 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           color: colors.linkPrimary,
         },
+        bannerSection: {
+          width: '100%',
+          alignSelf: 'stretch',
+          minHeight: 180,
+        },
         heroContentPad: {
           width: '100%',
           paddingHorizontal: 24,
           paddingTop: 4,
-          paddingBottom: 20,
+          paddingBottom: 2,
         },
         heroCard: {
           borderRadius: 12,
+          paddingTop: 24,
           backgroundColor: 'transparent',
-          paddingHorizontal: 0,
-          paddingTop: 0,
-          paddingBottom: 0,
         },
         heroTopRow: {
           flexDirection: 'row',
@@ -601,16 +573,13 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 4,
           padding: 6,
         },
-        sectionPad: {
-          paddingHorizontal: 24,
-          marginTop: 16,
-          gap: 16,
-        },
-        creditCard: {
+        creditCardWrap: {
           backgroundColor: colors.white,
+          marginHorizontal: 24,
+          marginTop: 16,
           borderRadius: 12,
           paddingHorizontal: 12,
-          paddingVertical: 8,
+          paddingVertical: 12,
         },
         creditApproved: {
           fontFamily: Lexend.regular,
@@ -646,144 +615,153 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 4,
           backgroundColor: colors.primary,
         },
-        actionsRow: {
+        quickRow: {
           flexDirection: 'row',
+          paddingHorizontal: 16,
+          paddingVertical: 12,
           gap: 8,
+          backgroundColor: colors.background,
         },
-        actionCell: {
+        quickCard: {
           flex: 1,
-          minWidth: 0,
           backgroundColor: colors.white,
           borderRadius: 8,
-          alignItems: 'center',
-          paddingTop: 8,
-          paddingBottom: 4,
+          paddingVertical: 10,
           paddingHorizontal: 4,
-          minHeight: 54,
-          justifyContent: 'flex-start',
+          alignItems: 'center',
+          gap: 4,
         },
-        actionLabel: {
+        quickLabel: {
           fontFamily: Lexend.regular,
           fontSize: 9,
-          lineHeight: 14,
           color: colors.textPrimary,
           textAlign: 'center',
-          marginTop: 4,
         },
         sectionHeading: {
           fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 24,
           color: colors.textPrimary,
+          paddingHorizontal: 24,
+          paddingTop: 16,
+          paddingBottom: 8,
         },
-        txList: {
-          borderRadius: 8,
-          overflow: 'hidden',
-          backgroundColor: colors.white,
-        },
-        txRow: {
+        movRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 16,
-          paddingHorizontal: 16,
+          backgroundColor: colors.white,
+          marginHorizontal: 24,
+          paddingHorizontal: 8,
           paddingVertical: 12,
-          minHeight: 56,
+          gap: 8,
         },
-        txRowBorder: {
+        movRowFirst: {
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8,
+        },
+        movRowLast: {
+          borderBottomLeftRadius: 8,
+          borderBottomRightRadius: 8,
+          marginBottom: 8,
+        },
+        movRowDivider: {
           borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: colors.borderSubtle,
+          borderBottomColor: colors.borderLight,
         },
-        txDate: {
+        movRowPressed: {
+          opacity: 0.88,
+        },
+        movDateCol: {
+          width: 34,
           alignItems: 'center',
-          width: 36,
+          justifyContent: 'center',
+          paddingBottom: 4,
         },
-        txDay: {
+        movDay: {
           fontFamily: Lexend.semiBold,
           fontSize: 16,
           lineHeight: 24,
           color: colors.primary,
+          textAlign: 'right',
         },
-        txMonth: {
+        movMonth: {
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 20,
           color: colors.textTertiary,
+          textAlign: 'center',
         },
-        txMid: {
+        movCenter: {
           flex: 1,
           minWidth: 0,
+          gap: 2,
         },
-        txMerchant: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
+        movName: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 14,
           lineHeight: 20,
           color: colors.textTertiary,
         },
-        txRight: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
+        movSub: {
+          fontFamily: Lexend.regular,
+          fontSize: 13,
+          lineHeight: 18,
+          color: colors.textTertiary,
         },
-        txAmount: {
+        movRight: {
+          alignItems: 'flex-end',
+          gap: 2,
+        },
+        movAmount: {
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 20,
-          color: colors.textSecondary,
+          textAlign: 'right',
         },
-        txArrow: {
-          width: 16,
-          height: 16,
-          tintColor: colors.textTertiary,
-        },
-        spendingCard: {
+        chartCard: {
           backgroundColor: colors.white,
+          marginHorizontal: 24,
+          marginTop: 16,
+          marginBottom: 8,
           borderRadius: 12,
-          paddingHorizontal: 16,
-          paddingVertical: 20,
-          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
         },
-        spendingTitle: {
+        chartTitle: {
           fontFamily: Lexend.regular,
           fontSize: 14,
+          lineHeight: 20,
           color: colors.textPrimary,
-          alignSelf: 'flex-start',
           marginBottom: 12,
         },
-        legend: {
-          alignSelf: 'stretch',
+        chartLegend: {
+          gap: 10,
           marginTop: 16,
-          gap: 12,
         },
         legendRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
-        },
-        legendLeft: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          flex: 1,
-          minWidth: 0,
           gap: 8,
-          flexWrap: 'wrap',
         },
         legendDot: {
           width: 9,
           height: 9,
           borderRadius: 5,
+          flexShrink: 0,
         },
         legendLabel: {
+          flex: 1,
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 20,
           color: colors.textSecondary,
-          flex: 1,
         },
         legendAmount: {
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 20,
           color: colors.textSecondary,
+          textAlign: 'right',
         },
       }),
     [colors],

@@ -62,10 +62,12 @@ export function InvestmentDetailScreen() {
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<HomeStackParamList, 'InvestmentDetail'>>();
-  const {investmentGuid} = route.params;
+  const {investmentGuid, investmentBalance} = route.params;
 
-  const {detail, isLoading, errorMessage} =
-    useInvestmentDetailViewModel(investmentGuid);
+  const {detail, isLoading, errorMessage} = useInvestmentDetailViewModel(
+    investmentGuid,
+    investmentBalance,
+  );
 
   const [devModalVisible, setDevModalVisible] = useState(false);
   const openRenewDev = useCallback(() => setDevModalVisible(true), []);
@@ -267,6 +269,7 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 24,
           paddingBottom: 32,
           gap: 16,
+          paddingTop: 16,
         },
         centered: {
           flex: 1,
@@ -288,14 +291,15 @@ function useStyles(colors: ThemeColors) {
         },
         headerTitle: {
           flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 14,
+          fontFamily: Lexend.semiBold,
+          letterSpacing: 1,
           color: colors.textPrimary,
           textAlign: 'center',
           textTransform: 'uppercase',
         },
         headerSpacer: {
-          width: 20,
+          width: 22,
+          height:12
         },
         errorInline: {
           fontFamily: Lexend.regular,
@@ -366,12 +370,13 @@ function useStyles(colors: ThemeColors) {
           fontFamily: Lexend.regular,
           fontSize: 14,
           color: colors.textTertiary,
+          
         },
         interestStrong: {
           fontFamily: Lexend.semiBold,
           fontSize: 14,
           lineHeight: 22,
-          color: colors.primary,
+          color: colors.primary,          
         },
         metaRow: {
           flexDirection: 'row',

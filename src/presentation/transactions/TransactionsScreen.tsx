@@ -70,10 +70,10 @@ function BackIcon({color}: {color: string}) {
 
 function ShareIcon({color}: {color: string}) {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24">
+    <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"
+        d="M15 3.18415C15 4.98884 13.5603 6.39844 11.7857 6.39844C10.9185 6.39844 10.1317 6.08705 9.5558 5.5279L6.40513 7.10156C6.42187 7.23214 6.39844 7.33594 6.39844 7.5C6.39844 7.63393 6.42187 7.73772 6.40513 7.89844L9.5558 9.4721C10.1317 8.91295 10.9185 8.57143 11.7857 8.57143C13.5603 8.57143 15 9.98103 15 11.7857C15 13.5603 13.5603 15 11.7857 15C9.98103 15 8.57143 13.5603 8.57143 11.7857C8.57143 11.6217 8.57813 11.5179 8.59487 11.3873L5.4442 9.81362C4.8683 10.3728 4.08147 10.7143 3.21429 10.7143C1.43906 10.7143 0 9.27455 0 7.5C0 5.69531 1.43906 4.28571 3.21429 4.28571C4.08147 4.28571 4.8683 4.62723 5.4442 5.18638L8.59487 3.61272C8.57813 3.45201 8.57143 3.34821 8.57143 3.21429C8.57143 1.43906 9.98103 0 11.7857 0C13.5603 0 15 1.43906 15 3.21429V3.18415ZM3.18415 8.54129C3.80692 8.54129 4.25558 8.09263 4.25558 7.46987C4.25558 6.90737 3.80692 6.39844 3.18415 6.39844C2.62266 6.39844 2.11272 6.90737 2.11272 7.46987C2.11272 8.09263 2.62266 8.54129 3.18415 8.54129ZM11.7857 2.11272C11.1931 2.11272 10.7143 2.62165 10.7143 3.18415C10.7143 3.80692 11.1931 4.25558 11.7857 4.25558C12.3783 4.25558 12.8571 3.80692 12.8571 3.18415C12.8571 2.62165 12.3783 2.11272 11.7857 2.11272ZM11.7857 12.8571C12.3783 12.8571 12.8571 12.3783 12.8571 11.7857C12.8571 11.1931 12.3783 10.7143 11.7857 10.7143C11.1931 10.7143 10.7143 11.1931 10.7143 11.7857C10.7143 12.3783 11.1931 12.8571 11.7857 12.8571Z"
       />
     </Svg>
   );
@@ -101,12 +101,12 @@ function EyeSlashIcon({color}: {color: string}) {
   );
 }
 
-function ChevronDownIcon({color}: {color: string}) {
+function ChevronDownIcon({color, width, height}: {color: string, width: number, height: number}) {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24">
+    <Svg width={width} height={height} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+        d="M17.2428 7.40683L10.6075 13.7644C10.3853 13.9519 10.177 14.0283 9.99988 14.0283C9.8228 14.0283 9.58426 13.9512 9.42384 13.796L2.75726 7.40683C2.42407 7.09086 2.41324 6.53184 2.73226 6.22976C3.0491 5.89556 3.57878 5.88469 3.90968 6.20481L9.99988 12.0422L16.0901 6.20893C16.4199 5.88883 16.9505 5.89969 17.2675 6.23388C17.5866 6.53184 17.5762 7.09086 17.2428 7.40683Z"
       />
     </Svg>
   );
@@ -114,18 +114,18 @@ function ChevronDownIcon({color}: {color: string}) {
 
 function ChevronRightIcon({color}: {color: string}) {
   return (
-    <Svg width={14} height={14} viewBox="0 0 24 24">
-      <Path fill={color} d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+    <Svg width={28} height={26} viewBox="0 0 24 24">
+      <Path fill={color} d="M11.7487 5.74915L7.4628 10.0351C7.29672 10.2038 7.07706 10.2869 6.85741 10.2869C6.63776 10.2869 6.41864 10.2031 6.25149 10.0357C5.91665 9.70089 5.91665 9.15845 6.25149 8.82361L9.07537 6.00094H0.857139C0.383814 6.00094 0 5.61789 0 5.14376C0 4.66963 0.383814 4.28658 0.857139 4.28658H9.07537L6.25203 1.46324C5.91719 1.1284 5.91719 0.585964 6.25203 0.251127C6.58686 -0.0837092 7.1293 -0.0837092 7.46414 0.251127L11.75 4.53704C12.0835 4.87321 12.0835 5.41431 11.7487 5.74915Z" />
     </Svg>
   );
 }
 
 function TransferIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
         fill={color}
-        d="M9 3L5 7h3v4h2V7h3zm7 11h-3v-4h-2v4H8l4 4z"
+        d="M3.4375 7.65625H14.3008L12.6197 9.33731C12.2535 9.70352 12.2535 10.2968 12.6197 10.663C12.8008 10.8467 13.041 10.9375 13.2812 10.9375C13.5215 10.9375 13.7611 10.8459 13.9439 10.6628L17.2252 7.38159C17.5914 7.01538 17.5914 6.42212 17.2252 6.05591L13.9439 2.77466C13.5777 2.40845 12.9845 2.40845 12.6183 2.77466C12.2521 3.14087 12.2521 3.73413 12.6183 4.10034L14.3008 5.78125H3.4375C2.91924 5.78125 2.5 6.20049 2.5 6.71875C2.5 7.23701 2.91924 7.65625 3.4375 7.65625ZM16.5625 12.3438H5.70215L7.3832 10.6627C7.74941 10.2965 7.74941 9.70322 7.3832 9.33701C7.01699 8.9708 6.42373 8.9708 6.05752 9.33701L2.77627 12.6183C2.41006 12.9845 2.41006 13.5777 2.77627 13.9439L6.05752 17.2252C6.23828 17.4092 6.47852 17.5 6.71875 17.5C6.95898 17.5 7.19863 17.4084 7.38144 17.2253C7.74766 16.8591 7.74766 16.2659 7.38144 15.8997L5.70215 14.2188H16.5625C17.0808 14.2188 17.5 13.7995 17.5 13.2812C17.5 12.763 17.0811 12.3438 16.5625 12.3438Z"
       />
     </Svg>
   );
@@ -133,7 +133,7 @@ function TransferIcon({color}: {color: string}) {
 
 function LightbulbIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"
@@ -144,7 +144,7 @@ function LightbulbIcon({color}: {color: string}) {
 
 function FileIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"
@@ -155,7 +155,7 @@ function FileIcon({color}: {color: string}) {
 
 function CreditCardIcon({color}: {color: string}) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
+    <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
         fill={color}
         d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"
@@ -399,7 +399,7 @@ export function TransactionsScreen() {
               {formatCurrency(item.balanceAfterTransaction)}
             </Text>
           </View>
-          <ChevronRightIcon color={colors.textTertiary} />
+          <ChevronRightIcon color={colors.textBlack} />
         </Pressable>
       );
     },
@@ -416,25 +416,29 @@ export function TransactionsScreen() {
         {/* Account overview card */}
         <View style={styles.accountCard}>
           <View style={styles.accountCardRow}>
+            <View style={styles.accountInfoBlockRow}> 
             <View style={styles.accountInfoBlock}>
               <View style={styles.accountLabelRow}>
                 <Text style={styles.accountShortLabel}>
                   {accountShortLabel(acc.accountKind)}
                 </Text>
-                <TouchableOpacity
+                
+              </View>
+              <Text style={styles.accountMaskText}>{maskedLabel}</Text>
+              
+            </View>
+            <TouchableOpacity
                   onPress={() => setDevModalVisible(true)}
                   hitSlop={8}
                   accessibilityLabel="Compartir">
                   <ShareIcon color={colors.primary} />
                 </TouchableOpacity>
-              </View>
-              <Text style={styles.accountMaskText}>{maskedLabel}</Text>
-            </View>
+                </View>
             <TouchableOpacity
               onPress={() => {}}
               hitSlop={8}
               accessibilityLabel="Cambiar cuenta">
-              <ChevronDownIcon color={colors.textPrimary} />
+              <ChevronDownIcon color={colors.primary} width={24} height={24} />
             </TouchableOpacity>
           </View>
 
@@ -526,7 +530,7 @@ export function TransactionsScreen() {
             <Text style={styles.chipText} numberOfLines={1}>
               {vm.dateFilterLabel}
             </Text>
-            <ChevronDownIcon color={colors.textSecondary} />
+            <ChevronDownIcon color={colors.textSecondary} width={16} height={16} />
           </TouchableOpacity>
           <TouchableOpacity
             testID="movements-type-filter-chip"
@@ -583,31 +587,7 @@ export function TransactionsScreen() {
         />
       );
     }
-    if (chartSegments.length === 0) return null;
-    return (
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Tus gastos del mes</Text>
-        <View style={styles.chartDivider} />
-        <View style={styles.chartCenter}>
-          <DonutChart segments={chartSegments} />
-        </View>
-        <View style={styles.chartLegend}>
-          {chartSegments.map((seg, i) => (
-            <View key={i} style={styles.legendRow}>
-              <View
-                style={[styles.legendDot, {backgroundColor: seg.color}]}
-              />
-              <Text style={styles.legendLabel} numberOfLines={1}>
-                {seg.label}
-              </Text>
-              <Text style={styles.legendAmount}>
-                {formatCurrency(seg.amount)}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
+  
   }, [vm.isLoadingMore, chartSegments, colors, styles]);
 
   if (vm.isLoadingAccount) {
@@ -645,7 +625,7 @@ export function TransactionsScreen() {
           hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel="Volver al inicio">
-          <BackIcon color={colors.primary} />
+          <BackIcon color={colors.textBlack} />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>MOVIMIENTOS</Text>
         <View style={styles.topBarSpacer} />
@@ -814,6 +794,12 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 6,
           padding: 6,
         },
+        accountInfoBlockRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 8,
+        },
         // ─── Quick actions ─────────────────────────
         quickRow: {
           flexDirection: 'row',
@@ -833,7 +819,7 @@ function useStyles(colors: ThemeColors) {
         },
         quickLabel: {
           fontFamily: Lexend.regular,
-          fontSize: 8,
+          fontSize: 9,
           color: colors.textPrimary,
           textAlign: 'center',
         },
@@ -956,14 +942,14 @@ function useStyles(colors: ThemeColors) {
         },
         movName: {
           fontFamily: Lexend.semiBold,
-          fontSize: 12,
+          fontSize: 14,
           lineHeight: 20,
           color: colors.textTertiary,
         },
         movSub: {
           fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
+          fontSize: 13,
+          lineHeight: 18,
           color: colors.textTertiary,
         },
         movRight: {
