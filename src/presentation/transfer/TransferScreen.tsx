@@ -29,6 +29,7 @@ import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
 import {SpacerView} from "../components/SpacerView.tsx";
 const ZERO_DISPLAY = formatMoneyUsdDisplay(0);
+import AngleArrow from '../../../assets/images/svg/angles-down.svg'
 
 export function TransferScreen() {
     const {colors} = useTheme();
@@ -167,10 +168,10 @@ export function TransferScreen() {
                                 description={fromAccountSubtitle}
                                 balanceLabel={fromBalanceLabel}
                             />
-                            <SpacerView/>
+                            <SpacerView height={24}/>
                             <View style={styles.bridgeRow}>
                                 <View style={styles.bridgeCircle}>
-                                    <TransferIconAnglesDown color={colors.primary} size={24}/>
+                                    <AngleArrow color={colors.primary}/>
                                 </View>
                             </View>
                             <AccountSelectorButton
@@ -184,7 +185,7 @@ export function TransferScreen() {
                                 balanceLabel={toBalanceLabel}
                             />
                         </View>
-                        <SpacerView/>
+                        <SpacerView height={19}/>
                         <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
                         <View style={styles.amountWrap}>
                             <TextInput
@@ -301,7 +302,7 @@ function useStyles(colors: ThemeColors) {
                 },
                 bridgeRow: {
                     alignItems: 'center',
-                    marginTop: -20,
+                    marginTop: -30,
                     marginBottom: -20,
                     zIndex: 2,
                     height: 40,
@@ -378,24 +379,11 @@ function useStyles(colors: ThemeColors) {
                     fontSize: 14,
                     color: colors.textPrimary,
                     backgroundColor: colors.white,
-                    borderWidth: 1,
                     borderColor: colors.border,
                     borderRadius: 8,
                     paddingHorizontal: 16,
                     paddingVertical: 17,
-                    overflow: 'visible',
-                    ...Platform.select({
-                        ios: {
-                            shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 4},
-                            shadowOpacity: 1,
-                            shadowRadius: 4,
-                        },
-                        android: {
-                            elevation: 3,
-                        },
-                        default: {},
-                    }),
+                    overflow: 'visible'
                 },
                 validationText: {
                     fontFamily: Lexend.regular,
