@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
 import {AppState} from 'react-native';
 import {User} from '../domain/entities/User';
@@ -28,12 +29,8 @@ export interface LogoutOptions {
 interface AuthContextValue extends AuthState {
   login: (user: User) => Promise<void>;
   logout: (options?: LogoutOptions) => Promise<void>;
-  /**
-   * Se incrementa en cada cierre de sesión con `suppressCompactLoginAutoBiometricOnce`.
-   * Login compacto compara con un ref local para activar la supresión una vez por evento,
-   * incluso si React remonta la pantalla (Strict Mode / navegación).
-   */
-  suppressCompactAutoBiometricGeneration: number;
+  /** Lee y borra el flag; true = omitir auto-biometría una vez en login compacto. */
+  consumeSuppressCompactLoginAutoBiometricOnce: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -58,10 +55,17 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     isLoading: true,
   });
 
-  const [suppressCompactAutoBiometricGeneration, setSuppressCompactAutoBiometricGeneration] =
-    useState(0);
+  const suppressCompactLoginAutoBiometricOnceRef = useRef(false);
 
   const {secureStorageService: secureStorage} = useDI();
+
+  const consumeSuppressCompactLoginAutoBiometricOnce = useCallback(() => {
+    if (!suppressCompactLoginAutoBiometricOnceRef.current) {
+      return false;
+    }
+    suppressCompactLoginAutoBiometricOnceRef.current = false;
+    return true;
+  }, []);
 
   useEffect(() => {
     restoreSession();
@@ -123,9 +127,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   const logout = useCallback(
     async (options?: LogoutOptions) => {
       if (options?.suppressCompactLoginAutoBiometricOnce) {
-        setSuppressCompactAutoBiometricGeneration(g => g + 1);
-      } else {
-        setSuppressCompactAutoBiometricGeneration(0);
+        suppressCompactLoginAutoBiometricOnceRef.current = true;
       }
       await secureStorage.remove(SecureStorageKeys.USER_SESSION);
       await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
@@ -139,9 +141,9 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       ...state,
       login,
       logout,
-      suppressCompactAutoBiometricGeneration,
+      consumeSuppressCompactLoginAutoBiometricOnce,
     }),
-    [state, login, logout, suppressCompactAutoBiometricGeneration],
+    [state, login, logout, consumeSuppressCompactLoginAutoBiometricOnce],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

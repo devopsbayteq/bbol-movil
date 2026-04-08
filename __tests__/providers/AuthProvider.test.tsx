@@ -157,7 +157,7 @@ describe('AuthProvider', () => {
     expect(ctx?.isAuthenticated).toBe(false);
   });
 
-  it('logout con suppressCompactLoginAutoBiometricOnce incrementa generation; logout normal la resetea', async () => {
+  it('logout con suppressCompactLoginAutoBiometricOnce activa el flag hasta consumirlo', async () => {
     let ctx: ReturnType<typeof useAuth> | undefined;
     function Read() {
       ctx = useAuth();
@@ -175,19 +175,14 @@ describe('AuthProvider', () => {
       await Promise.resolve();
     });
 
-    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(0);
+    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(false);
 
     await act(async () => {
       await ctx?.logout({suppressCompactLoginAutoBiometricOnce: true});
     });
 
-    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(1);
-
-    await act(async () => {
-      await ctx?.logout();
-    });
-
-    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(0);
+    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(true);
+    expect(ctx?.consumeSuppressCompactLoginAutoBiometricOnce()).toBe(false);
   });
 
   it('registra listener de AppState que borra USER_LOGIN_DATA al ir a background', async () => {

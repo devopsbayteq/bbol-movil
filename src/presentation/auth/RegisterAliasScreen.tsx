@@ -48,17 +48,11 @@ export function RegisterAliasScreen() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleEnrollmentContinue = useCallback(async () => {
-    await navigatePostLoginEnrollment(
-      navigation,
-      user,
-      email.trim(),
-      {
-        biometricRSAAuthOrchestrator,
-        secureStorageService,
-        login,
-      },
-      {forceShowBiometricOffer: true},
-    );
+    await navigatePostLoginEnrollment(navigation, user, email.trim(), {
+      biometricRSAAuthOrchestrator,
+      secureStorageService,
+      login,
+    });
   }, [
     navigation,
     user,

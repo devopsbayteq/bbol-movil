@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {View, StyleSheet, Alert, ActivityIndicator, AppState} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -26,18 +19,10 @@ import {RootStackParamList} from '../../navigation/AppNavigator.tsx';
 export function LoginScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {login, suppressCompactAutoBiometricGeneration} = useAuth();
-  const [suppressAutoBiometricPromptOnce, setSuppressAutoBiometricPromptOnce] =
-    useState(false);
-  const lastHandledSuppressGenerationRef = useRef(0);
-
-  useLayoutEffect(() => {
-    const gen = suppressCompactAutoBiometricGeneration;
-    if (gen > lastHandledSuppressGenerationRef.current) {
-      lastHandledSuppressGenerationRef.current = gen;
-      setSuppressAutoBiometricPromptOnce(true);
-    }
-  }, [suppressCompactAutoBiometricGeneration]);
+  const {login, consumeSuppressCompactLoginAutoBiometricOnce} = useAuth();
+  const [suppressAutoBiometricPromptOnce] = useState(() =>
+    consumeSuppressCompactLoginAutoBiometricOnce(),
+  );
   const {biometricRSAAuthOrchestrator, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);
