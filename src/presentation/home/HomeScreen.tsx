@@ -9,6 +9,7 @@ import {
   Animated,
   RefreshControl,
   ImageBackground,
+  useWindowDimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -64,10 +65,11 @@ function accountTitle(kind: AccountKind): string {
   return 'Cuenta';
 }
 
-const CARD_WIDTH = 204;
+/** Ancho de cada card del carousel como fracción del ancho de pantalla. */
+const CARD_WIDTH_SCREEN_FRACTION = 0.6;
 const CARD_HEIGHT = 130;
-const CARD_GAP = 12;
-const CARD_SNAP_INTERVAL = CARD_WIDTH + CARD_GAP;
+/** Separación horizontal entre cards del carousel. */
+const CARD_GAP = 6;
 const MAIN_COLUMN_PADDING = 24;
 
 /** Altura aproximada de la imagen + franja teal bajo el header (fondo decorativo). */
@@ -76,7 +78,16 @@ const HERO_IMAGE_SECTION_HEIGHT = 150;
 export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
-  const styles = useStyles(colors);
+  const {width: windowWidth} = useWindowDimensions();
+  const cardLayout = useMemo(
+    () => ({
+      cardWidth: Math.round(windowWidth * CARD_WIDTH_SCREEN_FRACTION),
+      cardHeight: CARD_HEIGHT,
+    }),
+    [windowWidth],
+  );
+  const cardSnapInterval = cardLayout.cardWidth + CARD_GAP;
+  const styles = useStyles(colors, cardLayout);
 
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -318,7 +329,7 @@ export function HomeScreen() {
 
   const onCarouselScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / CARD_SNAP_INTERVAL);
+    const idx = Math.round(x / cardSnapInterval);
     if (idx >= 0 && idx < productItems.length) {
       animateSelection(idx);
     }
@@ -390,7 +401,7 @@ export function HomeScreen() {
                   ref={carouselRef}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  snapToInterval={CARD_SNAP_INTERVAL}
+                  snapToInterval={cardSnapInterval}
                   snapToAlignment="start"
                   decelerationRate="fast"
                   onMomentumScrollEnd={onCarouselScroll}
@@ -467,7 +478,10 @@ export function HomeScreen() {
   );
 }
 
-function useStyles(colors: ThemeColors) {
+function useStyles(
+  colors: ThemeColors,
+  layout: {cardWidth: number; cardHeight: number},
+) {
   return useMemo(
     () =>
       StyleSheet.create({
@@ -538,12 +552,12 @@ function useStyles(colors: ThemeColors) {
           gap: CARD_GAP,
         },
         carouselItem: {
-          width: CARD_WIDTH,
-          height: CARD_HEIGHT,
+          width: layout.cardWidth,
+          height: layout.cardHeight,
         },
         productCard: {
-          width: CARD_WIDTH,
-          height: CARD_HEIGHT,
+          width: layout.cardWidth,
+          height: layout.cardHeight,
         },
         cardFill: {
           flex: 1,
@@ -577,6 +591,6 @@ function useStyles(colors: ThemeColors) {
           paddingVertical: 16,
         },
       }),
-    [colors],
+    [colors, layout.cardWidth, layout.cardHeight],
   );
 }
