@@ -204,7 +204,9 @@ export function TransferScreen() {
                             {amountFieldError ? (
                                 <Text style={styles.amountFieldError}>{amountFieldError}</Text>
                             ) : null}
+
                         </View>
+                        <View style={{height:1,backgroundColor:colors.primary}}/>
                     </View>
 
                     <View style={styles.bottomSection}>
@@ -294,7 +296,7 @@ function useStyles(colors: ThemeColors) {
                     backgroundColor: colors.transferSectionBg,
                     paddingHorizontal: 24,
                     paddingTop: 24,
-                    paddingBottom: 32,
+                    paddingBottom: 24,
                     minHeight: 320,
                 },
                 cardsBlock: {
@@ -326,9 +328,7 @@ function useStyles(colors: ThemeColors) {
                 },
                 amountWrap: {
                     alignSelf: 'center',
-                    borderBottomWidth: StyleSheet.hairlineWidth,
                     borderBottomColor: colors.primary,
-                    marginBottom: 24,
                     paddingHorizontal: 12,
                     paddingVertical: 8,
                     minWidth: 200,
