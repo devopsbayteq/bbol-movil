@@ -88,13 +88,15 @@ export function BiometricOfferScreen() {
             />
           </View>
 
-          <Text style={styles.title}>Activa tu acceso biométrico</Text>
-          <Text style={styles.body}>
-            Accede de forma más rápida y segura con tu huella digital o
-            reconocimiento facial. Podrás realizar transacciones y consultas al
-            instante.
+          <Text style={styles.title}>
+            Activa tu acceso{'\n'}biométrico
           </Text>
-
+          <Text style={styles.body}>
+            {/* Accede de forma más rápida y segura con tu huella digital o
+            reconocimiento facial. Podrás realizar transacciones y consultas al
+            instante. */}
+            Accede de forma más rápida y segura con tu huella digital o reconocimiento facial.
+          </Text>
           {error ? (
             <ErrorMessage message={error} style={styles.errorBanner} />
           ) : null}
@@ -161,18 +163,7 @@ function useStyles(colors: ThemeColors) {
           backgroundColor: colors.white,
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 28,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 4},
-              shadowOpacity: 1,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 4,
-            },
-          }),
+          marginBottom: 8,
         },
         iconInner: {
           width: 76,
@@ -180,10 +171,10 @@ function useStyles(colors: ThemeColors) {
         },
         title: {
           fontFamily: Lexend.regular,
-          fontSize: 28,
-          lineHeight: 42,
+          fontSize: 20,
+          lineHeight: 28,
           color: colors.textPrimary,
-          marginBottom: 12,
+          marginBottom: 26,
           textAlign: 'center',
         },
         body: {
@@ -205,7 +196,7 @@ function useStyles(colors: ThemeColors) {
         },
         skipPressable: {
           alignSelf: 'center',
-          paddingVertical: 12,
+          paddingVertical: 8,
           paddingHorizontal: 8,
         },
         skipLabel: {
@@ -216,7 +207,7 @@ function useStyles(colors: ThemeColors) {
           textAlign: 'center',
         },
         footerNote: {
-          marginTop: 16,
+          marginTop: 8,
           fontFamily: Lexend.regular,
           fontSize: 16,
           lineHeight: 20,
