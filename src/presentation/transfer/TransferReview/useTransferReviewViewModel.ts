@@ -126,6 +126,12 @@ export function useTransferReviewViewModel(
             return;
         }
 
+        if (beneficiary.kind === 'own_account') {
+            setConfirmError(
+                'No puedes confirmar transferencias a cuentas propias en este flujo.',
+            );
+            return;
+        }
 
         setConfirmLoading(true);
         try {

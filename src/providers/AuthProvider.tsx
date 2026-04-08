@@ -17,9 +17,23 @@ interface AuthState {
   isLoading: boolean;
 }
 
+export interface LogoutOptions {
+  /**
+   * Si es true, la próxima vez que monte el login compacto no se dispara el
+   * prompt biométrico automático (p. ej. tras cerrar sesión desde el home).
+   */
+  suppressCompactLoginAutoBiometricOnce?: boolean;
+}
+
 interface AuthContextValue extends AuthState {
   login: (user: User) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (options?: LogoutOptions) => Promise<void>;
+  /**
+   * Se incrementa en cada cierre de sesión con `suppressCompactLoginAutoBiometricOnce`.
+   * Login compacto compara con un ref local para activar la supresión una vez por evento,
+   * incluso si React remonta la pantalla (Strict Mode / navegación).
+   */
+  suppressCompactAutoBiometricGeneration: number;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -48,6 +62,9 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     isLoading: true,
   });
 
+  const [suppressCompactAutoBiometricGeneration, setSuppressCompactAutoBiometricGeneration] =
+    useState(0);
+
   const {secureStorageService: secureStorage} = useDI();
 
   useEffect(() => {
@@ -66,13 +83,13 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   }, [secureStorage]);
 
   async function restoreSession() {
-    try {
-      // Banca: no restaurar sesión tras reinicio en frío — siempre pantalla de login.
-      await secureStorage.remove(SecureStorageKeys.USER_SESSION);
-      await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
-    } catch {
-      await secureStorage.clear();
-    }
+    // Banca: no restaurar sesión tras reinicio en frío — siempre pantalla de login.
+    // Si falla el remove de una clave puntual (intermitente en iOS), no debemos borrar
+    // todo el almacén porque perderíamos datos persistentes del login compacto/biometría.
+    await Promise.allSettled([
+      secureStorage.remove(SecureStorageKeys.USER_SESSION),
+      secureStorage.remove(SecureStorageKeys.AUTH_TOKEN),
+    ]);
     setState({user: null, isAuthenticated: false, isLoading: false});
   }
 
@@ -97,21 +114,38 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
           SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
           greetingName,
         );
+        await secureStorage.save(
+          SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+          user.firstName.trim(),
+        );
       }
       setState({user, isAuthenticated: true, isLoading: false});
     },
     [secureStorage],
   );
 
-  const logout = useCallback(async () => {
-    await secureStorage.remove(SecureStorageKeys.USER_SESSION);
-    await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
-    setState({user: null, isAuthenticated: false, isLoading: false});
-  }, [secureStorage]);
+  const logout = useCallback(
+    async (options?: LogoutOptions) => {
+      if (options?.suppressCompactLoginAutoBiometricOnce) {
+        setSuppressCompactAutoBiometricGeneration(g => g + 1);
+      } else {
+        setSuppressCompactAutoBiometricGeneration(0);
+      }
+      await secureStorage.remove(SecureStorageKeys.USER_SESSION);
+      await secureStorage.remove(SecureStorageKeys.AUTH_TOKEN);
+      setState({user: null, isAuthenticated: false, isLoading: false});
+    },
+    [secureStorage],
+  );
 
   const value: AuthContextValue = useMemo(
-    () => ({...state, login, logout}),
-    [state, login, logout],
+    () => ({
+      ...state,
+      login,
+      logout,
+      suppressCompactAutoBiometricGeneration,
+    }),
+    [state, login, logout, suppressCompactAutoBiometricGeneration],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

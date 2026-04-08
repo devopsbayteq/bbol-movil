@@ -11,15 +11,13 @@ import {
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
-
-type LoginTextFieldVariant = 'flat' | 'elevated';
+import {LOGIN_INPUT_OUTER_HEIGHT} from './loginFieldLayout';
 
 interface LoginTextFieldProps extends Omit<TextInputProps, 'style'> {
   label?: string;
   hasError?: boolean;
   errorMessage?: string;
   containerStyle?: StyleProp<ViewStyle>;
-  variant?: LoginTextFieldVariant;
   testID?: string;
   errorTestID?: string;
 }
@@ -29,7 +27,6 @@ export function LoginTextField({
   hasError = false,
   errorMessage,
   containerStyle,
-  variant = 'flat',
   testID,
   errorTestID,
   ...textInputProps
@@ -45,7 +42,6 @@ export function LoginTextField({
         testID={testID}
         style={[
           styles.input,
-          variant === 'elevated' && styles.inputElevated,
           (hasError || !!errorMessage) && styles.inputError,
         ]}
         placeholderTextColor={colors.placeholder}
@@ -76,25 +72,20 @@ function useStyles(colors: ThemeColors) {
         input: {
           fontFamily: Lexend.regular,
           fontSize: 14,
-          lineHeight: 22,
+          ...(Platform.OS === 'android' ? {lineHeight: 22} : {}),
           color: colors.textPrimary,
           backgroundColor: colors.inputBg,
           borderRadius: 8,
           paddingHorizontal: 16,
-          paddingVertical: 14,
+          height: LOGIN_INPUT_OUTER_HEIGHT,
+          ...(Platform.OS === 'ios'
+            ? {paddingTop: 12, paddingBottom: 18}
+            : {
+                paddingVertical: 14,
+                textAlignVertical: 'center' as const,
+              }),
           borderWidth: 0,
         },
-        inputElevated:
-          Platform.OS === 'ios'
-            ? {
-                shadowColor: '#000000',
-                shadowOffset: {width: 0, height: 2},
-                shadowOpacity: 0.12,
-                shadowRadius: 6,
-              }
-            : {
-                elevation: 4,
-              },
         inputError: {
           borderWidth: 1,
           borderColor: colors.error,

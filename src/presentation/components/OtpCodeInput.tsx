@@ -34,7 +34,7 @@ export function OtpCodeInput({
             <View
               key={index}
               style={[
-                styles.box,
+                styles.boxCell,
                 hasError && styles.boxError,
                 disabled && styles.boxDisabled,
               ]}>
@@ -55,15 +55,16 @@ export function OtpCodeInput({
       {cells.map((digit, index) => {
         const filled = !!digit;
         return (
-          <View
-            key={index}
-            style={[
-              styles.dot,
-              filled ? styles.dotFilled : styles.dotEmpty,
-              hasError && styles.dotError,
-              disabled && styles.dotDisabled,
-            ]}
-          />
+          <View key={index} style={styles.dotCell}>
+            <View
+              style={[
+                styles.dot,
+                filled ? styles.dotFilled : styles.dotEmpty,
+                hasError && styles.dotError,
+                disabled && styles.dotDisabled,
+              ]}
+            />
+          </View>
         );
       })}
     </View>
@@ -77,8 +78,14 @@ function useStyles(colors: ThemeColors) {
         row: {
           flexDirection: 'row',
           alignItems: 'center',
+          width: '100%',
+          gap: 8,
+        },
+        dotCell: {
+          flex: 1,
+          minWidth: 0,
+          alignItems: 'center',
           justifyContent: 'center',
-          gap: 20,
         },
         dot: {
           width: 14,
@@ -91,8 +98,8 @@ function useStyles(colors: ThemeColors) {
           borderColor: colors.primary,
         },
         dotEmpty: {
-          backgroundColor: 'transparent',
-          borderColor: colors.textTertiary,
+          backgroundColor: '#e2e2e2',
+          borderColor: '#e2e2e2',
         },
         dotError: {
           borderColor: colors.error,
@@ -102,31 +109,20 @@ function useStyles(colors: ThemeColors) {
         },
         rowBoxed: {
           flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
+          alignItems: 'stretch',
+          width: '100%',
           gap: 8,
         },
-        box: {
-          width: 44,
-          height: 48,
+        boxCell: {
+          flex: 1,
+          minWidth: 0,
+          height: 60,
           borderRadius: 8,
           backgroundColor: colors.surface,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.borderLight,
           alignItems: 'center',
-          justifyContent: 'center',
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 1,
-              shadowRadius: 4,
-            },
-            android: {
-              elevation: 2,
-            },
-          }),
+          justifyContent: 'center'
         },
         boxError: {
           borderColor: colors.error,

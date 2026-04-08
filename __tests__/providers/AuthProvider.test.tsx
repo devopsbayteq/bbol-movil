@@ -105,6 +105,10 @@ describe('AuthProvider', () => {
       SecureStorageKeys.DEVICE_BOUND_GREETING_NAME,
       'Ana',
     );
+    expect(secureStorage.save).toHaveBeenCalledWith(
+      SecureStorageKeys.DEVICE_BOUND_GREETING_FIRST_NAME,
+      'Ana',
+    );
     expect(ctx?.isAuthenticated).toBe(true);
     expect(ctx?.user).toEqual(user);
   });
@@ -151,6 +155,39 @@ describe('AuthProvider', () => {
     );
     expect(ctx?.user).toBeNull();
     expect(ctx?.isAuthenticated).toBe(false);
+  });
+
+  it('logout con suppressCompactLoginAutoBiometricOnce incrementa generation; logout normal la resetea', async () => {
+    let ctx: ReturnType<typeof useAuth> | undefined;
+    function Read() {
+      ctx = useAuth();
+      return null;
+    }
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        <AuthProvider>
+          <Read />
+        </AuthProvider>,
+      );
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(0);
+
+    await act(async () => {
+      await ctx?.logout({suppressCompactLoginAutoBiometricOnce: true});
+    });
+
+    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(1);
+
+    await act(async () => {
+      await ctx?.logout();
+    });
+
+    expect(ctx?.suppressCompactAutoBiometricGeneration).toBe(0);
   });
 
   it('registra listener de AppState que borra USER_LOGIN_DATA al ir a background', async () => {

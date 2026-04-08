@@ -10,7 +10,16 @@ import {useAuth} from '../providers';
 import {User} from '../domain/entities/User';
 
 export type OtpValidationParams =
-  | {mode: 'login'; user: User; email: string}
+  | {
+      mode: 'login';
+      user: User;
+      email: string;
+      /**
+       * No mostrar registro de alias tras OTP: login compacto (dispositivo vinculado) o el
+       * servidor ya devolvió `user.alias` en la respuesta de login.
+       */
+      skipRegisterAlias?: boolean;
+    }
   | {mode: 'transfer'; email: string};
 
 export type RootStackParamList = {

@@ -23,7 +23,7 @@ import {DeviceRegistrationSuccessModal} from './DeviceRegistrationSuccessModal';
 import {navigatePostLoginEnrollment} from './navigatePostLoginEnrollment';
 
 const arrowBack = require('../../../assets/images/arrow-left.png');
-const aliasHero = require('../../../assets/images/alias-registration-hero.png');
+const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
 
 export function RegisterAliasScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'RegisterAlias'>>();
@@ -47,11 +47,19 @@ export function RegisterAliasScreen() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleEnrollmentContinue = useCallback(async () => {
-    await navigatePostLoginEnrollment(navigation, user, email.trim(), {
-      biometricRSAAuthOrchestrator,
-      secureStorageService,
-      login,
-    });
+    await navigatePostLoginEnrollment(
+      navigation,
+      user,
+      email.trim(),
+      {
+        biometricRSAAuthOrchestrator,
+        secureStorageService,
+        login,
+      },
+      Platform.OS === 'ios'
+        ? {forceShowBiometricOffer: true}
+        : undefined,
+    );
   }, [
     navigation,
     user,
@@ -111,7 +119,6 @@ export function RegisterAliasScreen() {
             hasError={!!inlineError}
             errorMessage={inlineError ?? undefined}
             errorTestID="register-alias-input-error"
-            variant="elevated"
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="done"
@@ -129,6 +136,7 @@ export function RegisterAliasScreen() {
             loading={isLoading}
             disabled={isLoading}
             variant="loginPrimary"
+            iconSourceRight={arrowRightIcon}
           />
 
           <Text style={styles.footerNote}>
@@ -198,7 +206,7 @@ function useStyles(colors: ThemeColors) {
         title: {
           alignSelf: 'stretch',
           fontFamily: Lexend.regular,
-          fontSize: 32,
+          fontSize: 24,
           lineHeight: 42,
           color: colors.textPrimary,
           textAlign: 'left',

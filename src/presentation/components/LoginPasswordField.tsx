@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   type TextInputProps,
   type StyleProp,
   type ViewStyle,
@@ -13,6 +12,8 @@ import {
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
+import {Platform} from 'react-native';
+import {LOGIN_INPUT_OUTER_HEIGHT} from './loginFieldLayout';
 
 function EyeOnIcon({color}: {color: string}) {
   return (
@@ -151,20 +152,11 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 8,
           paddingLeft: 16,
           paddingRight: 12,
-          paddingVertical: 14,
+          height: LOGIN_INPUT_OUTER_HEIGHT,
           borderWidth: 0,
         },
-        inputRowElevated:
-          Platform.OS === 'ios'
-            ? {
-                shadowColor: '#000000',
-                shadowOffset: {width: 0, height: 2},
-                shadowOpacity: 0.12,
-                shadowRadius: 6,
-              }
-            : {
-                elevation: 4,
-              },
+        /** Sin sombra; mantiene la prop `variant` por compatibilidad. */
+        inputRowElevated: {},
         inputRowError: {
           borderWidth: 1,
           borderColor: colors.error,
@@ -173,9 +165,11 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           fontFamily: Lexend.regular,
           fontSize: 14,
-          lineHeight: 22,
+          ...(Platform.OS === 'android' ? {lineHeight: 22} : {}),
           color: colors.textPrimary,
-          paddingVertical: 0,
+          ...(Platform.OS === 'ios'
+            ? {paddingTop: 0, paddingBottom: 3}
+            : {paddingVertical: 0, textAlignVertical: 'center'}),
         },
         eyeButton: {
           padding: 4,

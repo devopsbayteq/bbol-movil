@@ -1,29 +1,56 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import {getVersion, getBuildNumber} from 'react-native-device-info';
 
 import {formatAppVersionDisplay} from '../../utils/appVersion';
 import {useTheme, type ThemeColors} from '../../providers';
 import {
-  Button,
   ErrorMessage,
   LoginPasswordField,
-  SecondaryIconButton,
   TertiaryLinkButton,
-  OrSeparator,
   DevelopmentNoticeModal,
   LoginHeroImageCarousel,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
 
-const bankBanner = require('../../../assets/images/BBBanner.png');
+import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
+import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
+
+// const bankBanner = require('../../../assets/images/BBBanner.png');
+const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
-const loginFingerprintIcon = require('../../../assets/images/fingerprint.png');
-const footerIconCreate = require('../../../assets/images/user-plus.png');
-const footerIconProduct = require('../../../assets/images/product_menu_icon.png');
+const institutionIcon = require('../../../assets/images/institution.png');
+const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
+const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
+
+const LOGIN_SUBMIT_ICON_SIZE = 24;
+const SUBMIT_SQUARE_SIZE_WIDTH = 60;
+const SUBMIT_SQUARE_SIZE_HEIGHT = 52;
+const BIOMETRIC_ICON_SIZE = 24;
+const IS_IOS = Platform.OS === 'ios';
+const BIOMETRIC_LABEL = IS_IOS ? 'Face ID' : 'Huella';
+const BIOMETRIC_ACCESSIBILITY_LABEL = IS_IOS
+  ? 'Iniciar sesión con Face ID'
+  : 'Iniciar sesión con huella';
+const AUTO_BIOMETRIC_PROMPT_DELAY_MS = 250;
+/** Mismo `paddingHorizontal` que `LoginScreen` scrollContent (24 + 24). */
+const LOGIN_SCREEN_HORIZONTAL_INSET = 48;
+/** `maxWidth` de `contentColumn` en LoginScreen. */
+const LOGIN_CONTENT_MAX_WIDTH = 400;
 
 export interface CompactLoginContentProps {
+  /** Nombre de pila del API; si está vacío no se muestra prefijo en el saludo. */
+  greetingFirstName?: string;
   greetingName: string;
   password: string;
   passwordError: string | null;
@@ -33,12 +60,15 @@ export interface CompactLoginContentProps {
   isLoadingBiometric: boolean;
   error: string | null;
   showBiometricLogin: boolean;
+  /** Si true, no se dispara el prompt biométrico al montar (p. ej. tras cerrar sesión). */
+  suppressAutoBiometricPromptOnce?: boolean;
   onLogin: () => void;
   onBiometricLogin: () => void;
   onChangeUser: () => void;
 }
 
 export function CompactLoginContent({
+  greetingFirstName = '',
   greetingName,
   password,
   passwordError,
@@ -48,13 +78,46 @@ export function CompactLoginContent({
   isLoadingBiometric,
   error,
   showBiometricLogin,
+  suppressAutoBiometricPromptOnce = false,
   onLogin,
   onBiometricLogin,
   onChangeUser,
 }: CompactLoginContentProps) {
   const {colors} = useTheme();
+  const {width: windowWidth} = useWindowDimensions();
+  const heroCarouselWidth = Math.min(
+    windowWidth - LOGIN_SCREEN_HORIZONTAL_INSET,
+    LOGIN_CONTENT_MAX_WIDTH,
+  );
+  const heroHeight = Math.max(
+    160,
+    Math.min(230, Math.round(heroCarouselWidth * 0.55)),
+  );
   const styles = useStyles(colors);
   const [devNoticeVisible, setDevNoticeVisible] = useState(false);
+  const autoBiometricTriggeredRef = useRef(false);
+
+  // Solicita biometría automáticamente al entrar al login compacto cuando hay
+  // una credencial biométrica registrada. Sólo se dispara una vez por montaje
+  // para no acosar al usuario si cancela o si el componente re-renderiza.
+  useEffect(() => {
+    if (
+      !showBiometricLogin ||
+      suppressAutoBiometricPromptOnce ||
+      autoBiometricTriggeredRef.current
+    ) {
+      return;
+    }
+    autoBiometricTriggeredRef.current = true;
+    const timeoutId = setTimeout(() => {
+      onBiometricLogin();
+    }, AUTO_BIOMETRIC_PROMPT_DELAY_MS);
+    return () => clearTimeout(timeoutId);
+  }, [
+    showBiometricLogin,
+    suppressAutoBiometricPromptOnce,
+    onBiometricLogin,
+  ]);
 
   const showDevelopmentNotice = useCallback(() => {
     setDevNoticeVisible(true);
@@ -71,59 +134,91 @@ export function CompactLoginContent({
     )}`;
   }, []);
 
+  const notYouTitle = useMemo(
+    () => {
+      const first = greetingFirstName.trim();
+      if (!first) {
+        return `¿No eres ${greetingName}?`;
+      }
+      return `¿No eres ${first}?`;
+    },
+    [greetingFirstName, greetingName],
+  );
+
+  const welcomeBoldName = useMemo(() => {
+    const first = greetingFirstName.trim();
+    if (!first) {
+      return greetingName;
+    }
+    return `${first}`;
+  }, [greetingFirstName, greetingName]);
+
+  const loginSubmitDisabled = isBusy || isLoadingLogin;
+
   return (
     <View style={styles.column}>
       <View style={styles.topRow}>
         <Image
-          source={bankBanner}
+          source={bankBannerTwoLines}
           style={styles.bankLogo}
           resizeMode="contain"
           accessibilityLabel="Banco Bolivariano"
         />
-        <Text style={styles.versionText} numberOfLines={1}>
-          {versionLabel}
-        </Text>
       </View>
 
       <View style={styles.heroCarousel}>
         <LoginHeroImageCarousel
           sourceA={heroLoginA}
           sourceB={heroLoginB}
-          height={210}
+          height={heroHeight}
         />
       </View>
 
       <Text style={styles.welcomeLine} accessibilityRole="text">
-        <Text style={styles.welcomePrefix}>Bienvenido a tu banca móvil, </Text>
-        <Text style={styles.welcomeName}>{greetingName}</Text>
+        <Text style={styles.welcomePrefix}>Bienvenido a tu banca </Text>
+        {'\n'}
+        <Text style={styles.welcomePrefix}>móvil, </Text>
+        <Text style={styles.welcomeName}>{welcomeBoldName}</Text>
       </Text>
 
       <View style={styles.inputs}>
-        <LoginPasswordField
-          testID="login-password-input"
-          label="Contraseña"
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={onPasswordChange}
-          hasError={!!passwordError}
-          errorMessage={passwordError ?? undefined}
-          errorTestID="login-password-error"
-          editable={!isBusy}
-          autoComplete="password"
-        />
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.forgotRow}
-          accessibilityRole="button"
-          accessibilityLabel="¿Olvidaste tu contraseña?">
-          <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-        </Pressable>
-        <TertiaryLinkButton
-          testID="login-change-user"
-          title="No soy yo / Cambiar usuario"
-          onPress={onChangeUser}
-          style={styles.changeUserLink}
-        />
+        <View style={styles.passwordRow}>
+          <View style={styles.passwordFieldWrap}>
+            <LoginPasswordField
+              testID="login-password-input"
+              label=""
+              placeholder="Contraseña"
+              value={password}
+              onChangeText={onPasswordChange}
+              hasError={!!passwordError}
+              errorMessage={passwordError ?? undefined}
+              errorTestID="login-password-error"
+              editable={!isBusy}
+              autoComplete="password"
+            />
+          </View>
+          <Pressable
+            testID="login-submit"
+            onPress={onLogin}
+            disabled={loginSubmitDisabled}
+            style={({pressed}) => [
+              styles.submitSquare,
+              loginSubmitDisabled && styles.submitSquareDisabled,
+              pressed && !loginSubmitDisabled && styles.submitSquarePressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Ingresar"
+            accessibilityState={{disabled: loginSubmitDisabled}}>
+            {isLoadingLogin ? (
+              <ActivityIndicator color={colors.white} size="small" />
+            ) : (
+              <LoginSubmitArrowSvg
+                width={LOGIN_SUBMIT_ICON_SIZE}
+                height={LOGIN_SUBMIT_ICON_SIZE}
+              />
+            )}
+          </Pressable>
+        </View>
       </View>
 
       {error ? (
@@ -134,67 +229,92 @@ export function CompactLoginContent({
         />
       ) : null}
 
-      <View style={styles.actions}>
-        <Button
-          testID="login-submit"
-          title="Ingresar"
-          onPress={onLogin}
-          iconSource={require('../../../assets/images/house.png')}
-          loading={isLoadingLogin}
+      {showBiometricLogin ? (
+        <Pressable
+          onPress={onBiometricLogin}
           disabled={isBusy}
-          variant="loginPrimary"
-        />
-        {showBiometricLogin ? (
-          <>
-            <OrSeparator />
-            <SecondaryIconButton
-              title="Huella / Face ID"
-              iconSource={loginFingerprintIcon}
-              onPress={onBiometricLogin}
-              disabled={isBusy}
-              loading={isLoadingBiometric}
-            />
-          </>
-        ) : null}
-      </View>
+          style={({pressed}) => [
+            styles.biometricButton,
+            isBusy && styles.biometricButtonDisabled,
+            pressed && !isBusy && styles.biometricButtonPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={BIOMETRIC_ACCESSIBILITY_LABEL}
+          accessibilityState={{disabled: isBusy}}>
+          {isLoadingBiometric ? (
+            <ActivityIndicator color={colors.primary} size="small" />
+          ) : (
+            <>
+              <Text style={styles.biometricLabel}>{BIOMETRIC_LABEL}</Text>
+              {IS_IOS ? (
+                <Image
+                  source={faceViewfinderIcon}
+                  style={styles.biometricFaceImage}
+                  resizeMode="contain"
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                  accessibilityIgnoresInvertColors
+                />
+              ) : (
+                <FingerprintSvg
+                  width={BIOMETRIC_ICON_SIZE}
+                  height={BIOMETRIC_ICON_SIZE}
+                  color={colors.primary}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                />
+              )}
+            </>
+          )}
+        </Pressable>
+      ) : null}
 
-      <View style={styles.footerQuickRow}>
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Crear usuario">
-          <View style={styles.footerQuickIconWrap}>
-            <Image
-              source={footerIconCreate}
-              style={styles.footerQuickIcon}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.footerQuickLabel}>Crear usuario</Text>
-        </Pressable>
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.footerQuickItem}
-          accessibilityRole="button"
-          accessibilityLabel="Solicitar producto">
-          <View style={styles.footerQuickIconWrap}>
-            <Image
-              source={footerIconProduct}
-              style={styles.footerQuickIconInner}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.footerQuickLabel}>Solicitar producto</Text>
-        </Pressable>
-      </View>
+      <TertiaryLinkButton
+        testID="login-change-user"
+        title={notYouTitle}
+        onPress={onChangeUser}
+        style={styles.changeUserLink}
+      />
+
+      <Pressable
+        testID="login-request-product"
+        onPress={showDevelopmentNotice}
+        style={({pressed}) => [
+          styles.productCard,
+          pressed && styles.productCardPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Solicitar productos">
+        <View style={styles.productIconCircle}>
+          <Image
+            source={institutionIcon}
+            style={styles.productIconImage}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+        <Text style={styles.productCardTitle}>Solicitar productos</Text>
+        <View style={styles.arrowRightIconWrap}>
+          <Image
+            source={arrowRightIcon}
+            style={styles.arrowRightIcon}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
+      </Pressable>
 
       <TertiaryLinkButton
         testID="login-contact-us"
-        title="Contáctate con nosotros"
+        title="¿Necesitas ayuda?"
         onPress={showDevelopmentNotice}
         style={styles.contactLink}
+        labelStyle={styles.contactLinkLabel}
       />
+
+      <Text style={styles.versionText} numberOfLines={1}>
+        {versionLabel}
+      </Text>
 
       <DevelopmentNoticeModal
         visible={devNoticeVisible}
@@ -215,126 +335,165 @@ function useStyles(colors: ThemeColors) {
         topRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 6,
-          marginBottom: 14,
-          gap: 12,
+          justifyContent: 'flex-start',
+          marginTop: 30,
+          marginBottom: 24,
         },
         bankLogo: {
-          width: 196,
-          height: 30,
-          flexShrink: 0,
+          width: 147,
+          height: 41,
         },
         versionText: {
-          flex: 1,
           fontFamily: Lexend.regular,
           fontSize: 12,
           lineHeight: 18,
           color: colors.textTertiary,
-          textAlign: 'right',
+          textAlign: 'center',
+          marginBottom: 8,
         },
         heroCarousel: {
           alignSelf: 'stretch',
           marginBottom: 16,
         },
         welcomeLine: {
-          paddingRight: 60,
           fontFamily: Lexend.regular,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textSecondary,
-          marginBottom: 16,
-          textAlign: 'left',
+          marginBottom: 20,
+          textAlign: 'left', // <-- Justificado a la izquierda
         },
         welcomePrefix: {
           fontFamily: Lexend.regular,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
           color: colors.textSecondary,
         },
         welcomeName: {
           fontFamily: Lexend.bold,
-          fontSize: 24,
+          fontSize: 20,
           lineHeight: 32,
-          textAlign: 'left',
           color: colors.textPrimary,
         },
         inputs: {
-          gap: 8,
-          marginBottom: 16,
+          marginBottom: 12,
+          height: SUBMIT_SQUARE_SIZE_HEIGHT
         },
-        forgotRow: {
-          alignSelf: 'flex-end',
-          marginTop: -4,
-          marginBottom: 2,
-          paddingVertical: 4,
-        },
-        forgotText: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 16,
-          color: colors.linkPrimary,
-        },
-        changeUserLink: {
-          alignSelf: 'flex-start',
-          marginTop: 2,
-        },
-        errorBanner: {
-          marginBottom: 16,
-        },
-        actions: {
-          marginTop: 2,
-          gap: 2,
-          marginBottom: 6,
-        },
-        footerQuickRow: {
+        passwordRow: {
           flexDirection: 'row',
-          justifyContent: 'space-around',
           alignItems: 'flex-start',
-          marginTop: 8,
-          marginBottom: 6,
-          paddingHorizontal: 8,
+          gap: 16,
         },
-        footerQuickItem: {
-          alignItems: 'center',
-          gap: 4,
-          maxWidth: '45%',
+        passwordFieldWrap: {
+          flex: 1,
+          minWidth: 0,
         },
-        footerQuickIconWrap: {
-          width: 48,
-          height: 48,
-          borderRadius: 60,
-          backgroundColor: colors.surface,
+        submitSquare: {
+          width: SUBMIT_SQUARE_SIZE_WIDTH,
+          height: SUBMIT_SQUARE_SIZE_HEIGHT,
+          borderRadius: 12,
+          backgroundColor: colors.primary,
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#000000',
-          shadowOffset: {width: 0, height: 2},
-          shadowOpacity: 0.1,
-          shadowRadius: 6,
-          elevation: 4,
         },
-        footerQuickIcon: {
-          width: 28,
-          height: 28,
-          tintColor: colors.primary,
+        submitSquareDisabled: {
+          backgroundColor: colors.textTertiary,
+          opacity: 0.85,
         },
-        footerQuickIconInner: {
-          width: 28,
-          height: 28,
-          tintColor: colors.primary,
+        submitSquarePressed: {
+          opacity: 0.92,
         },
-        footerQuickLabel: {
+        changeUserLink: {
+          alignSelf: 'center',
+          marginTop: 8,
+          marginBottom: 20,
+        },
+        errorBanner: {
+          marginBottom: 12,
+        },
+        biometricButton: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          paddingVertical: 14,
+          paddingHorizontal: 24,
+          borderRadius: 12,
+          backgroundColor: colors.borderLight,
+          borderWidth: 1,
+          borderColor: colors.primary,
+          marginTop: 12,
+          marginBottom: 2,
+        },
+        biometricButtonDisabled: {
+          opacity: 0.6,
+        },
+        biometricButtonPressed: {
+          opacity: 0.9,
+        },
+        biometricLabel: {
+          fontFamily: Lexend.semiBold,
+          fontSize: 16,
+          lineHeight: 26,
+          color: colors.primary,
+        },
+        biometricFaceImage: {
+          width: BIOMETRIC_ICON_SIZE,
+          height: BIOMETRIC_ICON_SIZE,
+        },
+        productCard: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'center',
+          width: '100%',
+          maxWidth: 280,
+          gap: 12,
+          paddingVertical: 12,
+          paddingHorizontal: 14,
+          borderRadius: 12,
+          backgroundColor: colors.surface,
+          marginTop: 40,
+          marginBottom: 8,
+          height: 48,
+        },
+        productCardPressed: {
+          opacity: 0.92,
+        },
+        productIconCircle: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        productIconImage: {
+          width: 40,
+          height: 40,
+        },
+        productCardTitle: {
+          flex: 1,
           fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.textSecondary,
-          textAlign: 'center',
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.textPrimary,
+        },
+        arrowRightIconWrap: {
+          width: 24,
+          height: 24,
+        },
+        arrowRightIcon: {
+          width: 24,
+          height: 24,
         },
         contactLink: {
           alignSelf: 'center',
+          marginTop: 12,
           marginBottom: 8,
-          marginTop: 16,
-          fontSize: 12,
+        },
+        contactLinkLabel: {
+          fontSize: 14,
+          lineHeight: 22,
           textDecorationLine: 'underline',
         },
       }),

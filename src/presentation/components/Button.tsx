@@ -24,6 +24,8 @@ interface ButtonProps {
   iconRightTintColor?: string;
   variant?: ButtonVariant;
   disabled?: boolean;
+  /** Si se define, color de fondo cuando `disabled` es true (sin aplicar durante `loading`). */
+  disabledBackgroundColor?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -37,6 +39,7 @@ export function Button({
   iconRightTintColor,
   variant = 'primary',
   disabled = false,
+  disabledBackgroundColor,
   style,
   testID,
 }: ButtonProps) {
@@ -44,6 +47,8 @@ export function Button({
   const styles = useStyles(colors);
 
   const isDisabled = disabled || loading;
+  const useDisabledBackground =
+    !!disabledBackgroundColor && disabled && !loading;
 
   return (
     <TouchableOpacity
@@ -53,7 +58,8 @@ export function Button({
         variant === 'primary' && styles.primary,
         variant === 'outline' && styles.outline,
         variant === 'loginPrimary' && styles.loginPrimary,
-        isDisabled && styles.disabled,
+        useDisabledBackground && {backgroundColor: disabledBackgroundColor},
+        isDisabled && !useDisabledBackground && styles.disabled,
         style,
       ]}
       onPress={onPress}
