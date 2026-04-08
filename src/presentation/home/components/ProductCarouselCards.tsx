@@ -291,7 +291,8 @@ function useCreditStyles(colors: ThemeColors) {
         card: {
           flex: 1,
           padding: 10,
-          borderRadius: 8,
+          borderRadius: 16,
+          
           backgroundColor: colors.homeCreditCardSurface,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.textTertiary,
