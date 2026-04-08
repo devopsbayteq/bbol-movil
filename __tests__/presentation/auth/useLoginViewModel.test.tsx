@@ -168,8 +168,13 @@ describe('useLoginViewModel', () => {
 
   test('biometric login invokes biometric success callback', async () => {
     const loginWithBiometric = jest.fn().mockResolvedValue({
-      accessToken: 'bio-token',
+      id: 'cliente@banco.com',
       email: 'cliente@banco.com',
+      firstName: 'María',
+      name: 'María',
+      token: 'bio-token',
+      sessionExpiresAt: Date.now() + 3600 * 1000,
+      inactivityTimeoutSeconds: 300,
     });
     const onCredentialLoginSuccess = jest.fn();
     const onBiometricLoginSuccess = jest.fn();
@@ -200,8 +205,8 @@ describe('useLoginViewModel', () => {
       expect.objectContaining({
         id: 'cliente@banco.com',
         email: 'cliente@banco.com',
-        firstName: '',
-        name: 'cliente',
+        firstName: 'María',
+        name: 'María',
         token: 'bio-token',
         inactivityTimeoutSeconds: 300,
       }),

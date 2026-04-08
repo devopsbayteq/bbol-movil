@@ -243,17 +243,7 @@ export function useLoginViewModel(
     }));
 
     try {
-      const result = await biometricRSAAuthOrchestrator.loginWithBiometric();
-      const localPart = result.email.split('@')[0] || 'User';
-      const user: User = {
-        id: result.email,
-        email: result.email,
-        firstName: '',
-        name: localPart,
-        token: result.accessToken,
-        sessionExpiresAt: Date.now() + 3600 * 1000,
-        inactivityTimeoutSeconds: 300,
-      };
+      const user = await biometricRSAAuthOrchestrator.loginWithBiometric();
       setState(prev => ({
         ...prev,
         isLoadingBiometric: false,

@@ -13,11 +13,8 @@ import {BiometricKeyStorageService} from './BiometricKeyStorageService';
 import {encryptUserIdentifierForBiometricApi} from './userEncryptHelper';
 import {BiometricRSAError} from './errors';
 import type {BiometricEnrollmentBinding} from './BiometricEnrollmentBinding';
-
-export interface BiometricLoginResult {
-  accessToken: string;
-  email: string;
-}
+import type {User} from '../../domain/entities/User';
+import {mapLoginResponseToUser} from '../../data/mappers/UserMapper';
 
 export class BiometricRSAAuthOrchestrator {
   constructor(
@@ -146,8 +143,9 @@ export class BiometricRSAAuthOrchestrator {
 
   /**
    * Login solo con biometría: challenge, firma, token de sesión.
+   * Misma entidad `User` que el login por credenciales (incluye `firstName` del API).
    */
-  async loginWithBiometric(): Promise<BiometricLoginResult> {
+  async loginWithBiometric(): Promise<User> {
     try {
       const emailStored = await this.secureStorage.get(
         SecureStorageKeys.BIOMETRIC_USERNAME,
@@ -205,15 +203,22 @@ export class BiometricRSAAuthOrchestrator {
         challengeSignBase64,
       });
 
-      await this.secureStorage.save(
-        SecureStorageKeys.USER_LOGIN_DATA,
-        JSON.stringify({accessToken: content.accessToken}),
+      const user = mapLoginResponseToUser(
+        {
+          accessToken: content.accessToken,
+          firstName: content.firstName?.trim() ?? '',
+          sessionTimeSeconds: content.sessionTimeSeconds ?? 3600,
+          inactivityTimeoutSeconds: content.inactivityTimeoutSeconds ?? 300,
+        },
+        emailStored.trim(),
       );
 
-      return {
-        accessToken: content.accessToken,
-        email: emailStored.trim(),
-      };
+      await this.secureStorage.save(
+        SecureStorageKeys.USER_LOGIN_DATA,
+        JSON.stringify(user),
+      );
+
+      return user;
     } catch (e) {
       const mapped = this.mapUnknownError(e);
       if (mapped.code === 'biometric_enrollment_changed') {
