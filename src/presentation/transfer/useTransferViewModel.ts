@@ -10,7 +10,7 @@ import {
     validateTransferConcept,
 } from '../../domain/validation';
 import {useAuth} from '../../providers';
-import {formatAccountKindLine} from '../../utils/accountDisplay';
+import {formatAccountKindLine, formatAccountSubtitle} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
 import {useHomeViewModel} from '../home/useHomeViewModel';
@@ -32,6 +32,11 @@ export function useTransferViewModel() {
 
     const [amountCents, setAmountCents] = useState<number | null>(null);
     const [amountInputText, setAmountInputText] = useState('');
+    const [isAmountFocused, setIsAmountFocused] = useState(false);
+
+    const onAmountFocus = useCallback(() => setIsAmountFocused(true), []);
+
+    const onAmountBlur  = useCallback(() => setIsAmountFocused(false), []);
 
     const [accountBeneficiaryModalVisible, setAccountBeneficiaryModalVisible] = useState(false);
 
@@ -106,6 +111,25 @@ export function useTransferViewModel() {
             ),
         [amountCents, availableBalanceCents],
     );
+    const amountDisplayText = useMemo(() => {
+
+        if (amountInputText === '') return '';
+
+        if (isAmountFocused) return amountInputText;
+
+        const dotIdx = amountInputText.indexOf('.');
+
+        if (dotIdx === -1) return `${amountInputText}.00`;
+
+        const frac = amountInputText.slice(dotIdx + 1);
+
+        if (frac.length === 0) return `${amountInputText}00`;
+
+        if (frac.length === 1) return `${amountInputText}0`;
+
+        return amountInputText;
+
+    }, [amountInputText, isAmountFocused]);
 
     const canContinueToReview = useMemo(() => {
         if (!selectedFromAccount || !selectedToAccount) {
@@ -253,6 +277,9 @@ export function useTransferViewModel() {
                 toBalanceDisplay: formatMoneyUsdDisplay(selectedToAccount.balance),
                 accountId: selectedFromAccount.accountGuid,
                 concept: concept,
+                fromAccountSubtitleMasked: formatAccountSubtitle(selectedFromAccount),
+                toAccountSubtitleMasked: formatAccountSubtitle(selectedToAccount),
+
             },
         };
     }, [
@@ -267,6 +294,9 @@ export function useTransferViewModel() {
     ]);
 
     return {
+        amountDisplayText,
+        onAmountFocus,
+        onAmountBlur,
         user,
         isLoading,
         error,

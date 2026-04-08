@@ -3,7 +3,8 @@ import {ThemeColors, useTheme} from '../../../providers';
 import React, {useMemo} from 'react';
 import {TransferIconUser, TransferIconWallet} from './transferIcons.tsx';
 import {Lexend} from '../../../theme/lexend';
-
+import WalletTransfer from "../../../../assets/images/svg/walletransfer.svg"
+import UserTransferIcon from "../../../../assets/images/svg/user_transfer.svg"
 interface CardAccountItemProps {
   origin: string;
   accountType?: string;
@@ -21,7 +22,7 @@ export function CardAccountItem({
 }: CardAccountItemProps) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
-  const IconComponent = icon === 'user' ? TransferIconUser : TransferIconWallet;
+  const IconComponent = icon === 'user' ? UserTransferIcon : WalletTransfer;
 
   return (
     <View

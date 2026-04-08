@@ -109,19 +109,7 @@ function useStyles(colors: ThemeColors) {
         rootOutline: {
           backgroundColor: colors.surface,
           borderWidth: 1,
-          borderColor: colors.primary,
-          ...Platform.select({
-            ios: {
-              shadowColor: '#000',
-              shadowOffset: {width: 0, height: 4},
-              shadowOpacity: 0.06,
-              shadowRadius: 4,
-            },
-            android: {
-              elevation: 2,
-            },
-            default: {},
-          }),
+          borderColor: colors.primary
         },
         disabled: {
           opacity: 0.6,

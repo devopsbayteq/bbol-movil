@@ -45,23 +45,10 @@ function useStyles(colors: ThemeColors) {
                 cardInfoContainer: {
                     backgroundColor: colors.surface,
                     borderRadius: 12,
-                    padding: 12,
                     alignSelf: 'center',
                     width: '100%',
-                    maxWidth: 312,
+                    padding:8,
                     overflow: 'hidden',
-                    ...Platform.select({
-                        ios: {
-                            shadowColor: '#000',
-                            shadowOffset: {width: 0, height: 8},
-                            shadowOpacity: 0.02,
-                            shadowRadius: 32,
-                        },
-                        android: {
-                            elevation: 3,
-                        },
-                        default: {},
-                    }),
                 },
                 watermarkLayer: {
                     ...StyleSheet.absoluteFillObject,

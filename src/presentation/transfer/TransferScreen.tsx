@@ -46,6 +46,9 @@ export function TransferScreen() {
     const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>();
 
     const {
+        amountDisplayText,
+        onAmountFocus,
+        onAmountBlur,
         amountInputText,
         onAmountChange,
         amountFieldError,
@@ -241,7 +244,9 @@ export function TransferScreen() {
                                             ? styles.amountInputTextEmpty
                                             : null,
                                     ]}
-                                    value={`${amountInputText}`}
+                                    value={amountDisplayText ? `$${amountDisplayText}` : ''}
+                                    onFocus={onAmountFocus}
+                                    onBlur={onAmountBlur}
                                     onChangeText={onAmountChange}
                                     keyboardType="decimal-pad"
                                     returnKeyType="done"

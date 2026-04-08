@@ -44,13 +44,19 @@ export function useTransferReviewViewModel(
         fromAccountLine,
         fromAccountTitle,
         fromAccountSubtitle,
+        fromAccountSubtitleMasked,
         fromBalanceDisplay,
         toBalanceDisplay,
         accountId,
         concept,
         toAccountSubtitle,
+        toAccountSubtitleMasked,
         toAccountTitle,
     } = route.params;
+
+    const voucherFromSubtitle =
+        fromAccountSubtitleMasked ?? fromAccountSubtitle;
+    const voucherToSubtitle = toAccountSubtitleMasked ?? toAccountSubtitle;
 
     const [commission, setCommission] = useState<
         'Sin cargo' | 'Con cargo' | null
@@ -100,10 +106,10 @@ export function useTransferReviewViewModel(
                 accountId,
                 concept: concept.trim(),
                 transactionIdentifier: execution.transactionIdentifier,
-                toAccountSubtitle: toAccountSubtitle,
+                toAccountSubtitle: voucherToSubtitle,
                 toAccountTitle: toAccountTitle,
                 fromAccountTitle: fromAccountTitle,
-                fromAccountSubtitle: fromAccountSubtitle,
+                fromAccountSubtitle: voucherFromSubtitle,
             };
             onTransferSuccess?.(payload);
             setConfirmLoading(false);
@@ -123,12 +129,12 @@ export function useTransferReviewViewModel(
         displayAmount,
         executeTransferUseCase,
         fromAccountLine,
-        fromAccountSubtitle,
         fromHolderName,
         fromAccountTitle,
         onTransferSuccess,
-        toAccountSubtitle,
         toAccountTitle,
+        voucherFromSubtitle,
+        voucherToSubtitle,
     ])
 
     const onConfirm = useCallback(async () => {
@@ -167,10 +173,10 @@ export function useTransferReviewViewModel(
                     accountId,
                     concept: concept.trim(),
                     transactionIdentifier: execution.transactionIdentifier,
-                    toAccountSubtitle: toAccountSubtitle,
+                    toAccountSubtitle: voucherToSubtitle,
                     toAccountTitle: toAccountTitle,
                     fromAccountTitle: fromAccountTitle,
-                    fromAccountSubtitle: fromAccountSubtitle,
+                    fromAccountSubtitle: voucherFromSubtitle,
                 };
                 onTransferSuccess?.(payload);
                 return;
@@ -196,11 +202,11 @@ export function useTransferReviewViewModel(
         user?.email,
         validateTransactionAmountUseCase,
         executeTransferUseCase,
-        fromAccountSubtitle,
         fromAccountTitle,
         onTransferSuccess,
-        toAccountSubtitle,
         toAccountTitle,
+        voucherFromSubtitle,
+        voucherToSubtitle,
     ]);
 
     return {

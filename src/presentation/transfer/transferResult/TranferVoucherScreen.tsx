@@ -70,7 +70,7 @@ export const TransferVoucherScreen = () => {
   return (
     <View style={styles.root} testID="transfer-voucher-screen">
       <ToolbarApp
-        title="COMPROBANTE"
+        title="          COMPROBANTE"
         titleFont="regular"
         showBottomDivider
       />
@@ -144,7 +144,7 @@ function useStyles(colors: ThemeColors) {
         },
         contentColumn: {
           gap: 24,
-          width: '100%',
+            width:"100%"
         },
         actionsGroup: {
           gap: 12,

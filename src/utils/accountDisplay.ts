@@ -23,3 +23,6 @@ export function accountTypeModalLabel(account: AccountBalance): string {
 export function formatAccountKindLine(account: AccountBalance): string {
   return `${account.accountTypeLabel} ${account.beneficiary.lastFourDigits}`.trim();
 }
+export function formatAccountSubtitle(account: AccountBalance): string {
+  return `${account.accountTypeLabel} ${account.beneficiary.lastFourDigits}`.trim();
+}

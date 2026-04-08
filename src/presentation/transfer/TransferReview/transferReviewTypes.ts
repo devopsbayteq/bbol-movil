@@ -14,6 +14,8 @@ export type TransferReviewRouteParams = {
   toBalanceDisplay: string;
   accountId: string;
   concept: string;
+  fromAccountSubtitleMasked:string;
+  toAccountSubtitleMasked:string;
   resultFromOtp?:{
     otpValidated:boolean
   }
