@@ -38,6 +38,7 @@ export interface HomeBannerModel {
   buttonText: string;
   buttonLink: string;
   landscape: string;
+  durationMilliseconds?: number;
 }
 
 export interface HomeDashboardIconModel {

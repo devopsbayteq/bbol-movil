@@ -28,7 +28,7 @@ type Props = {
 /** Mismo valor que `MAIN_COLUMN_PADDING` en HomeScreen (padding del contenedor). */
 const SCREEN_PADDING_X = 24;
 
-const AUTO_ADVANCE_MS = 5000;
+const DEFAULT_AUTO_ADVANCE_MS = 5000;
 
 function BannerLine({
   line,
@@ -114,6 +114,8 @@ export function HomeBannersCarousel({banners}: Props) {
     if (banners.length <= 1) {
       return undefined;
     }
+    const autoAdvanceMs =
+      banners[0]?.durationMilliseconds ?? DEFAULT_AUTO_ADVANCE_MS;
     const id = setInterval(() => {
       const next = (indexRef.current + 1) % banners.length;
       indexRef.current = next;
@@ -121,9 +123,9 @@ export function HomeBannersCarousel({banners}: Props) {
         x: next * slideWidth,
         animated: true,
       });
-    }, AUTO_ADVANCE_MS);
+    }, autoAdvanceMs);
     return () => clearInterval(id);
-  }, [banners.length, slideWidth]);
+  }, [banners, slideWidth]);
 
   const onMomentumScrollEnd = (
     e: NativeSyntheticEvent<NativeScrollEvent>,

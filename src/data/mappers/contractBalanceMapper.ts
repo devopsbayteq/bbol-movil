@@ -87,6 +87,7 @@ function mapHomeBanner(model: HomeBannerModel): HomeBanner {
     buttonText: model.buttonText,
     buttonLink: model.buttonLink,
     landscape: model.landscape,
+    durationMilliseconds: model.durationMilliseconds,
   };
 }
 
