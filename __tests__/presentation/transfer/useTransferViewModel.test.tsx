@@ -94,9 +94,10 @@ describe('useTransferViewModel', () => {
     mockHomeData.error = '';
   });
 
-  test('estado inicial: amountCents 0, concepto vacío, modales cerrados', async () => {
+  test('estado inicial: amountCents null, displayAmount vacío, concepto vacío, modales cerrados', async () => {
     await mount();
-    expect(latest?.amountCents).toBe(0);
+    expect(latest?.amountCents).toBeNull();
+    expect(latest?.displayAmount).toBe('');
     expect(latest?.concept).toBe('');
     expect(latest?.validationMessage).toBeNull();
     expect(latest?.fromAccountModalVisible).toBe(false);
@@ -120,7 +121,7 @@ describe('useTransferViewModel', () => {
     expect(latest?.amountCents).toBe(500);
   });
 
-  test('onAmountChange ignora texto vacío y resetea a cero', async () => {
+  test('onAmountChange con texto vacío resetea amountCents a null', async () => {
     await mount();
     act(() => {
       latest?.onAmountChange('100');
@@ -128,7 +129,7 @@ describe('useTransferViewModel', () => {
     act(() => {
       latest?.onAmountChange('');
     });
-    expect(latest?.amountCents).toBe(0);
+    expect(latest?.amountCents).toBeNull();
   });
 
   test('onAmountChange filtra caracteres no numéricos', async () => {
@@ -261,9 +262,7 @@ describe('useTransferViewModel', () => {
       expect(result.params.beneficiary.name).toBe('Cuenta propia B');
       expect(result.params.beneficiary.id).toBe('ben-checking');
       expect(result.params.fromAccountTitle).toBe('Ahorros');
-      expect(result.params.fromAccountSubtitle).toBe(
-        'Cuenta de Ahorros ****1111',
-      );
+      expect(result.params.fromAccountSubtitle).toBe('Ahorros ****1111');
       expect(result.params.fromBalanceDisplay).toBe(formatMoneyEc(1000));
       expect(result.params.toBalanceDisplay).toBe(formatMoneyEc(500));
     }

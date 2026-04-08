@@ -9,10 +9,7 @@ import {
     validateTransferConcept,
 } from '../../domain/validation';
 import {useAuth} from '../../providers';
-import {
-    accountProductTitle,
-    formatAccountKindLine,
-} from '../../utils/accountDisplay';
+import {formatAccountKindLine} from '../../utils/accountDisplay';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
 import {useHomeViewModel} from '../home/useHomeViewModel';
@@ -32,7 +29,7 @@ export function useTransferViewModel() {
     const {user} = useAuth();
     const {data, isLoading, error, retry} = useHomeViewModel();
 
-    const [amountCents, setAmountCents] = useState(0);
+    const [amountCents, setAmountCents] = useState<number | null>(null);
 
     const [accountBeneficiaryModalVisible, setAccountBeneficiaryModalVisible] = useState(false);
 
@@ -95,7 +92,10 @@ export function useTransferViewModel() {
     );
 
     const displayAmount = useMemo(
-        () => formatMoneyUsdDisplay(amountCents / 100),
+        () =>
+            amountCents === null
+                ? ''
+                : formatMoneyUsdDisplay(amountCents / 100),
         [amountCents],
     );
 
@@ -105,7 +105,11 @@ export function useTransferViewModel() {
     );
 
     const amountFieldError = useMemo(
-        () => getLiveTransferAmountError(amountCents, availableBalanceCents),
+        () =>
+            getLiveTransferAmountError(
+                amountCents ?? 0,
+                availableBalanceCents,
+            ),
         [amountCents, availableBalanceCents],
     );
 
@@ -117,8 +121,10 @@ export function useTransferViewModel() {
             return false;
         }
         return (
-            validateTransferAmountForSubmit(amountCents, availableBalanceCents) ===
-            null
+            validateTransferAmountForSubmit(
+                amountCents ?? 0,
+                availableBalanceCents,
+            ) === null
         );
     }, [
         selectedFromAccount,
@@ -134,7 +140,7 @@ export function useTransferViewModel() {
         setValidationMessage(null);
 
         if (digits === '') {
-            setAmountCents(0);
+            setAmountCents(null);
             return;
         }
         const n = parseInt(digits, 10);
@@ -201,8 +207,9 @@ export function useTransferViewModel() {
     const prepareTransferReview = useCallback(():
         | { ok: true; params: TransferReviewRouteParams }
         | { ok: false; message: string } => {
+        const amountForSubmit = amountCents ?? 0;
         const amountError = validateTransferAmountForSubmit(
-            amountCents,
+            amountForSubmit,
             availableBalanceCents,
         );
         if (amountError) {
@@ -236,7 +243,7 @@ export function useTransferViewModel() {
         return {
             ok: true,
             params: {
-                amountCents,
+                amountCents: amountForSubmit,
                 displayAmount,
                 beneficiary:{
                     id:selectedToAccount.beneficiary.beneficiaryGuid,

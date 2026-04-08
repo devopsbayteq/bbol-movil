@@ -17,19 +17,19 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
-import {TransferIconAnglesDown, TransferIconArrowRightWhite} from './components/transferIcons.tsx';
+import {TransferIconArrowRightWhite} from './components/transferIcons.tsx';
 import {useTransferViewModel} from './useTransferViewModel';
 import {formatMoneyEc} from '../../utils/formatMoneyEc';
 import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
-import {accountProductTitle} from '../../utils/accountDisplay';
 import {ToolbarApp} from './components/ToolbarApp.tsx';
 import {ErrorBannerComponent} from './transferInit/components/ErrorBannerComponent.tsx';
 import {Button, TertiaryLinkButton} from '../components';
 import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal.tsx';
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
 import {SpacerView} from "../components/SpacerView.tsx";
-const ZERO_DISPLAY = formatMoneyUsdDisplay(0);
 import AngleArrow from '../../../assets/images/svg/angles-down.svg'
+
+const AMOUNT_PLACEHOLDER = formatMoneyUsdDisplay(0);
 
 export function TransferScreen() {
     const {colors} = useTheme();
@@ -188,25 +188,46 @@ export function TransferScreen() {
                         <SpacerView height={19}/>
                         <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
                         <View style={styles.amountWrap}>
-                            <TextInput
-                                style={styles.amountInput}
-                                value={displayAmount}
-                                onChangeText={onAmountChange}
-                                keyboardType="number-pad"
-                                returnKeyType="done"
-                                onSubmitEditing={() => Keyboard.dismiss()}
-                                placeholderTextColor={colors.placeholder}
-                                placeholder={ZERO_DISPLAY}
-                                selectionColor={colors.primary}
-                                underlineColorAndroid="transparent"
-                                testID="transfer-amount-input"
-                            />
+                            <View style={styles.amountInputRow}>
+                                {displayAmount === '' ? (
+                                    <View
+                                        style={styles.amountPlaceholderLayer}
+                                        pointerEvents="none">
+                                        <Text
+                                            style={[
+                                                styles.amountInput,
+                                                styles.amountInputPlaceholder,
+                                            ]}>
+                                            {AMOUNT_PLACEHOLDER}
+                                        </Text>
+                                    </View>
+                                ) : null}
+                                <TextInput
+                                    style={[
+                                        styles.amountInput,
+                                        styles.amountInputEditable,
+                                        displayAmount === ''
+                                            ? styles.amountInputTextEmpty
+                                            : null,
+                                    ]}
+                                    value={displayAmount}
+                                    onChangeText={onAmountChange}
+                                    keyboardType="number-pad"
+                                    returnKeyType="done"
+                                    onSubmitEditing={() => Keyboard.dismiss()}
+                                    selectionColor={colors.primary}
+                                    underlineColorAndroid="transparent"
+                                    accessibilityLabel="Monto a transferir"
+                                    testID="transfer-amount-input"
+                                />
+                            </View>
+                            <View style={{height:1,backgroundColor:colors.primary}}/>
                             {amountFieldError ? (
                                 <Text style={styles.amountFieldError}>{amountFieldError}</Text>
                             ) : null}
 
                         </View>
-                        <View style={{height:1,backgroundColor:colors.primary}}/>
+
                     </View>
 
                     <View style={styles.bottomSection}>
@@ -327,11 +348,37 @@ function useStyles(colors: ThemeColors) {
                     color: colors.textSecondary,
                 },
                 amountWrap: {
+                    position: 'relative',
                     alignSelf: 'center',
                     borderBottomColor: colors.primary,
                     paddingHorizontal: 12,
                     paddingVertical: 8,
                     minWidth: 200,
+                    width: '100%',
+                },
+                amountInputRow: {
+                    position: 'relative',
+                    minHeight: 70,
+                    width: '100%',
+                    justifyContent: 'center',
+                },
+                amountPlaceholderLayer: {
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                },
+                amountInputPlaceholder: {
+                    width: '100%',
+                    textAlign: 'center',
+                },
+                amountInputTextEmpty: {
+                    color: 'transparent',
+                },
+                amountInputEditable: {
+                    zIndex: 1,
                 },
                 amountFieldError: {
                     marginTop: 8,
