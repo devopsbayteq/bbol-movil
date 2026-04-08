@@ -172,11 +172,7 @@ export function HomeBannersCarousel({banners}: Props) {
                 boldStyle={styles.boldText}
               />
             ))}
-            {banner.buttonText ? (
-              <Text style={styles.buttonHint} numberOfLines={1}>
-                {banner.buttonText}
-              </Text>
-            ) : null}
+          
           </View>
           <ChevronRightIcon color={colors.textTertiary} size={16} />
         </TouchableOpacity>
@@ -198,8 +194,8 @@ function useStyles(colors: ThemeColors) {
           gap: 10,
           backgroundColor: colors.surface,
           borderRadius: 12,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 20,
           minHeight: 72,
           ...Platform.select({
             ios: {
@@ -218,7 +214,6 @@ function useStyles(colors: ThemeColors) {
           height: 48,
           borderRadius: 8,
           overflow: 'hidden',
-          backgroundColor: colors.borderSubtle,
         },
         landscapeImage: {
           width: '100%',
@@ -226,12 +221,13 @@ function useStyles(colors: ThemeColors) {
         },
         landscapePlaceholder: {
           flex: 1,
-          backgroundColor: colors.buttonSecondaryBg,
         },
         textBlock: {
           flex: 1,
           gap: 2,
           justifyContent: 'center',
+          marginRight: 42,
+          marginLeft: 6,
         },
         bodyText: {
           fontFamily: Lexend.regular,
