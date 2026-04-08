@@ -486,9 +486,9 @@ export function LoanCard({
     <View style={[styles.cardOuter, style]} accessibilityLabel="Préstamo">
       <LinearGradient
         colors={[
-         
-          colors.homeInvestmentCardGradientStart,
-          colors.homeInvestmentCardGradientEnd,
+          colors.homeLoanCardGradientStart,
+          colors.homeLoanCardGradientEnd,
+      
         ]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}
@@ -633,8 +633,8 @@ export function InvestmentCard({
     <View style={[styles.cardOuter, style]} accessibilityLabel="Inversión">
       <LinearGradient
         colors={[
-          colors.homeLoanCardGradientStart,
-          colors.homeLoanCardGradientEnd,
+          colors.homeInvestmentCardGradientStart,
+          colors.homeInvestmentCardGradientEnd,
         ]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}

@@ -52,7 +52,7 @@ const PRODUCT_FILTERS = [
   'Cuentas',
   'Tarjetas',
   'Inversiones',
-  'Créditos',
+  'Préstamos',
 ] as const;
 
 function accountTitle(kind: AccountKind): string {
@@ -149,7 +149,7 @@ export function HomeScreen() {
     const showAccounts = all || filter === 'Cuentas';
     const showCards = all || filter === 'Tarjetas';
     const showInvestments = all || filter === 'Inversiones';
-    const showLoans = all || filter === 'Créditos';
+    const showLoans = all || filter === 'Préstamos';
 
     const items: ProductItem[] = [];
 
