@@ -18,10 +18,10 @@ import {Button, ErrorMessage} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
 import {mapBiometricError} from './useLoginViewModel';
-
+import FingerPrintEnable from '../../../assets/images/svg/fingerPrintEnable.svg';
 const fingerprintIcon = require('../../../assets/images/fingerprint.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
-const shieldKeyholeIcon = require('../../../assets/images/shield-keyhole.png');
+const shieldKeyholeIcon = require('../../../assets/images/shield_key_hole.png');
 
 export function BiometricOfferScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'BiometricOffer'>>();
@@ -79,13 +79,7 @@ export function BiometricOfferScreen() {
         showsVerticalScrollIndicator={false}>
         <View style={styles.contentColumn}>
           <View style={styles.iconCircle}>
-            <Image
-              source={biometricHeroIcon}
-              style={styles.iconInner}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-              accessibilityLabel={heroAccessibilityLabel}
-            />
+              <FingerPrintEnable style={styles.iconInner} color={colors.primary} />
           </View>
 
           <Text style={styles.title}>
