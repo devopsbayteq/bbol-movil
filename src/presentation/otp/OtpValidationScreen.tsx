@@ -25,7 +25,7 @@ import {navigatePostLoginEnrollment} from '../auth/navigatePostLoginEnrollment';
 
 const otpBackArrow = require('../../../assets/images/arrow-left.png');
 const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
-const otpShield = require('../../../assets/images/icon_shell.png');
+const otpShield = require('../../../assets/images/otp-lock.png');
 const otpClock = require('../../../assets/images/clock-rotate-left.png');
 
 type OTPScreenNavigationProp =
@@ -324,7 +324,7 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           lineHeight: 24,
           letterSpacing: 0.6,
           color: colors.textPrimary,
-          textAlign: 'center',
+          textAlign: 'center'
         },
         headerSpacer: {
           width: 24,
@@ -338,16 +338,17 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
         sectionTitle: {
           alignSelf: 'stretch',
           fontFamily: Lexend.regular,
-          fontSize: 32,
+          fontSize: 20,
           lineHeight: 42,
           color: colors.textPrimary,
           textAlign: 'left',
+          marginTop: 24,
           marginBottom: 8,
         },
         loginBody: {
           alignSelf: 'stretch',
           fontFamily: Lexend.regular,
-          fontSize: 15,
+          fontSize: 16,
           lineHeight: 24,
           color: colors.textSecondary,
           textAlign: 'left',
@@ -355,17 +356,18 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           marginBottom: 8,
         },
         shieldIcon: {
-          width: 90,
-          height: 90,
+          width: 96,
+          height: 96,
           alignSelf: 'center',
-          marginTop: 24,
-          marginBottom: 24,
+          marginTop: 20,
+          marginBottom: 10,
         },
         timerRow: {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
           marginTop: 20,
+          marginBottom: 30,
           gap: 8,
         },
         timerIcon: {
@@ -389,13 +391,13 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
         },
         padlock: {
           width: 120,
-          height: 120,
+          height: 160,
           marginTop: 28,
           marginBottom: 28,
         },
         pinInputWrap: {
           alignSelf: 'stretch',
-          alignItems: 'center',
+          alignItems: 'stretch',
           marginTop: layout === 'login' ? 20 : 0,
           position: 'relative',
           minHeight: 52,

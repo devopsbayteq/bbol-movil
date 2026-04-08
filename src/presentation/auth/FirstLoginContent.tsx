@@ -368,7 +368,9 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 14,
           borderRadius: 12,
           backgroundColor: colors.surface,
+          marginTop: 40,
           marginBottom: 8,
+          height: 48,
         },
         productCardPressed: {
           opacity: 0.92,
