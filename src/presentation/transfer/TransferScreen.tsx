@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
     View,
     Text,
@@ -31,10 +31,15 @@ import AngleArrow from '../../../assets/images/svg/angles-down.svg'
 
 const AMOUNT_PLACEHOLDER = formatMoneyUsdDisplay(0);
 
+/** Vertical gap between account cards; must match SpacerView height between selectors. */
+const ACCOUNT_BRIDGE_SPACER_HEIGHT = 24;
+const BRIDGE_CIRCLE_SIZE = 40;
+
 export function TransferScreen() {
     const {colors} = useTheme();
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
+    const [fromAccountBlockHeight, setFromAccountBlockHeight] = useState(0);
 
     const navigation = useNavigation<NativeStackNavigationProp<TransferStackParamList, 'TransferMain'>>();
 
@@ -124,6 +129,18 @@ export function TransferScreen() {
         tabNav?.navigate('ConsolidatedPosition', {});
     };
 
+    const bridgeOverlayTop = useMemo(() => {
+        const h =
+            fromAccountBlockHeight > 0
+                ? fromAccountBlockHeight
+                : 74; /* AccountSelectorButton minHeight */
+        return (
+            h +
+            ACCOUNT_BRIDGE_SPACER_HEIGHT / 2 -
+            BRIDGE_CIRCLE_SIZE / 2
+        );
+    }, [fromAccountBlockHeight]);
+
     return (
         <View style={styles.root} testID="transfer-main-screen">
             <ToolbarApp
@@ -158,32 +175,46 @@ export function TransferScreen() {
                     showsVerticalScrollIndicator={false}>
                     <View style={styles.hero}>
                         <View style={styles.cardsBlock}>
-                            <AccountSelectorButton
-                                variant="from"
-                                onPress={openFromAccountPicker}
-                                accounts={accounts}
-                                selectedAccount={selectedFromAccount}
-                                origin="Desde"
-                                name={fromAccountTitle}
-                                description={fromAccountSubtitle}
-                                balanceLabel={fromBalanceLabel}
-                            />
-                            <SpacerView height={24}/>
-                            <View style={styles.bridgeRow}>
-                                <View style={styles.bridgeCircle}>
-                                    <AngleArrow color={colors.primary}/>
+                            <View style={styles.accountsBridgeWrap}>
+                                <View
+                                    onLayout={event => {
+                                        setFromAccountBlockHeight(
+                                            event.nativeEvent.layout.height,
+                                        );
+                                    }}>
+                                    <AccountSelectorButton
+                                        variant="from"
+                                        onPress={openFromAccountPicker}
+                                        accounts={accounts}
+                                        selectedAccount={selectedFromAccount}
+                                        origin="Desde"
+                                        name={fromAccountTitle}
+                                        description={fromAccountSubtitle}
+                                        balanceLabel={fromBalanceLabel}
+                                    />
+                                </View>
+                                <SpacerView height={ACCOUNT_BRIDGE_SPACER_HEIGHT}/>
+                                <AccountSelectorButton
+                                    variant="to"
+                                    onPress={openToAccountPicker}
+                                    accounts={accounts}
+                                    selectedAccount={selectedToAccount}
+                                    origin="Hacia"
+                                    name={toName}
+                                    description={toDescription}
+                                    balanceLabel={toBalanceLabel}
+                                />
+                                <View
+                                    style={[
+                                        styles.bridgeOverlay,
+                                        {top: bridgeOverlayTop},
+                                    ]}
+                                    pointerEvents="box-none">
+                                    <View style={styles.bridgeCircle}>
+                                        <AngleArrow color={colors.primary}/>
+                                    </View>
                                 </View>
                             </View>
-                            <AccountSelectorButton
-                                variant="to"
-                                onPress={openToAccountPicker}
-                                accounts={accounts}
-                                selectedAccount={selectedToAccount}
-                                origin="Hacia"
-                                name={toName}
-                                description={toDescription}
-                                balanceLabel={toBalanceLabel}
-                            />
                         </View>
                         <SpacerView height={19}/>
                         <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
@@ -323,18 +354,23 @@ function useStyles(colors: ThemeColors) {
                 cardsBlock: {
                     width: '100%',
                 },
-                bridgeRow: {
+                accountsBridgeWrap: {
+                    position: 'relative',
+                    width: '100%',
+                },
+                bridgeOverlay: {
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    height: BRIDGE_CIRCLE_SIZE,
                     alignItems: 'center',
-                    marginTop: -30,
-                    marginBottom: -20,
-                    zIndex: 2,
-                    height: 40,
                     justifyContent: 'center',
+                    zIndex: 2,
                 },
                 bridgeCircle: {
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
+                    width: BRIDGE_CIRCLE_SIZE,
+                    height: BRIDGE_CIRCLE_SIZE,
+                    borderRadius: BRIDGE_CIRCLE_SIZE / 2,
                     backgroundColor: colors.primaryIconContainerBg,
                     alignItems: 'center',
                     justifyContent: 'center',
