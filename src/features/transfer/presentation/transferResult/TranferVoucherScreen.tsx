@@ -38,11 +38,17 @@ export const TransferVoucherScreen = () => {
 
   const transactionData = params.routeSuccessTransactionData;
 
-  const goToHomeTab = useCallback(() => {
+  const navigateHomeWithRefresh = useCallback(() => {
     navigation.popToTop();
     const tabNav =
       navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
-    tabNav?.navigate('Home');
+    tabNav?.navigate({
+      name: 'Home',
+      params: {
+        screen: 'HomeMain',
+        params: {refreshHome: Date.now()},
+      },
+    });
   }, [navigation]);
 
   const {viewShotRef, shareVoucher} = useTransferVoucherCaptureShare();
@@ -53,15 +59,12 @@ export const TransferVoucherScreen = () => {
         return;
       }
       const onBackPress = () => {
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'TransferMain'}],
-        });
+        navigateHomeWithRefresh();
         return true;
       };
       const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => sub.remove();
-    }, [navigation]),
+    }, [navigateHomeWithRefresh]),
   );
 
   return (
@@ -111,7 +114,7 @@ export const TransferVoucherScreen = () => {
               <TertiaryLinkButton
                 title="Ir al inicio"
                 labelStyle={styles.tertiaryLinkLabel}
-                onPress={goToHomeTab}
+                onPress={navigateHomeWithRefresh}
               />
             </View>
           </View>
