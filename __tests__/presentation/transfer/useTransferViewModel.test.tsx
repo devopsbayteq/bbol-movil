@@ -4,6 +4,7 @@ import type {AccountBalance} from '../../../src/domain/entities/ContractBalance'
 import type {BeneficiaryContact} from '../../../src/domain/entities/BeneficiaryContact';
 import {useTransferViewModel} from '../../../src/presentation/transfer/useTransferViewModel';
 import {formatMoneyEc} from '../../../src/utils/formatMoneyEc';
+import {formatMoneyUsdDisplay} from '../../../src/utils/formatMoneyUsdDisplay';
 
 jest.mock('react-native-encrypted-storage', () => ({
   __esModule: true,
@@ -94,10 +95,10 @@ describe('useTransferViewModel', () => {
     mockHomeData.error = '';
   });
 
-  test('estado inicial: amountCents null, displayAmount vacío, concepto vacío, modales cerrados', async () => {
+  test('estado inicial: amountCents null, amountInputText vacío, concepto vacío, modales cerrados', async () => {
     await mount();
     expect(latest?.amountCents).toBeNull();
-    expect(latest?.displayAmount).toBe('');
+    expect(latest?.amountInputText).toBe('');
     expect(latest?.concept).toBe('');
     expect(latest?.validationMessage).toBeNull();
     expect(latest?.fromAccountModalVisible).toBe(false);
@@ -113,23 +114,25 @@ describe('useTransferViewModel', () => {
     expect(latest?.error).toBe('Sin conexión');
   });
 
-  test('onAmountChange parsea dígitos y actualiza amountCents', async () => {
+  test('onAmountChange interpreta dígitos sin punto como dólares enteros', async () => {
     await mount();
     act(() => {
       latest?.onAmountChange('500');
     });
-    expect(latest?.amountCents).toBe(500);
+    expect(latest?.amountInputText).toBe('500');
+    expect(latest?.amountCents).toBe(50000);
   });
 
   test('onAmountChange con texto vacío resetea amountCents a null', async () => {
     await mount();
     act(() => {
-      latest?.onAmountChange('100');
+      latest?.onAmountChange('1');
     });
     act(() => {
       latest?.onAmountChange('');
     });
     expect(latest?.amountCents).toBeNull();
+    expect(latest?.amountInputText).toBe('');
   });
 
   test('onAmountChange filtra caracteres no numéricos', async () => {
@@ -154,7 +157,7 @@ describe('useTransferViewModel', () => {
       latest?.setValidationMessage('Monto requerido');
     });
     act(() => {
-      latest?.onAmountChange('200');
+      latest?.onAmountChange('2');
     });
     expect(latest?.validationMessage).toBeNull();
   });
@@ -240,7 +243,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: []};
     await mount();
     act(() => {
-      latest?.onAmountChange('100');
+      latest?.onAmountChange('1');
     });
     const result = latest?.prepareTransferReview();
     expect(result?.ok).toBe(false);
@@ -253,12 +256,13 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('500');
+      latest?.onAmountChange('5');
     });
     const result = latest?.prepareTransferReview();
     expect(result?.ok).toBe(true);
     if (result?.ok) {
       expect(result.params.amountCents).toBe(500);
+      expect(result.params.displayAmount).toBe(formatMoneyUsdDisplay(5));
       expect(result.params.beneficiary.name).toBe('Cuenta propia B');
       expect(result.params.beneficiary.id).toBe('ben-checking');
       expect(result.params.fromAccountTitle).toBe('Ahorros');
@@ -272,7 +276,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('300');
+      latest?.onAmountChange('3');
       latest?.onConceptChange('Pago renta');
     });
     const result = latest?.prepareTransferReview();
@@ -299,7 +303,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('100');
+      latest?.onAmountChange('100'); // US$100
     });
     expect(latest?.amountFieldError).toBeNull();
   });
@@ -308,7 +312,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [{...savingsAccount, balance: 0.5}]};
     await mount();
     act(() => {
-      latest?.onAmountChange('10000');
+      latest?.onAmountChange('100'); // US$100 > US$0.50
     });
     expect(latest?.amountFieldError).not.toBeNull();
   });
@@ -323,7 +327,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [checkingAccount, savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('500');
+      latest?.onAmountChange('500'); // US$500
     });
     expect(latest?.canContinueToReview).toBe(true);
   });
@@ -332,7 +336,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [savingsAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('100');
+      latest?.onAmountChange('1');
     });
     expect(latest?.canContinueToReview).toBe(false);
   });
@@ -341,7 +345,7 @@ describe('useTransferViewModel', () => {
     mockHomeData.data = {accounts: [{...savingsAccount, balance: 0.5}, checkingAccount]};
     await mount();
     act(() => {
-      latest?.onAmountChange('10000');
+      latest?.onAmountChange('100'); // US$100 > US$0.50
     });
     expect(latest?.canContinueToReview).toBe(false);
   });

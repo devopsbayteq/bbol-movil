@@ -15,10 +15,10 @@ name: Transferencias — revisión detallada (monto, beneficiario, concepto, acc
       id: "transfer-amount-input"
     timeout: 15000
 
-# Monto: 500 centavos = US$ 5,00
+# Monto: US$ 5,00
 - tapOn:
     id: "transfer-amount-input"
-- inputText: "500"
+- inputText: "5"
 - hideKeyboard
 
 - tapOn:

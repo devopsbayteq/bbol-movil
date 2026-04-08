@@ -46,7 +46,7 @@ export function TransferScreen() {
     const navigationTab = useNavigation<BottomTabNavigationProp<MainTabParamList, 'ConsolidatedPosition'>>();
 
     const {
-        displayAmount,
+        amountInputText,
         onAmountChange,
         amountFieldError,
         canContinueToReview,
@@ -109,7 +109,7 @@ export function TransferScreen() {
         return `${a.accountTypeLabel} ${a.maskedAccountNumber}`.trim();
     }, [selectedToAccount]);
 
-    const toContactName = selectedToAccount?.beneficiary.contactName?.trim() ?? '';
+    const toContactName = selectedToAccount?.accountTypeLabel?.trim() ?? '';
 
     const toName = useMemo(() => {
         if (!selectedToAccount) {
@@ -220,7 +220,7 @@ export function TransferScreen() {
                         <Text style={styles.heroHint}>Ingresa el monto a transferir</Text>
                         <View style={styles.amountWrap}>
                             <View style={styles.amountInputRow}>
-                                {displayAmount === '' ? (
+                                {amountInputText === '' ? (
                                     <View
                                         style={styles.amountPlaceholderLayer}
                                         pointerEvents="none">
@@ -237,13 +237,13 @@ export function TransferScreen() {
                                     style={[
                                         styles.amountInput,
                                         styles.amountInputEditable,
-                                        displayAmount === ''
+                                        amountInputText === ''
                                             ? styles.amountInputTextEmpty
                                             : null,
                                     ]}
-                                    value={displayAmount}
+                                    value={`${amountInputText}`}
                                     onChangeText={onAmountChange}
-                                    keyboardType="number-pad"
+                                    keyboardType="decimal-pad"
                                     returnKeyType="done"
                                     onSubmitEditing={() => Keyboard.dismiss()}
                                     selectionColor={colors.primary}
@@ -347,7 +347,7 @@ function useStyles(colors: ThemeColors) {
                 hero: {
                     backgroundColor: colors.transferSectionBg,
                     paddingHorizontal: 24,
-                    paddingTop: 24,
+                    paddingTop: 34,
                     paddingBottom: 24,
                     minHeight: 320,
                 },
@@ -427,7 +427,7 @@ function useStyles(colors: ThemeColors) {
                     maxWidth: 280,
                 },
                 amountInput: {
-                    fontFamily: Lexend.bold,
+                    fontFamily: Lexend.regular,
                     fontSize: 50,
                     lineHeight: 60,
                     textAlign: 'center',

@@ -3,7 +3,8 @@ import type {AccountBalance} from '../../domain/entities/ContractBalance';
 import {
     balanceDollarsToCents,
     getLiveTransferAmountError,
-    MAX_TRANSFER_CENTS,
+    parseTransferAmountInputToCents,
+    sanitizeTransferAmountInput,
     sanitizeTransferConceptInput,
     validateTransferAmountForSubmit,
     validateTransferConcept,
@@ -30,6 +31,7 @@ export function useTransferViewModel() {
     const {data, isLoading, error, retry} = useHomeViewModel();
 
     const [amountCents, setAmountCents] = useState<number | null>(null);
+    const [amountInputText, setAmountInputText] = useState('');
 
     const [accountBeneficiaryModalVisible, setAccountBeneficiaryModalVisible] = useState(false);
 
@@ -91,14 +93,6 @@ export function useTransferViewModel() {
         [selectedToAccount],
     );
 
-    const displayAmount = useMemo(
-        () =>
-            amountCents === null
-                ? ''
-                : formatMoneyUsdDisplay(amountCents / 100),
-        [amountCents],
-    );
-
     const availableBalanceCents = useMemo(
         () => balanceDollarsToCents(selectedFromAccount?.balance ?? 0),
         [selectedFromAccount?.balance],
@@ -136,18 +130,15 @@ export function useTransferViewModel() {
     ]);
 
     const onAmountChange = useCallback((text: string) => {
-        const digits = text.replace(/\D/g, '');
         setValidationMessage(null);
-
-        if (digits === '') {
+        const sanitized = sanitizeTransferAmountInput(text);
+        setAmountInputText(sanitized);
+        if (sanitized === '') {
             setAmountCents(null);
             return;
         }
-        const n = parseInt(digits, 10);
-        if (Number.isNaN(n)) {
-            return;
-        }
-        setAmountCents(Math.min(n, MAX_TRANSFER_CENTS));
+        const cents = parseTransferAmountInputToCents(sanitized);
+        setAmountCents(cents);
     }, []);
 
     const onConceptChange = useCallback((text: string) => {
@@ -244,7 +235,7 @@ export function useTransferViewModel() {
             ok: true,
             params: {
                 amountCents: amountForSubmit,
-                displayAmount,
+                displayAmount: formatMoneyUsdDisplay(amountForSubmit / 100),
                 beneficiary:{
                     id:selectedToAccount.beneficiary.beneficiaryGuid,
                     bankName:selectedToAccount.beneficiary.bankName,
@@ -268,7 +259,6 @@ export function useTransferViewModel() {
         amountCents,
         availableBalanceCents,
         concept,
-        displayAmount,
         fromAccountIndex,
         toAccountIndex,
         selectedFromAccount,
@@ -287,7 +277,7 @@ export function useTransferViewModel() {
         fromAccountModalVisible,
         setFromAccountModalVisible,
         amountCents,
-        displayAmount,
+        amountInputText,
         onAmountChange,
         concept,
         onConceptChange,

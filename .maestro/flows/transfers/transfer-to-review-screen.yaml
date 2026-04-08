@@ -17,8 +17,8 @@ name: Transferencias — formulario hasta pantalla de revisión
 
 - tapOn:
     id: "transfer-amount-input"
-# Monto pequeño en centavos (ej. 100 → US$ 1,00) para no exceder saldo típico.
-- inputText: "100"
+# Monto: US$ 1,00 para no exceder saldo típico.
+- inputText: "1"
 - hideKeyboard
 
 - tapOn:
