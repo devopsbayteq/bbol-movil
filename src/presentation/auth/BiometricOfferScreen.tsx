@@ -18,6 +18,7 @@ import {Button, ErrorMessage} from '../components';
 import {Lexend} from '../../theme/lexend';
 import {RootStackParamList} from '../../navigation/AppNavigator';
 import {mapBiometricError} from './useLoginViewModel';
+import {DeviceRegistrationSuccessModal} from './DeviceRegistrationSuccessModal';
 import FingerPrintEnable from '../../../assets/images/svg/fingerPrintEnable.svg';
 const fingerprintIcon = require('../../../assets/images/fingerprint.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
@@ -33,6 +34,8 @@ export function BiometricOfferScreen() {
 
   const [isLoadingAccept, setIsLoadingAccept] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showBiometricSuccessModal, setShowBiometricSuccessModal] =
+    useState(false);
 
   const trimmedEmail = email.trim();
 
@@ -53,19 +56,23 @@ export function BiometricOfferScreen() {
     await login(user);
   }, [login, secureStorageService, user]);
 
+  const handleBiometricSuccessContinue = useCallback(async () => {
+    await login(user);
+  }, [login, user]);
+
   const handleAccept = useCallback(async () => {
     setIsLoadingAccept(true);
     setError(null);
     try {
       await biometricRSAAuthOrchestrator.registerBiometricForUser(trimmedEmail);
-      await login(user);
+      setShowBiometricSuccessModal(true);
     } catch (err) {
       const message = mapBiometricError(err);
       setError(message ?? 'No se pudo registrar la biometría.');
     } finally {
       setIsLoadingAccept(false);
     }
-  }, [biometricRSAAuthOrchestrator, login, trimmedEmail, user]);
+  }, [biometricRSAAuthOrchestrator, trimmedEmail]);
 
   return (
     <SafeAreaView
@@ -122,6 +129,12 @@ export function BiometricOfferScreen() {
           </Text>
         </View>
       </KeyboardAwareScrollView>
+
+      <DeviceRegistrationSuccessModal
+        variant="biometricRegistration"
+        visible={showBiometricSuccessModal}
+        onContinue={handleBiometricSuccessContinue}
+      />
     </SafeAreaView>
   );
 }

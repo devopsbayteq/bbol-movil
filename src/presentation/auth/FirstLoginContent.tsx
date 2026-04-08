@@ -15,7 +15,7 @@ import {
 import {Lexend} from '../../theme/lexend';
 
 const institutionIcon = require('../../../assets/images/institution.png');
-const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
+const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 const loginSubmitArrowIcon = require('../../../assets/images/arrow-right-from-bracket.png');
 
 const bankMark = require('../../../assets/images/BBIcon.png');

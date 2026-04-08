@@ -23,7 +23,7 @@ import {DeviceRegistrationSuccessModal} from './DeviceRegistrationSuccessModal';
 import {navigatePostLoginEnrollment} from './navigatePostLoginEnrollment';
 
 const arrowBack = require('../../../assets/images/arrow-left.png');
-const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
+const arrowRightIcon = require('../../../assets/images/arrow_rigth.png');
 
 export function RegisterAliasScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'RegisterAlias'>>();

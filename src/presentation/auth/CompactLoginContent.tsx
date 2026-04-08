@@ -30,7 +30,7 @@ const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png'
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
 const institutionIcon = require('../../../assets/images/institution.png');
-const arrowRightIcon = require('../../../assets/images/arrow_right_black.png');
+const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 
 const LOGIN_SUBMIT_ICON_SIZE = 24;
