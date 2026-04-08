@@ -45,6 +45,7 @@ export interface ThemeColors {
   homeLoanCardBorder: string;
   homeBorderSoft: string;
   homePrimaryHover: string;
+  lineSeparator: string;
 }
 
 export const LightColors: ThemeColors = {
@@ -86,6 +87,7 @@ export const LightColors: ThemeColors = {
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
+  lineSeparator: '#d6d6d6',
 };
 
 export const DarkColors: ThemeColors = {
@@ -127,4 +129,5 @@ export const DarkColors: ThemeColors = {
   homeLoanCardBorder: '#E0EBFF',
   homeBorderSoft: '#EFF6F7',
   homePrimaryHover: '#06A3B6',
+  lineSeparator: '#374151',
 };

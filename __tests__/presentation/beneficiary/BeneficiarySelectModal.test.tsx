@@ -93,6 +93,7 @@ const emptyContract: ContractBalance = {
   frequentPayments: [],
   banners: [],
   homeDashboardIcons: [],
+  recentTransactions: [],
 };
 
 const sampleAccount = {

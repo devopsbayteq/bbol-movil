@@ -90,7 +90,7 @@ export function HomeScreen() {
     refresh,
     retry,
     bannersForHome,
-    dashboardIconsForHome,
+    frequentPaymentsForHome,
     upcomingPaymentsSummary,
     recentActivityItems,
   } = useHomeViewModel();
@@ -401,7 +401,7 @@ export function HomeScreen() {
                   <RequestProductRow onPress={openDevelopmentModal} />
                   <HomeBannersCarousel banners={bannersForHome} />
                   <FrequentActionsSection
-                    items={dashboardIconsForHome}
+                    items={frequentPaymentsForHome}
                     onItemPress={openDevelopmentModal}
                   />
                   <UpcomingPaymentsRow

@@ -251,6 +251,7 @@ describe('domain use cases', () => {
         frequentPayments: [],
         banners: [],
         homeDashboardIcons: [],
+        recentTransactions: [],
       }),
     };
     const useCase = new GetHomeContractBalanceUseCase(contractBalanceRepository);

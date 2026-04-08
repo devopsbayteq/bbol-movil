@@ -1,15 +1,16 @@
 import {useCallback, useMemo} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useDI} from '../../di';
-import type {HomeBanner, HomeDashboardIcon} from '../../domain/entities/ContractBalance';
+import type {FrequentPayment, HomeBanner} from '../../domain/entities/ContractBalance';
 import {
   FALLBACK_HOME_BANNERS,
-  FALLBACK_HOME_DASHBOARD_ICONS,
+  FALLBACK_HOME_FREQUENT_PAYMENTS,
   MOCK_RECENT_ACTIVITY,
   MOCK_UPCOMING_PAYMENTS_SUMMARY,
   type RecentActivityItem,
   type UpcomingPaymentsSummary,
 } from './homeDashboardMocks';
+import {mapHomeRecentTransactionToActivityItem} from './mapHomeRecentTransactionToActivityItem';
 
 const HOME_BALANCE_KEY = ['homeContractBalance'] as const;
 
@@ -37,24 +38,34 @@ export function useHomeViewModel() {
     return d.banners.length > 0 ? d.banners : FALLBACK_HOME_BANNERS;
   }, [query.data]);
 
-  const dashboardIconsForHome: HomeDashboardIcon[] = useMemo(() => {
+  const frequentPaymentsForHome: FrequentPayment[] = useMemo(() => {
     const d = query.data;
     if (!d) {
       return [];
     }
-    return d.homeDashboardIcons.length > 0
-      ? d.homeDashboardIcons
-      : FALLBACK_HOME_DASHBOARD_ICONS;
+    return d.frequentPayments.length > 0
+      ? d.frequentPayments
+      : FALLBACK_HOME_FREQUENT_PAYMENTS;
   }, [query.data]);
 
   const upcomingPaymentsSummary: UpcomingPaymentsSummary =
     MOCK_UPCOMING_PAYMENTS_SUMMARY;
-  const recentActivityItems: RecentActivityItem[] = MOCK_RECENT_ACTIVITY;
+
+  const recentActivityItems: RecentActivityItem[] = useMemo(() => {
+    const d = query.data;
+    if (!d) {
+      return [];
+    }
+    if (d.recentTransactions?.length) {
+      return d.recentTransactions.map(mapHomeRecentTransactionToActivityItem);
+    }
+    return MOCK_RECENT_ACTIVITY;
+  }, [query.data]);
 
   return {
     data: query.data ?? null,
     bannersForHome,
-    dashboardIconsForHome,
+    frequentPaymentsForHome,
     upcomingPaymentsSummary,
     recentActivityItems,
     isLoading: query.isLoading,

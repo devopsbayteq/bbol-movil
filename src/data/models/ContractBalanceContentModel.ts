@@ -42,6 +42,27 @@ export interface HomeDashboardIconModel {
   text: string;
 }
 
+export interface HomeRecentTransactionModel {
+  transactionGuid: string;
+  transactionIdentifier: string;
+  beneficiaryName: string;
+  beneficiaryAccountType: string;
+  beneficiaryAccountTypeLabel: string;
+  beneficiaryAccountNumber: string;
+  ownerAccountType: string;
+  ownerAccountLabel: string;
+  accountNumber: string;
+  accountType: string;
+  accountTypeLabel: string;
+  amount: number;
+  transferDate: string;
+  transactionTypeLabel: string;
+  transactionType: string;
+  concept: string;
+  balanceAfterTransaction: number;
+  allowedShared: boolean;
+}
+
 export interface ContractBalanceContentModel {
   accounts: AccountBalanceModel[];
   creditCards: CreditCardBalanceModel[];
@@ -50,4 +71,5 @@ export interface ContractBalanceContentModel {
   frequentPayments: FrequentPaymentModel[];
   banners?: HomeBannerModel[];
   homeDashboardIcons?: HomeDashboardIconModel[];
+  recentTransactions?: HomeRecentTransactionModel[];
 }

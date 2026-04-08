@@ -81,6 +81,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -151,6 +152,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -195,6 +197,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -246,6 +249,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -292,6 +296,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -338,6 +343,7 @@ describe('useAccountMovementsViewModel', () => {
             frequentPayments: [],
             banners: [],
             homeDashboardIcons: [],
+            recentTransactions: [],
           }),
         },
         getAccountMovementsUseCase: {
@@ -409,6 +415,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -437,6 +444,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -541,6 +549,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -581,6 +590,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -624,6 +634,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {
@@ -664,6 +675,7 @@ describe('useAccountMovementsViewModel', () => {
           frequentPayments: [],
           banners: [],
           homeDashboardIcons: [],
+          recentTransactions: [],
         }),
       },
       getAccountMovementsUseCase: {

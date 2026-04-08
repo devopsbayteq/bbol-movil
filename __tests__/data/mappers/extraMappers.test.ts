@@ -105,5 +105,6 @@ describe('contractBalanceMapper', () => {
     expect(entity.frequentPayments[0].beneficiaryName).toBe('Servicio');
     expect(entity.banners).toEqual([]);
     expect(entity.homeDashboardIcons).toEqual([]);
+    expect(entity.recentTransactions).toEqual([]);
   });
 });

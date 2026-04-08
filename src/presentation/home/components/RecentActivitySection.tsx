@@ -12,13 +12,13 @@ import type {RecentActivityItem} from '../homeDashboardMocks';
 import {CalendarIcon, ListBulletsIcon} from './HomeIcons';
 
 type Props = {
-  items: RecentActivityItem[];
+  items?: RecentActivityItem[];
   onPressListIcon?: () => void;
   onPressCalendarIcon?: () => void;
 };
 
 export function RecentActivitySection({
-  items,
+  items = [],
   onPressListIcon,
   onPressCalendarIcon,
 }: Props) {
@@ -53,7 +53,8 @@ export function RecentActivitySection({
 
       <View style={styles.card}>
         {items.map((item, index) => (
-          <View key={`${item.day}-${item.description}-${index}`}>
+          <View
+            key={item.id ?? `${item.day}-${item.description}-${index}`}>
             <View style={styles.row}>
               <View style={styles.dateCol}>
                 <Text style={styles.day}>{item.day}</Text>
@@ -87,9 +88,9 @@ function useStyles(colors: ThemeColors) {
           justifyContent: 'space-between',
         },
         sectionTitle: {
-          fontFamily: Lexend.bold,
-          fontSize: 14,
-          lineHeight: 20,
+          fontFamily: Lexend.regular,
+          fontSize: 16,
+          lineHeight: 16,
           color: colors.textPrimary,
         },
         headerIcons: {
@@ -100,8 +101,9 @@ function useStyles(colors: ThemeColors) {
         card: {
           backgroundColor: colors.surface,
           borderRadius: 12,
-          paddingHorizontal: 14,
+          
           paddingVertical: 8,
+          marginVertical: 8,
           ...Platform.select({
             ios: {
               shadowColor: colors.shadowSoft,
@@ -117,12 +119,13 @@ function useStyles(colors: ThemeColors) {
         row: {
           flexDirection: 'row',
           alignItems: 'center',
+          paddingHorizontal: 14,
           gap: 12,
           paddingVertical: 10,
         },
         dateCol: {
           width: 40,
-          alignItems: 'flex-start',
+          alignItems: 'center',
         },
         day: {
           fontFamily: Lexend.bold,
@@ -151,9 +154,9 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
         },
         separator: {
-          height: StyleSheet.hairlineWidth,
-          backgroundColor: colors.borderSubtle,
-          marginLeft: 52,
+          height: 1.4,
+          backgroundColor: colors.lineSeparator,
+          alignSelf: 'stretch',
         },
       }),
     [colors],

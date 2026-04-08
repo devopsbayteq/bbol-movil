@@ -9,12 +9,12 @@ import {
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import type {HomeDashboardIcon} from '../../../domain/entities/ContractBalance';
+import type {FrequentPayment} from '../../../domain/entities/ContractBalance';
 import {renderHomeDashboardIcon} from './homeDashboardIconMap';
 
 type Props = {
-  items: HomeDashboardIcon[];
-  onItemPress?: (item: HomeDashboardIcon, index: number) => void;
+  items: FrequentPayment[];
+  onItemPress?: (item: FrequentPayment, index: number) => void;
 };
 
 export function FrequentActionsSection({items, onItemPress}: Props) {
@@ -35,17 +35,17 @@ export function FrequentActionsSection({items, onItemPress}: Props) {
         nestedScrollEnabled>
         {items.map((item, index) => (
           <TouchableOpacity
-            key={`${item.iconCode}-${item.text}-${index}`}
+            key={`${item.beneficiaryName}-${item.beneficiaryType}-${index}`}
             style={styles.item}
             activeOpacity={0.75}
             onPress={() => onItemPress?.(item, index)}
             accessibilityRole="button"
-            accessibilityLabel={item.text}>
+            accessibilityLabel={item.beneficiaryName}>
             <View style={styles.circle}>
-              {renderHomeDashboardIcon(item.iconCode, colors.primary, 24)}
+              {renderHomeDashboardIcon(item.beneficiaryType, colors.primary, 24)}
             </View>
             <Text style={styles.caption} numberOfLines={2}>
-              {item.text}
+              {item.beneficiaryName}
             </Text>
           </TouchableOpacity>
         ))}
@@ -62,15 +62,15 @@ function useStyles(colors: ThemeColors) {
           gap: 12,
         },
         sectionTitle: {
-          fontFamily: Lexend.bold,
-          fontSize: 14,
-          lineHeight: 20,
+          fontFamily: Lexend.regular,
+          fontSize: 16,
+          lineHeight: 16,
           color: colors.textPrimary,
         },
         scrollContent: {
-          gap: 20,
+          gap: 16,
           paddingVertical: 4,
-          paddingRight: 8,
+          paddingRight: 6,
         },
         item: {
           width: 80,

@@ -5,7 +5,7 @@ import {ActivityIndicator, RefreshControl, Text, TouchableOpacity} from 'react-n
 import {HomeScreen} from '../../../src/presentation/home/HomeScreen';
 import {
   FALLBACK_HOME_BANNERS,
-  FALLBACK_HOME_DASHBOARD_ICONS,
+  FALLBACK_HOME_FREQUENT_PAYMENTS,
   MOCK_RECENT_ACTIVITY,
   MOCK_UPCOMING_PAYMENTS_SUMMARY,
 } from '../../../src/presentation/home/homeDashboardMocks';
@@ -18,6 +18,7 @@ const emptyBalance = {
   frequentPayments: [] as [],
   banners: [] as [],
   homeDashboardIcons: [] as [],
+  recentTransactions: [] as [],
 };
 
 const mockUseHomeViewModel = jest.fn();
@@ -40,24 +41,22 @@ function buildHomeVm(overrides: {
     error: overrides.error ?? '',
     refresh,
     retry,
-    showDevelopmentMode: false,
-    setShowDevelopmentMode: jest.fn(),
     bannersForHome: [] as unknown[],
-    dashboardIconsForHome: [] as unknown[],
+    frequentPaymentsForHome: [] as unknown[],
     upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
     recentActivityItems: MOCK_RECENT_ACTIVITY,
   };
   if (data && typeof data === 'object' && 'banners' in data) {
     const d = data as {
       banners?: unknown[];
-      homeDashboardIcons?: unknown[];
+      frequentPayments?: unknown[];
     };
     base.bannersForHome =
       d.banners && d.banners.length > 0 ? d.banners : FALLBACK_HOME_BANNERS;
-    base.dashboardIconsForHome =
-      d.homeDashboardIcons && d.homeDashboardIcons.length > 0
-        ? d.homeDashboardIcons
-        : FALLBACK_HOME_DASHBOARD_ICONS;
+    base.frequentPaymentsForHome =
+      d.frequentPayments && d.frequentPayments.length > 0
+        ? d.frequentPayments
+        : FALLBACK_HOME_FREQUENT_PAYMENTS;
   }
   return base;
 }

@@ -113,6 +113,7 @@ describe('data repositories', () => {
     });
     expect(result.banners).toEqual([]);
     expect(result.homeDashboardIcons).toEqual([]);
+    expect(result.recentTransactions).toEqual([]);
   });
 
   test('AccountMovementRepositoryImpl maps paginated transaction list', async () => {

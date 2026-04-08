@@ -44,6 +44,28 @@ export interface HomeDashboardIcon {
   text: string;
 }
 
+/** Movimiento reciente en home (`recentTransactions` del API). */
+export interface HomeRecentTransaction {
+  transactionGuid: string;
+  transactionIdentifier: string;
+  beneficiaryName: string;
+  beneficiaryAccountType: string;
+  beneficiaryAccountTypeLabel: string;
+  beneficiaryAccountNumber: string;
+  ownerAccountType: string;
+  ownerAccountLabel: string;
+  accountNumber: string;
+  accountType: string;
+  accountTypeLabel: string;
+  amount: number;
+  transferDate: string;
+  transactionTypeLabel: string;
+  transactionType: string;
+  concept: string;
+  balanceAfterTransaction: number;
+  allowedShared: boolean;
+}
+
 export interface ContractBalance {
   accounts: AccountBalance[];
   creditCards: CreditCardBalance[];
@@ -52,4 +74,5 @@ export interface ContractBalance {
   frequentPayments: FrequentPayment[];
   banners: HomeBanner[];
   homeDashboardIcons: HomeDashboardIcon[];
+  recentTransactions: HomeRecentTransaction[];
 }

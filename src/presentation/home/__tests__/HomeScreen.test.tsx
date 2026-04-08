@@ -6,7 +6,7 @@ import React from 'react';
 import {create, act} from 'react-test-renderer';
 import {
   FALLBACK_HOME_BANNERS,
-  FALLBACK_HOME_DASHBOARD_ICONS,
+  FALLBACK_HOME_FREQUENT_PAYMENTS,
   MOCK_RECENT_ACTIVITY,
   MOCK_UPCOMING_PAYMENTS_SUMMARY,
 } from '../homeDashboardMocks';
@@ -81,10 +81,8 @@ let mockViewModelState: {
   error: string;
   refresh: jest.Mock;
   retry: jest.Mock;
-  showDevelopmentMode: boolean;
-  setShowDevelopmentMode: jest.Mock;
   bannersForHome: any[];
-  dashboardIconsForHome: any[];
+  frequentPaymentsForHome: any[];
   upcomingPaymentsSummary: typeof MOCK_UPCOMING_PAYMENTS_SUMMARY;
   recentActivityItems: typeof MOCK_RECENT_ACTIVITY;
 } = {
@@ -94,10 +92,8 @@ let mockViewModelState: {
   error: '',
   refresh: mockRefresh,
   retry: mockRetry,
-  showDevelopmentMode: false,
-  setShowDevelopmentMode: jest.fn(),
   bannersForHome: [],
-  dashboardIconsForHome: [],
+  frequentPaymentsForHome: [],
   upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
   recentActivityItems: MOCK_RECENT_ACTIVITY,
 };
@@ -106,15 +102,15 @@ function setVmData(data: any) {
   mockViewModelState.data = data;
   if (!data) {
     mockViewModelState.bannersForHome = [];
-    mockViewModelState.dashboardIconsForHome = [];
+    mockViewModelState.frequentPaymentsForHome = [];
     return;
   }
   mockViewModelState.bannersForHome =
     data.banners?.length > 0 ? data.banners : FALLBACK_HOME_BANNERS;
-  mockViewModelState.dashboardIconsForHome =
-    data.homeDashboardIcons?.length > 0
-      ? data.homeDashboardIcons
-      : FALLBACK_HOME_DASHBOARD_ICONS;
+  mockViewModelState.frequentPaymentsForHome =
+    data.frequentPayments?.length > 0
+      ? data.frequentPayments
+      : FALLBACK_HOME_FREQUENT_PAYMENTS;
 }
 
 jest.mock('../useHomeViewModel', () => ({
@@ -241,6 +237,7 @@ const makeFullData = () => ({
   frequentPayments: [],
   banners: [],
   homeDashboardIcons: [],
+  recentTransactions: [],
 });
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -254,10 +251,8 @@ describe('HomeScreen', () => {
       error: '',
       refresh: mockRefresh,
       retry: mockRetry,
-      showDevelopmentMode: false,
-      setShowDevelopmentMode: jest.fn(),
       bannersForHome: [],
-      dashboardIconsForHome: [],
+      frequentPaymentsForHome: [],
       upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
       recentActivityItems: MOCK_RECENT_ACTIVITY,
     };
@@ -307,6 +302,7 @@ describe('HomeScreen', () => {
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     });
     const tree = render(<HomeScreen />);
     const text = collectText(tree.toJSON());
@@ -451,6 +447,7 @@ describe('HomeScreen', () => {
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     });
     const tree = render(<HomeScreen />);
     const accountTouch = tree.root.findAll(
@@ -478,6 +475,7 @@ describe('HomeScreen', () => {
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     });
     const tree = render(<HomeScreen />);
     const accountTouch = tree.root.findAll(
@@ -505,6 +503,7 @@ describe('HomeScreen', () => {
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     });
     const tree = render(<HomeScreen />);
     const accountTouch = tree.root.findAll(

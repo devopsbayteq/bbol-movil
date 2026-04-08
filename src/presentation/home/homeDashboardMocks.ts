@@ -1,7 +1,4 @@
-import type {
-  HomeBanner,
-  HomeDashboardIcon,
-} from '../../domain/entities/ContractBalance';
+import type {FrequentPayment, HomeBanner} from '../../domain/entities/ContractBalance';
 
 /** Datos de ejemplo cuando el API aún no envía banners. */
 export const FALLBACK_HOME_BANNERS: HomeBanner[] = [
@@ -14,11 +11,11 @@ export const FALLBACK_HOME_BANNERS: HomeBanner[] = [
 ];
 
 /** Datos de ejemplo cuando el API aún no envía iconos del dashboard. */
-export const FALLBACK_HOME_DASHBOARD_ICONS: HomeDashboardIcon[] = [
-  {iconCode: 'user', text: 'Andrea Briceño'},
-  {iconCode: 'bulb', text: 'Pago luz'},
-  {iconCode: 'user', text: 'Jannet Ruiz'},
-  {iconCode: 'school', text: 'Centro Educativo'},
+export const FALLBACK_HOME_FREQUENT_PAYMENTS: FrequentPayment[] = [
+  {beneficiaryName: 'Andrea Briceño', beneficiaryType: 'user'},
+  {beneficiaryName: 'Pago luz', beneficiaryType: 'bulb'},
+  {beneficiaryName: 'Jannet Ruiz', beneficiaryType: 'user'},
+  {beneficiaryName: 'Centro Educativo', beneficiaryType: 'school'},
 ];
 
 export interface UpcomingPaymentsSummary {
@@ -34,23 +31,33 @@ export const MOCK_UPCOMING_PAYMENTS_SUMMARY: UpcomingPaymentsSummary = {
 };
 
 export interface RecentActivityItem {
+  /** Presente cuando el ítem viene de `recentTransactions` (API). */
+  id?: string;
   day: string;
   monthLabel: string;
   description: string;
   amountLabel: string;
 }
 
+/** Ejemplo de UI cuando el API aún no devuelve `recentTransactions`. */
 export const MOCK_RECENT_ACTIVITY: RecentActivityItem[] = [
-  {
-    day: '20',
-    monthLabel: 'ABR',
-    description: 'Transferencia interbancaria',
-    amountLabel: '-$91.02',
-  },
   {
     day: '12',
     monthLabel: 'ABR',
-    description: 'Retiro de cajero',
-    amountLabel: '-$20.00',
+    description: 'Transferencia a María López',
+    amountLabel: '$120.00',
+  },
+  {
+    day: '10',
+    monthLabel: 'ABR',
+    description: 'Pago de servicios',
+    amountLabel: '$45.50',
+  },
+  {
+    day: '08',
+    monthLabel: 'ABR',
+    description: 'Depósito ATM',
+    amountLabel: '$200.00',
   },
 ];
+

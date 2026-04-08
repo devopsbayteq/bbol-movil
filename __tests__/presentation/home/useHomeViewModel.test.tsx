@@ -65,6 +65,7 @@ describe('useHomeViewModel', () => {
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     };
     mockedUseDI.mockReturnValue({
       getHomeContractBalanceUseCase: {
@@ -96,6 +97,7 @@ describe('useHomeViewModel', () => {
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     };
     const execute = jest.fn().mockResolvedValue(homeBalance);
 
@@ -136,6 +138,7 @@ describe('useHomeViewModel', () => {
         frequentPayments: [],
         banners: [],
         homeDashboardIcons: [],
+        recentTransactions: [],
       });
 
     mockedUseDI.mockReturnValue({

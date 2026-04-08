@@ -56,6 +56,7 @@ jest.mock('../../../src/presentation/home/useHomeViewModel', () => ({
       frequentPayments: [],
       banners: [],
       homeDashboardIcons: [],
+      recentTransactions: [],
     },
     isLoading: false,
     error: null,
