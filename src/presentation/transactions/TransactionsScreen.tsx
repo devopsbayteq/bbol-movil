@@ -346,7 +346,7 @@ export function TransactionsScreen() {
   }, [vm.items, colors]);
 
   const onBack = useCallback(() => {
-    tabNavigation?.navigate('Home', {});
+    tabNavigation?.navigate('Home', {screen: 'HomeMain'});
   }, [tabNavigation]);
 
   const totalItems = vm.items.length;

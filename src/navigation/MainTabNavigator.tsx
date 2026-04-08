@@ -11,7 +11,8 @@ import {
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {HomeScreen} from '../presentation/home/HomeScreen';
+import {HomeStackNavigator} from './HomeStackNavigator';
+import type {HomeStackParamList} from './HomeStackNavigator';
 import {TransferStackNavigator} from './TransferStackNavigator';
 import {
   MovementsStackNavigator,
@@ -24,8 +25,8 @@ import {TabHomeIcon, TabMovementsIcon, TabTransferIcon} from './tabIcons';
 const TAB_BAR_HEIGHT = 60;
 
 export type MainTabParamList = {
-  /** `refreshHome`: timestamp para forzar recarga al volver desde transferencia (opcional). */
-  Home: {refreshHome?: number};
+  /** Stack Inicio: `HomeMain` acepta `refreshHome` para forzar recarga al volver desde transferencia. */
+  Home: NavigatorScreenParams<HomeStackParamList> | undefined;
   Transfer: undefined;
   /** Stack: lista + detalle. Params iniciales van a `MovementsList`. */
   Movements: NavigatorScreenParams<MovementsStackParamList> | undefined;
@@ -120,10 +121,24 @@ export function MainTabNavigator() {
       }}>
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
-        options={{
-          title: 'Inicio',
-          tabBarIcon: tabBarIconHome,
+        component={HomeStackNavigator}
+        options={({route}) => {
+          const focused = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+          const hideTabBar = focused === 'CardDetail';
+          return {
+            title: 'Inicio',
+            tabBarIcon: tabBarIconHome,
+            tabBarStyle: hideTabBar
+              ? {display: 'none'}
+              : {
+                  backgroundColor: colors.white,
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                  borderTopColor: colors.borderLight,
+                  height: TAB_BAR_HEIGHT + insets.bottom,
+                  paddingBottom: Math.max(insets.bottom, 4),
+                  paddingTop: 4,
+                },
+          };
         }}
       />
       <Tab.Screen

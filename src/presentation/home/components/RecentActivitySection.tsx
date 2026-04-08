@@ -104,17 +104,7 @@ function useStyles(colors: ThemeColors) {
           
           paddingVertical: 8,
           marginVertical: 8,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 2},
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 3,
-            },
-          }),
+         
         },
         row: {
           flexDirection: 'row',

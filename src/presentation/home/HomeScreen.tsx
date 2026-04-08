@@ -17,10 +17,13 @@ import {
   useFocusEffect,
   useNavigation,
   useRoute,
+  type CompositeNavigationProp,
   type RouteProp,
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
+import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {AccountKind} from '../../domain/entities/ContractBalance';
@@ -78,9 +81,14 @@ export function HomeScreen() {
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
-  const route = useRoute<RouteProp<MainTabParamList, 'Home'>>();
+  const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
   const navigation =
-    useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
+    useNavigation<
+      CompositeNavigationProp<
+        NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
+        BottomTabNavigationProp<MainTabParamList, 'Home'>
+      >
+    >();
 
   const {
     data,
@@ -202,13 +210,24 @@ export function HomeScreen() {
         items.push({
           key: k,
           node: (
-            <CreditCardPreview
+            <TouchableOpacity
               key={k}
+              activeOpacity={0.92}
               style={styles.productCard}
-              maskedCardNumber={card.maskedCardNumber}
-              totalDue={card.totalDue}
-              maxPaymentDate={card.maxPaymentDate}
-            />
+              onPress={() =>
+                navigation.navigate('CardDetail', {
+                  maskedCardNumber: card.maskedCardNumber,
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Ver detalle de tarjeta">
+              <CreditCardPreview
+                style={styles.cardFill}
+                maskedCardNumber={card.maskedCardNumber}
+                totalDue={card.totalDue}
+                maxPaymentDate={card.maxPaymentDate}
+              />
+            </TouchableOpacity>
           ),
         });
       }
