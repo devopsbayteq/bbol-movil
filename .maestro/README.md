@@ -119,6 +119,13 @@ Usuario y contraseña (sin correo). En modo mock coinciden con `MockAuthDataSour
 
 El usuario debe tener entre **12 y 16** caracteres (letras, números, `.`, `-`, `_`). Los flujos Maestro usan **usuario-demo12** por defecto.
 
+El flujo [`flows/auth/00-login-first-usuario01.yaml`](flows/auth/00-login-first-usuario01.yaml) usa **Usuario01_2026** / **Password@1** y el subflujo `complete-demo-otp.yaml` (PIN **123457**, registro de alias, pantalla `biometric-offer-screen` y **Ahora no** hasta `home-screen`).
+
+### Biometría en E2E
+
+- Tras el OTP y el alias, la app puede mostrar la oferta biométrica (`biometric-offer-screen`). Los flujos usan **Omitir** / **Ahora no** (`biometric-offer-skip`) porque es estable en CI.
+- **Activar biometría** (`biometric-offer-accept`) abre el diálogo nativo del sistema (huella / Face ID); Maestro **no** lo automatiza de forma portable. El modal de éxito tras registrar biometría (`biometric-registration-success-modal`) se valida con **Jest**, no con Maestro.
+
 ## Solucion de problemas
 
 ### `CLEAR_APP_USER_DATA` / `pm clear` al usar `clearState: true`
@@ -147,3 +154,6 @@ Si tu ROM lo permite, puedes volver a anadir `clearState: true` bajo `launchApp`
 | otp-error            | Mensaje de error en OTP         |
 | transactions-screen  | Contenedor pantalla transacciones |
 | logout-button        | Botón "Salir"                   |
+| biometric-offer-screen | Pantalla oferta biométrica post-login |
+| biometric-offer-skip | Enlace "Ahora no" en oferta biométrica |
+| biometric-registration-success-modal | Modal "Tu acceso biométrico ha sido registrado" |

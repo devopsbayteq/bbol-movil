@@ -1,35 +1,38 @@
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  Pressable,
-  Image,
-} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { View, Text, Modal, StyleSheet, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {useTheme, type ThemeColors} from '../../providers';
-import {Button} from '../components';
-import {Lexend} from '../../theme/lexend';
+import { useTheme, type ThemeColors } from '../../providers';
+import { Button } from '../components';
+import { Lexend } from '../../theme/lexend';
 
-const successIllustration = require('../../../assets/images/device-registration-success.png');
 const shieldKeyholeIcon = require('../../../assets/images/shield-keyhole.png');
 
 const AUTO_DISMISS_MS = 5000;
 
+const BIOMETRIC_SUCCESS_MESSAGE =
+  'Tu acceso biométrico ha sido registrado';
+
+export type DeviceRegistrationSuccessModalVariant =
+  | 'deviceRegistration'
+  | 'biometricRegistration';
+
 interface DeviceRegistrationSuccessModalProps {
   visible: boolean;
   onContinue: () => Promise<void>;
+  /** Por defecto `deviceRegistration` (alias de dispositivo). */
+  variant?: DeviceRegistrationSuccessModalVariant;
 }
 
 export function DeviceRegistrationSuccessModal({
   visible,
   onContinue,
+  variant = 'deviceRegistration',
 }: DeviceRegistrationSuccessModalProps) {
-  const {colors} = useTheme();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
+  const isBiometric = variant === 'biometricRegistration';
   const onContinueRef = useRef(onContinue);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const doneRef = useRef(false);
@@ -44,7 +47,7 @@ export function DeviceRegistrationSuccessModal({
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    onContinueRef.current().catch(() => {});
+    onContinueRef.current().catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -64,8 +67,15 @@ export function DeviceRegistrationSuccessModal({
     };
   }, [visible, runContinue]);
 
+  const continueTestId = isBiometric
+    ? 'biometric-registration-success-continue'
+    : 'device-registration-success-continue';
+
   return (
     <Modal
+      testID={
+        isBiometric ? 'biometric-registration-success-modal' : undefined
+      }
       visible={visible}
       transparent
       animationType="fade"
@@ -80,11 +90,15 @@ export function DeviceRegistrationSuccessModal({
           },
         ]}>
         <View style={styles.card} accessibilityViewIsModal>
-          <View style={styles.modalHeader}>
-            <View style={styles.headerSpacer} />
-            <Text style={styles.modalTitle} accessibilityRole="header">
-              ¡TODO LISTO!
-            </Text>
+          <View
+            style={styles.modalHeader
+            }>
+            <>
+              <View style={styles.headerSpacer} />
+              <Text style={styles.modalTitle} accessibilityRole="header">
+                ¡TODO LISTO!
+              </Text>
+            </>
             <Pressable
               onPress={runContinue}
               hitSlop={12}
@@ -95,18 +109,24 @@ export function DeviceRegistrationSuccessModal({
             </Pressable>
           </View>
 
-          <View style={styles.body}>       
+          <View
+            style={isBiometric ? [styles.body, styles.bodyBiometric] : styles.body}>
             <Text style={styles.bodyText}>
-              Tu nuevo dispositivo ha sido registrado, estás listo para ingresar a
-              tu Banca móvil.
+              {isBiometric
+                ? BIOMETRIC_SUCCESS_MESSAGE
+                : 'Tu nuevo dispositivo ha sido registrado, estás listo para ingresar a tu Banca móvil.'}
             </Text>
             <Button
-              title="Iniciar sesión"
+              title={isBiometric ? 'Continuar' : 'Iniciar sesión'}
               onPress={runContinue}
               variant="loginPrimary"
-              iconSourceRight={shieldKeyholeIcon}
-              iconRightTintColor={colors.white}
-              testID="device-registration-success-continue"
+              iconSourceRight={
+                isBiometric ? undefined : shieldKeyholeIcon
+              }
+              iconRightTintColor={
+                isBiometric ? undefined : colors.white
+              }
+              testID={continueTestId}
             />
           </View>
         </View>
@@ -133,7 +153,7 @@ function useStyles(colors: ThemeColors) {
           borderRadius: 16,
           overflow: 'hidden',
           shadowColor: '#000',
-          shadowOffset: {width: 0, height: 4},
+          shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.2,
           shadowRadius: 8,
           elevation: 8,
@@ -175,10 +195,8 @@ function useStyles(colors: ThemeColors) {
           paddingTop: 20,
           paddingBottom: 24,
         },
-        hero: {
-          width: '100%',
-          height: 160,
-          marginBottom: 20,
+        bodyBiometric: {
+          paddingTop: 12,
         },
         bodyText: {
           fontFamily: Lexend.regular,

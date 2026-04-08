@@ -714,4 +714,46 @@ describe('BiometricRSAAuthOrchestrator', () => {
     await expect(orchestrator.hasBiometricRegistration()).resolves.toBe(true);
     expect(hasPrivateKey).toHaveBeenCalled();
   });
+
+  it('clearBiometricRegistration limpia clave, usuario y binding', async () => {
+    const deletePrivateKey = jest.fn().mockResolvedValue(undefined);
+    const remove = jest.fn().mockResolvedValue(undefined);
+    const enrollmentClear = jest.fn().mockResolvedValue(undefined);
+    const orchestrator = buildOrchestrator({
+      remote: {
+        postBiometricChallenge: jest.fn(),
+        postBiometricRegistration: jest.fn(),
+        postBiometricLogin: jest.fn(),
+      },
+      crypto: {
+        generateKeyPair: jest.fn(),
+        signChallenge: jest.fn(),
+        getPublicKeyBase64FromPem: jest.fn(),
+        clearMemoryKeys: jest.fn(),
+      } as unknown as jest.Mocked<CryptoService>,
+      keyStorage: {
+        savePrivateKey: jest.fn(),
+        getPrivateKey: jest.fn(),
+        hasPrivateKey: jest.fn(),
+        deletePrivateKey,
+      },
+      secure: {
+        get: jest.fn(),
+        save: jest.fn(),
+        remove,
+      },
+      getPk: {execute: jest.fn()},
+      enrollmentBinding: {
+        snapshot: jest.fn(),
+        verify: jest.fn(),
+        clear: enrollmentClear,
+      },
+    });
+
+    await orchestrator.clearBiometricRegistration();
+
+    expect(deletePrivateKey).toHaveBeenCalled();
+    expect(remove).toHaveBeenCalledWith(SecureStorageKeys.BIOMETRIC_USERNAME);
+    expect(enrollmentClear).toHaveBeenCalled();
+  });
 });

@@ -52,6 +52,13 @@ export class BiometricRSAAuthOrchestrator {
     }
   }
 
+  /**
+   * Limpia registro biométrico local (p. ej. cambio de usuario en login compacto).
+   */
+  async clearBiometricRegistration(): Promise<void> {
+    await this.clearBiometricRegistrationLocal();
+  }
+
   private mapUnknownError(e: unknown): BiometricRSAError {
     if (e instanceof BiometricRSAError) {
       return e;

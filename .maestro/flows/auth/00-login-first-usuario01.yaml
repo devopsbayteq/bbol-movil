@@ -1,0 +1,27 @@
+appId: com.bbapp
+name: Primer login — Usuario01_2026, OTP 123457, oferta biométrica omitida
+---
+# Orden lexicográfico 00- para ejecutarse primero en `maestro test .maestro/flows/auth`.
+# Verificación de seguridad (PIN demo): 123457 vía complete-demo-otp.yaml.
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+
+- tapOn:
+    id: "login-email-input"
+- inputText: "Usuario01_2026"
+- tapOn:
+    id: "login-password-input"
+- inputText: "Password@1"
+- hideKeyboard
+
+- runFlow:
+    file: ../../subflows/accept-login-terms.yaml
+
+- tapOn:
+    id: "login-submit"
+
+- runFlow:
+    file: ../../subflows/complete-demo-otp.yaml
