@@ -18,4 +18,19 @@ export interface InvestmentDetail {
   irfRetentionAmount: number;
   paymentFrequencyLabel: string;
   jointHolderName: string;
+
+  /** Próximo pago (ISO) — enriquecido en presentación. */
+  nextPaymentDateIso: string;
+  paidAmount: number;
+  remainingToPayAmount: number;
+  initialDebtAmount: number;
+  totalDebtAmount: number;
+  installmentsPaid: number;
+  installmentsTotal: number;
+  /** Ancho relativo del primer segmento de la barra (0–1). */
+  paidProgressRatio: number;
+  /** Segundo segmento visual (0–1), ≤ paidProgressRatio en el diseño. */
+  secondaryProgressRatio: number;
+  debitPurposeLabel: string;
+  maskedDebitAccount: string;
 }
