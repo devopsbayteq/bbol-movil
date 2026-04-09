@@ -18,7 +18,7 @@ export function formatAppVersionDisplay(
   if (!b) {
     return v;
   }
-  return `${v} +${b}`;
+  return `${v}`;
 }
 
 /** Valor para header `X-Version`, p. ej. marketing `1.0.0` y build `1` → `1.0.0.1`. */
