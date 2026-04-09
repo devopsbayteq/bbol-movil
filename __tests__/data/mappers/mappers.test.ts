@@ -44,6 +44,21 @@ describe('data mappers', () => {
     expect(result.alias).toBe('usuario-demo12');
   });
 
+  test('mapLoginResponseToUser preserva alias null cuando el servidor lo envía', () => {
+    const result = mapLoginResponseToUser(
+      {
+        accessToken: 'token-123',
+        firstName: 'Cliente',
+        alias: null,
+        sessionTimeSeconds: 3600,
+        inactivityTimeoutSeconds: 300,
+      },
+      'cliente@banco.com',
+    );
+
+    expect(result.alias).toBeNull();
+  });
+
   test('mapPublicKeyContentToEntity maps the public key value', () => {
     expect(
       mapPublicKeyContentToEntity({publicKey: '-----BEGIN PUBLIC KEY-----'}),

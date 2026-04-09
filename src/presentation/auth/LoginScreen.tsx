@@ -140,7 +140,7 @@ export function LoginScreen() {
         mode: 'login',
         user,
         email: user.email,
-        ...(isDeviceBoundCredentialsFlow || user.alias != null
+        ...(isDeviceBoundCredentialsFlow || user.alias !== undefined
           ? {skipRegisterAlias: true}
           : {}),
       });
@@ -269,7 +269,6 @@ function useStyles(_colors: ThemeColors) {
         scrollContent: {
           flexGrow: 1,
           paddingHorizontal: 24,
-          paddingBottom: 25,
         },
         contentColumn: {
           width: '100%',
