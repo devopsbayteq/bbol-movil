@@ -87,7 +87,7 @@ export function mapKeychainError(
     );
   }
   return new BiometricRSAError(
-    'Error al acceder al almacén seguro',
+    'No se pudo validar el biométrico. Intenta nuevamente más tarde',
     'keychain_error',
     err,
   );

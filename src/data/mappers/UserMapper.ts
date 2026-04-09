@@ -16,5 +16,6 @@ export function mapLoginResponseToUser(
     token: model.accessToken,
     sessionExpiresAt: Date.now() + model.sessionTimeSeconds * 1000,
     inactivityTimeoutSeconds: model.inactivityTimeoutSeconds,
+    ...('alias' in model ? {alias: model.alias} : {}),
   };
 }

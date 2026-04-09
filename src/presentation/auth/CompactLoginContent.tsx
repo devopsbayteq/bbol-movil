@@ -58,6 +58,8 @@ export interface CompactLoginContentProps {
   isBusy: boolean;
   isLoadingLogin: boolean;
   isLoadingBiometric: boolean;
+  /** true cuando la contraseña cumple las reglas de validación (mismo criterio que el envío). */
+  isCredentialLoginEnabled: boolean;
   error: string | null;
   showBiometricLogin: boolean;
   /** Si true, no se dispara el prompt biométrico al montar (p. ej. tras cerrar sesión). */
@@ -76,6 +78,7 @@ export function CompactLoginContent({
   isBusy,
   isLoadingLogin,
   isLoadingBiometric,
+  isCredentialLoginEnabled,
   error,
   showBiometricLogin,
   suppressAutoBiometricPromptOnce = false,
@@ -153,7 +156,8 @@ export function CompactLoginContent({
     return `${first}`;
   }, [greetingFirstName, greetingName]);
 
-  const loginSubmitDisabled = isBusy || isLoadingLogin;
+  const loginSubmitDisabled =
+    isBusy || isLoadingLogin || !isCredentialLoginEnabled;
 
   return (
     <View style={styles.column}>
@@ -479,12 +483,12 @@ function useStyles(colors: ThemeColors) {
           color: colors.textPrimary,
         },
         arrowRightIconWrap: {
-          width: 24,
-          height: 24,
+          width: 15,
+          height: 15,
         },
         arrowRightIcon: {
-          width: 24,
-          height: 24,
+          width: 15,
+          height: 15,
         },
         contactLink: {
           alignSelf: 'center',

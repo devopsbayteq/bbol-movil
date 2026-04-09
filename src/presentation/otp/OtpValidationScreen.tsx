@@ -226,7 +226,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
                 <Text
                   style={[
                     styles.resendLabel,
-                    !canResend && styles.resendLabelDisabled,
+                    canResend ? styles.resendLabelEnabled : styles.resendLabelDisabled,
                   ]}>
                   Reenviar código
                 </Text>
@@ -436,9 +436,11 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           fontFamily: Lexend.bold,
           fontSize: 15,
           lineHeight: 24,
-          color: colors.textTertiary,
-          opacity: 0.3,
           textAlign: 'center',
+        },
+        resendLabelEnabled: {
+          color: colors.primary,
+          opacity: 1,
         },
         loginBodyLastDigits: {
           fontFamily: Lexend.regular,
@@ -449,6 +451,7 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
         },
         resendLabelDisabled: {
           color: colors.textTertiary,
+          opacity: 0.45,
         },
       }),
     [colors, layout],
