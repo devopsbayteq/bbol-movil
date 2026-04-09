@@ -29,6 +29,8 @@ export interface FirstLoginContentProps {
   onPasswordChange: (value: string) => void;
   isBusy: boolean;
   isLoadingLogin: boolean;
+  /** true cuando usuario y contraseña cumplen las reglas de validación (mismo criterio que el envío). */
+  isCredentialLoginEnabled: boolean;
   error: string | null;
   onLogin: () => void;
 }
@@ -42,6 +44,7 @@ export function FirstLoginContent({
   onPasswordChange,
   isBusy,
   isLoadingLogin,
+  isCredentialLoginEnabled,
   error,
   onLogin,
 }: FirstLoginContentProps) {
@@ -64,7 +67,7 @@ export function FirstLoginContent({
     )}`;
   }, []);
 
-  const submitDisabled = isBusy || !email || !password;
+  const submitDisabled = isBusy || !isCredentialLoginEnabled;
 
   return (
     <View style={styles.column}>

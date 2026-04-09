@@ -282,12 +282,31 @@ export function useLoginViewModel(
   const isBusy = state.isLoadingLogin || state.isLoadingBiometric;
 
   const isCredentialLoginEnabled = useMemo(() => {
-    const pwdOk = state.password.trim().length > 0;
-    if (isDeviceBoundCompact) {
-      return pwdOk;
+    const trimmedEmail = state.email.trim();
+    const trimmedPassword = state.password.trim();
+
+    if (state.passwordError !== null) {
+      return false;
     }
-    return state.email.trim().length > 0 && pwdOk;
-  }, [state.email, state.password, isDeviceBoundCompact]);
+    if (validateLoginPassword(trimmedPassword) !== null) {
+      return false;
+    }
+
+    if (isDeviceBoundCompact) {
+      return true;
+    }
+
+    if (state.emailError !== null) {
+      return false;
+    }
+    return validateLoginUsername(trimmedEmail) === null;
+  }, [
+    state.email,
+    state.password,
+    state.emailError,
+    state.passwordError,
+    isDeviceBoundCompact,
+  ]);
 
   return {
     email: state.email,

@@ -129,6 +129,7 @@ export function LoginScreen() {
     acknowledgeBiometricEnrollmentRevoked,
     isDeviceBoundCompact,
     resetForDifferentUser,
+    isCredentialLoginEnabled,
     setEmail,
     setPassword,
     handleLogin,
@@ -222,6 +223,7 @@ export function LoginScreen() {
                 isBusy={isBusy}
                 isLoadingLogin={isLoadingLogin}
                 isLoadingBiometric={isLoadingBiometric}
+                isCredentialLoginEnabled={isCredentialLoginEnabled}
                 error={error}
                 showBiometricLogin={showBiometricLogin}
                 suppressAutoBiometricPromptOnce={suppressAutoBiometricPromptOnce}
@@ -239,6 +241,7 @@ export function LoginScreen() {
                 onPasswordChange={setPassword}
                 isBusy={isBusy}
                 isLoadingLogin={isLoadingLogin}
+                isCredentialLoginEnabled={isCredentialLoginEnabled}
                 error={error}
                 onLogin={handleLogin}
               />
@@ -266,7 +269,7 @@ function useStyles(_colors: ThemeColors) {
         scrollContent: {
           flexGrow: 1,
           paddingHorizontal: 24,
-          paddingBottom: 32,
+          paddingBottom: 25,
         },
         contentColumn: {
           width: '100%',

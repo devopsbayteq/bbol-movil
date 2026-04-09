@@ -68,12 +68,12 @@ name: Login — Validación de campos
     id: "login-email-input"
 - assertVisible: "La contraseña no puede superar 16 caracteres"
 
-# --- 6. Submit sin datos muestra error de usuario requerido ---
+# --- 6. Sin datos válidos, el botón Iniciar sesión permanece deshabilitado ---
 - clearState
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - runFlow:
     file: ../../subflows/accept-login-terms.yaml
-- tapOn:
+- assertVisible:
     id: "login-submit"
-- assertVisible: "El usuario es requerido"
+    enabled: false
