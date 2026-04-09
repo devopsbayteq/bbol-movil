@@ -83,7 +83,7 @@ export function useTransferReviewViewModel(
         if (commission === 'Con cargo') {
             return 'Con cargo';
         }
-        return "$0.0";
+        return "$0.00";
     }, [commission]);
 
     const doTransacction = useCallback(async () => {

@@ -95,7 +95,7 @@ export const AccountBeneficiarySelectorModal = ({
                                                 {item.accountTypeLabel}
                                             </Text>
                                             <Text style={styles.accountPickNumber}>
-                                                {`${item.accountTypeLabel} ${item.beneficiary.lastFourDigits}`}
+                                                {`${item.accountTypeLabel} ${item.maskedAccountNumber}`}
                                             </Text>
                                         </View>
                                         <View style={styles.accountPickRight}>

@@ -45,6 +45,11 @@ describe('transferConcept validation', () => {
     expect(sanitizeTransferConceptInput('texto\u0000limpio')).toBe('textolimpio');
   });
 
+  test('sanitizer strips characters outside allowed set', () => {
+    expect(sanitizeTransferConceptInput('Pago#servicio')).toBe('Pagoservicio');
+    expect(sanitizeTransferConceptInput('A/B')).toBe('AB');
+  });
+
   test('rejects concept longer than maximum', () => {
     const longConcept = 'a'.repeat(TRANSFER_CONCEPT_MAX_LENGTH + 1);
 
@@ -63,13 +68,23 @@ describe('transferConcept validation', () => {
     expect(validateTransferConcept('Pago servicios')).toBeNull();
   });
 
-  test('accepts concept with accented characters and punctuation', () => {
-    expect(validateTransferConcept('Pago de cuota #3 - Año 2025')).toBeNull();
-    expect(validateTransferConcept('Transferencia mensual (nómina)')).toBeNull();
+  test('accepts letters, digits, space, dot and hyphen only', () => {
+    expect(validateTransferConcept('Pago de cuota - Año 2025')).toBeNull();
+    expect(validateTransferConcept('Factura 01.12.2025')).toBeNull();
   });
 
-  test('does not flag normal printable characters as disallowed', () => {
+  test('rejects other punctuation and symbols', () => {
+    expect(validateTransferConcept('Pago#3')).toBe(transferConceptMessages.invalidCharacters);
+    expect(validateTransferConcept('Cuota (1)')).toBe(
+      transferConceptMessages.invalidCharacters,
+    );
+    expect(validateTransferConcept('01/2025')).toBe(
+      transferConceptMessages.invalidCharacters,
+    );
+  });
+
+  test('does not flag allowed characters as disallowed', () => {
     expect(hasDisallowedTransferConceptCharacters('Pago servicio mensual')).toBe(false);
-    expect(hasDisallowedTransferConceptCharacters('Cuota 01/2025')).toBe(false);
+    expect(hasDisallowedTransferConceptCharacters('Factura-2025.v1')).toBe(false);
   });
 });

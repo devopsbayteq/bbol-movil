@@ -21,6 +21,7 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
+import {TRANSFER_CONCEPT_MAX_LENGTH} from '../../domain/validation';
 import {TransferWatermark} from './components/TransferWatermark';
 import {
     TransferIconArrowRight,
@@ -207,7 +208,8 @@ export function TransferScreen() {
                                 onChangeText={onConceptChange}
                                 placeholder="Ej. Pago zapatos"
                                 placeholderTextColor={colors.placeholder}
-                                maxLength={120}
+                                maxLength={TRANSFER_CONCEPT_MAX_LENGTH}
+                                autoCorrect={false}
                                 testID="transfer-concept-input"
                             />
                             {validationMessage ? (

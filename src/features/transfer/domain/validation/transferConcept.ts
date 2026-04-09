@@ -3,6 +3,7 @@ import {
   composeValidators,
   containsCharacters,
   containsMatchingCharacters,
+  filterCharacters,
   rejectCharacters,
   rejectMatchingCharacters,
   requireMaxLength,
@@ -22,13 +23,21 @@ export const transferConceptMessages = {
 
 const NEWLINE_PATTERN = /\r|\n/;
 
+/** Letras, números, espacio (U+0020), punto y guión. */
+const DISALLOWED_CONCEPT_CHAR_PATTERN = /[^\p{L}\p{N} .-]/u;
+
 function replaceNewlinesWithSpace(value: string): string {
   return value.replace(NEWLINE_PATTERN, ' ');
+}
+
+function isDisallowedTransferConceptCharacter(character: string): boolean {
+  return !/^[\p{L}\p{N} .-]$/u.test(character);
 }
 
 export const sanitizeTransferConceptInput = composeSanitizers(
   replaceNewlinesWithSpace,
   sanitizeUnsafeTextInput,
+  filterCharacters(isDisallowedTransferConceptCharacter),
 );
 
 const validateNonEmptyTransferConcept = composeValidators(
@@ -42,6 +51,10 @@ const validateNonEmptyTransferConcept = composeValidators(
   ),
   rejectCharacters(
     INVISIBLE_CHAR_PATTERN,
+    transferConceptMessages.invalidCharacters,
+  ),
+  rejectCharacters(
+    DISALLOWED_CONCEPT_CHAR_PATTERN,
     transferConceptMessages.invalidCharacters,
   ),
 );
@@ -60,6 +73,7 @@ export function hasDisallowedTransferConceptCharacters(value: string): boolean {
   return (
     containsMatchingCharacters(isControlCharacter, value) ||
     containsCharacters(INVISIBLE_CHAR_PATTERN, value) ||
-    containsCharacters(NEWLINE_PATTERN, value)
+    containsCharacters(NEWLINE_PATTERN, value) ||
+    containsCharacters(DISALLOWED_CONCEPT_CHAR_PATTERN, value)
   );
 }

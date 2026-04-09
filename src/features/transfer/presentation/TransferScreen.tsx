@@ -173,6 +173,7 @@ export function TransferScreen() {
                         styles.scrollContent,
                         {paddingBottom: Math.max(insets.bottom, 24) + 16},
                     ]}
+                    bottomOffset={80}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}>
                     <View style={styles.hero}>
@@ -278,6 +279,7 @@ export function TransferScreen() {
                                 placeholder="Ej. Pago zapatos"
                                 placeholderTextColor={colors.placeholder}
                                 maxLength={TRANSFER_CONCEPT_MAX_LENGTH}
+                                autoCorrect={false}
                                 testID="transfer-concept-input"
                             />
                             {validationMessage ? (
