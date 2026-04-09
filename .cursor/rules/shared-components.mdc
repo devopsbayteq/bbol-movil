@@ -1,0 +1,29 @@
+---
+description: Convenciones para componentes compartidos
+globs:
+  - src/presentation/components/**
+---
+
+# Componentes compartidos
+
+Los componentes compartidos viven en `src/presentation/components/` y se exportan desde el barrel `index.ts`.
+
+## Estructura de cada componente
+
+1. Imports (React, RN, `useTheme`, `ThemeColors`).
+2. Interface de props con tipado estricto. Incluir `style?: StyleProp<ViewStyle>`.
+3. Función del componente con named export.
+4. `useStyles(colors: ThemeColors)` con `useMemo([colors])` al final del archivo.
+
+## Cuándo compartir y cuándo dejar local
+
+- Compartido: se usa en dos o más features, o es un elemento de UI genérico (botón, badge, card).
+- Local (`presentation/<feature>/components/`): depende de datos del feature, usa `useDI()` o `useAuth()`, o solo lo usa una pantalla.
+
+## Al crear uno nuevo
+
+- Agregarlo al barrel `index.ts`.
+- No incluir lógica de negocio; recibir datos por props.
+- El nombre debe describir el rol visual, no el feature que lo usa.
+
+Para ejemplos y patrones como variantes, children y compound components, ver `docs/SHARED_COMPONENTS.md`.

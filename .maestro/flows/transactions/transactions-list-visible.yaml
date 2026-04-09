@@ -1,0 +1,35 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Lista de transacciones y estados visibles
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- tapOn: "Retirar"
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+# Navegar al tab Retirar (lista de movimientos).
+- tapOn: "Retirar"
+
+- extendedWaitUntil:
+    visible:
+      id: "transactions-screen"
+    timeout: 15000
+
+- assertVisible: "MOVIMIENTOS"
+- assertVisible: "Movimientos"
+- assertVisible:
+    id: "movements-search-input"
+
+- scrollUntilVisible:
+    element:
+      text: "Saldo"
+    direction: DOWN
+    timeout: 15000
+

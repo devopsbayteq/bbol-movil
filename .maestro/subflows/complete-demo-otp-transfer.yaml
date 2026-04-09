@@ -1,0 +1,18 @@
+﻿appId: com.bayteq.bbapp.dev
+---
+# PIN demo fijo: 123457 - contexto de transferencia.
+# Tras validar, OtpValidationScreen llama navigation.goBack() â†’ vuelve a TransferReview,
+# que ejecuta la transferencia y muestra la alerta "Transferencia exitosa".
+- extendedWaitUntil:
+    visible:
+      id: "otp-screen"
+    timeout: 30000
+
+- tapOn:
+    id: "otp-input"
+- inputText: "123457"
+
+- extendedWaitUntil:
+    visible: "Transferencia exitosa"
+    timeout: 20000
+

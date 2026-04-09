@@ -1,0 +1,20 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Login exitoso — llega al inicio con saldo y secciones principales
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+# HomeHeader saluda con firstName del usuario mock ("Demo").
+- assertVisible: "Hola,"
+- assertVisible: "Demo"
+# Filtros de productos y sección del dashboard actual.
+- assertVisible: "Cuentas"
+- assertVisible: "Acciones frecuentes"

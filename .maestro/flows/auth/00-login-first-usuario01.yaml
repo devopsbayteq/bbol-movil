@@ -1,0 +1,24 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Primer login â€” Usuario01_2026, OTP 123457, oferta biomÃ©trica omitida
+---
+# Orden lexicográfico 00- para ejecutarse primero en `maestro test .maestro/flows/auth`.
+# PIN demo 123457 vía complete-demo-otp.yaml; credenciales alineadas con MockAuthDataSource.
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+
+- tapOn:
+    id: "login-email-input"
+- inputText: "Usuario01_2026"
+- tapOn:
+    id: "login-password-input"
+- inputText: "Password@1"
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+- runFlow:
+    file: ../../subflows/complete-demo-otp.yaml

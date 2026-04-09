@@ -1,0 +1,36 @@
+﻿appId: com.bayteq.bbapp.dev
+---
+# Garantiza estar en la pantalla de login.
+# Maneja: splash, OTP, sesión activa (home-screen).
+
+# Esperar a que pase el splash.
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 30000
+    optional: true
+
+# Si estamos en OTP, volvemos al login.
+- runFlow:
+    when:
+      visible:
+        id: "otp-screen"
+    commands:
+      - pressKey: Back
+      - runFlow:
+          file: ensure-login-email-field-visible.yaml
+
+# Si hay sesión activa (home-screen), cerrar sesión desde el header del inicio.
+# Nota: la pestaña "Retirar" ya no lleva a movimientos; el logout vive en HomeHeader.
+- runFlow:
+    when:
+      visible:
+        id: "home-screen"
+    commands:
+      - tapOn:
+          id: "logout-button"
+      - extendedWaitUntil:
+          visible:
+            id: "login-password-input"
+          timeout: 20000
+      - runFlow:
+          file: ensure-login-email-field-visible.yaml

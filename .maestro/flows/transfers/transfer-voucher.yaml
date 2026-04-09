@@ -1,0 +1,93 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Transferencia completa â€” formulario, revisiÃ³n, OTP, modal de Ã©xito y comprobante
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- runFlow:
+    file: ../../subflows/open-transfer-tab.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-amount-input"
+    timeout: 15000
+
+# Monto: US$ 1,00 (entrada en dÃ³lares)
+- tapOn:
+    id: "transfer-amount-input"
+- inputText: "1"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-beneficiary-picker"
+
+- extendedWaitUntil:
+    visible:
+      id: "beneficiary-select-modal"
+    timeout: 20000
+
+- tapOn:
+    id: "beneficiary-first-own-account"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-main-screen"
+    timeout: 15000
+
+# Concepto opcional
+- tapOn:
+    id: "transfer-concept-input"
+- inputText: "Comprobante test"
+- hideKeyboard
+
+- tapOn:
+    id: "transfer-continue-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-review-screen"
+    timeout: 15000
+
+- assertVisible: "Comprobante test"
+
+# Confirmar â†’ abre OTP de transferencia
+- tapOn:
+    id: "transfer-confirm-button"
+
+- runFlow:
+    file: ../../subflows/complete-demo-otp-transfer.yaml
+
+# --- Modal de Ã©xito ---
+- extendedWaitUntil:
+    visible:
+      id: "transfer-success-modal"
+    timeout: 20000
+
+- assertVisible: "Transferencia exitosa"
+- assertVisible: "Nueva transferencia"
+- assertVisible: "Voucher"
+- assertVisible: "Ir al inicio"
+
+# --- Navegar al comprobante ---
+- tapOn:
+    id: "transfer-voucher-button"
+
+- extendedWaitUntil:
+    visible:
+      id: "transfer-voucher-screen"
+    timeout: 15000
+
+- assertVisible: "COMPROBANTE"
+- assertVisible: "Desde"
+- assertVisible: "Para"
+
+# --- Volver al inicio desde el comprobante ---
+- tapOn: "Ir al Inicio"
+
+- extendedWaitUntil:
+    visible: "Mis Productos"
+    timeout: 15000
+

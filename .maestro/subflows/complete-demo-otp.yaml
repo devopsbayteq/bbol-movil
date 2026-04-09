@@ -1,0 +1,46 @@
+﻿appId: com.bayteq.bbapp.dev
+---
+- extendedWaitUntil:
+    visible:
+      id: "otp-screen"
+    timeout: 30000
+
+- tapOn:
+    id: "otp-input"
+- inputText: "123457"
+
+- extendedWaitUntil:
+    visible:
+      id: "register-alias-screen"
+    timeout: 15000
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        id: "register-alias-screen"
+    commands:
+      - tapOn:
+          id: "register-alias-input"
+      - inputText: "demoalias1234"
+      - tapOn:
+          id: "register-alias-continue"
+
+- extendedWaitUntil:
+    visible:
+      id: "biometric-offer-screen"
+    timeout: 20000
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        id: "biometric-offer-screen"
+    commands:
+      - tapOn:
+          id: "biometric-offer-skip"
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000

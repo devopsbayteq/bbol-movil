@@ -1,0 +1,43 @@
+﻿appId: com.bayteq.bbapp.dev
+name: PIN incorrecto muestra error en pantalla OTP
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+
+- tapOn:
+    id: "login-email-input"
+- inputText: "Usuario10_2026"
+
+- tapOn:
+    id: "login-password-input"
+- inputText: "Password@1"
+
+- hideKeyboard
+
+- runFlow:
+    file: ../../subflows/accept-login-terms.yaml
+
+- tapOn:
+    id: "login-submit"
+
+- extendedWaitUntil:
+    visible:
+      id: "otp-screen"
+    timeout: 30000
+
+- tapOn:
+    id: "otp-input"
+- inputText: "111111"
+
+- extendedWaitUntil:
+    visible:
+      id: "otp-error"
+    timeout: 15000
+
+- assertVisible: "El código ingresado es incorrecto."

@@ -1,0 +1,25 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Logout y retorno a pantalla de login
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+- tapOn:
+    id: "logout-button"
+
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+
+# Tras logout el dispositivo suele quedar "vinculado": login compacto (solo contraseña) o primer login si se tocó "¿No eres tú?".
+- assertVisible:
+    id: "login-password-input"
+- assertVisible:
+    id: "login-submit"

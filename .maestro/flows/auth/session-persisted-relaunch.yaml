@@ -1,0 +1,29 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Tras reinicio — login obligatorio (sin restaurar sesión)
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-authenticated.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+
+# En inicio se muestra el nombre del usuario (mock firstName "Demo").
+- assertVisible: "Demo"
+
+- stopApp
+
+- launchApp
+
+# Cold start no hidrata sesión; debe mostrarse login (tras splash / clave pública).
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+
+- assertVisible:
+    id: "login-password-input"
+- assertNotVisible:
+    id: "home-screen"

@@ -1,0 +1,85 @@
+﻿appId: com.bayteq.bbapp.dev
+name: Login — Validación de campos
+---
+
+- launchApp
+
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+
+# --- 1. Usuario demasiado corto (< 12 caracteres) ---
+- tapOn:
+    id: "login-email-input"
+- inputText: "usr"
+- tapOn:
+    id: "login-password-input"
+- assertVisible: "El usuario debe tener al menos 12 caracteres"
+
+# --- 2. Usuario demasiado largo (> 16 caracteres) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "abcdefghijklmnopq"
+- tapOn:
+    id: "login-password-input"
+- assertVisible: "El usuario no puede superar 16 caracteres"
+
+# --- 3. Usuario con carácter no permitido (ej. @) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "user@invalid123"
+- tapOn:
+    id: "login-password-input"
+- assertVisible: "El usuario solo puede contener letras, números, punto (.), guion (-) y guion bajo (_)."
+
+# --- 4. Contraseña demasiado corta (< 8 caracteres) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario-demo12"
+- tapOn:
+    id: "login-password-input"
+- inputText: "1234567"
+- tapOn:
+    id: "login-email-input"
+- assertVisible: "La contraseña debe tener al menos 8 caracteres"
+
+# --- 5. Contraseña demasiado larga (> 16 caracteres) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- tapOn:
+    id: "login-email-input"
+- inputText: "usuario-demo12"
+- tapOn:
+    id: "login-password-input"
+- inputText: "contrasenamuylarga1"
+- tapOn:
+    id: "login-email-input"
+- assertVisible: "La contraseña no puede superar 16 caracteres"
+
+# --- 6. Sin usuario y contraseña el botón permanece deshabilitado (FirstLoginContent) ---
+- clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- assertVisible: "Ingresa con usuario y contraseña"

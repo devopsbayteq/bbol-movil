@@ -1,0 +1,10 @@
+﻿appId: com.bayteq.bbapp.dev
+---
+- tapOn:
+    id: "login-change-user"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 45000
+
