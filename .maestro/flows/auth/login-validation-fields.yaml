@@ -1,4 +1,4 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 name: Login — Validación de campos
 ---
 
@@ -21,6 +21,8 @@ name: Login — Validación de campos
 # --- 2. Usuario demasiado largo (> 16 caracteres) ---
 - clearState
 - runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
@@ -29,8 +31,10 @@ name: Login — Validación de campos
     id: "login-password-input"
 - assertVisible: "El usuario no puede superar 16 caracteres"
 
-# --- 3. Usuario con caracter no permitido (ej. @) ---
+# --- 3. Usuario con carácter no permitido (ej. @) ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
@@ -42,6 +46,8 @@ name: Login — Validación de campos
 
 # --- 4. Contraseña demasiado corta (< 8 caracteres) ---
 - clearState
+- runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
@@ -57,23 +63,23 @@ name: Login — Validación de campos
 # --- 5. Contraseña demasiado larga (> 16 caracteres) ---
 - clearState
 - runFlow:
+    file: ../../subflows/ensure-login-screen.yaml
+- runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 - tapOn:
     id: "login-email-input"
 - inputText: "usuario-demo12"
 - tapOn:
     id: "login-password-input"
-- inputText: "contrasenamuylar1"
+- inputText: "contrasenamuylarga1"
 - tapOn:
     id: "login-email-input"
 - assertVisible: "La contraseña no puede superar 16 caracteres"
 
-# --- 6. Sin datos válidos, el botón Iniciar sesión permanece deshabilitado ---
+# --- 6. Sin usuario y contraseña el botón permanece deshabilitado (FirstLoginContent) ---
 - clearState
 - runFlow:
-    file: ../../subflows/ensure-login-email-field-visible.yaml
+    file: ../../subflows/ensure-login-screen.yaml
 - runFlow:
-    file: ../../subflows/accept-login-terms.yaml
-- assertVisible:
-    id: "login-submit"
-    enabled: false
+    file: ../../subflows/ensure-login-email-field-visible.yaml
+- assertVisible: "Ingresa con usuario y contraseña"

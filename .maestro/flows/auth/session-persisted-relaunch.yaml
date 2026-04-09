@@ -1,4 +1,4 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 name: Tras reinicio — login obligatorio (sin restaurar sesión)
 ---
 
@@ -12,7 +12,8 @@ name: Tras reinicio — login obligatorio (sin restaurar sesión)
       id: "home-screen"
     timeout: 30000
 
-- assertVisible: "usuario-demo12"
+# En inicio se muestra el nombre del usuario (mock firstName "Demo").
+- assertVisible: "Demo"
 
 - stopApp
 
@@ -23,6 +24,6 @@ name: Tras reinicio — login obligatorio (sin restaurar sesión)
     file: ../../subflows/ensure-login-email-field-visible.yaml
 
 - assertVisible:
-    id: "login-email-input"
+    id: "login-password-input"
 - assertNotVisible:
     id: "home-screen"

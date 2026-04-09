@@ -119,7 +119,9 @@ Usuario y contraseña (sin correo). En modo mock coinciden con `MockAuthDataSour
 
 El usuario debe tener entre **12 y 16** caracteres (letras, números, `.`, `-`, `_`). Los flujos Maestro usan **usuario-demo12** por defecto.
 
-El flujo [`flows/auth/00-login-first-usuario01.yaml`](flows/auth/00-login-first-usuario01.yaml) usa **Usuario01_2026** / **Password@1** y el subflujo `complete-demo-otp.yaml` (PIN **123457**, registro de alias, pantalla `biometric-offer-screen` y **Ahora no** hasta `home-screen`).
+El flujo [`flows/auth/00-login-first-usuario01.yaml`](flows/auth/00-login-first-usuario01.yaml) usa las mismas credenciales mock y el subflujo `complete-demo-otp.yaml` (PIN **123457**; si aplica, alias **demoalias1234**, oferta biométrica con **Ahora no** hasta `home-screen`).
+
+**Login compacto:** si el dispositivo ya tiene usuario vinculado, la pantalla solo muestra contraseña (sin campo usuario). El subflujo `ensure-login-email-field-visible.yaml` pulsa **¿No eres tú?** (`login-change-user`) cuando hace falta para volver al formulario con `login-email-input`.
 
 ### Biometría en E2E
 
@@ -147,6 +149,7 @@ Si tu ROM lo permite, puedes volver a anadir `clearState: true` bajo `launchApp`
 | testID               | Elemento                        |
 |----------------------|---------------------------------|
 | login-email-input    | Campo de texto de usuario (login) |
+| login-change-user    | Enlace "¿No eres …?" (vuelve al login con usuario) |
 | login-password-input | Campo de texto de contraseña    |
 | login-submit         | Botón "Ingresar"                |
 | login-error          | Mensaje de error en login       |

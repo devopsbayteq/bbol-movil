@@ -1,5 +1,5 @@
-appId: com.bbapp
-name: Transferencias — validación al continuar sin datos
+﻿appId: com.bayteq.bbapp.dev
+name: Transferencias â€” validaciÃ³n al continuar sin datos
 ---
 
 - launchApp
@@ -33,7 +33,7 @@ name: Transferencias — validación al continuar sin datos
     visible: "Selecciona un beneficiario."
     timeout: 10000
 
-# --- 3. Con beneficiario, el concepto válido no bloquea el envío ---
+# --- 3. Con beneficiario, el concepto vÃ¡lido no bloquea el envÃ­o ---
 - tapOn:
     id: "transfer-beneficiary-picker"
 
@@ -64,3 +64,4 @@ name: Transferencias — validación al continuar sin datos
     timeout: 15000
 
 - assertVisible: "Concepto valido"
+

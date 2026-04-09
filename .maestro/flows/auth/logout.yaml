@@ -1,4 +1,4 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 name: Logout y retorno a pantalla de login
 ---
 
@@ -18,6 +18,8 @@ name: Logout y retorno a pantalla de login
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 
-- assertVisible: "Bienvenido a tu banca móvil"
+# Tras logout el dispositivo suele quedar "vinculado": login compacto (solo contraseña) o primer login si se tocó "¿No eres tú?".
+- assertVisible:
+    id: "login-password-input"
 - assertVisible:
     id: "login-submit"

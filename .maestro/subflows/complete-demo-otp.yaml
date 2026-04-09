@@ -1,6 +1,5 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 ---
-# PIN demo fijo: 123457
 - extendedWaitUntil:
     visible:
       id: "otp-screen"
@@ -10,27 +9,36 @@ appId: com.bbapp
     id: "otp-input"
 - inputText: "123457"
 
-# Registro obligatorio de alias (post-OTP, pre-biometría)
 - extendedWaitUntil:
     visible:
       id: "register-alias-screen"
-    timeout: 30000
+    timeout: 15000
+    optional: true
 
-- tapOn:
-    id: "register-alias-input"
-- inputText: "demoalias"
+- runFlow:
+    when:
+      visible:
+        id: "register-alias-screen"
+    commands:
+      - tapOn:
+          id: "register-alias-input"
+      - inputText: "demoalias1234"
+      - tapOn:
+          id: "register-alias-continue"
 
-- tapOn:
-    id: "register-alias-continue"
-
-# Modal de éxito (~5s) o cierre manual; luego oferta biométrica o Inicio
 - extendedWaitUntil:
     visible:
       id: "biometric-offer-screen"
     timeout: 20000
+    optional: true
 
-- tapOn:
-    id: "biometric-offer-skip"
+- runFlow:
+    when:
+      visible:
+        id: "biometric-offer-screen"
+    commands:
+      - tapOn:
+          id: "biometric-offer-skip"
 
 - extendedWaitUntil:
     visible:

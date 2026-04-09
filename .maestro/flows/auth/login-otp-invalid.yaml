@@ -1,4 +1,4 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 name: PIN incorrecto muestra error en pantalla OTP
 ---
 
@@ -7,7 +7,6 @@ name: PIN incorrecto muestra error en pantalla OTP
 - runFlow:
     file: ../../subflows/ensure-login-screen.yaml
 
-# Esperar a que el splash termine y aparezca el login.
 - runFlow:
     file: ../../subflows/ensure-login-email-field-visible.yaml
 
@@ -32,7 +31,6 @@ name: PIN incorrecto muestra error en pantalla OTP
       id: "otp-screen"
     timeout: 30000
 
-# PIN inválido: 111111 (el servidor rechaza cualquier código distinto al correcto)
 - tapOn:
     id: "otp-input"
 - inputText: "111111"

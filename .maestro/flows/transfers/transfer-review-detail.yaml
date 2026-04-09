@@ -1,5 +1,5 @@
-appId: com.bbapp
-name: Transferencias — revisión detallada (monto, beneficiario, concepto, acciones)
+﻿appId: com.bayteq.bbapp.dev
+name: Transferencias â€” revisiÃ³n detallada (monto, beneficiario, concepto, acciones)
 ---
 
 - launchApp
@@ -37,7 +37,7 @@ name: Transferencias — revisión detallada (monto, beneficiario, concepto, acc
       id: "transfer-main-screen"
     timeout: 15000
 
-# Añadir concepto
+# AÃ±adir concepto
 - tapOn:
     id: "transfer-concept-input"
 - inputText: "Pago prueba E2E"
@@ -51,23 +51,23 @@ name: Transferencias — revisión detallada (monto, beneficiario, concepto, acc
       id: "transfer-review-screen"
     timeout: 15000
 
-# --- Verificar todos los campos de la pantalla de revisión ---
+# --- Verificar todos los campos de la pantalla de revisiÃ³n ---
 - assertVisible: "REVISAR TRANSFERENCIA"
 - assertVisible: "Monto a enviar"
 - assertVisible: "Para"
 - assertVisible: "Desde"
-- assertVisible: "Comisión"
+- assertVisible: "ComisiÃ³n"
 - assertVisible: "Fecha"
 - assertVisible: "Concepto"
 - assertVisible: "Pago prueba E2E"
 
-# --- Verificar botones de acción ---
+# --- Verificar botones de acciÃ³n ---
 - assertVisible:
     id: "transfer-confirm-button"
 - assertVisible:
     id: "transfer-modify-button"
 
-# --- Botón Modificar vuelve al formulario ---
+# --- BotÃ³n Modificar vuelve al formulario ---
 - tapOn:
     id: "transfer-modify-button"
 
@@ -78,5 +78,6 @@ name: Transferencias — revisión detallada (monto, beneficiario, concepto, acc
 
 - assertVisible: "TRANSFERIR"
 
-# --- Verificar que el concepto se conservó al volver ---
+# --- Verificar que el concepto se conservÃ³ al volver ---
 # (el stack mantiene el formulario con los datos anteriores)
+

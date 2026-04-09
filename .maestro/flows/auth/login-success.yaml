@@ -1,5 +1,5 @@
-appId: com.bbapp
-name: Login exitoso — llega al inicio con saldo y movimientos
+﻿appId: com.bayteq.bbapp.dev
+name: Login exitoso — llega al inicio con saldo y secciones principales
 ---
 
 - launchApp
@@ -12,7 +12,9 @@ name: Login exitoso — llega al inicio con saldo y movimientos
       id: "home-screen"
     timeout: 30000
 
-- assertVisible: "Bienvenido de vuelta"
-- assertVisible: "usuario-demo12"
-- assertVisible: "Mis Productos"
-- assertVisible: "Pagos frecuentes"
+# HomeHeader saluda con firstName del usuario mock ("Demo").
+- assertVisible: "Hola,"
+- assertVisible: "Demo"
+# Filtros de productos y sección del dashboard actual.
+- assertVisible: "Cuentas"
+- assertVisible: "Acciones frecuentes"

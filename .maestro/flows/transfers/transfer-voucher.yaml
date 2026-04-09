@@ -1,5 +1,5 @@
-appId: com.bbapp
-name: Transferencia completa — formulario, revisión, OTP, modal de éxito y comprobante
+﻿appId: com.bayteq.bbapp.dev
+name: Transferencia completa â€” formulario, revisiÃ³n, OTP, modal de Ã©xito y comprobante
 ---
 
 - launchApp
@@ -15,7 +15,7 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
       id: "transfer-amount-input"
     timeout: 15000
 
-# Monto: US$ 1,00 (entrada en dólares)
+# Monto: US$ 1,00 (entrada en dÃ³lares)
 - tapOn:
     id: "transfer-amount-input"
 - inputText: "1"
@@ -53,14 +53,14 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
 
 - assertVisible: "Comprobante test"
 
-# Confirmar → abre OTP de transferencia
+# Confirmar â†’ abre OTP de transferencia
 - tapOn:
     id: "transfer-confirm-button"
 
 - runFlow:
     file: ../../subflows/complete-demo-otp-transfer.yaml
 
-# --- Modal de éxito ---
+# --- Modal de Ã©xito ---
 - extendedWaitUntil:
     visible:
       id: "transfer-success-modal"
@@ -90,3 +90,4 @@ name: Transferencia completa — formulario, revisión, OTP, modal de éxito y c
 - extendedWaitUntil:
     visible: "Mis Productos"
     timeout: 15000
+

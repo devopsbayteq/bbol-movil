@@ -1,4 +1,4 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 name: Lista de transacciones y estados visibles
 ---
 
@@ -32,3 +32,4 @@ name: Lista de transacciones y estados visibles
       text: "Saldo"
     direction: DOWN
     timeout: 15000
+

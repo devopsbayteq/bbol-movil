@@ -1,7 +1,8 @@
-appId: com.bbapp
+﻿appId: com.bayteq.bbapp.dev
 ---
 # Espera a que el splash (5s) y el fetch de clave pública terminen.
 # Si ya hay sesión, la app aterriza en home-screen (tab Inicio).
+# Credenciales demo: MockAuthDataSource (usuario-demo12 / 123456).
 - extendedWaitUntil:
     visible:
       id: "home-screen"
@@ -18,10 +19,10 @@ appId: com.bbapp
           file: ensure-login-email-field-visible.yaml
       - tapOn:
           id: "login-email-input"
-      - inputText: "Usuario10_2026"
+      - inputText: "usuario-demo12"
       - tapOn:
           id: "login-password-input"
-      - inputText: "Password@1"
+      - inputText: "123456"
       - hideKeyboard
       - runFlow:
           file: accept-login-terms.yaml

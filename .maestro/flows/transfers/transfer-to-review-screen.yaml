@@ -1,5 +1,5 @@
-appId: com.bbapp
-name: Transferencias — formulario hasta pantalla de revisión
+﻿appId: com.bayteq.bbapp.dev
+name: Transferencias â€” formulario hasta pantalla de revisiÃ³n
 ---
 
 - launchApp
@@ -17,7 +17,7 @@ name: Transferencias — formulario hasta pantalla de revisión
 
 - tapOn:
     id: "transfer-amount-input"
-# Monto: US$ 1,00 para no exceder saldo típico.
+# Monto: US$ 1,00 para no exceder saldo tÃ­pico.
 - inputText: "1"
 - hideKeyboard
 
@@ -52,3 +52,4 @@ name: Transferencias — formulario hasta pantalla de revisión
 - assertVisible: "Monto a enviar"
 - assertVisible: "Confirmar"
 - assertVisible: "Modificar"
+

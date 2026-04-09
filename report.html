@@ -7,467 +7,322 @@
     <div class="card mb-4">
       <div class="card-body">
         <h1 class="mt-5 text-center">Flow Execution Summary</h1>
-<br>Test Result: FAILED<br>Duration: 4m 47s<br>Start Time: null<br><br>
+<br>Test Result: FAILED<br>Duration: 3s<br>Start Time: null<br><br>
         <div class="card-group mb-4">
           <div class="card">
             <div class="card-body">
               <h5 class="card-title text-center">Total number of Flows</h5>
-              <h3 class="card-text text-center">6</h3>
+              <h3 class="card-text text-center">14</h3>
             </div>
           </div>
           <div class="card text-white bg-danger">
             <div class="card-body">
               <h5 class="card-title text-center">Failed Flows</h5>
-              <h3 class="card-text text-center">1</h3>
+              <h3 class="card-text text-center">14</h3>
             </div>
           </div>
           <div class="card text-white bg-success">
             <div class="card-body">
               <h5 class="card-title text-center">Successful Flows</h5>
-              <h3 class="card-text text-center">5</h3>
+              <h3 class="card-text text-center">0</h3>
             </div>
           </div>
         </div>
         <div class="card border-danger mb-3">
           <div class="card-body text-danger"><b>Failed Flow</b><br>
-            <p class="card-text">PIN incorrecto muestra error en pantalla OTP<br></p>
+            <p class="card-text">Primer login — Usuario01_2026, OTP 123457, oferta biométrica omitida<br>Credenciales válidas abren la pantalla de PIN (OTP)<br>Login fallido con credenciales inválidas<br>PIN incorrecto muestra error en pantalla OTP<br>Login exitoso — llega al inicio con saldo y movimientos<br>Login — Validación de campos<br>Logout y retorno a pantalla de login<br>Tras reinicio — login obligatorio (sin restaurar sesión)<br>Lista de transacciones y estados visibles<br>Transferencia completa — formulario, revisión, OTP y éxito<br>Transferencias — revisión detallada (monto, beneficiario, concepto, acciones)<br>Transferencias — formulario hasta pantalla de revisión<br>Transferencias — validación al continuar sin datos<br>Transferencia completa — formulario, revisión, OTP, modal de éxito y comprobante<br></p>
           </div>
         </div>
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flow-0-Credenciales-v-lidas-abren-la-pantalla-de-PIN--OTP-" aria-expanded="false" aria-controls="flow-0-Credenciales-v-lidas-abren-la-pantalla-de-PIN--OTP-">Credenciales válidas abren la pantalla de PIN (OTP) : SUCCESS</button></h5>
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-0-Primer-login---Usuario01_2026--OTP-123457--oferta-biom-trica-omitida" aria-expanded="false" aria-controls="flow-0-Primer-login---Usuario01_2026--OTP-123457--oferta-biom-trica-omitida">Primer login — Usuario01_2026, OTP 123457, oferta biométrica omitida : ERROR</button></h5>
           </div>
-          <div class="collapse" id="flow-0-Credenciales-v-lidas-abren-la-pantalla-de-PIN--OTP-">
+          <div class="collapse" id="flow-0-Primer-login---Usuario01_2026--OTP-123457--oferta-biom-trica-omitida">
             <div class="card-body">
-              <p class="card-text">Status: SUCCESS<br>Duration: 32s<br>Start Time: null<br>File Name: login-credentials-opens-otp<br></p>
-              <h6 class="mt-3 mb-3">Test Steps (18)</h6>
+              <p class="card-text">Status: ERROR<br>Duration: 1s<br>Start Time: null<br>File Name: 00-login-first-usuario01<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">3,3s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">150ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Input text 123456</span></span><span class="badge bg-light text-dark">2,2s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Define variables</span></span><span class="badge bg-light text-dark">3ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Input text usuario01</span></span><span class="badge bg-light text-dark">2,0s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">4. Tap on id: login-password-input</span></span><span class="badge bg-light text-dark">2,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">5. Tap on id: login-submit</span></span><span class="badge bg-light text-dark">2,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">6. Hide Keyboard</span></span><span class="badge bg-light text-dark">1,3s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">7. Tap on id: login-email-input</span></span><span class="badge bg-light text-dark">3,0s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">8. Run ../../subflows/ensure-login-screen.yaml</span></span><span class="badge bg-light text-dark">7,7s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">9. Run flow when id: home-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">10. Run flow when id: otp-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">11. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">12. Define variables</span></span><span class="badge bg-light text-dark">4ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">13. Assert that id: login-email-input is visible</span></span><span class="badge bg-light text-dark">5,3s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">14. Assert that id: otp-screen is visible</span></span><span class="badge bg-light text-dark">1,6s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">15. Assert that &quot;AUTENTICACIÓN&quot; is visible</span></span><span class="badge bg-light text-dark">103ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">16. Assert that &quot;Introduce tu PIN para continuar&quot; is visible</span></span><span class="badge bg-light text-dark">69ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">17. Assert that (Optional) &quot;.*&quot; is visible</span></span><span class="badge bg-light text-dark">847ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">18. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flow-1-Login-fallido-con-credenciales-inv-lidas" aria-expanded="false" aria-controls="flow-1-Login-fallido-con-credenciales-inv-lidas">Login fallido con credenciales inválidas : SUCCESS</button></h5>
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-1-Credenciales-v-lidas-abren-la-pantalla-de-PIN--OTP-" aria-expanded="false" aria-controls="flow-1-Credenciales-v-lidas-abren-la-pantalla-de-PIN--OTP-">Credenciales válidas abren la pantalla de PIN (OTP) : ERROR</button></h5>
           </div>
-          <div class="collapse" id="flow-1-Login-fallido-con-credenciales-inv-lidas">
+          <div class="collapse" id="flow-1-Credenciales-v-lidas-abren-la-pantalla-de-PIN--OTP-">
             <div class="card-body">
-              <p class="card-text">Status: SUCCESS<br>Duration: 32s<br>Start Time: null<br>File Name: login-invalid-credentials<br></p>
-              <h6 class="mt-3 mb-3">Test Steps (17)</h6>
+              <p class="card-text">Status: ERROR<br>Duration: 1s<br>Start Time: null<br>File Name: login-credentials-opens-otp<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
               <div class="step-item mb-2">
                 <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Tap on id: login-email-input</span></span><span class="badge bg-light text-dark">3,1s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">2. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">377ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Input text usuario_invalido</span></span><span class="badge bg-light text-dark">2,9s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">4. Hide Keyboard</span></span><span class="badge bg-light text-dark">1,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">5. Input text wrongpassword</span></span><span class="badge bg-light text-dark">3,2s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">6. Assert that (Optional) &quot;.*&quot; is visible</span></span><span class="badge bg-light text-dark">645ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">7. Assert that id: login-error is visible</span></span><span class="badge bg-light text-dark">82ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">8. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">9. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">10. Assert that &quot;Identidad Digital&quot; is visible</span></span><span class="badge bg-light text-dark">45ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">11. Run flow when id: otp-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">12. Tap on id: login-submit</span></span><span class="badge bg-light text-dark">3,2s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">13. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">3,3s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">14. Tap on id: login-password-input</span></span><span class="badge bg-light text-dark">2,4s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">15. Run flow when id: home-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">16. Run ../../subflows/ensure-login-screen.yaml</span></span><span class="badge bg-light text-dark">7,9s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">17. Assert that id: login-email-input is visible</span></span><span class="badge bg-light text-dark">5,2s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-2-PIN-incorrecto-muestra-error-en-pantalla-OTP" aria-expanded="false" aria-controls="flow-2-PIN-incorrecto-muestra-error-en-pantalla-OTP">PIN incorrecto muestra error en pantalla OTP : ERROR</button></h5>
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-2-Login-fallido-con-credenciales-inv-lidas" aria-expanded="false" aria-controls="flow-2-Login-fallido-con-credenciales-inv-lidas">Login fallido con credenciales inválidas : ERROR</button></h5>
           </div>
-          <div class="collapse" id="flow-2-PIN-incorrecto-muestra-error-en-pantalla-OTP">
+          <div class="collapse" id="flow-2-Login-fallido-con-credenciales-inv-lidas">
             <div class="card-body">
-              <p class="card-text">Status: ERROR<br>Duration: 1m<br>Start Time: null<br>File Name: login-otp-invalid<br></p>
-              <p class="card-text text-danger">Assertion is false: id: otp-error is visible</p>
-              <h6 class="mt-3 mb-3">Test Steps (19)</h6>
+              <p class="card-text">Status: ERROR<br>Duration: 1s<br>Start Time: null<br>File Name: login-invalid-credentials<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Assert that id: login-email-input is visible</span></span><span class="badge bg-light text-dark">4,3s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Assert that (Optional) &quot;.*&quot; is visible</span></span><span class="badge bg-light text-dark">656ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">2. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">609ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Tap on id: login-email-input</span></span><span class="badge bg-light text-dark">3,3s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">4. Assert that id: otp-screen is visible</span></span><span class="badge bg-light text-dark">1,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">5. Run ../../subflows/ensure-login-screen.yaml</span></span><span class="badge bg-light text-dark">7,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">6. Run flow when id: home-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">7. Tap on id: login-password-input</span></span><span class="badge bg-light text-dark">2,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">8. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">9. Input text 123456</span></span><span class="badge bg-light text-dark">2,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">10. Assert that id: otp-error is visible</span></span><span class="badge bg-light text-dark">15,2s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">11. Run flow when id: otp-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">12. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">2,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">13. Digito 1</span></span><span class="badge bg-light text-dark">2,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">14. Repeat 6 times</span></span><span class="badge bg-light text-dark">14,7s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">15. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">16. Tap on id: login-submit</span></span><span class="badge bg-light text-dark">2,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">17. Hide Keyboard</span></span><span class="badge bg-light text-dark">945ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">18. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">19. Input text usuario01</span></span><span class="badge bg-light text-dark">2,1s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flow-3-Login-exitoso---llega-al-inicio-con-saldo-y-movimientos" aria-expanded="false" aria-controls="flow-3-Login-exitoso---llega-al-inicio-con-saldo-y-movimientos">Login exitoso — llega al inicio con saldo y movimientos : SUCCESS</button></h5>
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-3-PIN-incorrecto-muestra-error-en-pantalla-OTP" aria-expanded="false" aria-controls="flow-3-PIN-incorrecto-muestra-error-en-pantalla-OTP">PIN incorrecto muestra error en pantalla OTP : ERROR</button></h5>
           </div>
-          <div class="collapse" id="flow-3-Login-exitoso---llega-al-inicio-con-saldo-y-movimientos">
+          <div class="collapse" id="flow-3-PIN-incorrecto-muestra-error-en-pantalla-OTP">
             <div class="card-body">
-              <p class="card-text">Status: SUCCESS<br>Duration: 1m<br>Start Time: null<br>File Name: login-success<br></p>
-              <h6 class="mt-3 mb-3">Test Steps (26)</h6>
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: login-otp-invalid<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Input text 123456</span></span><span class="badge bg-light text-dark">2,2s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Tap on id: login-submit</span></span><span class="badge bg-light text-dark">2,3s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Apply configuration</span></span><span class="badge bg-light text-dark">2ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Tap on &quot;Digito 1&quot;</span></span><span class="badge bg-light text-dark">2,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">4. Tap on &quot;Digito 4&quot;</span></span><span class="badge bg-light text-dark">1,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">5. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">6. Assert that id: login-email-input is visible</span></span><span class="badge bg-light text-dark">88ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">7. Tap on &quot;Digito 5&quot;</span></span><span class="badge bg-light text-dark">1,6s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">8. Tap on &quot;Digito 7&quot;</span></span><span class="badge bg-light text-dark">1,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">9. Assert that &quot;Bienvenido de vuelta&quot; is visible</span></span><span class="badge bg-light text-dark">107ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">10. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">11. Hide Keyboard</span></span><span class="badge bg-light text-dark">983ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">12. Tap on &quot;Digito 3&quot;</span></span><span class="badge bg-light text-dark">1,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">13. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">3,2s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">14. Run flow when id: home-screen is not visible</span></span><span class="badge bg-light text-dark">25,9s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">15. Assert that id: home-screen is visible</span></span><span class="badge bg-light text-dark">1,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">16. Input text usuario01</span></span><span class="badge bg-light text-dark">1,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⚠️ <span class="step-name">17. Assert that (Optional) id: home-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">18. Assert that id: otp-screen is visible</span></span><span class="badge bg-light text-dark">1,9s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">19. Assert that id: home-screen is visible</span></span><span class="badge bg-light text-dark">509ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">20. Run complete-demo-otp.yaml</span></span><span class="badge bg-light text-dark">12,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">21. Run ../../subflows/ensure-authenticated.yaml</span></span><span class="badge bg-light text-dark">56,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">22. Tap on id: login-email-input</span></span><span class="badge bg-light text-dark">2,7s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">23. Tap on &quot;Digito 2&quot;</span></span><span class="badge bg-light text-dark">1,6s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">24. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">25. Tap on id: login-password-input</span></span><span class="badge bg-light text-dark">2,4s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">26. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">3. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">181ms</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flow-4-Logout-y-retorno-a-pantalla-de-login" aria-expanded="false" aria-controls="flow-4-Logout-y-retorno-a-pantalla-de-login">Logout y retorno a pantalla de login : SUCCESS</button></h5>
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-4-Login-exitoso---llega-al-inicio-con-saldo-y-movimientos" aria-expanded="false" aria-controls="flow-4-Login-exitoso---llega-al-inicio-con-saldo-y-movimientos">Login exitoso — llega al inicio con saldo y movimientos : ERROR</button></h5>
           </div>
-          <div class="collapse" id="flow-4-Logout-y-retorno-a-pantalla-de-login">
+          <div class="collapse" id="flow-4-Login-exitoso---llega-al-inicio-con-saldo-y-movimientos">
             <div class="card-body">
-              <p class="card-text">Status: SUCCESS<br>Duration: 23s<br>Start Time: null<br>File Name: logout<br></p>
-              <h6 class="mt-3 mb-3">Test Steps (14)</h6>
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: login-success<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">162ms</span></div>
+              </div>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
+              </div>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-5-Login---Validaci-n-de-campos" aria-expanded="false" aria-controls="flow-5-Login---Validaci-n-de-campos">Login — Validación de campos : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-5-Login---Validaci-n-de-campos">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: login-validation-fields<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
+              </div>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
+              </div>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">3. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">116ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-6-Logout-y-retorno-a-pantalla-de-login" aria-expanded="false" aria-controls="flow-6-Logout-y-retorno-a-pantalla-de-login">Logout y retorno a pantalla de login : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-6-Logout-y-retorno-a-pantalla-de-login">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: logout<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
               <div class="step-item mb-2">
                 <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Assert that (Optional) id: home-screen is visible</span></span><span class="badge bg-light text-dark">13,1s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">2. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">104ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Assert that &quot;Identidad Digital&quot; is visible</span></span><span class="badge bg-light text-dark">606ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">4. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">5. Tap on &quot;Movimientos&quot;</span></span><span class="badge bg-light text-dark">1,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">6. Assert that id: login-submit is visible</span></span><span class="badge bg-light text-dark">58ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">7. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">8. Run ../../subflows/ensure-authenticated.yaml</span></span><span class="badge bg-light text-dark">14,0s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⏭️ <span class="step-name">9. Run flow when id: home-screen is not visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">10. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">2,9s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">11. Assert that id: home-screen is visible</span></span><span class="badge bg-light text-dark">80ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">12. Assert that id: transactions-screen is visible</span></span><span class="badge bg-light text-dark">289ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">13. Assert that id: login-email-input is visible</span></span><span class="badge bg-light text-dark">197ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">14. Tap on id: logout-button</span></span><span class="badge bg-light text-dark">2,7s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="mb-0"><button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flow-5-Sesi-n-persistida---al-reabrir-la-app-no-pide-credenciales" aria-expanded="false" aria-controls="flow-5-Sesi-n-persistida---al-reabrir-la-app-no-pide-credenciales">Sesión persistida — al reabrir la app no pide credenciales : SUCCESS</button></h5>
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-7-Tras-reinicio---login-obligatorio--sin-restaurar-sesi-n-" aria-expanded="false" aria-controls="flow-7-Tras-reinicio---login-obligatorio--sin-restaurar-sesi-n-">Tras reinicio — login obligatorio (sin restaurar sesión) : ERROR</button></h5>
           </div>
-          <div class="collapse" id="flow-5-Sesi-n-persistida---al-reabrir-la-app-no-pide-credenciales">
+          <div class="collapse" id="flow-7-Tras-reinicio---login-obligatorio--sin-restaurar-sesi-n-">
             <div class="card-body">
-              <p class="card-text">Status: SUCCESS<br>Duration: 1m 20s<br>Start Time: null<br>File Name: session-persisted-relaunch<br></p>
-              <h6 class="mt-3 mb-3">Test Steps (30)</h6>
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: session-persisted-relaunch<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Assert that id: otp-screen is visible</span></span><span class="badge bg-light text-dark">1,9s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Tap on id: login-email-input</span></span><span class="badge bg-light text-dark">2,9s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Run complete-demo-otp.yaml</span></span><span class="badge bg-light text-dark">13,5s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">3. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">89ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-8-Lista-de-transacciones-y-estados-visibles" aria-expanded="false" aria-controls="flow-8-Lista-de-transacciones-y-estados-visibles">Lista de transacciones y estados visibles : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-8-Lista-de-transacciones-y-estados-visibles">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: transactions-list-visible<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">4. Tap on &quot;Digito 2&quot;</span></span><span class="badge bg-light text-dark">1,5s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">5. Assert that id: login-email-input is not visible</span></span><span class="badge bg-light text-dark">640ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">3. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">90ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-9-Transferencia-completa---formulario--revisi-n--OTP-y--xito" aria-expanded="false" aria-controls="flow-9-Transferencia-completa---formulario--revisi-n--OTP-y--xito">Transferencia completa — formulario, revisión, OTP y éxito : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-9-Transferencia-completa---formulario--revisi-n--OTP-y--xito">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: transfer-complete-with-otp<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">1. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">6. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>⚠️ <span class="step-name">7. Assert that (Optional) id: home-screen is visible</span></span><span class="badge bg-light text-dark">&lt;1ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">3. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">94ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-10-Transferencias---revisi-n-detallada--monto--beneficiario--concepto--acciones-" aria-expanded="false" aria-controls="flow-10-Transferencias---revisi-n-detallada--monto--beneficiario--concepto--acciones-">Transferencias — revisión detallada (monto, beneficiario, concepto, acciones) : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-10-Transferencias---revisi-n-detallada--monto--beneficiario--concepto--acciones-">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: transfer-review-detail<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">105ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">8. Tap on &quot;Digito 7&quot;</span></span><span class="badge bg-light text-dark">1,7s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">9. Assert that &quot;Bienvenido de vuelta&quot; is visible</span></span><span class="badge bg-light text-dark">550ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">1ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-11-Transferencias---formulario-hasta-pantalla-de-revisi-n" aria-expanded="false" aria-controls="flow-11-Transferencias---formulario-hasta-pantalla-de-revisi-n">Transferencias — formulario hasta pantalla de revisión : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-11-Transferencias---formulario-hasta-pantalla-de-revisi-n">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: transfer-to-review-screen<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">97ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">10. Run ../../subflows/ensure-authenticated.yaml</span></span><span class="badge bg-light text-dark">57,1s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">11. Assert that id: home-screen is visible</span></span><span class="badge bg-light text-dark">13,6s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-12-Transferencias---validaci-n-al-continuar-sin-datos" aria-expanded="false" aria-controls="flow-12-Transferencias---validaci-n-al-continuar-sin-datos">Transferencias — validación al continuar sin datos : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-12-Transferencias---validaci-n-al-continuar-sin-datos">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: transfer-validation-messages<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">104ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">12. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">3,9s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">13. Tap on &quot;Digito 3&quot;</span></span><span class="badge bg-light text-dark">1,6s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Define variables</span></span><span class="badge bg-light text-dark">0ms</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#flow-13-Transferencia-completa---formulario--revisi-n--OTP--modal-de--xito-y-comprobante" aria-expanded="false" aria-controls="flow-13-Transferencia-completa---formulario--revisi-n--OTP--modal-de--xito-y-comprobante">Transferencia completa — formulario, revisión, OTP, modal de éxito y comprobante : ERROR</button></h5>
+          </div>
+          <div class="collapse" id="flow-13-Transferencia-completa---formulario--revisi-n--OTP--modal-de--xito-y-comprobante">
+            <div class="card-body">
+              <p class="card-text">Status: ERROR<br>Duration: 0s<br>Start Time: null<br>File Name: transfer-voucher<br></p>
+              <p class="card-text text-danger">Unable to launch app com.bbapp</p>
+              <h6 class="mt-3 mb-3">Test Steps (3)</h6>
+              <div class="step-item mb-2">
+                <div class="step-header d-flex justify-content-between align-items-center"><span>❌ <span class="step-name">1. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">94ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">14. Launch app &quot;com.bbapp&quot;</span></span><span class="badge bg-light text-dark">3,8s</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">2. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
               </div>
               <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">15. Tap on id: login-submit</span></span><span class="badge bg-light text-dark">2,5s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">16. Assert that id: home-screen is visible</span></span><span class="badge bg-light text-dark">1,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">17. Run flow when id: home-screen is not visible</span></span><span class="badge bg-light text-dark">26,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">18. Input text usuario01</span></span><span class="badge bg-light text-dark">1,8s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">19. Tap on &quot;Digito 4&quot;</span></span><span class="badge bg-light text-dark">1,6s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">20. Assert that id: home-screen is visible</span></span><span class="badge bg-light text-dark">183ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">21. Define variables</span></span><span class="badge bg-light text-dark">1ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">22. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">23. Tap on id: login-password-input</span></span><span class="badge bg-light text-dark">2,3s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">24. Stop com.bbapp</span></span><span class="badge bg-light text-dark">85ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">25. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">26. Tap on &quot;Digito 5&quot;</span></span><span class="badge bg-light text-dark">1,7s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">27. Assert that id: login-email-input is visible</span></span><span class="badge bg-light text-dark">85ms</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">28. Tap on &quot;Digito 1&quot;</span></span><span class="badge bg-light text-dark">2,3s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">29. Input text 123456</span></span><span class="badge bg-light text-dark">2,1s</span></div>
-              </div>
-              <div class="step-item mb-2">
-                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">30. Hide Keyboard</span></span><span class="badge bg-light text-dark">999ms</span></div>
+                <div class="step-header d-flex justify-content-between align-items-center"><span>✅ <span class="step-name">3. Apply configuration</span></span><span class="badge bg-light text-dark">0ms</span></div>
               </div>
             </div>
           </div>
