@@ -292,7 +292,7 @@ describe('TransferScreen', () => {
     await act(async () => {
       back.props.onPress?.();
     });
-    expect(mockTabNavigate).toHaveBeenCalledWith('ConsolidatedPosition', {});
+    expect(mockTabNavigate).toHaveBeenCalledWith('Home');
   });
 
   test('Continuar está deshabilitado cuando canContinueToReview es false', async () => {

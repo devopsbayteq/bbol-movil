@@ -2,18 +2,6 @@ import {mapOtpContentToEntity} from '../../../src/data/mappers/OtpMapper';
 import {mapBeneficiaryContactsContentToEntities} from '../../../src/data/mappers/beneficiaryMapper';
 import {mapContractBalanceContentToEntity} from '../../../src/data/mappers/contractBalanceMapper';
 
-function mockBeneficiary(suffix: string) {
-  return {
-    beneficiaryGuid: `ben-${suffix}`,
-    contactName: 'Nombre',
-    bankName: 'BB',
-    accountType: 'savings',
-    accountTypeLabel: 'Ahorros',
-    beneficiaryAccountNumber: '****0000',
-    lastFourDigits: '0000',
-  };
-}
-
 describe('OtpMapper', () => {
   test('mapOtpContentToEntity maps userMessage to entity message', () => {
     expect(mapOtpContentToEntity({userMessage: 'Listo'})).toEqual({
@@ -30,9 +18,7 @@ describe('beneficiaryMapper', () => {
           beneficiaryGuid: 'g1',
           contactName: 'Luis',
           bankName: 'BB',
-          accountType: '2',
-          accountTypeLabel: 'Corriente',
-          beneficiaryAccountNumber: '****9999',
+          accountType: 2,
           lastFourDigits: '9999',
         },
       ],
@@ -43,9 +29,7 @@ describe('beneficiaryMapper', () => {
         beneficiaryGuid: 'g1',
         contactName: 'Luis',
         bankName: 'BB',
-        accountType: '2',
-        accountTypeLabel: 'Corriente',
-        beneficiaryAccountNumber: '****9999',
+        accountType: 2,
         lastFourDigits: '9999',
       },
     ]);
@@ -59,26 +43,25 @@ describe('contractBalanceMapper', () => {
         {
           accountGuid: 'a1',
           maskedAccountNumber: '****1111',
-          accountType: 'savings',
+          accountType: 1,
           accountTypeLabel: 'Cta. Ahorros',
           balance: 10,
-          beneficiary: mockBeneficiary('a1'),
+          maskedAccountHome: '******0101',
+          accountAlias: 'Gastos',
         },
         {
           accountGuid: 'a2',
           maskedAccountNumber: '****2222',
-          accountType: 'checking',
+          accountType: 2,
           accountTypeLabel: 'Cta. corriente',
           balance: 20,
-          beneficiary: mockBeneficiary('a2'),
         },
         {
           accountGuid: 'a3',
           maskedAccountNumber: '****3333',
-          accountType: 'other',
+          accountType: 99,
           accountTypeLabel: 'Cuenta',
           balance: 30,
-          beneficiary: mockBeneficiary('a3'),
         },
       ],
       creditCards: [

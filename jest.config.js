@@ -12,6 +12,7 @@ module.exports = {
   // ],
   moduleNameMapper: {
     '^react-native-quick-crypto$': '<rootDir>/jest/crypto-shim.js',
+    '^react-native-screenguard$': '<rootDir>/jest/screenguard-mock.js',
     '\\.svg$': '<rootDir>/jest/svg-mock.js',
   },
   transformIgnorePatterns: [

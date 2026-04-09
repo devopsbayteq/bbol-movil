@@ -172,14 +172,14 @@ describe('useTransferReviewViewModel', () => {
     expect(latest?.conceptDisplay).toBe('—');
   });
 
-  // ── commissionDisplay ───────────────────────────────────────────────────
-  test('commissionDisplay muestra comisión monetaria cuando es Sin cargo', async () => {
+  // ── comisión (el VM no expone commissionDisplay; solo estado commission) ──
+  test('comisión en "Sin cargo" tras montaje', async () => {
     await mount();
-    expect(latest?.commissionDisplay).toBe(formatMoneyEc(0));
+    expect(latest?.commission).toBe('Sin cargo');
   });
 
   // ── onConfirm — cuenta propia ────────────────────────────────────────────
-  test('onConfirm con beneficiario cuenta propia llama a validate y navigateOtp cuando isValid es true', async () => {
+  test('onConfirm con beneficiario cuenta propia no valida ni navega a OTP', async () => {
     mockRouteParams = {
       ...defaultRouteParams,
       beneficiary: {
@@ -195,13 +195,9 @@ describe('useTransferReviewViewModel', () => {
     await act(async () => {
       await latest?.onConfirm();
     });
-    expect(mockValidateTransactionAmount.execute).toHaveBeenCalledWith({
-      amount: 50,
-      beneficiaryGuid: 'own-001',
-      accountGuid: 'acc-savings-001',
-      concept: 'Pago servicios',
-    });
-    expect(navigateOtpMock).toHaveBeenCalled();
+    expect(mockValidateTransactionAmount.execute).not.toHaveBeenCalled();
+    expect(navigateOtpMock).not.toHaveBeenCalled();
+    expect(latest?.confirmError).toContain('propias');
   });
 
   // ── onConfirm — sin email ────────────────────────────────────────────────

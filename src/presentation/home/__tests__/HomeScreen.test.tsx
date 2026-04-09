@@ -38,6 +38,11 @@ jest.mock('../../../providers', () => ({
   useTheme: () => ({colors: mockColors}),
 }));
 
+import {
+  MOCK_RECENT_ACTIVITY,
+  MOCK_UPCOMING_PAYMENTS_SUMMARY,
+} from '../homeDashboardMocks';
+
 // useHomeViewModel
 let mockViewModelState: {
   data: any;
@@ -48,6 +53,10 @@ let mockViewModelState: {
   retry: jest.Mock;
   showDevelopmentMode: boolean;
   setShowDevelopmentMode: jest.Mock;
+  bannersForHome: unknown[];
+  frequentPaymentsForHome: unknown[];
+  upcomingPaymentsSummary: typeof MOCK_UPCOMING_PAYMENTS_SUMMARY;
+  recentActivityItems: typeof MOCK_RECENT_ACTIVITY;
 } = {
   data: null,
   isLoading: false,
@@ -57,6 +66,10 @@ let mockViewModelState: {
   retry: mockRetry,
   showDevelopmentMode: false,
   setShowDevelopmentMode: jest.fn(),
+  bannersForHome: [],
+  frequentPaymentsForHome: [],
+  upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
+  recentActivityItems: MOCK_RECENT_ACTIVITY,
 };
 jest.mock('../useHomeViewModel', () => ({
   useHomeViewModel: () => mockViewModelState,
@@ -102,16 +115,24 @@ jest.mock('../components/ProductCarouselCards', () => ({
   SavingsAccountCard: () => null, CheckingAccountCard: () => null,
   CreditCardPreview: () => null, LoanCard: () => null,
 }));
-jest.mock('../components/QuickActionsRow', () => ({
-  QuickActionsRow: ({onPress}: any) =>
+jest.mock('../components/RequestProductRow', () => ({
+  RequestProductRow: ({onPress}: any) =>
     require('react').createElement(
       require('react-native').TouchableOpacity, {testID: 'quick-actions', onPress}, null),
 }));
 jest.mock('../components/PromotionalBanner', () => ({PromotionalBanner: () => null}));
-jest.mock('../components/FrequentPaymentRow', () => ({
-  FrequentPaymentRow: ({onPress}: any) =>
-    require('react').createElement(
-      require('react-native').TouchableOpacity, {testID: 'payment-row', onPress}, null),
+jest.mock('../components/FrequentActionsSection', () => ({
+  FrequentActionsSection: ({items, onItemPress}: any) => {
+    const React = require('react');
+    const {TouchableOpacity} = require('react-native');
+    if (!items?.length) {
+      return null;
+    }
+    return React.createElement(TouchableOpacity, {
+      testID: 'payment-row',
+      onPress: () => onItemPress?.(items[0], 0),
+    }, null);
+  },
 }));
 jest.mock('../components/PaymentRowIcons', () => ({
   PaymentLightbulbIcon: () => null,
@@ -167,6 +188,17 @@ const makeFullData = () => ({
   loans: makeLoans(), investments: [], frequentPayments: makeFrequentPayments(),
 });
 
+/** Alinea `frequentPaymentsForHome` con `data`, como hace el ViewModel real. */
+function assignVmData(data: any) {
+  mockViewModelState.data = data;
+  if (data == null) {
+    return;
+  }
+  mockViewModelState.frequentPaymentsForHome = Array.isArray(data.frequentPayments)
+    ? data.frequentPayments
+    : [];
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 describe('HomeScreen', () => {
   beforeEach(() => {
@@ -180,6 +212,10 @@ describe('HomeScreen', () => {
       retry: mockRetry,
       showDevelopmentMode: false,
       setShowDevelopmentMode: jest.fn(),
+      bannersForHome: [],
+      frequentPaymentsForHome: [],
+      upcomingPaymentsSummary: MOCK_UPCOMING_PAYMENTS_SUMMARY,
+      recentActivityItems: MOCK_RECENT_ACTIVITY,
     };
     (useNavigation as jest.Mock).mockReturnValue({
       navigate: mockNavigate, setParams: mockSetParams,
@@ -219,31 +255,31 @@ describe('HomeScreen', () => {
   });
 
   it('shows empty products text when data has no items for the selected filter', () => {
-    mockViewModelState.data = {
+    assignVmData({
       accounts: [], creditCards: [], loans: [], investments: [], frequentPayments: [],
-    };
+    });
     const tree = render(<HomeScreen />);
     const text = collectText(tree.toJSON());
     expect(text).toContain('No hay productos');
   });
 
-  it('shows empty frequent payments text when frequentPayments is empty', () => {
-    mockViewModelState.data = {
+  it('no muestra acciones frecuentes cuando frequentPayments está vacío', () => {
+    assignVmData({
       accounts: [], creditCards: [], loans: [], investments: [], frequentPayments: [],
-    };
+    });
     const tree = render(<HomeScreen />);
     const text = collectText(tree.toJSON());
-    expect(text).toContain('No hay pagos frecuentes');
+    expect(text).not.toContain('Acciones frecuentes');
   });
 
   it('renders product carousel with accounts (savings, checking and other branches)', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     expect(tree.toJSON()).toBeTruthy();
   });
 
   it('renders credit cards when Tarjetas filter is active', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     act(() => {
       tree.root.findByProps({testID: 'filter-tarjetas'}).props.onPress();
@@ -252,7 +288,7 @@ describe('HomeScreen', () => {
   });
 
   it('renders loans when Préstamos filter is active', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     act(() => {
       tree.root.findByProps({testID: 'filter-prestamos'}).props.onPress();
@@ -261,7 +297,7 @@ describe('HomeScreen', () => {
   });
 
   it('renders frequent payments and covers all icon branches', () => {
-    mockViewModelState.data = {
+    assignVmData({
       ...makeFullData(),
       frequentPayments: [
         {beneficiaryName: 'Luz del Sur', beneficiaryType: 'luz'},
@@ -273,13 +309,13 @@ describe('HomeScreen', () => {
         {beneficiaryName: 'Educación', beneficiaryType: 'edu'},
         {beneficiaryName: 'Juan García', beneficiaryType: 'persona'},
       ],
-    };
+    });
     const tree = render(<HomeScreen />);
     expect(tree.toJSON()).toBeTruthy();
   });
 
   it('opens DevelopmentNoticeModal when QuickActionsRow is pressed', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     act(() => {
       tree.root.findByProps({testID: 'quick-actions'}).props.onPress();
@@ -288,10 +324,10 @@ describe('HomeScreen', () => {
   });
 
   it('opens DevelopmentNoticeModal when a frequent payment is pressed', () => {
-    mockViewModelState.data = {
+    assignVmData({
       ...makeFullData(),
       frequentPayments: [{beneficiaryName: 'Juan', beneficiaryType: 'persona'}],
-    };
+    });
     const tree = render(<HomeScreen />);
     act(() => {
       tree.root.findByProps({testID: 'payment-row'}).props.onPress();
@@ -300,7 +336,7 @@ describe('HomeScreen', () => {
   });
 
   it('closes DevelopmentNoticeModal via onClose', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     act(() => {
       tree.root.findByProps({testID: 'quick-actions'}).props.onPress();
@@ -312,7 +348,7 @@ describe('HomeScreen', () => {
   });
 
   it('calls refresh via RefreshControl onRefresh', async () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     // Find the outer (vertical) ScrollView that has a refreshControl prop
     const scrollViewNode = tree.root.findAll(
@@ -326,7 +362,7 @@ describe('HomeScreen', () => {
 
   it('handles useFocusEffect with refreshHome token (triggers refresh)', () => {
     (useRoute as jest.Mock).mockReturnValue({params: {refreshHome: Date.now()}});
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     render(<HomeScreen />);
     expect(mockRefresh).toHaveBeenCalled();
   });
@@ -338,7 +374,7 @@ describe('HomeScreen', () => {
   });
 
   it('handles carousel scroll event and animates to new index', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     const carouselScrollView = tree.root.findAll(
       (node: any) => node.props.horizontal === true,
@@ -352,7 +388,7 @@ describe('HomeScreen', () => {
   });
 
   it('does not animate when carousel scrolls to same index (0 → 0)', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     const carouselScrollView = tree.root.findAll(
       (node: any) => node.props.horizontal === true,
@@ -366,7 +402,7 @@ describe('HomeScreen', () => {
   });
 
   it('ignores carousel scroll when index is out of bounds', () => {
-    mockViewModelState.data = makeFullData();
+    assignVmData(makeFullData());
     const tree = render(<HomeScreen />);
     const carouselScrollView = tree.root.findAll(
       (node: any) => node.props.horizontal === true,
@@ -380,10 +416,10 @@ describe('HomeScreen', () => {
   });
 
   it('navigates to Movements when a checking account card is pressed', () => {
-    mockViewModelState.data = {
+    assignVmData({
       accounts: [{accountGuid: 'g-c', maskedAccountNumber: '****5678', accountKind: 'checking' as const, balance: 2000}],
       creditCards: [], loans: [], investments: [], frequentPayments: [],
-    };
+    });
     const tree = render(<HomeScreen />);
     const accountTouch = tree.root.findAll(
       (node: any) => node.props.accessibilityLabel === 'Ver movimientos de cuenta corriente',
@@ -398,13 +434,13 @@ describe('HomeScreen', () => {
   });
 
   it('navigates to Movements when a savings account card is pressed', () => {
-    mockViewModelState.data = {
+    assignVmData({
       accounts: [{accountGuid: 'g-s', maskedAccountNumber: '****1234', accountKind: 'savings' as const, balance: 1000}],
       creditCards: [], loans: [], investments: [], frequentPayments: [],
-    };
+    });
     const tree = render(<HomeScreen />);
     const accountTouch = tree.root.findAll(
-      (node: any) => node.props.accessibilityLabel === 'Ver movimientos de Cta. ahorros',
+      (node: any) => node.props.accessibilityLabel === 'Ver movimientos de ****1234',
     )[0];
     act(() => {
       accountTouch?.props?.onPress?.();
@@ -416,13 +452,13 @@ describe('HomeScreen', () => {
   });
 
   it('navigates to Movements when an "other" kind account card is pressed', () => {
-    mockViewModelState.data = {
+    assignVmData({
       accounts: [{accountGuid: 'g-o', maskedAccountNumber: '****0000', accountKind: 'other' as const, balance: 300}],
       creditCards: [], loans: [], investments: [], frequentPayments: [],
-    };
+    });
     const tree = render(<HomeScreen />);
     const accountTouch = tree.root.findAll(
-      (node: any) => node.props.accessibilityLabel === 'Ver movimientos de Cuenta',
+      (node: any) => node.props.accessibilityLabel === 'Ver movimientos de ****0000',
     )[0];
     act(() => {
       accountTouch?.props?.onPress?.();
