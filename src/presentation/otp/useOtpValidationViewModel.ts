@@ -32,22 +32,18 @@ export function useOtpValidationViewModel(
   const [error, setError] = useState<string | null>(null);
   const {validateOtpUseCase} = useDI();
 
+  /** Un solo intervalo en flujo login; al reenviar solo se reinicia `secondsLeft`. */
   useEffect(() => {
     if (!isLoginFlow) {
       return;
     }
-    if (secondsLeft <= 0) {
-      return;
-    }
-
     const timer = setInterval(() => {
-      setSecondsLeft(prev => Math.max(prev - 1, 0));
+      setSecondsLeft(prev => (prev <= 0 ? 0 : prev - 1));
     }, 1000);
-
     return () => {
       clearInterval(timer);
     };
-  }, [isLoginFlow, secondsLeft]);
+  }, [isLoginFlow]);
 
   const onChangeCode = useCallback((nextCode: string) => {
     setCode(nextCode);
