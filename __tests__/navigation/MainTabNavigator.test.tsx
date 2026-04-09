@@ -1,5 +1,3 @@
-jest.mock('react-native-screenguard', () => ({}));
-
 jest.mock('react-native-view-shot', () => ({
   __esModule: true,
   default: 'ViewShot',
@@ -92,19 +90,12 @@ jest.mock('../../src/features/transfer/navigation/TransferStackNavigator', () =>
   };
 });
 
-jest.mock('../../src/navigation/MovementsStackNavigator', () => {
-  const R = require('react');
-  const {Text} = require('react-native');
-  return {
-    MovementsStackNavigator: () =>
-      R.createElement(Text, {testID: 'screen-movements'}, 'Movements'),
-  };
-});
-
 jest.mock('../../src/presentation/placeholders/TabSectionPlaceholderScreen', () => {
   const R = require('react');
   const {Text} = require('react-native');
   return {
+    WithdrawTabScreen: () =>
+      R.createElement(Text, {testID: 'screen-withdraw'}, 'WithdrawTab'),
     PaymentsTabScreen: () =>
       R.createElement(Text, {testID: 'screen-payments'}, 'PaymentsTab'),
     OthersTabScreen: () =>
@@ -137,7 +128,7 @@ describe('MainTabNavigator', () => {
     expect(tree.findByProps({testID: 'tab-navigator'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-home'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-transfer-stack'})).toBeTruthy();
-    expect(tree.findByProps({testID: 'screen-movements'})).toBeTruthy();
+    expect(tree.findByProps({testID: 'screen-withdraw'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-payments'})).toBeTruthy();
     expect(tree.findByProps({testID: 'screen-others'})).toBeTruthy();
 
@@ -149,7 +140,7 @@ describe('MainTabNavigator', () => {
     expect(flat).toContain('Otros');
   });
 
-  test('oculta la barra de pestañas en Movimientos cuando la ruta enfocada es MovementDetail', async () => {
+  test('oculta la barra de pestañas en Inicio cuando la ruta enfocada es MovementDetail', async () => {
     getFocusedRouteNameFromRouteMock.mockReturnValue('MovementDetail');
 
     let root: ReactTestRenderer.ReactTestRenderer;
@@ -158,12 +149,12 @@ describe('MainTabNavigator', () => {
     });
 
     const flag = root!.root.findByProps({
-      testID: 'tab-bar-visibility-Movements',
+      testID: 'tab-bar-visibility-Home',
     });
     expect(flag.props.children).toBe('yes');
   });
 
-  test('muestra la barra de pestañas en Movimientos en lista', async () => {
+  test('oculta la barra de pestañas en Inicio cuando la ruta enfocada es MovementsList', async () => {
     getFocusedRouteNameFromRouteMock.mockReturnValue('MovementsList');
 
     let root: ReactTestRenderer.ReactTestRenderer;
@@ -172,7 +163,21 @@ describe('MainTabNavigator', () => {
     });
 
     const flag = root!.root.findByProps({
-      testID: 'tab-bar-visibility-Movements',
+      testID: 'tab-bar-visibility-Home',
+    });
+    expect(flag.props.children).toBe('yes');
+  });
+
+  test('muestra la barra de pestañas en Inicio en HomeMain', async () => {
+    getFocusedRouteNameFromRouteMock.mockReturnValue('HomeMain');
+
+    let root: ReactTestRenderer.ReactTestRenderer;
+    await act(async () => {
+      root = ReactTestRenderer.create(<MainTabNavigator />);
+    });
+
+    const flag = root!.root.findByProps({
+      testID: 'tab-bar-visibility-Home',
     });
     expect(flag.props.children).toBe('no');
   });

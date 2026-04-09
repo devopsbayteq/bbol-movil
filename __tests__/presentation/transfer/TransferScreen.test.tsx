@@ -228,7 +228,9 @@ describe('TransferScreen', () => {
     await act(async () => {
       back.props.onPress?.();
     });
-    expect(mockTabNavigate).toHaveBeenCalledWith('Home', {});
+    expect(mockTabNavigate).toHaveBeenCalledWith('Home', {
+      screen: 'HomeMain',
+    });
   });
 
   test('Continuar con validación fallida llama setValidationMessage', async () => {

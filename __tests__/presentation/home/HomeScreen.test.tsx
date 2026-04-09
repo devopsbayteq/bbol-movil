@@ -333,7 +333,7 @@ describe('HomeScreen', () => {
       .findAllByType(TouchableOpacity as never)
       .find(inst => {
         try {
-          return inst.findByType(Text as never).props.children === 'Créditos';
+          return inst.findByType(Text as never).props.children === 'Préstamos';
         } catch {
           return false;
         }

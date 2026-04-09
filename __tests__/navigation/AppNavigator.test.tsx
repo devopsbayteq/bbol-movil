@@ -1,5 +1,3 @@
-jest.mock('react-native-screenguard', () => ({}));
-
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {AppNavigator} from '../../src/navigation/AppNavigator';
@@ -80,15 +78,6 @@ jest.mock('../../src/presentation/auth/BiometricOfferScreen', () => {
   return {
     BiometricOfferScreen: () =>
       R.createElement(Text, {testID: 'bio-mock'}, 'Bio'),
-  };
-});
-
-jest.mock('../../src/presentation/securityMenu/SecurityMenuScreen.tsx', () => {
-  const R = require('react');
-  const {Text} = require('react-native');
-  return {
-    SecurityMenuScreen: () =>
-      R.createElement(Text, {testID: 'security-menu-mock'}, 'SecurityMenu'),
   };
 });
 

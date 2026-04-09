@@ -43,13 +43,13 @@ describe('tabIcons', () => {
     );
   });
 
-  test('TabWithdrawIcon expone etiqueta Retirar', async () => {
+  test('TabWithdrawIcon usa la misma etiqueta de accesibilidad que el asset (Transferir)', async () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     await act(async () => {
       root = ReactTestRenderer.create(<TabWithdrawIcon color="#fff" />);
     });
-    const svg = root!.root.findByProps({accessibilityLabel: 'Retirar'});
-    expect(svg).toBeTruthy();
+    const img = root!.root.findByType('Image' as never);
+    expect(img.props.accessibilityLabel).toBe('Transferir');
   });
 
   test('TabPaymentsIcon expone etiqueta Pagos', async () => {

@@ -35,22 +35,25 @@ describe('useRegisterAliasViewModel', () => {
       expect(ok).toBe(false);
     });
 
-    expect(latest?.inlineError).toBe('El alias es requerido');
+    expect(latest?.inlineError).toBe(
+      'Ingresa un alias de al menos 2 caracteres.',
+    );
     expect(mockedUseDI().registerAliasUseCase.execute).not.toHaveBeenCalled();
   });
 
-  test('onChangeAlias marca error de juego de caracteres con @ y #', async () => {
+  test('submit con alias que incluye carácter de control deja error inline', async () => {
     await act(async () => {
       ReactTestRenderer.create(<Harness />);
     });
 
     act(() => {
-      latest?.onChangeAlias('mi@Alias#1');
+      latest?.onChangeAlias('ab\u0007c');
     });
-    expect(latest?.alias).toBe('mi@Alias#1');
-    expect(latest?.inlineError).toBe(
-      'El alias solo puede contener letras, números, punto (.), guion (-) y guion bajo (_).',
-    );
+    await act(async () => {
+      await latest?.submit();
+    });
+    expect(latest?.inlineError).toBe('El alias contiene caracteres no válidos.');
+    expect(mockedUseDI().registerAliasUseCase.execute).not.toHaveBeenCalled();
   });
 
   test('submit con alias válido llama execute y devuelve true', async () => {
