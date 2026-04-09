@@ -172,10 +172,10 @@ describe('useTransferReviewViewModel', () => {
     expect(latest?.conceptDisplay).toBe('—');
   });
 
-  // ── commissionDisplay (formato del VM en features, distinto a formatMoneyEc) ──
+  // ── commissionDisplay (literal del VM en features cuando no es Con cargo) ──
   test('commissionDisplay muestra placeholder monetario cuando es Sin cargo', async () => {
     await mount();
-    expect(latest?.commissionDisplay).toBe('$0.0');
+    expect(latest?.commissionDisplay).toBe('$0.00');
   });
 
   // ── onConfirm — cuenta propia (el VM de features no bloquea own_account) ───

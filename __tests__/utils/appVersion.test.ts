@@ -4,9 +4,9 @@ import {
 } from '../../src/utils/appVersion';
 
 describe('appVersion', () => {
-  test('formatAppVersionDisplay uses marketing + build with space', () => {
-    expect(formatAppVersionDisplay('1.0.0', '1')).toBe('1.0.0 +1');
-    expect(formatAppVersionDisplay(' 1.0.0 ', ' 1 ')).toBe('1.0.0 +1');
+  test('formatAppVersionDisplay devuelve solo la versión de marketing (trim)', () => {
+    expect(formatAppVersionDisplay('1.0.0', '1')).toBe('1.0.0');
+    expect(formatAppVersionDisplay(' 1.0.0 ', ' 1 ')).toBe('1.0.0');
   });
 
   test('formatAppVersionDisplay without build returns marketing only', () => {
