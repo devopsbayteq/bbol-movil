@@ -38,7 +38,7 @@ interface TransferOtpScreenProps {
   route: OtpScreenRouteProp;
 }
 
-export function TransferOtpValidationScreen(_props: TransferOtpScreenProps) {
+export function TransferOtpValidationScreen(_props: Readonly<TransferOtpScreenProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const navigation = useNavigation<OtpScreenNavigationProp>();
@@ -80,7 +80,7 @@ export function TransferOtpValidationScreen(_props: TransferOtpScreenProps) {
   }, [code, isLoading, error, handleValidate]);
 
   const handleOtpTextChange = (text: string) => {
-    const digits = text.replace(/\D/g, '').slice(0, 6);
+    const digits = text.replaceAll(/\D/g, '').slice(0, 6);
     onChangeCode(digits);
   };
 

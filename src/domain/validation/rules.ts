@@ -25,7 +25,7 @@ export function composeValidators(
 }
 
 export function removeCharacters(pattern: RegExp): InputSanitizer {
-  return value => value.replace(pattern, '');
+  return value => value.replaceAll(pattern, '');
 }
 
 export function filterCharacters(

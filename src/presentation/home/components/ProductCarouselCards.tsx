@@ -29,7 +29,8 @@ function formatShortDueDate(iso: string): string {
 function formatLoanMaskedLine(loanGuid: string): string {
   let h = 0;
   for (let i = 0; i < loanGuid.length; i += 1) {
-    h = (h * 31 + loanGuid.charCodeAt(i)) % 2147483647;
+    const cp = loanGuid.codePointAt(i) ?? 0;
+    h = (h * 31 + cp) % 2147483647;
   }
   const n = 100 + (Math.abs(h) % 900);
   return `${String(n).padStart(3, '0').slice(0, 3)}*****`;
@@ -39,13 +40,14 @@ function formatLoanMaskedLine(loanGuid: string): string {
 function formatInvestmentMaskedLine(investmentGuid: string): string {
   let h = 0;
   for (let i = 0; i < investmentGuid.length; i += 1) {
-    h = (h * 31 + investmentGuid.charCodeAt(i)) % 2147483647;
+    const cp = investmentGuid.codePointAt(i) ?? 0;
+    h = (h * 31 + cp) % 2147483647;
   }
   const n = 100 + (Math.abs(h) % 900);
   return `**** *${n}`;
 }
 
-function ShareIcon({color, size = 16}: {color: string; size?: number}) {
+function ShareIcon({color, size = 16}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -56,7 +58,7 @@ function ShareIcon({color, size = 16}: {color: string; size?: number}) {
   );
 }
 
-function StarIconRelleno({color, size = 16}: {color: string; size?: number}) {
+function StarIconRelleno({color, size = 16}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
       <Path
@@ -67,7 +69,7 @@ function StarIconRelleno({color, size = 16}: {color: string; size?: number}) {
   );
 }
 
-function StarIconVacio({color, size = 16}: {color: string; size?: number}) {
+function StarIconVacio({color, size = 16}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
       <Path
@@ -77,7 +79,7 @@ function StarIconVacio({color, size = 16}: {color: string; size?: number}) {
     </Svg>
   );
 }
-function EyeIcon({color, size = 16}: {color: string; size?: number}) {
+function EyeIcon({color, size = 16}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -88,7 +90,7 @@ function EyeIcon({color, size = 16}: {color: string; size?: number}) {
   );
 }
 
-function EyeSlashIcon({color, size = 16}: {color: string; size?: number}) {
+function EyeSlashIcon({color, size = 16}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -113,7 +115,7 @@ export function SavingsAccountCard({
   maskedAccountNumber,
   balance,
   isFirst = false,
-}: SavingsCardProps) {
+}: Readonly<SavingsCardProps>) {
   const {colors} = useTheme();
   const styles = useSavingsStyles(colors);
   const [masked, setMasked] = useState(true);
@@ -269,7 +271,7 @@ export function CheckingAccountCard({
   maskedAccountNumber,
   balance,
   isFirst = false,
-}: CheckingCardProps) {
+}: Readonly<CheckingCardProps>) {
   return (
     <SavingsAccountCard
       style={style}
@@ -293,7 +295,7 @@ export function CreditCardPreview({
   maskedCardNumber,
   totalDue,
   maxPaymentDate,
-}: CreditCardPreviewProps) {
+}: Readonly<CreditCardPreviewProps>) {
   const {colors} = useTheme();
   const styles = useCreditStyles(colors);
   const [masked, setMasked] = useState(true);
@@ -488,7 +490,7 @@ export function LoanCard({
   loanGuid,
   nextInstallmentAmount,
   nextInstallmentDate,
-}: LoanCardProps) {
+}: Readonly<LoanCardProps>) {
   const {colors} = useTheme();
   const styles = useLoanStyles(colors);
   const [masked, setMasked] = useState(true);
@@ -654,7 +656,7 @@ export function InvestmentCard({
   productName,
   currentValue,
   currency,
-}: InvestmentCardProps) {
+}: Readonly<InvestmentCardProps>) {
   const {colors} = useTheme();
   const styles = useInvestmentStyles(colors);
   const [masked, setMasked] = useState(true);

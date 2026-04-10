@@ -54,7 +54,7 @@ function resolveAccountKind(accountType: number | string): AccountKind {
 }
 
 function lastFourFromMasked(maskedAccountNumber: string): string {
-  const digits = maskedAccountNumber.replace(/\D/g, '');
+  const digits = maskedAccountNumber.replaceAll(/\D/g, '');
   if (digits.length >= 4) {
     return digits.slice(-4);
   }

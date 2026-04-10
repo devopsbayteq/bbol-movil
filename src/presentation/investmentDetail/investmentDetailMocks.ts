@@ -17,7 +17,8 @@ const DEBIT_PURPOSES = [
 function hashGuid(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i += 1) {
-    h = (h * 31 + s.charCodeAt(i)) % 2147483647;
+    const cp = s.codePointAt(i) ?? 0;
+    h = (h * 31 + cp) % 2147483647;
   }
   return Math.abs(h);
 }

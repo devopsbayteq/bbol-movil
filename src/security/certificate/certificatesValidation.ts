@@ -34,8 +34,8 @@ export function materialHex16FromUuidV4(): string {
   const base64url = crypto
     .randomBytes(16)
     .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    .replaceAll('+', '-')
+    .replaceAll('/', '_');
   return base64url.slice(0, 16);
 }
 

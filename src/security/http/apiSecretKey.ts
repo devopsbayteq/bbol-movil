@@ -7,6 +7,6 @@ export function createApiSecretKey(): string {
   const buf = crypto.randomBytes(16);
   return buf
     .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    .replaceAll('+', '-')
+    .replaceAll('/', '_');
 }

@@ -18,7 +18,7 @@ interface Props {
 
 type Phase = 'checking' | 'loading' | 'error';
 
-export function CertificateHandshakeScreen({navigation}: Props) {
+export function CertificateHandshakeScreen({navigation}: Readonly<Props>) {
   const {runCertificateHandshakeUseCase, secureStorageService} = useDI();
   const {colors} = useTheme();
   const styles = useStyles(colors);

@@ -12,7 +12,7 @@ export function mapHomeRecentTransactionToActivityItem(
     ? ''
     : date
         .toLocaleDateString('es-EC', {month: 'short'})
-        .replace(/\./g, '')
+        .replaceAll('.', '')
         .toUpperCase();
 
   const description =

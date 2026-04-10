@@ -114,7 +114,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
   }, [code, isLoading, error, handleValidate]);
 
   const handleOtpTextChange = (text: string) => {
-    const digits = text.replace(/\D/g, '').slice(0, 6);
+    const digits = text.replaceAll(/\D/g, '').slice(0, 6);
     onChangeCode(digits);
   };
 
