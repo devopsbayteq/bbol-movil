@@ -516,17 +516,16 @@ export function HomeScreen() {
               </View>
             ) : null}
 
-            {isLoading ? (
+            {isLoading && (
               <View style={styles.loadingBox}>
                 <ActivityIndicator size="small" color={colors.white} />
               </View>
-            ) : !productItems.length ? (
+            )}
+            {!isLoading && !productItems.length && (
               <Text style={styles.emptyProductsInline}>
                 No hay productos en esta categoría.
               </Text>
-            ) : null}
-
-            
+            )}            
 
             {data ? (
               <View style={[styles.mainColumn, styles.contentArea]}>

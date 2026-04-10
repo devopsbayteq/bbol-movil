@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 
@@ -19,7 +19,7 @@ export function OtpCodeInput({
   disabled = false,
   hasError = false,
   variant = 'dots',
-}: OtpCodeInputProps) {
+}: Readonly<OtpCodeInputProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
@@ -32,7 +32,7 @@ export function OtpCodeInput({
           const filled = !!digit;
           return (
             <View
-              key={index}
+              key={`cell-${index}-${digit}`}
               style={[
                 styles.boxCell,
                 hasError && styles.boxError,
@@ -55,7 +55,7 @@ export function OtpCodeInput({
       {cells.map((digit, index) => {
         const filled = !!digit;
         return (
-          <View key={index} style={styles.dotCell}>
+          <View key={`dot-${index}-${digit}`} style={styles.dotCell}>
             <View
               style={[
                 styles.dot,

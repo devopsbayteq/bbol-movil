@@ -20,12 +20,17 @@ export function accountTypeModalLabel(account: AccountBalance): string {
   return 'Cuenta';
 }
 
+const ACCOUNT_KIND_SHORT_LABEL: Record<'checking' | 'savings', string> = {
+  savings: 'Cta. Ahorros',
+  checking: 'Cta. corriente',
+};
+
 export function formatAccountKindLine(account: AccountBalance): string {
+  const ak = account.accountKind;
   const kind =
-    account.accountKind === 'savings'
-      ? 'Cta. Ahorros'
-      : account.accountKind === 'checking'
-        ? 'Cta. corriente'
-        : 'Cuenta';
+    ak === 'savings' || ak === 'checking'
+      ? ACCOUNT_KIND_SHORT_LABEL[ak]
+      : 'Cuenta';
+
   return `${kind} ${account.maskedAccountNumber}`.trim();
 }

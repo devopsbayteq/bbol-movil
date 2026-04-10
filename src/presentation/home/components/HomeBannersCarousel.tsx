@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Platform,
+  
   Linking,
   useWindowDimensions,
   type TextStyle,
@@ -34,24 +34,24 @@ function BannerLine({
   line,
   baseStyle,
   boldStyle,
-}: {
+}: Readonly<{
   line: string;
   baseStyle: TextStyle;
   boldStyle: TextStyle;
-}) {
+}>) {
   const parts = line.split(/(\*\*[^*]+\*\*)/g);
   return (
     <Text style={baseStyle}>
       {parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return (
-            <Text key={i} style={boldStyle}>
+            <Text key={`bold-${i}-${part}`} style={boldStyle}>
               {part.slice(2, -2)}
             </Text>
           );
         }
         return (
-          <Text key={i} style={baseStyle}>
+          <Text key={`text-${i}-${part}`} style={baseStyle}>
             {part}
           </Text>
         );
@@ -69,35 +69,42 @@ type BannerLandscapeStyles = {
 function BannerLandscapeVisual({
   landscape,
   styles,
-}: {
+}: Readonly<{
   landscape: string;
   styles: BannerLandscapeStyles;
-}) {
+}>) {
   const resolved = resolveBannerLandscape(landscape);
+  let content;
+
+if (resolved.kind === 'remote') {
+  content = (
+    <Image
+      source={{ uri: resolved.uri }}
+      style={styles.landscapeImage}
+      resizeMode="contain"
+      accessibilityIgnoresInvertColors
+    />
+  );
+} else if (resolved.kind === 'local') {
+  content = (
+    <Image
+      source={resolved.source}
+      style={styles.landscapeImage}
+      resizeMode="contain"
+      accessibilityIgnoresInvertColors
+    />
+  );
+} else {
+  content = <View style={styles.landscapePlaceholder} />;
+}
   return (
     <View style={styles.visual}>
-      {resolved.kind === 'remote' ? (
-        <Image
-          source={{uri: resolved.uri}}
-          style={styles.landscapeImage}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-        />
-      ) : resolved.kind === 'local' ? (
-        <Image
-          source={resolved.source}
-          style={styles.landscapeImage}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-        />
-      ) : (
-        <View style={styles.landscapePlaceholder} />
-      )}
+      {content}
     </View>
   );
 }
 
-export function HomeBannersCarousel({banners}: Props) {
+export function HomeBannersCarousel({banners}: Readonly<Props>) {
   const {colors} = useTheme();
   const {width: windowWidth} = useWindowDimensions();
   const slideWidth = windowWidth - SCREEN_PADDING_X * 2;
@@ -168,7 +175,7 @@ export function HomeBannersCarousel({banners}: Props) {
           <View style={styles.textBlock}>
             {banner.text.split('\n').map((line, lineIdx) => (
               <BannerLine
-                key={lineIdx}
+                key={`line-${lineIdx}-${line}`}
                 line={line}
                 baseStyle={styles.bodyText}
                 boldStyle={styles.boldText}

@@ -26,7 +26,7 @@ export class CryptoService {
         privateKeyEncoding: {type: 'pkcs8', format: 'pem'},
       });
       if (typeof publicKey !== 'string' || typeof privateKey !== 'string') {
-        throw new Error('Claves RSA no devueltas en PEM');
+        throw new TypeError('Claves RSA no devueltas en PEM');
       }
       this.memoryPrivatePem = privateKey;
       this.memoryPublicPem = publicKey;

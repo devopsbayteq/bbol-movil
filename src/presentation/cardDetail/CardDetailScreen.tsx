@@ -24,14 +24,13 @@ import {formatCurrency} from '../transactions/TransactionItem';
 import {DevelopmentNoticeModal} from '../components';
 import {useCardDetailViewModel} from './useCardDetailViewModel';
 import type {CardSpendingCategoryMock} from './cardDetailMocks';
-import {SpendingDonutChart, type DonutSegment} from './SpendingDonutChart';
 
 const CARD_BANNER_BG = require('../../../assets/images/card_banner_background.png');
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'CardDetail'>;
 
 /** Misma familia de iconos que `TransactionsScreen` (movimientos). */
-function BackIcon({color}: {color: string}) {
+function BackIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
@@ -46,11 +45,11 @@ function ChevronDownIcon({
   color,
   width,
   height,
-}: {
+}: Readonly<{
   color: string;
   width: number;
   height: number;
-}) {
+}>) {
   return (
     <Svg width={width} height={height} viewBox="0 0 24 24">
       <Path
@@ -61,7 +60,7 @@ function ChevronDownIcon({
   );
 }
 
-function ChevronRightIcon({color}: {color: string}) {
+function ChevronRightIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={28} height={26} viewBox="0 0 24 24">
       <Path
@@ -96,7 +95,7 @@ function resolveCategoryColor(
   return colors.primaryLight;
 }
 
-function CreditCardPayIcon({color}: {color: string}) {
+function CreditCardPayIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -107,7 +106,7 @@ function CreditCardPayIcon({color}: {color: string}) {
   );
 }
 
-function CalendarDeferIcon({color}: {color: string}) {
+function CalendarDeferIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -118,7 +117,7 @@ function CalendarDeferIcon({color}: {color: string}) {
   );
 }
 
-function StatementIcon({color}: {color: string}) {
+function StatementIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -129,7 +128,7 @@ function StatementIcon({color}: {color: string}) {
   );
 }
 
-function CashAdvanceIcon({color}: {color: string}) {
+function CashAdvanceIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -140,7 +139,7 @@ function CashAdvanceIcon({color}: {color: string}) {
   );
 }
 
-function EyeIcon({color}: {color: string}) {
+function EyeIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -151,7 +150,7 @@ function EyeIcon({color}: {color: string}) {
   );
 }
 
-function EyeSlashIcon({color}: {color: string}) {
+function EyeSlashIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -175,7 +174,7 @@ export function CardDetailScreen() {
     isLoading,
     errorMessage,
     consumptions,
-    spendingCategories,
+    
   } = useCardDetailViewModel(maskedCardNumber);
 
   const [balanceMasked, setBalanceMasked] = useState(true);
@@ -183,14 +182,6 @@ export function CardDetailScreen() {
 
   const openDev = useCallback(() => setDevModalVisible(true), []);
 
-  const donutSegments: DonutSegment[] = useMemo(
-    () =>
-      spendingCategories.map(c => ({
-        color: resolveCategoryColor(colors, c.colorToken),
-        share: c.share,
-      })),
-    [colors, spendingCategories],
-  );
 
   const topBar = useMemo(
     () => (
