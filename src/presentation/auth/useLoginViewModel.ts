@@ -264,12 +264,18 @@ export function useLoginViewModel(
         err instanceof BiometricRSAError &&
         err.code === 'biometric_enrollment_changed';
       const message = mapBiometricError(err);
-      setState(prev => ({
-        ...prev,
-        isLoadingBiometric: false,
-        biometricEnrollmentRevoked: revoked,
-        ...(revoked ? {error: null} : message ? {error: message} : {}),
-      }));
+      setState(prev => {
+        const updates: Partial<LoginState> = {
+          isLoadingBiometric: false,
+          biometricEnrollmentRevoked: revoked,
+        };
+        if (revoked) {
+          updates.error = null;
+        } else if (message) {
+          updates.error = message;
+        }
+        return {...prev, ...updates};
+      });
     }
   }, [biometricRSAAuthOrchestrator, onBiometricLoginSuccess]);
 

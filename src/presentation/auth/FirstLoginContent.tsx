@@ -47,7 +47,7 @@ export function FirstLoginContent({
   isCredentialLoginEnabled,
   error,
   onLogin,
-}: FirstLoginContentProps) {
+}: Readonly<FirstLoginContentProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [devNoticeVisible, setDevNoticeVisible] = useState(false);

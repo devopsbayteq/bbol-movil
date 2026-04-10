@@ -28,7 +28,7 @@ export function DeviceRegistrationSuccessModal({
   visible,
   onContinue,
   variant = 'deviceRegistration',
-}: DeviceRegistrationSuccessModalProps) {
+}: Readonly<DeviceRegistrationSuccessModalProps>) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
