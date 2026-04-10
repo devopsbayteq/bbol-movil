@@ -6,7 +6,7 @@ type CardViewContainerProps = {
     children: React.ReactNode;
 };
 
-export function CardViewContainer({children}: CardViewContainerProps) {
+export function CardViewContainer({children}: Readonly<CardViewContainerProps>) {
     const {colors} = useTheme();
     const styles = useStyles(colors);
 
@@ -35,7 +35,7 @@ function useStyles(colors: ThemeColors) {
                     overflow: 'hidden',
                 },
                 watermarkLayer: {
-                    ...StyleSheet.absoluteFillObject,
+                    ...StyleSheet.absoluteFill,
                 },
                 watermarkImg: {
                     position: 'absolute',
@@ -43,7 +43,7 @@ function useStyles(colors: ThemeColors) {
                     transform: [{rotate: '-30deg'}],
                 },
                 foreground: {
-                
+
                     width: '100%',
                     zIndex: 1,
                 },

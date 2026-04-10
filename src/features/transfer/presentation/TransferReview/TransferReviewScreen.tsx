@@ -16,7 +16,7 @@ import type {TransferStackParamList} from '../../navigation/TransferStackNavigat
 import type {MainTabParamList} from '../../../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../../../providers';
 import {Lexend} from '../../../../theme/lexend';
-import {ErrorMessage} from '../ui';
+import {ErrorMessage} from '../../../../presentation/components';
 import {
     TransferIconArrowsRetweet,
 } from '../components/transferIcons.tsx';
@@ -42,12 +42,13 @@ export function TransferReviewScreen() {
 
     const router = useRoute<RouteProp<TransferStackParamList, 'TransferReview'>>();
 
-    const [showTransferSuccessModal, setTransferSuccessModal] = useState(false);
+    const [showTransferSuccessModal, setShowTransferSuccessModal] =
+        useState(false);
     const [successTransactionData, setSuccessTransactionData] =
         useState<TransferDataResume | null>(null);
 
     const resetTransferSuccessUi = useCallback(() => {
-        setTransferSuccessModal(false);
+        setShowTransferSuccessModal(false);
         setSuccessTransactionData(null);
     }, []);
 

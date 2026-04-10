@@ -25,17 +25,15 @@ export class AccountMovementRepositoryImpl implements AccountMovementRepository 
       DateFrom: params.dateFrom,
       DateTo: params.dateTo,
       TransactionType: params.transactionType,
-      MinAmount:
-        params.minAmount !== undefined
-          ? amountToQueryString(params.minAmount)
-          : undefined,
-      MaxAmount:
-        params.maxAmount !== undefined
-          ? amountToQueryString(params.maxAmount)
-          : undefined,
       TextSearch: params.textSearch,
       PageNumber: params.pageNumber,
       PageSize: params.pageSize,
+      ...(params.minAmount !== undefined
+        ? {MinAmount: amountToQueryString(params.minAmount)}
+        : {}),
+      ...(params.maxAmount !== undefined
+        ? {MaxAmount: amountToQueryString(params.maxAmount)}
+        : {}),
     });
 
     return {

@@ -81,9 +81,7 @@ export function attachApiHeadersInterceptor(
 ): void {
   let snapshotPromise: Promise<DeviceHeaderSnapshot> | null = null;
   const loadSnapshot = (): Promise<DeviceHeaderSnapshot> => {
-    if (!snapshotPromise) {
-      snapshotPromise = loadDeviceHeaderSnapshot();
-    }
+    snapshotPromise ??= loadDeviceHeaderSnapshot();
     return snapshotPromise;
   };
 

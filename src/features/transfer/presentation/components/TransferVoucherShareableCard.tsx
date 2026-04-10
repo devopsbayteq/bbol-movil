@@ -14,7 +14,7 @@ type TransferVoucherShareableCardProps = {
 
 export function TransferVoucherShareableCard({
                                                  transferResume,
-                                             }: TransferVoucherShareableCardProps) {
+                                             }: Readonly<TransferVoucherShareableCardProps>) {
 
     const {colors} = useTheme();
     const styles = useStyles(colors);

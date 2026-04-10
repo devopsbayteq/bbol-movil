@@ -29,7 +29,7 @@ export function AccountSelectorButton({
   onPress,
   accounts,
   selectedAccount,
-}: AccountSelectorButtonProps) {
+}: Readonly<AccountSelectorButtonProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

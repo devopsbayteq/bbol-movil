@@ -17,8 +17,19 @@ type SecondaryVariant = 'muted' | 'outline';
 function secondaryIconTintStyle(
   iconTintColor: string | undefined,
 ): {tintColor: string} | null {
-  return iconTintColor !== undefined ? {tintColor: iconTintColor} : null;
+  return iconTintColor === undefined ? null : {tintColor: iconTintColor};
 }
+
+type SecondaryIconButtonContentProps = Readonly<{
+  loading: boolean;
+  variant: SecondaryVariant;
+  colors: ThemeColors;
+  title: string;
+  iconSource: ImageSourcePropType | undefined;
+  iconSourceRight: ImageSourcePropType | undefined;
+  iconTintColor: string | undefined;
+  styles: ReturnType<typeof useStyles>;
+}>;
 
 function SecondaryIconButtonContent({
   loading,
@@ -29,16 +40,7 @@ function SecondaryIconButtonContent({
   iconSourceRight,
   iconTintColor,
   styles,
-}: {
-  loading: boolean;
-  variant: SecondaryVariant;
-  colors: ThemeColors;
-  title: string;
-  iconSource: ImageSourcePropType | undefined;
-  iconSourceRight: ImageSourcePropType | undefined;
-  iconTintColor: string | undefined;
-  styles: ReturnType<typeof useStyles>;
-}) {
+}: SecondaryIconButtonContentProps) {
   const tint = secondaryIconTintStyle(iconTintColor);
   if (loading) {
     return (
@@ -50,24 +52,24 @@ function SecondaryIconButtonContent({
   }
   return (
     <>
-      {iconSource != null ? (
+      {iconSource == null ? null : (
         <Image
           source={iconSource}
           style={[styles.icon, tint]}
           resizeMode="contain"
         />
-      ) : null}
+      )}
       <Text
         style={[styles.label, variant === 'outline' && styles.labelOutline]}>
         {title}
       </Text>
-      {iconSourceRight != null ? (
+      {iconSourceRight == null ? null : (
         <Image
           source={iconSourceRight}
           style={[styles.icon, tint]}
           resizeMode="contain"
         />
-      ) : null}
+      )}
     </>
   );
 }
@@ -94,7 +96,7 @@ export function SecondaryIconButton({
   loading = false,
   style,
   variant = 'muted',
-}: SecondaryIconButtonProps) {
+}: Readonly<SecondaryIconButtonProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

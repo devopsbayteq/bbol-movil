@@ -11,8 +11,8 @@ export function validateRegisterAliasInput(raw: string): string | null {
   if (trimmed.length > ALIAS_MAX_LENGTH) {
     return 'El alias no puede superar 64 caracteres.';
   }
-  for (let i = 0; i < trimmed.length; i += 1) {
-    if (isControlCharacter(trimmed[i])) {
+  for (const char of trimmed) {
+    if (isControlCharacter(char)) {
       return 'El alias contiene caracteres no válidos.';
     }
   }

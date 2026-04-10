@@ -156,7 +156,9 @@ export function useTransferReviewViewModel(
                 concept: concept.trim(),
             });
 
-            if (!result.isValid) {
+            if (result.isValid) {
+                navigateOtp();
+            } else {
                 const execution = await executeTransferUseCase.execute({
                     amount,
                     beneficiaryContactGuid: beneficiary.id,
@@ -178,9 +180,6 @@ export function useTransferReviewViewModel(
                     fromAccountSubtitle: voucherFromSubtitle,
                 };
                 onTransferSuccess?.(payload);
-                return;
-            } else {
-                navigateOtp()
             }
         } catch (err) {
             const message =

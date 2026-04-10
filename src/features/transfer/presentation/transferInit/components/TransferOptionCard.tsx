@@ -20,7 +20,7 @@ export function TransferOptionCard({
                                        onPress,
                                        leadingIcon,
                                        testID,
-                                   }: TransferOptionCardProps) {
+                                   }: Readonly<TransferOptionCardProps>) {
     const {colors} = useTheme();
     const styles = useStyles(colors);
 

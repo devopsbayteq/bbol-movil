@@ -23,7 +23,7 @@ function defaultAccountIndex(accounts: AccountBalance[]): number {
     const savingsIdx = accounts.findIndex(
         a => a.accountKind.toLowerCase() === 'savings',
     );
-    return savingsIdx >= 0 ? savingsIdx : 0;
+    return Math.max(0, savingsIdx)
 }
 
 /** On iOS, numeric keyboards often emit `,` as decimal separator; map to `.` before sanitize. */

@@ -1,12 +1,10 @@
-import {Text} from "react-native";
-import {Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity,Text, View,Platform} from "react-native";
 import {TransferIconClose} from "./components/transferIcons.tsx";
 import React, {useMemo} from 'react';
 import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 import {ThemeColors, useTheme} from '../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../../../theme/lexend';
-import {Platform} from "react-native";
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
 import {buildTransferSharedStyles} from './components/transferSharedStyles';
 
