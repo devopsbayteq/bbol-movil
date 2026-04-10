@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -21,62 +20,19 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
+import {formatIsoDateShortEsEc, formatPercentEsMx} from '../../utils/formatLocale';
 import {formatCurrency} from '../transactions/TransactionItem';
-import {DevelopmentNoticeModal} from '../components';
+import {
+  DevelopmentNoticeModal,
+  EyeIcon,
+  EyeSlashIcon,
+  HomeStackDetailHeader,
+} from '../components';
 import {useLoanDetailViewModel} from './useLoanDetailViewModel';
-
-const arrowBack = require('../../../assets/images/arrow-left.png');
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'LoanDetail'>;
 
 type DevModalKind = 'payments' | 'amortization' | null;
-
-function formatLoanDateShort(iso: string): string {
-  const d = new Date(iso.includes('T') ? iso : `${iso}T12:00:00`);
-  if (Number.isNaN(d.getTime())) {
-    return '—';
-  }
-  return d.toLocaleDateString('es-EC', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function formatPercent(value: number): string {
-  return `${value.toLocaleString('es-MX', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 2,
-  })}%`;
-}
-
-function EyeIcon({
-  color,
-  size = 16,
-}: Readonly<{color: string; size?: number}>) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path
-        fill={color}
-        d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
-      />
-    </Svg>
-  );
-}
-
-function EyeSlashIcon({
-  color,
-  size = 16,
-}: Readonly<{color: string; size?: number}>) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path
-        fill={color}
-        d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-2.76-2.24-5-5-5l-.17.01z"
-      />
-    </Svg>
-  );
-}
 
 function HistoryClockIcon({color}: Readonly<{color: string}>) {
   return (
@@ -110,269 +66,231 @@ export function LoanDetailScreen() {
 
   const headerTitle = useMemo(() => 'PRÉSTAMOS', []);
 
-  if (isLoading && !detail) {
-    return (
-      <SafeAreaView
-        style={styles.safe}
-        edges={['top']}
-        testID="loan-detail-screen">
-        <View style={styles.headerBar}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            accessibilityRole="button"
-            accessibilityLabel="Volver">
-            <Image
-              source={arrowBack}
-              style={styles.backIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {headerTitle}
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
-        <View style={styles.centered}>
-          <ActivityIndicator size="small" color={colors.primary} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const goBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
-  if (errorMessage || !detail) {
-    return (
-      <SafeAreaView
-        style={styles.safe}
-        edges={['top']}
-        testID="loan-detail-screen">
-        <View style={styles.headerBar}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            accessibilityRole="button"
-            accessibilityLabel="Volver">
-            <Image
-              source={arrowBack}
-              style={styles.backIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {headerTitle}
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
-        <View style={styles.centered}>
-          <Text style={styles.errorInline}>
-            {errorMessage || 'No se encontró la información de este préstamo.'}
-          </Text>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            accessibilityRole="button">
-            <Text style={styles.retryLink}>Volver</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const showLoading = isLoading && !detail;
+  const showError = !showLoading && (Boolean(errorMessage) || !detail);
+  const resolvedDetail = !showLoading && !showError ? detail : null;
 
-  const d = detail;
-  const paidPct = Math.min(100, Math.max(0, d.primaryProgressRatio * 100));
-  const secondaryPct = Math.min(
-    paidPct,
-    Math.max(0, d.secondaryProgressRatio * 100),
-  );
+  const paidPct = resolvedDetail
+    ? Math.min(100, Math.max(0, resolvedDetail.primaryProgressRatio * 100))
+    : 0;
+  const secondaryPct = resolvedDetail
+    ? Math.min(
+        paidPct,
+        Math.max(0, resolvedDetail.secondaryProgressRatio * 100),
+      )
+    : 0;
+
+  const d = resolvedDetail;
 
   return (
     <SafeAreaView
       style={styles.safe}
       edges={['top']}
       testID="loan-detail-screen">
-      <View style={styles.headerBar}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Volver">
-          <Image
-            source={arrowBack}
-            style={styles.backIcon}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {headerTitle}
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <HomeStackDetailHeader title={headerTitle} onPressBack={goBack} />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        <LinearGradient
-          colors={[colors.homeHeaderIconButtonBg, colors.homeHeaderBackground]}
-          start={{x: 0.08, y: 1}}
-          end={{x: 0.95, y: 0}}
-          style={styles.heroGradient}>
-          <View style={styles.heroInner}>
-            <View style={styles.heroTitleBlock}>
-              <Text style={styles.heroProductMuted} numberOfLines={2}>
-                {d.productLabel}
-              </Text>
-              <Text style={styles.heroLoanLine} numberOfLines={2}>
-                Préstamo Nº {d.maskedAccountNumber}
-              </Text>
-            </View>
+      {showLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      ) : null}
 
-            <View style={styles.heroBalanceRow}>
-              <View style={styles.heroBalanceSide} />
-              <View style={styles.heroAmountCol}>
-                <Text style={styles.heroAmount} numberOfLines={1}>
-                  {amountMasked
-                    ? '$**.**'
-                    : formatCurrency(d.outstandingBalance)}
-                </Text>
-                <Text style={styles.heroNextPay}>
-                  Próximo pago: {formatLoanDateShort(d.nextInstallmentDate)}
-                </Text>
-              </View>
-              <View style={styles.heroBalanceSideEnd}>
-                <TouchableOpacity
-                  style={styles.eyeBtn}
-                  onPress={() => setAmountMasked(m => !m)}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    amountMasked ? 'Mostrar monto' : 'Ocultar monto'
-                  }>
-                  {amountMasked ? (
-                    <EyeSlashIcon color={colors.primary} size={16} />
-                  ) : (
-                    <EyeIcon color={colors.primary} size={16} />
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  styles.progressFillWide,
-                  {width: `${paidPct}%`, backgroundColor: colors.homeAvatarCircle},
-                ]}
-              />
-              <View
-                style={[
-                  styles.progressFill,
-                  styles.progressFillTop,
-                  {
-                    width: `${secondaryPct}%`,
-                    backgroundColor: colors.homePrimaryHover,
-                  },
-                ]}
-              />
-            </View>
-
-            <View style={styles.breakdownRow}>
-              <View style={styles.breakdownCol}>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.capitalPaid)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Pagado</Text>
-              </View>
-              <View style={styles.breakdownColCenter}>
-                <Text style={styles.breakdownCuotasMain}>
-                  {d.installmentIndex}/{d.installmentTotal}
-                </Text>
-                <Text style={styles.breakdownCuotasSub}>cuotas</Text>
-              </View>
-              <View style={[styles.breakdownCol, styles.breakdownColEnd]}>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.outstandingBalance)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Por pagar</Text>
-              </View>
-            </View>
-
-            <View style={styles.heroDivider} />
-
-            <View style={styles.debtRow}>
-              <View>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.amountGranted)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Deuda inicial</Text>
-              </View>
-              <View style={styles.breakdownColEnd}>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.totalToReceiveAmount)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Deuda total</Text>
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
-
-        <View style={styles.lowerSection}>
-          <View style={styles.statRow}>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>
-                {formatLoanDateShort(d.openingDateIso)}
-              </Text>
-              <Text style={styles.statLabel}>Fecha solicitada</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValueStrong}>
-                {formatPercent(d.interestRatePercent)}
-              </Text>
-              <Text style={styles.statLabel}>Tasa vigente</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>
-                {formatLoanDateShort(d.maturityDateIso)}
-              </Text>
-              <Text style={styles.statLabel}>Fecha vencimiento</Text>
-            </View>
-          </View>
-
-          <View style={styles.debitCard}>
-            <Text style={styles.debitPurpose}>{d.creditPurposeLabel}</Text>
-            <Text style={styles.debitAccount}>{d.maskedCreditAccount}</Text>
-            <Text style={styles.debitCaption}>Cuenta a debitar</Text>
-          </View>
-
+      {showError ? (
+        <View style={styles.centered}>
+          <Text style={styles.errorInline}>
+            {errorMessage || 'No se encontró la información de este préstamo.'}
+          </Text>
           <TouchableOpacity
-            style={styles.primaryBtn}
-            onPress={openPaymentsDev}
-            activeOpacity={0.9}
-            accessibilityRole="button"
-            accessibilityLabel="Historial de pagos">
-            <Text style={styles.primaryBtnText}>Historial de pagos</Text>
-            <HistoryClockIcon color={colors.white} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.secondaryBtn}
-            onPress={openAmortizationDev}
-            activeOpacity={0.9}
-            accessibilityRole="button"
-            accessibilityLabel="Tabla de amortización">
-            <Text style={styles.secondaryBtnText}>Tabla de amortización</Text>
+            onPress={goBack}
+            accessibilityRole="button">
+            <Text style={styles.retryLink}>Volver</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      ) : null}
 
-      <DevelopmentNoticeModal
-        visible={devModal === 'payments'}
-        onClose={closeDev}
-        title="En desarrollo"
-        message="El historial de pagos estará disponible próximamente."
-      />
-      <DevelopmentNoticeModal
-        visible={devModal === 'amortization'}
-        onClose={closeDev}
-        title="En desarrollo"
-        message="La tabla de amortización estará disponible próximamente."
-      />
+      {d ? (
+        <>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}>
+            <LinearGradient
+              colors={[colors.homeHeaderIconButtonBg, colors.homeHeaderBackground]}
+              start={{x: 0.08, y: 1}}
+              end={{x: 0.95, y: 0}}
+              style={styles.heroGradient}>
+              <View style={styles.heroInner}>
+                <View style={styles.heroTitleBlock}>
+                  <Text style={styles.heroProductMuted} numberOfLines={2}>
+                    {d.productLabel}
+                  </Text>
+                  <Text style={styles.heroLoanLine} numberOfLines={2}>
+                    Préstamo Nº {d.maskedAccountNumber}
+                  </Text>
+                </View>
+
+                <View style={styles.heroBalanceRow}>
+                  <View style={styles.heroBalanceSide} />
+                  <View style={styles.heroAmountCol}>
+                    <Text style={styles.heroAmount} numberOfLines={1}>
+                      {amountMasked
+                        ? '$**.**'
+                        : formatCurrency(d.outstandingBalance)}
+                    </Text>
+                    <Text style={styles.heroNextPay}>
+                      Próximo pago:{' '}
+                      {formatIsoDateShortEsEc(d.nextInstallmentDate)}
+                    </Text>
+                  </View>
+                  <View style={styles.heroBalanceSideEnd}>
+                    <TouchableOpacity
+                      style={styles.eyeBtn}
+                      onPress={() => setAmountMasked(m => !m)}
+                      accessibilityRole="button"
+                      accessibilityLabel={
+                        amountMasked ? 'Mostrar monto' : 'Ocultar monto'
+                      }>
+                      {amountMasked ? (
+                        <EyeSlashIcon color={colors.primary} size={16} />
+                      ) : (
+                        <EyeIcon color={colors.primary} size={16} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={styles.progressTrack}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      styles.progressFillWide,
+                      {
+                        width: `${paidPct}%`,
+                        backgroundColor: colors.homeAvatarCircle,
+                      },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.progressFill,
+                      styles.progressFillTop,
+                      {
+                        width: `${secondaryPct}%`,
+                        backgroundColor: colors.homePrimaryHover,
+                      },
+                    ]}
+                  />
+                </View>
+
+                <View style={styles.breakdownRow}>
+                  <View style={styles.breakdownCol}>
+                    <Text style={styles.breakdownAmount}>
+                      {formatCurrency(d.capitalPaid)}
+                    </Text>
+                    <Text style={styles.breakdownLabel}>Pagado</Text>
+                  </View>
+                  <View style={styles.breakdownColCenter}>
+                    <Text style={styles.breakdownCuotasMain}>
+                      {d.installmentIndex}/{d.installmentTotal}
+                    </Text>
+                    <Text style={styles.breakdownCuotasSub}>cuotas</Text>
+                  </View>
+                  <View style={[styles.breakdownCol, styles.breakdownColEnd]}>
+                    <Text style={styles.breakdownAmount}>
+                      {formatCurrency(d.outstandingBalance)}
+                    </Text>
+                    <Text style={styles.breakdownLabel}>Por pagar</Text>
+                  </View>
+                </View>
+
+                <View style={styles.heroDivider} />
+
+                <View style={styles.debtRow}>
+                  <View>
+                    <Text style={styles.breakdownAmount}>
+                      {formatCurrency(d.amountGranted)}
+                    </Text>
+                    <Text style={styles.breakdownLabel}>Deuda inicial</Text>
+                  </View>
+                  <View style={styles.breakdownColEnd}>
+                    <Text style={styles.breakdownAmount}>
+                      {formatCurrency(d.totalToReceiveAmount)}
+                    </Text>
+                    <Text style={styles.breakdownLabel}>Deuda total</Text>
+                  </View>
+                </View>
+              </View>
+            </LinearGradient>
+
+            <View style={styles.lowerSection}>
+              <View style={styles.statRow}>
+                <View style={styles.statCard}>
+                  <Text style={styles.statValue}>
+                    {formatIsoDateShortEsEc(d.openingDateIso)}
+                  </Text>
+                  <Text style={styles.statLabel}>Fecha solicitada</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statValueStrong}>
+                    {formatPercentEsMx(d.interestRatePercent, 2)}
+                  </Text>
+                  <Text style={styles.statLabel}>Tasa vigente</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statValue}>
+                    {formatIsoDateShortEsEc(d.maturityDateIso)}
+                  </Text>
+                  <Text style={styles.statLabel}>Fecha vencimiento</Text>
+                </View>
+              </View>
+
+              <View style={styles.debitCard}>
+                <Text style={styles.debitPurpose}>{d.creditPurposeLabel}</Text>
+                <Text style={styles.debitAccount}>{d.maskedCreditAccount}</Text>
+                <Text style={styles.debitCaption}>Cuenta a debitar</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.primaryBtn}
+                onPress={openPaymentsDev}
+                activeOpacity={0.9}
+                accessibilityRole="button"
+                accessibilityLabel="Historial de pagos">
+                <Text style={styles.primaryBtnText}>Historial de pagos</Text>
+                <HistoryClockIcon color={colors.white} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.secondaryBtn}
+                onPress={openAmortizationDev}
+                activeOpacity={0.9}
+                accessibilityRole="button"
+                accessibilityLabel="Tabla de amortización">
+                <Text style={styles.secondaryBtnText}>
+                  Tabla de amortización
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+
+          <DevelopmentNoticeModal
+            visible={devModal === 'payments'}
+            onClose={closeDev}
+            title="En desarrollo"
+            message="El historial de pagos estará disponible próximamente."
+          />
+          <DevelopmentNoticeModal
+            visible={devModal === 'amortization'}
+            onClose={closeDev}
+            title="En desarrollo"
+            message="La tabla de amortización estará disponible próximamente."
+          />
+        </>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -396,30 +314,6 @@ function useStyles(colors: ThemeColors) {
           justifyContent: 'center',
           alignItems: 'center',
           paddingHorizontal: 24,
-        },
-        headerBar: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 24,
-          paddingVertical: 12,
-          backgroundColor: colors.white,
-        },
-        backIcon: {
-          width: 20,
-          height: 22,
-        },
-        headerTitle: {
-          flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 14,
-          color: colors.textPrimary,
-          textAlign: 'center',
-          textTransform: 'uppercase',
-        },
-        headerSpacer: {
-          width: 22,
-          height: 12,
         },
         errorInline: {
           fontFamily: Lexend.regular,

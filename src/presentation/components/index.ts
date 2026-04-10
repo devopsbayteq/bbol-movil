@@ -15,3 +15,5 @@ export {SessionTimeoutWarningModal} from './SessionTimeoutWarningModal';
 export {SessionExpiredModal} from './SessionExpiredModal';
 export {DevelopmentNoticeModal} from './DevelopmentNoticeModal';
 export {LoginHeroImageCarousel} from './LoginHeroImageCarousel';
+export {EyeIcon, EyeSlashIcon} from './EyeIcons';
+export {HomeStackDetailHeader} from './HomeStackDetailHeader';
