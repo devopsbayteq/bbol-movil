@@ -580,7 +580,7 @@ function useStyles(
           overflow: 'visible',
         },
         heroStack: {
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
           zIndex: 0,
           flexDirection: 'column',
         },

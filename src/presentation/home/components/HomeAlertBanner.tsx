@@ -10,7 +10,7 @@ type Props = {
   onPress?: () => void;
 };
 
-function CreditCardIcon({color}: {color: string}) {
+function CreditCardIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -21,7 +21,7 @@ function CreditCardIcon({color}: {color: string}) {
   );
 }
 
-export function HomeAlertBanner({title, subtitle, onPress}: Props) {
+export function HomeAlertBanner({title, subtitle, onPress}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

@@ -18,7 +18,7 @@ export function FrequentPaymentRow({
   isFirst = false,
   isLast = false,
   onPress,
-}: Props) {
+}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors, isFirst, isLast);
 

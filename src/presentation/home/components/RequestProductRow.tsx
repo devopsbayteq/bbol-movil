@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import {Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
 import {BankBuildingIcon, ChevronRightIcon} from './HomeIcons';
@@ -8,7 +8,7 @@ type Props = {
   onPress?: () => void;
 };
 
-export function RequestProductRow({onPress}: Props) {
+export function RequestProductRow({onPress}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

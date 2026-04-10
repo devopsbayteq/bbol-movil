@@ -4,12 +4,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Platform,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
 import type {RecentActivityItem} from '../homeDashboardMocks';
-import {CalendarIcon, ListBulletsIcon} from './HomeIcons';
+import {CalendarIcon} from './HomeIcons';
 
 type Props = {
   items?: RecentActivityItem[];
@@ -21,7 +20,7 @@ export function RecentActivitySection({
   items = [],
   onPressListIcon,
   onPressCalendarIcon,
-}: Props) {
+}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
-import Svg, {Circle, Rect} from 'react-native-svg';
+import Svg, {Rect} from 'react-native-svg';
 
 const home = require('../../assets/images/house.png');
 const transfer = require('../../assets/images/arrow-right-arrow-left.png');
@@ -12,7 +12,7 @@ type TabIconProps = {
   size?: number;
 };
 
-export function TabHomeIcon({color, size = 24}: TabIconProps) {
+export function TabHomeIcon({color, size = 24}: Readonly<TabIconProps>) {
   return (
     <Image
       source={home}
@@ -23,7 +23,7 @@ export function TabHomeIcon({color, size = 24}: TabIconProps) {
   );
 }
 
-export function TabTransferIcon({color, size = 24}: TabIconProps) {
+export function TabTransferIcon({color, size = 24}: Readonly<TabIconProps>) {
   return (
     <Image
       source={transfer}
@@ -35,7 +35,7 @@ export function TabTransferIcon({color, size = 24}: TabIconProps) {
 }
 
 /** Icono tipo cajero / retiro (silueta acorde al tab bar de la app). */
-export function TabWithdrawIcon({color, size = 24}: TabIconProps) {
+export function TabWithdrawIcon({color, size = 24}: Readonly<TabIconProps>) {
   return (
     <Image
       source={withdraw}
@@ -46,7 +46,7 @@ export function TabWithdrawIcon({color, size = 24}: TabIconProps) {
   );
 }
 
-export function TabPaymentsIcon({color, size = 24}: TabIconProps) {
+export function TabPaymentsIcon({color, size = 24}: Readonly<TabIconProps>) {
   return (
     <Image
       source={bulb}
@@ -57,7 +57,7 @@ export function TabPaymentsIcon({color, size = 24}: TabIconProps) {
   );
 }
 
-export function TabOthersIcon({color, size = 24}: TabIconProps) {
+export function TabOthersIcon({color, size = 24}: Readonly<TabIconProps>) {
   const cell = 7;
   const gap = 3;
   const o = (24 - cell * 2 - gap) / 2;

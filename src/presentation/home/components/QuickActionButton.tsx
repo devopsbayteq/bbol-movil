@@ -9,7 +9,7 @@ type Props = {
   onPress?: () => void;
 };
 
-export function QuickActionButton({icon, label, onPress}: Props) {
+export function QuickActionButton({icon, label, onPress}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

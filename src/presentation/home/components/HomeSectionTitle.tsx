@@ -7,7 +7,7 @@ type Props = {
   children: string;
 };
 
-export function HomeSectionTitle({children}: Props) {
+export function HomeSectionTitle({children}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   return <Text style={styles.title}>{children}</Text>;

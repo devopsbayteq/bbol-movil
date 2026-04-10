@@ -10,7 +10,6 @@ import {
   type RecentActivityItem,
   type UpcomingPaymentsSummary,
 } from './homeDashboardMocks';
-import {mapHomeRecentTransactionToActivityItem} from './mapHomeRecentTransactionToActivityItem';
 
 /** Compartido con `useCardDetailViewModel` para reutilizar caché de React Query. */
 export const HOME_CONTRACT_BALANCE_QUERY_KEY = ['homeContractBalance'] as const;

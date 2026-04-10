@@ -4,19 +4,18 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Platform,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
 import type {UpcomingPaymentsSummary} from '../homeDashboardMocks';
-import {ChevronRightIcon, CreditCardOutlineIcon} from './HomeIcons';
+import {CreditCardOutlineIcon} from './HomeIcons';
 
 type Props = {
   summary: UpcomingPaymentsSummary;
   onPress?: () => void;
 };
 
-export function UpcomingPaymentsRow({summary, onPress}: Props) {
+export function UpcomingPaymentsRow({summary, onPress}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

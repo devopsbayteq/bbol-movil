@@ -10,7 +10,11 @@ type Props = {
   onNotifications?: () => void;
 };
 
-export function HomeHeader({userName, onLogout, onNotifications}: Props) {
+export function HomeHeader({
+  userName,
+  onLogout,
+  onNotifications,
+}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const displayName = userName?.trim() || 'Usuario';

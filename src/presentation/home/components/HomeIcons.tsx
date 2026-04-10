@@ -7,7 +7,7 @@ const BANK_PNG = require('../../../../assets/images/frequent_payments/bank.png')
 
 type IconProps = {color: string; size?: number};
 
-export function BellIcon({color, size = 20}: IconProps) {
+export function BellIcon({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 448 512">
       <Path
@@ -18,7 +18,7 @@ export function BellIcon({color, size = 20}: IconProps) {
   );
 }
 
-export function LogoutIcon({color, size = 20}: IconProps) {
+export function LogoutIcon({color, size = 20}: Readonly<Readonly<IconProps>>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 512 512">
       <G transform="scale(-1,1) translate(-512,0)">
@@ -31,7 +31,7 @@ export function LogoutIcon({color, size = 20}: IconProps) {
   );
 }
 
-export function UserAvatarIcon({color, size = 16}: IconProps) {
+export function UserAvatarIcon({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 448 512">
       <Path
@@ -42,7 +42,7 @@ export function UserAvatarIcon({color, size = 16}: IconProps) {
   );
 }
 
-export function TransferArrowsIcon({color, size = 20}: IconProps) {
+export function TransferArrowsIcon({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 512 512">
       <Path
@@ -53,7 +53,7 @@ export function TransferArrowsIcon({color, size = 20}: IconProps) {
   );
 }
 
-export function LightbulbServiceIcon({color, size = 20}: IconProps) {
+export function LightbulbServiceIcon({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 384 512">
       <Path
@@ -64,7 +64,7 @@ export function LightbulbServiceIcon({color, size = 20}: IconProps) {
   );
 }
 
-export function QrCodeIcon({color, size = 20}: IconProps) {
+export function QrCodeIcon({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 448 512">
       <Path
@@ -75,7 +75,7 @@ export function QrCodeIcon({color, size = 20}: IconProps) {
   );
 }
 
-export function CalendarIcon({color, size = 20}: IconProps) {
+export function CalendarIcon({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 19 20">
       <Path
@@ -86,7 +86,7 @@ export function CalendarIcon({color, size = 20}: IconProps) {
   );
 }
 
-export function ChevronRightIcon({color, size = 16}: IconProps) {
+export function ChevronRightIcon({color, size = 16}: Readonly<IconProps>) {
   return (
     <Image
       source={ARROW_RIGHT_BLACK}
@@ -101,7 +101,7 @@ export function ChevronRightIcon({color, size = 16}: IconProps) {
  * Círculo con fondo (`color`) e icono `bank.png`.
  * `size` es el diámetro del círculo (p. ej. 44).
  */
-export function BankBuildingIcon({color, size = 44}: IconProps) {
+export function BankBuildingIcon({color, size = 44}: Readonly<IconProps>) {
   const inner = Math.round(size * 0.6);
   return (
     <View
@@ -132,7 +132,7 @@ const bankBuildingStyles = StyleSheet.create({
 });
 
 /** Tarjeta — resumen de pagos próximos. */
-export function CreditCardOutlineIcon({color, size = 22}: IconProps) {
+export function CreditCardOutlineIcon({color, size = 22}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -144,7 +144,7 @@ export function CreditCardOutlineIcon({color, size = 22}: IconProps) {
 }
 
 /** Lista con viñetas — cabecera actividad reciente. */
-export function ListBulletsIcon({color, size = 20}: IconProps) {
+export function ListBulletsIcon({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
