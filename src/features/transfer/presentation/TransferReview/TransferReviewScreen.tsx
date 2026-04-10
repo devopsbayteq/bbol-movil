@@ -22,6 +22,7 @@ import {
 } from '../components/transferIcons.tsx';
 import {useTransferReviewViewModel} from './useTransferReviewViewModel';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
+import {buildTransferSharedStyles} from '../components/transferSharedStyles';
 import {
     TransferModalSuccess,
     type TransferDataResume,
@@ -271,16 +272,10 @@ export function TransferReviewScreen() {
 }
 
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
-                root: {
-                    flex: 1,
-                    backgroundColor: colors.background,
-                },
-                scroll: {
-                    flex: 1,
-                },
+    return useMemo(() => {
+        const shared = buildTransferSharedStyles(colors);
+        return StyleSheet.create({
+                ...shared,
                 scrollContent: {
                     paddingHorizontal: 24,
                     paddingTop: 32,
@@ -335,18 +330,6 @@ function useStyles(colors: ThemeColors) {
                     paddingVertical: 16,
                     borderRadius: 12,
                 },
-                iconChip: {
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    backgroundColor: colors.primaryIconContainerBg,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                },
-                cardBody: {
-                    flex: 1,
-                    minWidth: 0,
-                },
                 haciaLabel: {
                     fontFamily: Lexend.regular,
                     fontSize: 12,
@@ -365,13 +348,6 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 22,
                     color: colors.textSecondary,
                 },
-                cardSub: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.textTertiary,
-                    marginTop: 2,
-                },
                 balanceInline: {
                     fontFamily: Lexend.regular,
                     fontSize: 12,
@@ -388,36 +364,9 @@ function useStyles(colors: ThemeColors) {
                     borderRadius: 12,
                 },
                 detailRow: {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 4,
-                    paddingTop: 12,
-                    paddingBottom: 13,
+                    ...shared.detailRowLayout,
                     borderBottomWidth: StyleSheet.hairlineWidth,
                     borderBottomColor: colors.borderLight,
-                    gap: 12,
-                },
-                detailRowLast: {
-                    borderBottomWidth: 0,
-                },
-                detailLabel: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 14,
-                    lineHeight: 20,
-                    color: colors.textSecondary,
-                    flexShrink: 0,
-                },
-                detailValue: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.primary,
-                    textAlign: 'right',
-                    flex: 1,
-                },
-                conceptValue: {
-                    flexShrink: 1,
                 },
                 actions: {
                     width: '100%',
@@ -453,12 +402,6 @@ function useStyles(colors: ThemeColors) {
                 primaryCtaDisabled: {
                     opacity: 0.7,
                 },
-                primaryCtaText: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.white,
-                },
                 secondaryCta: {
                     paddingVertical: 8,
                     paddingHorizontal: 4,
@@ -471,7 +414,6 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 22,
                     color: colors.primary,
                 },
-            }),
-        [colors],
-    );
+            });
+    }, [colors]);
 }

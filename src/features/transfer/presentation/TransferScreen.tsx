@@ -26,6 +26,7 @@ import {ErrorBannerComponent} from './transferInit/components/ErrorBannerCompone
 import {Button, TertiaryLinkButton} from './ui';
 import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal.tsx';
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
+import {buildTransferSharedStyles} from './components/transferSharedStyles';
 import {SpacerView} from './ui';
 import AngleArrow from '../../../../assets/images/svg/angles-down.svg';
 
@@ -332,21 +333,10 @@ export function TransferScreen() {
 }
 
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
-                root: {
-                    flex: 1,
-                    backgroundColor: colors.background,
-                },
-                loadingWrap: {
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                },
-                scroll: {
-                    flex: 1,
-                },
+    return useMemo(() => {
+        const shared = buildTransferSharedStyles(colors);
+        return StyleSheet.create({
+                ...shared,
                 scrollContent: {
                     flexGrow: 1,
                 },
@@ -445,27 +435,6 @@ function useStyles(colors: ThemeColors) {
                     height: 1,
                     backgroundColor: colors.primary,
                 },
-                bottomSection: {
-                    paddingHorizontal: 24,
-                    paddingTop: 24,
-                    gap: 16,
-                    backgroundColor: colors.background,
-                },
-                conceptBlock: {
-                    gap: 8,
-                },
-                conceptLabel: {
-                    fontSize: 12,
-                    lineHeight: 20,
-                },
-                conceptLabelStrong: {
-                    fontFamily: Lexend.semiBold,
-                    color: colors.textSecondary,
-                },
-                conceptLabelMuted: {
-                    fontFamily: Lexend.regular,
-                    color: colors.textTertiary,
-                },
                 conceptInput: {
                     fontFamily: Lexend.regular,
                     fontSize: 14,
@@ -477,11 +446,6 @@ function useStyles(colors: ThemeColors) {
                     paddingVertical: 17,
                     overflow: 'visible'
                 },
-                validationText: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 13,
-                    color: colors.error,
-                },
                 primaryCta: {
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -491,13 +455,6 @@ function useStyles(colors: ThemeColors) {
                     borderRadius: 8,
                     paddingVertical: 16,
                 },
-                primaryCtaText: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.white,
-                },
-            }),
-        [colors],
-    );
+            });
+    }, [colors]);
 }

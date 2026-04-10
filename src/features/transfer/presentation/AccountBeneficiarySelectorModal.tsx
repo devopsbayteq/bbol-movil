@@ -8,6 +8,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../../../theme/lexend';
 import {Platform} from "react-native";
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
+import {buildTransferSharedStyles} from './components/transferSharedStyles';
 
 export type AccountPickerRole = 'source' | 'destination';
 
@@ -117,13 +118,10 @@ export const AccountBeneficiarySelectorModal = ({
     )
 }
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
-                root: {
-                    flex: 1,
-                    backgroundColor: colors.background,
-                },
+    return useMemo(() => {
+        const shared = buildTransferSharedStyles(colors);
+        return StyleSheet.create({
+                ...shared,
                 header: {
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -131,32 +129,6 @@ function useStyles(colors: ThemeColors) {
                     minHeight: 64,
                     paddingHorizontal: 16,
                     backgroundColor: colors.white,
-                },
-                backBtn: {
-                    width: 44,
-                    height: 44,
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
-                },
-                headerTitle: {
-                    flex: 1,
-                    textAlign: 'center',
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.textPrimary,
-                },
-                headerRightSpacer: {
-                    width: 44,
-                },
-
-                loadingWrap: {
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                },
-                scroll: {
-                    flex: 1,
                 },
                 scrollContent: {
                     flexGrow: 1,
@@ -206,10 +178,6 @@ function useStyles(colors: ThemeColors) {
                     paddingVertical: 16,
                     marginBottom: 16,
                 },
-                cardBody: {
-                    flex: 1,
-                    minWidth: 0,
-                },
                 cardLabel: {
                     fontFamily: Lexend.regular,
                     fontSize: 12,
@@ -222,45 +190,12 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 22,
                     color: colors.textPrimary,
                 },
-                cardSub: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: '#3E494B',
-                    marginTop: 2,
-                },
                 cardChevronSpacer: {
                     width: 16,
                     height: 16,
                 },
-                bottomSection: {
-                    paddingHorizontal: 24,
-                    paddingTop: 24,
-                    gap: 16,
-                    backgroundColor: colors.background,
-                },
-                conceptBlock: {
-                    gap: 8,
-                },
-                conceptLabel: {
-                    fontSize: 12,
-                    lineHeight: 20,
-                },
-                conceptLabelStrong: {
-                    fontFamily: Lexend.semiBold,
-                    color: '#3E494B',
-                },
-                conceptLabelMuted: {
-                    fontFamily: Lexend.regular,
-                    color: colors.textTertiary,
-                },
                 conceptInputError: {
                     borderColor: colors.error,
-                },
-                validationText: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 13,
-                    color: colors.error,
                 },
                 primaryCta: {
                     flexDirection: 'row',
@@ -270,12 +205,6 @@ function useStyles(colors: ThemeColors) {
                     backgroundColor: colors.primary,
                     borderRadius: 8,
                     paddingVertical: 16,
-                },
-                primaryCtaText: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.white,
                 },
                 modalRoot: {
                     flex: 1,
@@ -383,7 +312,6 @@ function useStyles(colors: ThemeColors) {
                     color: colors.textTertiary,
                     textAlign: 'right',
                 },
-            }),
-        [colors],
-    );
+            });
+    }, [colors]);
 }

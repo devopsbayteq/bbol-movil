@@ -2,6 +2,7 @@ import {BackHandler, Platform, ScrollView, StyleSheet, View} from 'react-native'
 import {ThemeColors, useTheme} from '../../../../providers';
 import React, {useCallback, useMemo} from 'react';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
+import {buildTransferSharedStyles} from '../components/transferSharedStyles';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Button, SecondaryIconButton, TertiaryLinkButton} from '../ui';
 import {
@@ -125,47 +126,36 @@ export const TransferVoucherScreen = () => {
 };
 
 function useStyles(colors: ThemeColors) {
-  return useMemo(
-    () =>
-      StyleSheet.create({
-        root: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        scroll: {
-          flex: 1,
-        },
-        scrollContent: {
-          flexGrow: 1,
-          paddingTop: 24,
-        },
-        containerForm: {
-          paddingHorizontal: 24,
-        },
-        contentColumn: {
-          gap: 24,
-            width:"100%"
-        },
-        actionsGroup: {
-          gap: 12,
-          width: '100%',
-        },
-        primaryButton: {
-          height: 48,
-          paddingVertical: 0,
-          justifyContent: 'center',
-        },
-        primaryButtonLabel: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-        },
-        tertiaryLinkLabel: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-        },
-      }),
-    [colors],
-  );
+  return useMemo(() => {
+    const shared = buildTransferSharedStyles(colors);
+    return StyleSheet.create({
+      ...shared,
+      scrollContent: {
+        flexGrow: 1,
+        paddingTop: 24,
+      },
+      containerForm: {
+        paddingHorizontal: 24,
+      },
+      contentColumn: {
+        gap: 24,
+        width: '100%',
+      },
+      actionsGroup: {
+        gap: 12,
+        width: '100%',
+      },
+      primaryButton: {
+        height: 48,
+        paddingVertical: 0,
+        justifyContent: 'center',
+      },
+      primaryButtonLabel: shared.primaryCtaText,
+      tertiaryLinkLabel: {
+        fontFamily: Lexend.semiBold,
+        fontSize: 14,
+        lineHeight: 22,
+      },
+    });
+  }, [colors]);
 }

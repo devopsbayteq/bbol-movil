@@ -8,6 +8,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
+import {buildTransferSharedStyles} from '../components/transferSharedStyles';
 import {ThemeColors, useTheme} from '../../../../providers';
 import {Lexend} from '../../../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
@@ -98,10 +99,7 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
-        root: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
+        ...buildTransferSharedStyles(colors),
         toolbarBorder: {
           borderBottomWidth: 1,
           borderBottomColor: colors.borderLight,
@@ -120,11 +118,6 @@ function useStyles(colors: ThemeColors) {
         },
         cards: {
           gap: 16,
-        },
-        loadingWrap: {
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
         },
       }),
     [colors],

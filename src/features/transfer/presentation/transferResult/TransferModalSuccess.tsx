@@ -7,6 +7,7 @@ import type {BeneficiaryOption} from '../transferTypes';
 import {Lexend} from '../../../../theme/lexend';
 import {TransactionHeaderInformation} from '../components/TransactionHeaderInformation.tsx';
 import {CardViewContainer} from '../components/CardViewContainer.tsx';
+import {buildTransferSharedStyles} from '../components/transferSharedStyles';
 import {VoucherConceptRow} from '../components/VoucherConceptRow.tsx';
 
 interface TransferModalSuccessProps {
@@ -127,9 +128,9 @@ export const TransferModalSuccess = ({
 };
 
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
+    return useMemo(() => {
+        const shared = buildTransferSharedStyles(colors);
+        return StyleSheet.create({
                 modalRoot: {
                     flex: 1,
                     justifyContent: 'flex-end',
@@ -170,12 +171,7 @@ function useStyles(colors: ThemeColors) {
                     justifyContent: 'center',
                     paddingHorizontal: 16,
                 },
-                primaryButtonText: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.white,
-                },
+                primaryButtonText: shared.primaryCtaText,
                 tertiaryButton: {
                     paddingVertical: 8,
                     paddingHorizontal: 4,
@@ -189,7 +185,6 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 22,
                     color: colors.linkPrimary,
                 },
-            }),
-        [colors],
-    );
+            });
+    }, [colors]);
 }

@@ -3,6 +3,7 @@ import React, {useMemo} from 'react';
 import {ThemeColors, useTheme} from '../../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../../../../theme/lexend';
+import {buildTransferSharedStyles} from './transferSharedStyles';
 import BackNavigationArrow from '../../../../../assets/images/svg/arrow-back-left.svg';
 interface ToolbarAppProps {
     title?: string;
@@ -34,7 +35,7 @@ export const ToolbarApp = ({
                         onBackPress();
                     }}
                     style={styles.backBtn}>
-                    <BackNavigationArrow color={colors.iconPrimary} size={20} />
+                    <BackNavigationArrow color={colors.iconPrimary} />
                 </TouchableOpacity>
             )}
             <Text
@@ -50,13 +51,10 @@ export const ToolbarApp = ({
 };
 
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
-                root: {
-                    flex: 1,
-                    backgroundColor: colors.background,
-                },
+    return useMemo(() => {
+        const shared = buildTransferSharedStyles(colors);
+        return StyleSheet.create({
+                ...shared,
                 header: {
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -69,26 +67,9 @@ function useStyles(colors: ThemeColors) {
                     borderBottomWidth: StyleSheet.hairlineWidth,
                     borderBottomColor: colors.borderLight,
                 },
-                backBtn: {
-                    width: 44,
-                    height: 44,
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
-                },
-                headerTitle: {
-                    flex: 1,
-                    textAlign: 'center',
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
-                    lineHeight: 22,
-                    color: colors.textPrimary,
-                },
                 headerTitleRegular: {
                     fontFamily: Lexend.regular,
                     fontWeight: '400',
-                },
-                headerRightSpacer: {
-                    width: 44,
                 },
                 list: {
                     flex: 1,
@@ -246,23 +227,9 @@ function useStyles(colors: ThemeColors) {
                     color: colors.textSecondary,
                     paddingVertical: 12,
                 },
-                loadingWrap: {
-                    flex: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                },
                 errorBanner: {
                     padding: 24,
                     gap: 8,
-                },
-                errorText: {
-                    color: colors.error,
-                    fontSize: 13,
-                },
-                retryText: {
-                    color: colors.primary,
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 14,
                 },
                 fab: {
                     position: 'absolute',
@@ -284,7 +251,6 @@ function useStyles(colors: ThemeColors) {
                         default: {},
                     }),
                 },
-            }),
-        [colors],
-    );
+            });
+    }, [colors]);
 }

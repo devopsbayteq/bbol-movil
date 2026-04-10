@@ -4,9 +4,9 @@ import {CardViewContainer} from './CardViewContainer';
 import {TransactionHeaderInformation} from './TransactionHeaderInformation';
 import {CardAccountItem} from './CardAccountItem';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess';
-import {SpacerView} from "../ui";
+import {SpacerView} from '../ui';
 import {useTheme, type ThemeColors} from '../../../../providers';
-import {Lexend} from '../../../../theme/lexend';
+import {buildTransferSharedStyles} from './transferSharedStyles';
 
 type TransferVoucherShareableCardProps = {
     transferResume: TransferDataResume;
@@ -56,40 +56,14 @@ export function TransferVoucherShareableCard({
 }
 
 function useStyles(colors: ThemeColors) {
-    return useMemo(
-        () =>
-            StyleSheet.create({
-                detailRowLast: {
-                    borderBottomWidth: 0,
-                },
-                conceptValue: {
-                    flexShrink: 1,
-                },
-                detailValue: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.primary,
-                    textAlign: 'right',
-                    flex: 1,
-                },
-                detailLabel: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 14,
-                    lineHeight: 20,
-                    color: colors.textSecondary,
-                    flexShrink: 0,
-                },
+    return useMemo(() => {
+        const shared = buildTransferSharedStyles(colors);
+        return StyleSheet.create({
+                ...shared,
                 detailRow: {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 4,
-                    paddingTop: 12,
-                    paddingBottom: 13,
+                    ...shared.detailRowLayout,
                     borderBottomColor: colors.borderLight,
-                    borderBottomWidth:1.5,
-                    gap: 12,
+                    borderBottomWidth: 1.5,
                 },
                 accountsBlock: {
                     width: '100%',
@@ -97,8 +71,9 @@ function useStyles(colors: ThemeColors) {
                 dividerItems: {
                     marginTop: 15,
                     height: 1,
-                    backgroundColor: "#E2E2E2"
-                }
-            }), [colors])
+                    backgroundColor: '#E2E2E2',
+                },
+            });
+    }, [colors]);
 }
 

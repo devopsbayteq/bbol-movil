@@ -3,6 +3,7 @@ import React, {useMemo} from 'react';
 import type {AccountBalance} from '../../../../domain/entities/ContractBalance';
 import {ThemeColors, useTheme} from '../../../../providers';
 import {Lexend} from '../../../../theme/lexend';
+import {buildTransferSharedStyles} from './transferSharedStyles';
 import ArrowBack from '../../../../../assets/images/svg/arrow-transfer.svg';
 import WalletTransfer from '../../../../../assets/images/svg/walletransfer.svg';
 import UserTransferIcon from '../../../../../assets/images/svg/user_transfer.svg';
@@ -45,9 +46,9 @@ export function AccountSelectorButton({
       disabled={accounts.length <= 1}>
       <View style={styles.iconChip}>
         {variant === 'from' ? (
-          <WalletTransfer color={colors.primary} size={16} />
+          <WalletTransfer color={colors.primary}  />
         ) : (
-          <UserTransferIcon color={colors.primary} size={16} />
+          <UserTransferIcon color={colors.primary}  />
         )}
       </View>
       <View style={styles.cardBody}>
@@ -66,7 +67,7 @@ export function AccountSelectorButton({
           <Text style={styles.balanceText}>{balanceLabel ?? ''}</Text>
           {accounts.length > 1 ? (
             <View >
-              <ArrowBack color={colors.iconPrimary} size={16} />
+              <ArrowBack color={colors.iconPrimary}  />
             </View>
           ) : (
             <View style={styles.cardChevronSpacer} />
@@ -76,7 +77,7 @@ export function AccountSelectorButton({
         <View style={styles.trailingTo}>
           <Text style={styles.balanceText}>{balanceLabel ?? ''}</Text>
           {accounts.length > 1 ? (
-            <ArrowBack color={colors.iconPrimary} size={16} />
+            <ArrowBack color={colors.iconPrimary}  />
           ) : (
             <View style={styles.cardChevronSpacer} />
           )}
@@ -90,6 +91,7 @@ function useStyles(colors: ThemeColors) {
   return useMemo(
     () =>
       StyleSheet.create({
+        ...buildTransferSharedStyles(colors),
         card: {
           flexDirection: 'row',
           alignItems: 'center',
@@ -99,18 +101,6 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 12,
           paddingVertical: 16,
           minHeight: 74,
-        },
-        iconChip: {
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          backgroundColor: colors.primaryIconContainerBg,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        cardBody: {
-          flex: 1,
-          minWidth: 0,
         },
         cardLabel: {
           fontFamily: Lexend.regular,
@@ -123,13 +113,6 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           lineHeight: 22,
           color: colors.textSecondary,
-        },
-        cardSub: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.textTertiary,
-          marginTop: 2,
         },
         trailingFrom: {
           flexDirection: 'row',
