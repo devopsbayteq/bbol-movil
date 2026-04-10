@@ -1,4 +1,4 @@
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 import crypto from 'react-native-quick-crypto';
 import {BiometricRSAError} from './errors';
 

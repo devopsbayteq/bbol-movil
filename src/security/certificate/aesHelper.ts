@@ -1,6 +1,6 @@
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 import crypto from 'react-native-quick-crypto';
-import {bufferToHex, hexToBuffer} from './encoding';
+import {bufferToHex} from './encoding';
 
 /** AES-256-CBC + PKCS#7 (padding por defecto de Node/OpenSSL). */
 export const AES_MODE = 'aes-256-cbc' as const;

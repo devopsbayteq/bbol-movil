@@ -7,7 +7,7 @@ import {
   CLIENT_PRIVATE_KEY_PEM_BASE64,
   SERVER_PUBLIC_KEY_PEM_BASE64,
 } from './keys.constants';
-import {Buffer} from 'buffer';
+import {Buffer} from 'node:buffer';
 import {AES_IV_LENGTH_BYTES, AES_KEY_LENGTH_BYTES} from './aesHelper';
 import crypto from 'react-native-quick-crypto';
 import {devLog, devWarn} from '../../data/api/devLog';
