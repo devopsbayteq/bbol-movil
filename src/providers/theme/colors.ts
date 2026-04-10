@@ -75,14 +75,72 @@ export interface ThemeColors {
 
 }
 
-export const LightColors: ThemeColors = {
+/** Tokens con el mismo valor en light y dark (marca / superficies fijas). */
+type ThemeColorsShared = Pick<
+  ThemeColors,
+  | 'textBlack'
+  | 'nextPayCircleBg'
+  | 'homeLink'
+  | 'homeHeaderBackground'
+  | 'homeAvatarCircle'
+  | 'homeHeaderIconButtonBg'
+  | 'homeProductCardBorder'
+  | 'homeChipSelectedBorder'
+  | 'homeCreditCardSurface'
+  | 'homeCreditCardGradientTop'
+  | 'homeCreditCardGradientBottom'
+  | 'homeCreditCardBorder'
+  | 'homeLoanCardBackground'
+  | 'homeLoanCardGradientStart'
+  | 'homeLoanCardGradientEnd'
+  | 'homeInvestmentCardGradientStart'
+  | 'homeInvestmentCardGradientEnd'
+  | 'homeInvestmentCardBorder'
+  | 'homeLoanCardBorder'
+  | 'homeLoanCarouselBorder'
+  | 'homeBorderSoft'
+  | 'homePrimaryHover'
+  | 'white'
+  | 'primaryIconContainerBg'
+  | 'homeStarIcon'
+>;
+
+type ThemeColorsVariant = Omit<ThemeColors, keyof ThemeColorsShared>;
+
+const themeColorsShared: ThemeColorsShared = {
+  textBlack: '#000000',
+  nextPayCircleBg: '#d2e4f0',
+  homeLink: '#0167ae',
+  homeHeaderBackground: '#0B515C',
+  homeAvatarCircle: '#94E0ED',
+  homeHeaderIconButtonBg: '#096877',
+  homeProductCardBorder: '#FFFFFF',
+  homeChipSelectedBorder: '#D0F0F6',
+  homeCreditCardSurface: '#262626',
+  homeCreditCardGradientTop: '#323232',
+  homeCreditCardGradientBottom: '#1A1A1A',
+  homeCreditCardBorder: '#757575',
+  homeLoanCardBackground: '#0067AE',
+  homeLoanCardGradientStart: '#096877',
+  homeLoanCardGradientEnd: '#008292',
+  homeInvestmentCardGradientStart: '#003960',
+  homeInvestmentCardGradientEnd: '#0067AE',
+  homeInvestmentCardBorder: '#0067AE',
+  homeLoanCardBorder: '#E0EBFF',
+  homeLoanCarouselBorder: '#06A3B6',
+  homeBorderSoft: '#EFF6F7',
+  homePrimaryHover: '#06A3B6',
+  white: '#FFFFFF',
+  primaryIconContainerBg: '#D0F0F6',
+  homeStarIcon: '#FFD416',
+};
+
+const lightPalette: ThemeColorsVariant = {
   background: '#F2F2F2',
   surface: '#FFFFFF',
   primary: '#008292',
   primaryLight: '#B3E5EC',
   textPrimary: '#1A1A1A',
-  textBlack: '#000000',
-  nextPayCircleBg: '#d2e4f0',
   textSecondary: '#474747',
   textTertiary: '#757575',
   textLabel: '#1A1A1A',
@@ -94,7 +152,6 @@ export const LightColors: ThemeColors = {
   buttonSecondaryBg: '#E2E2E2',
   iconPrimary: '#000000',
   linkPrimary: '#008292',
-  homeLink: '#0167ae',
   error: '#DC2626',
   errorBg: '#FEF2F2',
   errorBorder: '#FECACA',
@@ -102,45 +159,20 @@ export const LightColors: ThemeColors = {
   successBg: '#ECFDF5',
   warning: '#D97706',
   warningBg: '#FFFBEB',
-  white: '#FFFFFF',
   balanceDivider: '#94e0ed',
   shadowSoft: 'rgb(0, 0, 0)',
-  homeHeaderBackground: '#0B515C',
-  homeAvatarCircle: '#94E0ED',
-  homeHeaderIconButtonBg: '#096877',
   homeProductCardSurface: '#eff6f7',
-  homeProductCardBorder: '#FFFFFF',
-  homeChipSelectedBorder: '#D0F0F6',
   homeBalanceToggleBg: '#d0f0f6',
-  homeCreditCardSurface: '#262626',
-  homeCreditCardGradientTop: '#323232',
-  homeCreditCardGradientBottom: '#1A1A1A',
-  homeCreditCardBorder: '#757575',
-  homeLoanCardBackground: '#0067AE',
-  homeLoanCardGradientStart: '#096877',
-  homeLoanCardGradientEnd: '#008292',
-  homeInvestmentCardGradientStart: '#003960',
-  homeInvestmentCardGradientEnd: '#0067AE',
-  homeInvestmentCardBorder: '#0067AE',
-  homeLoanCardBorder: '#E0EBFF',
-  homeLoanCarouselBorder: '#06A3B6',
-  homeBorderSoft: '#EFF6F7',
-  homePrimaryHover: '#06A3B6',
   lineSeparator: '#d6d6d6',
   chartAccent: '#962DFF',
-  primaryIconContainerBg: '#D0F0F6',
-  homeStarIcon: '#FFD416',
-
 };
 
-export const DarkColors: ThemeColors = {
+const darkPalette: ThemeColorsVariant = {
   background: '#111827',
   surface: '#1F2937',
   primary: '#22D3EE',
   primaryLight: '#164E63',
   textPrimary: '#F9FAFB',
-  textBlack: '#000000',
-  nextPayCircleBg: '#d2e4f0',
   textSecondary: '#D1D5DB',
   textTertiary: '#9CA3AF',
   textLabel: '#E5E7EB',
@@ -152,7 +184,6 @@ export const DarkColors: ThemeColors = {
   buttonSecondaryBg: '#374151',
   iconPrimary: '#F9FAFB',
   linkPrimary: '#22D3EE',
-  homeLink: '#0167ae',
   error: '#F87171',
   errorBg: '#451A1A',
   errorBorder: '#7F1D1D',
@@ -160,32 +191,20 @@ export const DarkColors: ThemeColors = {
   successBg: '#064E3B',
   warning: '#FBBF24',
   warningBg: '#451A03',
-  white: '#FFFFFF',
   balanceDivider: 'rgba(255,255,255,0.15)',
   shadowSoft: 'rgba(0,0,0,0.35)',
-  homeHeaderBackground: '#0B515C',
-  homeAvatarCircle: '#94E0ED',
-  homeHeaderIconButtonBg: '#096877',
   homeProductCardSurface: '#D0F0F6',
-  homeProductCardBorder: '#FFFFFF',
-  homeChipSelectedBorder: '#D0F0F6',
   homeBalanceToggleBg: '#94E0ED',
-  homeCreditCardSurface: '#262626',
-  homeCreditCardGradientTop: '#323232',
-  homeCreditCardGradientBottom: '#1A1A1A',
-  homeCreditCardBorder: '#757575',
-  homeLoanCardBackground: '#0067AE',
-  homeLoanCardGradientStart: '#096877',
-  homeLoanCardGradientEnd: '#008292',
-  homeInvestmentCardGradientStart: '#003960',
-  homeInvestmentCardGradientEnd: '#0067AE',
-  homeInvestmentCardBorder: '#0067AE',
-  homeLoanCardBorder: '#E0EBFF',
-  homeLoanCarouselBorder: '#06A3B6',
-  homeBorderSoft: '#EFF6F7',
-  homePrimaryHover: '#06A3B6',
   lineSeparator: '#374151',
   chartAccent: '#B76EFF',
-  primaryIconContainerBg: '#D0F0F6',
-  homeStarIcon: '#FFD416',
+};
+
+export const LightColors: ThemeColors = {
+  ...themeColorsShared,
+  ...lightPalette,
+};
+
+export const DarkColors: ThemeColors = {
+  ...themeColorsShared,
+  ...darkPalette,
 };

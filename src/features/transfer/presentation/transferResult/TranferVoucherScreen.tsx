@@ -4,7 +4,8 @@ import React, {useCallback, useMemo} from 'react';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
 import {buildTransferSharedStyles} from '../components/transferSharedStyles';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Button, SecondaryIconButton, TertiaryLinkButton} from '../ui';
+import {TertiaryLinkButton} from '../../../../presentation/components';
+import {Button, SecondaryIconButton} from '../ui';
 import {
   useRoute,
   RouteProp,

@@ -1,4 +1,4 @@
-import {Buffer} from 'node:buffer';
+import {Buffer} from 'buffer';
 import base64 from 'react-native-base64';
 
 /**

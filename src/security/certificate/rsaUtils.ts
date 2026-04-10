@@ -1,4 +1,4 @@
-import {Buffer} from 'node:buffer';
+import {Buffer} from 'buffer';
 import {devLog} from '../../data/api/devLog';
 import crypto from 'react-native-quick-crypto';
 import {base64ToBinaryLatin1,  bufferToHex} from './encoding';
