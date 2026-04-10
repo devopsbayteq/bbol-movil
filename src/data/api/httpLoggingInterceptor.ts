@@ -3,6 +3,35 @@ import {devLog} from './devLog';
 
 const LOG = 'HTTP';
 
+/** Avoid `String(object)` → '[object Object]' (Sonar: explicit serialization). */
+function stringifyForLog(value: unknown): string {
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'bigint'
+  ) {
+    return String(value);
+  }
+  if (typeof value === 'symbol') {
+    return value.toString();
+  }
+  if (typeof value === 'function') {
+    const fn = value as {name?: string};
+    return `[Function: ${fn.name ?? 'anonymous'}]`;
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return Object.prototype.toString.call(value);
+  }
+}
+
 function serializeHeaders(h: unknown): Record<string, unknown> {
   if (h == null) {
     return {};
@@ -14,7 +43,7 @@ function serializeHeaders(h: unknown): Record<string, unknown> {
   if (typeof h === 'object' && !Array.isArray(h)) {
     return {...(h as Record<string, unknown>)};
   }
-  return {raw: String(h)};
+  return {raw: stringifyForLog(h)};
 }
 
 function summarizeBody(data: unknown): unknown {
@@ -29,9 +58,11 @@ function summarizeBody(data: unknown): unknown {
     return data;
   }
   try {
-    return JSON.parse(JSON.stringify(data));
+    return (globalThis as unknown as {structuredClone: <T>(value: T) => T}).structuredClone(
+      data,
+    );
   } catch {
-    return String(data);
+    return stringifyForLog(data);
   }
 }
 

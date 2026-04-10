@@ -23,11 +23,10 @@ import {useTransferViewModel} from './useTransferViewModel';
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
 import {ToolbarApp} from './components/ToolbarApp.tsx';
 import {ErrorBannerComponent} from './transferInit/components/ErrorBannerComponent.tsx';
-import {Button, TertiaryLinkButton} from './ui';
+import {Button, SpacerView, TertiaryLinkButton} from './ui';
 import {AccountBeneficiarySelectorModal} from './AccountBeneficiarySelectorModal.tsx';
 import {AccountSelectorButton} from './components/AccountSelectorButton.tsx';
 import {buildTransferSharedStyles} from './components/transferSharedStyles';
-import {SpacerView} from './ui';
 import AngleArrow from '../../../../assets/images/svg/angles-down.svg';
 
 const AMOUNT_PLACEHOLDER = formatMoneyUsdDisplay(0);
@@ -90,12 +89,12 @@ export function TransferScreen() {
     }, [selectedFromAccount]);
 
     const fromBalanceLabel = useMemo(
-        () => (selectedFromAccount != null ? formatMoneyUsdDisplay(selectedFromAccount.balance) : ''),
+        () => (selectedFromAccount ? formatMoneyUsdDisplay(selectedFromAccount.balance) : ''),
         [selectedFromAccount],
     );
 
     const toBalanceLabel = useMemo(
-        () => (selectedToAccount != null ? formatMoneyUsdDisplay(selectedToAccount.balance) : ''),
+        () => (selectedToAccount ? formatMoneyUsdDisplay(selectedToAccount.balance) : ''),
         [selectedToAccount],
     );
 
@@ -121,7 +120,7 @@ export function TransferScreen() {
         if (toContactName !== '') {
             return toContactName;
         }
-        return toAccountTitle !== '' ? toAccountTitle : 'Cuenta';
+        return toAccountTitle === '' ? 'Cuenta' : toAccountTitle;
     }, [selectedToAccount, toAccountTitle, toContactName]);
 
     const toDescription = toAccountSubtitle;

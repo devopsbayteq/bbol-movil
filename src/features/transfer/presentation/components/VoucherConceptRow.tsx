@@ -7,7 +7,7 @@ type VoucherConceptRowProps = {
     concept: string;
 };
 
-export function VoucherConceptRow({concept}: VoucherConceptRowProps) {
+export function VoucherConceptRow({concept}: Readonly<VoucherConceptRowProps>) {
     const {colors} = useTheme();
     const styles = useStyles(colors);
 
@@ -21,7 +21,7 @@ export function VoucherConceptRow({concept}: VoucherConceptRowProps) {
     );
 }
 
-export function VoucherTaxRow({concept}: VoucherConceptRowProps) {
+export function VoucherTaxRow({concept}: Readonly<VoucherConceptRowProps>) {
     const {colors} = useTheme();
     const styles = useStyles(colors);
 

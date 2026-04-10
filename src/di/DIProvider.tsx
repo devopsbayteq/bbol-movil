@@ -4,7 +4,11 @@ import {AppContainer, createContainer} from './container';
 
 const DIContext = createContext<AppContainer | undefined>(undefined);
 
-export function DIProvider({children}: {children: React.ReactNode}) {
+interface DIProviderProps {
+  children: React.ReactNode;
+}
+
+export function DIProvider({children}: Readonly<DIProviderProps>) {
   const container = useMemo(() => createContainer(), []);
 
   useEffect(() => {

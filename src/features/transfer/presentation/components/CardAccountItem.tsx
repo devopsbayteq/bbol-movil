@@ -19,7 +19,7 @@ export function CardAccountItem({
   name,
   showBottomBorder = false,
   icon = 'wallet',
-}: CardAccountItemProps) {
+}: Readonly<CardAccountItemProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const IconComponent = icon === 'user' ? UserTransferIcon : WalletTransfer;

@@ -28,7 +28,7 @@ export function TertiaryLinkButton({
   style,
   labelStyle,
   testID,
-}: TertiaryLinkButtonProps) {
+}: Readonly<TertiaryLinkButtonProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

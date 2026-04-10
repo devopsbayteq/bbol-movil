@@ -43,15 +43,16 @@ function featureButtonLoaderColor(
   return variant === 'outline' ? colors.primary : colors.white;
 }
 
+interface FeatureButtonTrailingEndProps{
+    iconSourceRight: ImageSourcePropType | ReactNode | undefined;
+    iconRightTintColor?: string;
+    styles: ReturnType<typeof useStyles>;
+}
 function FeatureButtonTrailingEnd({
   iconSourceRight,
   iconRightTintColor,
   styles,
-}: {
-  iconSourceRight: ImageSourcePropType | ReactNode | undefined;
-  iconRightTintColor?: string;
-  styles: ReturnType<typeof useStyles>;
-}): React.ReactNode {
+}: Readonly<FeatureButtonTrailingEndProps>): React.ReactNode {
   if (!iconSourceRight) {
     return null;
   }
@@ -72,6 +73,18 @@ function FeatureButtonTrailingEnd({
   );
 }
 
+interface FeatureButtonInnerPrps{
+    loading: boolean;
+    variant: ButtonVariant;
+    colors: ThemeColors;
+    title: string;
+    iconSource: ImageSourcePropType | undefined;
+    iconSourceRight: ImageSourcePropType | ReactNode | undefined;
+    iconRightTintColor?: string;
+    labelStyle: StyleProp<TextStyle> | undefined;
+    styles: ReturnType<typeof useStyles>;
+}
+
 function FeatureButtonInner({
   loading,
   variant,
@@ -82,17 +95,7 @@ function FeatureButtonInner({
   iconRightTintColor,
   labelStyle,
   styles,
-}: {
-  loading: boolean;
-  variant: ButtonVariant;
-  colors: ThemeColors;
-  title: string;
-  iconSource: ImageSourcePropType | undefined;
-  iconSourceRight: ImageSourcePropType | ReactNode | undefined;
-  iconRightTintColor?: string;
-  labelStyle: StyleProp<TextStyle> | undefined;
-  styles: ReturnType<typeof useStyles>;
-}): React.ReactNode {
+}: Readonly<FeatureButtonInnerPrps>): React.ReactNode {
   if (loading) {
     return (
       <ActivityIndicator
@@ -158,7 +161,7 @@ export function Button({
   style,
   labelStyle,
   testID,
-}: ButtonProps) {
+}: Readonly<ButtonProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

@@ -71,8 +71,7 @@ export function parseTransferAmountInputToCents(sanitized: string): number | nul
   }
 
   const wholePart = wholeStr === '' ? 0n : BigInt(wholeStr);
-  const fracPadded =
-    fracStr.length === 0 ? '00' : fracStr.length === 1 ? `${fracStr}0` : fracStr.slice(0, 2);
+  const fracPadded = fracStr.padEnd(2, '0').slice(0, 2);
   const fracNum = Number.parseInt(fracPadded, 10);
   if (Number.isNaN(fracNum)) {
     return null;

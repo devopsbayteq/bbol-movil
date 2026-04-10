@@ -13,7 +13,7 @@ export function ErrorBannerComponent({
   textRetry,
   errorText,
   onRetry,
-}: ErrorBannerComponentProps) {
+}: Readonly<ErrorBannerComponentProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

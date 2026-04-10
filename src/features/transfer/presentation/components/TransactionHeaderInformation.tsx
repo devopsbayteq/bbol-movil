@@ -10,7 +10,7 @@ interface TransactionHeaderInformationProps {
 
 export function TransactionHeaderInformation({
   transferResume,
-}: TransactionHeaderInformationProps) {
+}: Readonly<TransactionHeaderInformationProps>) {
   const formattedDateTime = useMemo(() => {
     const override = transferResume.voucherDisplayDate?.trim();
     if (override) {

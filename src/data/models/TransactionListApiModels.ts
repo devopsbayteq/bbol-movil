@@ -1,23 +1,19 @@
-import type {AccountApiAccountKind} from '../../domain/entities/AccountMovement';
-import type {AccountMovementTransactionType} from '../../domain/entities/AccountMovementTransactionType';
-
-/** Item en la respuesta paginada de GET /Transaction */
 export interface TransactionListItemApiModel {
   transactionGuid: string;
   transactionIdentifier: string | null;
   beneficiaryName: string | null;
-  beneficiaryAccountType: AccountApiAccountKind | string;
+  beneficiaryAccountType: string;
   beneficiaryAccountTypeLabel: string | null;
   beneficiaryAccountNumber: string | null;
-  ownerAccountType: AccountApiAccountKind | string;
+  ownerAccountType: string;
   ownerAccountLabel: string | null;
   accountNumber: string | null;
-  accountType: AccountApiAccountKind | string;
+  accountType: string;
   accountTypeLabel: string | null;
   amount: number;
   transferDate: string;
   transactionTypeLabel: string | null;
-  transactionType: AccountMovementTransactionType | string;
+  transactionType: string;
   concept: string | null;
   balanceAfterTransaction: number | null;
   allowedShared?: boolean;

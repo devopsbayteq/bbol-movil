@@ -85,7 +85,7 @@ export function TransferInitScreen() {
               testID="transfer-init-third-party"
               leadingIcon={
 
-                <AccountUserTransferIcon color={colors.primary} size={24} />
+                <AccountUserTransferIcon color={colors.primary}/>
               }
             />
           </View>
