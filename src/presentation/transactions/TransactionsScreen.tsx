@@ -525,6 +525,37 @@ export function TransactionsScreen() {
   
   }, [vm.isLoadingMore, chartSegments, colors, styles]);
 
+  const listEmptyComponent = useMemo(() => {
+    if (vm.isLoadingMovements) {
+      return (
+        <View style={styles.emptyPad}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      );
+    }
+    if (vm.movementsError) {
+      return (
+        <View style={styles.emptyPad}>
+          <ErrorMessage message={vm.movementsError} />
+          <Button
+            title="Reintentar"
+            onPress={() => {
+              vm.refresh().catch(() => {});
+            }}
+            style={styles.retryBtn}
+          />
+        </View>
+      );
+    }
+    return <EmptyState message="No hay movimientos" />;
+  }, [
+    vm.isLoadingMovements,
+    vm.movementsError,
+    vm.refresh,
+    colors.primary,
+    styles,
+  ]);
+
   if (vm.isLoadingAccount) {
     return (
       <View
@@ -593,27 +624,7 @@ export function TransactionsScreen() {
           />
         }
 
-        
-        ListEmptyComponent={
-          vm.isLoadingMovements ? (
-            <View style={styles.emptyPad}>
-              <ActivityIndicator color={colors.primary} />
-            </View>
-          ) : vm.movementsError ? (
-            <View style={styles.emptyPad}>
-              <ErrorMessage message={vm.movementsError} />
-              <Button
-                title="Reintentar"
-                onPress={() => {
-                  vm.refresh().catch(() => {});
-                }}
-                style={styles.retryBtn}
-              />
-            </View>
-          ) : (
-            <EmptyState message="No hay movimientos" />
-          )
-        }
+        ListEmptyComponent={listEmptyComponent}
       />
 
       <DevelopmentNoticeModal

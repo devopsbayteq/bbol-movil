@@ -133,9 +133,9 @@ function dedupeAccountMovements(items: AccountMovement[]): AccountMovement[] {
   const map = new Map<string, AccountMovement>();
   for (const item of items) {
     const guid = item.transactionGuid?.trim();
-    const key = guid
-      ? guid
-      : `${item.transactionIdentifier}|${item.transferDate}|${item.amount}|${item.beneficiaryName}`;
+    const key =
+      guid ||
+      `${item.transactionIdentifier}|${item.transferDate}|${item.amount}|${item.beneficiaryName}`;
     if (!map.has(key)) {
       map.set(key, item);
     }

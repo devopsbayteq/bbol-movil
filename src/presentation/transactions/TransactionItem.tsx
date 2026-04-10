@@ -33,7 +33,7 @@ interface TransactionItemProps {
   item: Transaction;
 }
 
-export function TransactionItem({item}: TransactionItemProps) {
+export function TransactionItem({item}: Readonly<TransactionItemProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const category = CATEGORY_CONFIG[item.category];

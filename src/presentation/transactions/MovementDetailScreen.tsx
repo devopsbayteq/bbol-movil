@@ -45,7 +45,7 @@ function formatDetailDate(iso: string): string {
   return capitalized.charAt(0).toUpperCase() + capitalized.slice(1);
 }
 
-function WalletIcon({color}: {color: string}) {
+function WalletIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -56,7 +56,7 @@ function WalletIcon({color}: {color: string}) {
   );
 }
 
-function PersonIcon({color}: {color: string}) {
+function PersonIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -67,7 +67,7 @@ function PersonIcon({color}: {color: string}) {
   );
 }
 
-function BackIcon({color}: {color: string}) {
+function BackIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -78,7 +78,7 @@ function BackIcon({color}: {color: string}) {
   );
 }
 
-function ShareIcon({color}: {color: string}) {
+function ShareIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path
@@ -136,7 +136,7 @@ export function MovementDetailScreen() {
 
   const conceptDisplay = useMemo(() => {
     const c = m.concept?.trim();
-    return c ? c : '—';
+    return c || '—';
   }, [m.concept]);
 
   const onReport = useCallback(() => {
