@@ -7,7 +7,8 @@ import {TransferReviewScreen} from '../presentation/TransferReview/TransferRevie
 import {TransferVoucherScreen} from '../presentation/transferResult/TranferVoucherScreen';
 import type {TransferDataResume} from '../presentation/transferResult/TransferModalSuccess';
 import {TransferInitScreen} from '../presentation/transferInit/TransferInitScreen';
-import {TransferOtpValidationScreen} from '../presentation/otp/TransferOtpValidationScreen';
+import {OtpValidationScreen} from "../../../presentation/otp";
+
 
 export type TransferStackParamList = {
   TransferInit: undefined;
@@ -31,7 +32,7 @@ export function TransferStackNavigator() {
       <Stack.Screen name="TransferReview" component={TransferReviewScreen} />
       <Stack.Screen
         name="OtpValidationTransfer"
-        component={TransferOtpValidationScreen}
+        component={OtpValidationScreen}
       />
       <Stack.Screen name="TransferVoucher" component={TransferVoucherScreen} />
     </Stack.Navigator>

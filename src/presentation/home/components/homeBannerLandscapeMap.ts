@@ -36,7 +36,7 @@ export function resolveBannerLandscape(landscape: string): ResolvedBannerLandsca
   if (isHttpUrl(raw)) {
     return {kind: 'remote', uri: raw};
   }
-  const key = raw.toLowerCase().replaceAll(/\.png$/i, '');
+  const key = raw.toLowerCase().replace(/\.png$/i, '');
   const source = LANDSCAPE_BY_CODE[key];
   if (source) {
     return {kind: 'local', source};

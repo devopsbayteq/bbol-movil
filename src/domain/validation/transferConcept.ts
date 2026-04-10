@@ -23,11 +23,14 @@ export const transferConceptMessages = {
 
 const NEWLINE_PATTERN = /[\r\n]/;
 
+/** Secuencias de salto de línea → un solo espacio (evita `replaceAll` con RegExp no global). */
+const NEWLINE_RUN_PATTERN = /\r\n|\n|\r/g;
+
 /** Letras, números, espacio (U+0020), punto y guión. */
 const DISALLOWED_CONCEPT_CHAR_PATTERN = /[^\p{L}\p{N} .-]/u;
 
 function replaceNewlinesWithSpace(value: string): string {
-  return value.replaceAll(NEWLINE_PATTERN, ' ');
+  return value.replace(NEWLINE_RUN_PATTERN, ' ');
 }
 
 function isDisallowedTransferConceptCharacter(character: string): boolean {

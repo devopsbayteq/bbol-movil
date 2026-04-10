@@ -56,17 +56,14 @@ jest.mock(
   },
 );
 
-jest.mock(
-  '../../src/features/transfer/presentation/otp/TransferOtpValidationScreen',
-  () => {
-    const React = require('react');
-    const {Text} = require('react-native');
-    return {
-      TransferOtpValidationScreen: () =>
-        React.createElement(Text, {testID: 'transfer-otp'}, 'Otp'),
-    };
-  },
-);
+jest.mock('../../src/presentation/otp', () => {
+  const React = require('react');
+  const {Text} = require('react-native');
+  return {
+    OtpValidationScreen: () =>
+      React.createElement(Text, {testID: 'transfer-otp'}, 'Otp'),
+  };
+});
 
 jest.mock(
   '../../src/features/transfer/presentation/transferResult/TranferVoucherScreen.tsx',

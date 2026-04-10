@@ -26,7 +26,7 @@ export function pemFromBase64PemBlock(base64Pem: string): string {
  * Sin esto, PEM plano provoca "invalid base64 characters" al decodificar.
  */
 export function normalizePemKeyMaterialBase64(raw: string): string {
-  const trimmed = raw.trim().replaceAll(/^\uFEFF/, '');
+  const trimmed = raw.trim().replace(/^\uFEFF/u, '');
   if (!trimmed) {
     throw new Error('El material PEM está vacío');
   }
