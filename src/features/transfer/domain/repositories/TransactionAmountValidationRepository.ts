@@ -1,7 +1,7 @@
 import type {
   TransactionAmountValidation,
   ValidateTransactionAmountParams,
-} from '../entities/TransactionAmountValidation';
+} from '../../../../domain/entities/TransactionAmountValidation';
 
 export interface TransactionAmountValidationRepository {
   validateTransactionAmount(

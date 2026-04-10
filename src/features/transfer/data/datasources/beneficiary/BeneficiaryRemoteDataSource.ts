@@ -1,5 +1,5 @@
 import type {HttpClient} from '../../../../../data/api/HttpClient';
-import type {ApiResponseModel} from '../../models/ApiResponseModel';
+import type {ApiResponseModel} from '../../../../../data/models/ApiResponseModel';
 import type {BeneficiaryContactsContentModel} from '../../models/BeneficiaryContactsContentModel';
 import type {BeneficiaryDataSource} from './BeneficiaryDataSource';
 

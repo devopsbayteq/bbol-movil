@@ -1,7 +1,7 @@
 import type {HttpClient} from '../../../../../data/api/HttpClient';
-import type {ApiResponseModel} from '../../models/ApiResponseModel';
-import type {ValidateTransactionAmountContentModel} from '../../models/ValidateTransactionAmountContentModel';
-import type {ValidateTransactionAmountRequest} from '../../models/ValidateTransactionAmountRequest';
+import type {ApiResponseModel} from '../../../../../data/models/ApiResponseModel';
+import type {ValidateTransactionAmountContentModel} from '../../../../../data/models/ValidateTransactionAmountContentModel';
+import type {ValidateTransactionAmountRequest} from '../../../../../data/models/ValidateTransactionAmountRequest';
 
 export class TransferAmountValidationRemoteDataSource {
   constructor(private readonly httpClient: HttpClient) {}

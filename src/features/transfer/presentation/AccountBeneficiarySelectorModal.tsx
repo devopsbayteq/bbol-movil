@@ -7,7 +7,7 @@ import {ThemeColors, useTheme} from '../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../theme/lexend';
 import {Platform} from "react-native";
-import {formatMoneyUsdDisplay} from "../utils/formatMoneyUsdDisplay.ts";
+import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
 
 export type AccountPickerRole = 'source' | 'destination';
 

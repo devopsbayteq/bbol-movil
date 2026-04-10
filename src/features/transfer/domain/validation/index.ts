@@ -14,6 +14,6 @@ export {
   TRANSFER_CONCEPT_MAX_LENGTH,
   transferConceptMessages,
   validateTransferConcept,
-} from './transferConcept';
+} from '../../../../domain/validation/transferConcept';
 export {INVISIBLE_CHAR_PATTERN, isControlCharacter, sanitizeUnsafeTextInput} from './textSafety';
 export type {InputSanitizer, InputValidator} from './rules';

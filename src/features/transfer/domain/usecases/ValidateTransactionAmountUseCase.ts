@@ -2,7 +2,7 @@ import type {TransactionAmountValidationRepository} from '../repositories/Transa
 import type {
   TransactionAmountValidation,
   ValidateTransactionAmountParams,
-} from '../entities/TransactionAmountValidation';
+} from '../../../../domain/entities/TransactionAmountValidation';
 
 export class ValidateTransactionAmountUseCase {
   constructor(

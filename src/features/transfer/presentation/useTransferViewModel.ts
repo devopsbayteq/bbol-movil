@@ -11,8 +11,8 @@ import {
     validateTransferConcept,
 } from '../domain/validation';
 import {useAuth} from '../../../providers';
-import {formatAccountKindLine, formatAccountSubtitle} from '../utils/accountDisplay';
-import {formatMoneyUsdDisplay} from '../utils/formatMoneyUsdDisplay';
+import {formatAccountKindLine} from '../utils/accountDisplay';
+import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
 import {useHomeViewModel} from './home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
 
@@ -289,8 +289,8 @@ export function useTransferViewModel() {
                 toBalanceDisplay: formatMoneyUsdDisplay(selectedToAccount.balance),
                 accountId: selectedFromAccount.accountGuid,
                 concept: concept,
-                fromAccountSubtitleMasked: formatAccountSubtitle(selectedFromAccount),
-                toAccountSubtitleMasked: formatAccountSubtitle(selectedToAccount),
+                fromAccountSubtitleMasked: formatAccountKindLine(selectedFromAccount),
+                toAccountSubtitleMasked: formatAccountKindLine(selectedToAccount),
 
             },
         };

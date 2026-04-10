@@ -8,7 +8,6 @@ import type {TransferStackParamList} from '../../navigation/TransferStackNavigat
 import {useDI} from '../../../../di';
 import {useAuth} from '../../../../providers';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess';
-import {formatMoneyUsdDisplay} from "../../utils/formatMoneyUsdDisplay.ts";
 
 function beneficiaryAccountLine(
     bankName?: string,

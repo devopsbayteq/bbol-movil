@@ -1,7 +1,7 @@
 import type {
   TransactionAmountValidation,
   ValidateTransactionAmountParams,
-} from '../../domain/entities/TransactionAmountValidation';
+} from '../../../../domain/entities/TransactionAmountValidation';
 import type {TransactionAmountValidationRepository} from '../../domain/repositories/TransactionAmountValidationRepository';
 import type {TransferAmountValidationRemoteDataSource} from '../datasources/transaction/TransferAmountValidationRemoteDataSource';
 

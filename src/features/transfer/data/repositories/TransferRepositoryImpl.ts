@@ -1,7 +1,7 @@
 import type {
   ExecuteTransferParams,
   TransferExecution,
-} from '../../domain/entities/TransferExecution';
+} from '../../../../domain/entities/TransferExecution';
 import type {TransferRepository} from '../../domain/repositories/TransferRepository';
 import {TransferRemoteDataSource} from '../datasources/transaction/TransferRemoteDataSource';
 

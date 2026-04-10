@@ -21,9 +21,11 @@ import type {MovementsStackParamList} from '../../navigation/MovementsStackNavig
 import {useTheme, type ThemeColors} from '../../providers/theme';
 import {Lexend} from '../../theme/lexend';
 import {formatCurrency} from './TransactionItem';
-import {TransferVoucherShareableCard} from '../transfer/components/TransferVoucherShareableCard';
-import {useTransferVoucherCaptureShare} from '../transfer/useTransferVoucherCaptureShare';
 import {accountMovementToTransferDataResume} from './accountMovementToTransferDataResume';
+import {
+  TransferVoucherShareableCard
+} from "../../features/transfer/presentation/components/TransferVoucherShareableCard.tsx";
+import {useTransferVoucherCaptureShare} from "../../features/transfer/presentation/useTransferVoucherCaptureShare.ts";
 
 type Nav = NativeStackNavigationProp<
   MovementsStackParamList,

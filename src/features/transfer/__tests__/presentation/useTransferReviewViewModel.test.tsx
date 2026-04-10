@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useTransferReviewViewModel} from '../../presentation/TransferReview/useTransferReviewViewModel';
-import {formatMoneyEc} from '../../utils/formatMoneyEc';
+import {formatMoneyEc} from '../../../../utils/formatMoneyEc';
 
 // ── Módulos nativos ──────────────────────────────────────────────────────────
 jest.mock('react-native-encrypted-storage', () => ({

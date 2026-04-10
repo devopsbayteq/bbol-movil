@@ -4,7 +4,7 @@ import {Platform} from 'react-native';
 import type {AccountBalance} from '../../../../domain/entities/ContractBalance';
 import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
 import {useTransferViewModel} from '../../presentation/useTransferViewModel';
-import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
+import {formatMoneyUsdDisplay} from '../../../../utils/formatMoneyUsdDisplay';
 
 jest.mock('react-native-encrypted-storage', () => ({
   __esModule: true,

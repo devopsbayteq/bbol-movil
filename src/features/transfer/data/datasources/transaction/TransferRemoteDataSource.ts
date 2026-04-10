@@ -1,7 +1,7 @@
 import type {HttpClient} from '../../../../../data/api/HttpClient';
-import type {ApiResponseModel} from '../../models/ApiResponseModel';
-import type {TransferContentModel} from '../../models/TransferContentModel';
-import type {TransferRequest} from '../../models/TransferRequest';
+import type {ApiResponseModel} from '../../../../../data/models/ApiResponseModel';
+import type {TransferContentModel} from '../../../../../data/models/TransferContentModel';
+import type {TransferRequest} from '../../../../../data/models/TransferRequest';
 
 export class TransferRemoteDataSource {
   constructor(private readonly httpClient: HttpClient) {}

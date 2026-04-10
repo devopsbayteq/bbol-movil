@@ -2,7 +2,7 @@ import type {TransferRepository} from '../repositories/TransferRepository';
 import type {
   ExecuteTransferParams,
   TransferExecution,
-} from '../entities/TransferExecution';
+} from '../../../../domain/entities/TransferExecution';
 
 export class ExecuteTransferUseCase {
   constructor(private readonly transferRepository: TransferRepository) {}

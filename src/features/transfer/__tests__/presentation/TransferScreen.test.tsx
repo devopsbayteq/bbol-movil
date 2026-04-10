@@ -3,7 +3,7 @@ import ReactTestRenderer, {act} from 'react-test-renderer';
 import type {ReactTestRendererJSON} from 'react-test-renderer';
 import {ActivityIndicator, TouchableOpacity} from 'react-native';
 import {TransferScreen} from '../../presentation/TransferScreen';
-import {formatMoneyUsdDisplay} from '../../utils/formatMoneyUsdDisplay';
+import {formatMoneyUsdDisplay} from '../../../../utils/formatMoneyUsdDisplay';
 import type {AccountBalance} from '../../../../domain/entities/ContractBalance';
 
 /** Evita JSON.stringify sobre el árbol (referencias circulares en algunos nodos). */
