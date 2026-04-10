@@ -1,7 +1,7 @@
 import {Text, View, StyleSheet} from 'react-native';
 import {ThemeColors, useTheme} from '../../../../providers';
 import React, {useMemo} from 'react';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import WalletTransfer from '../../../../../assets/images/svg/walletransfer.svg';
 import UserTransferIcon from '../../../../../assets/images/svg/user_transfer.svg';
 interface CardAccountItemProps {

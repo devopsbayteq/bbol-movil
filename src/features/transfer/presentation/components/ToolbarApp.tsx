@@ -2,7 +2,7 @@ import {Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useMemo} from 'react';
 import {ThemeColors, useTheme} from '../../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import BackNavigationArrow from '../../../../../assets/images/svg/arrow-back-left.svg';
 interface ToolbarAppProps {
     title?: string;

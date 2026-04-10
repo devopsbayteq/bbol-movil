@@ -9,7 +9,7 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ToolbarApp} from '../components/ToolbarApp.tsx';
 import {ThemeColors, useTheme} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import {useTransferInitViewModel} from './useTransferInitViewModel.tsx';
 import {ErrorBannerComponent} from './components/ErrorBannerComponent.tsx';

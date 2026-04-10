@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 
 type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
 

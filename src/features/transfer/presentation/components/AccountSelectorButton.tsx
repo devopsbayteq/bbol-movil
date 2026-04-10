@@ -2,7 +2,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useMemo} from 'react';
 import type {AccountBalance} from '../../../../domain/entities/ContractBalance';
 import {ThemeColors, useTheme} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import ArrowBack from '../../../../../assets/images/svg/arrow-transfer.svg';
 import WalletTransfer from '../../../../../assets/images/svg/walletransfer.svg';
 import UserTransferIcon from '../../../../../assets/images/svg/user_transfer.svg';

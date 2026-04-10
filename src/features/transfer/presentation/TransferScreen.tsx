@@ -14,7 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {useTheme, type ThemeColors} from '../../../providers';
-import {Lexend} from '../theme/lexend';
+import {Lexend} from '../../../theme/lexend';
 import type {TransferStackParamList} from '../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../../navigation/MainTabNavigator';
 import {TransferIconArrowRightWhite} from './components/transferIcons.tsx';

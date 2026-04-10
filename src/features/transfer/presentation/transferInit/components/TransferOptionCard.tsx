@@ -1,7 +1,7 @@
 import React, {useMemo, type ReactNode} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../../../providers';
-import {Lexend} from '../../../theme/lexend';
+import {Lexend} from '../../../../../theme/lexend';
 import ArrowTransfer from '../../../../../../assets/images/svg/arrow-transfer.svg';
 
 export interface TransferOptionCardProps {

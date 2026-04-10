@@ -15,7 +15,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../../../navigation/MainTabNavigator';
 import {useTheme, type ThemeColors} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import {ErrorMessage} from '../ui';
 import {
     TransferIconArrowsRetweet,

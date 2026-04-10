@@ -39,7 +39,7 @@ const mockHomeData: {
   retry: jest.fn(),
 };
 
-jest.mock('../../presentation/home/useHomeViewModel', () => ({
+jest.mock('../../../../presentation/home/useHomeViewModel', () => ({
   useHomeViewModel: () => mockHomeData,
 }));
 

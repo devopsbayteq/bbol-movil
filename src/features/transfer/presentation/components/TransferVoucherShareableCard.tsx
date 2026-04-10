@@ -6,7 +6,7 @@ import {CardAccountItem} from './CardAccountItem';
 import type {TransferDataResume} from '../transferResult/TransferModalSuccess';
 import {SpacerView} from "../ui";
 import {useTheme, type ThemeColors} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 
 type TransferVoucherShareableCardProps = {
     transferResume: TransferDataResume;

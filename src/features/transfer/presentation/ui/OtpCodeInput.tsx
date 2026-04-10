@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../../providers/theme';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 
 export type OtpCodeInputVariant = 'dots' | 'boxed';
 

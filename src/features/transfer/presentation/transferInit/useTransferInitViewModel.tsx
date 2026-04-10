@@ -1,4 +1,5 @@
-import {useHomeViewModel} from '../home/useHomeViewModel';
+import {useHomeViewModel} from "../../../../presentation/home/useHomeViewModel.ts";
+
 
 export const useTransferInitViewModel = () => {
   const {data, isLoading, error, retry} = useHomeViewModel();

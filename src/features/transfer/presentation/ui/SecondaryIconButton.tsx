@@ -10,7 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 
 type SecondaryVariant = 'muted' | 'outline';
 

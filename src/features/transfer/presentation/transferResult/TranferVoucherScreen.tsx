@@ -15,7 +15,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import ViewShot from 'react-native-view-shot';
 import {TransferVoucherShareableCard} from '../components/TransferVoucherShareableCard';
 import {useTransferVoucherCaptureShare} from '../useTransferVoucherCaptureShare';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {MainTabParamList} from '../../../../navigation/MainTabNavigator';
 

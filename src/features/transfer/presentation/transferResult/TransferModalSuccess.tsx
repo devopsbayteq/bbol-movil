@@ -4,7 +4,7 @@ import React, {useMemo} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {CardAccountItem} from '../components/CardAccountItem.tsx';
 import type {BeneficiaryOption} from '../transferTypes';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import {TransactionHeaderInformation} from '../components/TransactionHeaderInformation.tsx';
 import {CardViewContainer} from '../components/CardViewContainer.tsx';
 import {VoucherConceptRow} from '../components/VoucherConceptRow.tsx';

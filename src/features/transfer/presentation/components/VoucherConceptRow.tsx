@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {useMemo} from 'react';
 import {ThemeColors, useTheme} from '../../../../providers';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 
 type VoucherConceptRowProps = {
     concept: string;

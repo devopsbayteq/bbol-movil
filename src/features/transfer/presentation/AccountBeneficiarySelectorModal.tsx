@@ -5,7 +5,7 @@ import React, {useMemo} from 'react';
 import type {AccountBalance} from '../../../domain/entities/ContractBalance';
 import {ThemeColors, useTheme} from '../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Lexend} from '../theme/lexend';
+import {Lexend} from '../../../theme/lexend';
 import {Platform} from "react-native";
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
 

@@ -17,7 +17,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useTheme, type ThemeColors} from '../../../../providers';
 import {ErrorMessage} from '../ui/ErrorMessage';
 import {OtpCodeInput} from '../ui/OtpCodeInput';
-import {Lexend} from '../../theme/lexend';
+import {Lexend} from '../../../../theme/lexend';
 import {useTransferOtpValidationViewModel} from './useTransferOtpValidationViewModel';
 import type {TransferStackParamList} from '../../navigation/TransferStackNavigator';
 

@@ -13,8 +13,8 @@ import {
 import {useAuth} from '../../../providers';
 import {formatAccountKindLine} from '../utils/accountDisplay';
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
-import {useHomeViewModel} from './home/useHomeViewModel';
 import type {TransferReviewRouteParams} from './TransferReview/transferReviewTypes';
+import {useHomeViewModel} from "../../../presentation/home/useHomeViewModel.ts";
 
 function defaultAccountIndex(accounts: AccountBalance[]): number {
     if (accounts.length === 0) {
