@@ -34,7 +34,7 @@ function normalizeIosAmountDecimalComma(text: string): string {
     if (text.includes('.')) {
         return text;
     }
-    return text.replace(/,/g, '.');
+    return text.replaceAll(',', '.');
 }
 
 export function useTransferViewModel() {

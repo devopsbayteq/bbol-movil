@@ -1,7 +1,7 @@
 import {Buffer} from 'buffer';
 import {devLog} from '../../data/api/devLog';
 import crypto from 'react-native-quick-crypto';
-import {base64ToBinaryLatin1, base64ToBuffer, bufferToHex} from './encoding';
+import {base64ToBinaryLatin1,  bufferToHex} from './encoding';
 
 const LOG_RSA = 'Security/rsa';
 
@@ -26,15 +26,15 @@ export function pemFromBase64PemBlock(base64Pem: string): string {
  * Sin esto, PEM plano provoca "invalid base64 characters" al decodificar.
  */
 export function normalizePemKeyMaterialBase64(raw: string): string {
-  const trimmed = raw.trim().replace(/^\uFEFF/, '');
+  const trimmed = raw.trim().replaceAll(/^\uFEFF/, '');
   if (!trimmed) {
     throw new Error('El material PEM está vacío');
   }
   if (trimmed.includes('-----BEGIN')) {
     return Buffer.from(trimmed, 'utf8').toString('base64');
   }
-  const compact = trimmed.replace(/\s/g, '');
-  return compact.replace(/-/g, '+').replace(/_/g, '/');
+  const compact = trimmed.replaceAll(/\s/g, '');
+  return compact.replaceAll('-', '+').replaceAll('_', '/');
 }
 
 export function createPublicKeyFromPemBase64(base64Pem: string): RsaPublicKey {

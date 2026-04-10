@@ -13,7 +13,7 @@ export interface DeviceHeaderSnapshot {
 
 /** Solo caracteres alfanuméricos (paridad Flutter). */
 export function alphanumericDeviceField(value: string): string {
-  return value.replace(/[^a-zA-Z0-9]/g, '');
+  return value.replaceAll(/[^a-zA-Z0-9]/g, '');
 }
 
 export async function loadDeviceHeaderSnapshot(): Promise<DeviceHeaderSnapshot> {

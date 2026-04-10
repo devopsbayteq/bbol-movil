@@ -29,11 +29,11 @@ export type MovementsAmountFilterModalProps = {
 };
 
 function parseAmountInput(raw: string): number | null {
-  const t = raw.trim().replace(/\s/g, '').replace(/\$/g, '');
+  const t = raw.trim().replaceAll(/\s/g, '').replaceAll('$', '');
   if (t === '') {
     return null;
   }
-  const normalized = t.replace(',', '.');
+  const normalized = t.replaceAll(',', '.');
   const n = Number(normalized);
   if (!Number.isFinite(n)) {
     return null;
@@ -46,7 +46,7 @@ export function MovementsAmountFilterModal({
   onClose,
   initialRange,
   onApply,
-}: MovementsAmountFilterModalProps) {
+}: Readonly<MovementsAmountFilterModalProps>) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);

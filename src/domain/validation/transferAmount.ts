@@ -10,11 +10,11 @@ const MAX_TRANSFER_CENTS_BIGINT = BigInt(MAX_TRANSFER_CENTS);
  * after `.`, at most two fractional digits.
  */
 export function sanitizeTransferAmountInput(raw: string): string {
-  const normalized = raw.replace(/[$,\s]/g, '');
+  const normalized = raw.replaceAll(/[$,\s]/g, '');
   let result = '';
   let dotIndex = -1;
-  for (let i = 0; i < normalized.length; i++) {
-    const c = normalized[i];
+  for (const element of normalized) {
+    const c = element;
     if (c === '.' && dotIndex === -1) {
       dotIndex = result.length;
       result += '.';
@@ -73,7 +73,7 @@ export function parseTransferAmountInputToCents(sanitized: string): number | nul
   const wholePart = wholeStr === '' ? 0n : BigInt(wholeStr);
   const fracPadded =
     fracStr.length === 0 ? '00' : fracStr.length === 1 ? `${fracStr}0` : fracStr.slice(0, 2);
-  const fracNum = parseInt(fracPadded, 10);
+  const fracNum = Number.parseInt(fracPadded, 10);
   if (Number.isNaN(fracNum)) {
     return null;
   }

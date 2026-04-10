@@ -15,7 +15,7 @@ describe('buildInvestmentDetail', () => {
     expect(d.currency).toBe('USD');
     expect(d.totalToReceive).toBe(3780.6);
     expect(d.initialAmount + d.interestAtMaturity).toBeCloseTo(3780.6, 2);
-    expect(d.maskedAccountNumber.replace(/\s/g, '').length).toBe(11);
+    expect(d.maskedAccountNumber.replaceAll(/\s/g, '').length).toBe(11);
     expect(d.paidAmount + d.remainingToPayAmount).toBeCloseTo(d.totalDebtAmount, 2);
     expect(d.installmentsPaid).toBeGreaterThanOrEqual(1);
     expect(d.installmentsPaid).toBeLessThan(d.installmentsTotal);

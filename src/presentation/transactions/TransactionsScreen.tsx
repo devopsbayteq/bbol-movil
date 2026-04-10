@@ -51,13 +51,13 @@ function monthAbbr(date: Date): string {
   return date
     .toLocaleDateString('es-EC', {month: 'short'})
     .toUpperCase()
-    .replace('.', '')
+    .replaceAll('.', '')
     .slice(0, 3);
 }
 
 // ─── SVG icons ───────────────────────────────────────────────────────────────
 
-function BackIcon({color}: {color: string}) {
+function BackIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
@@ -68,7 +68,7 @@ function BackIcon({color}: {color: string}) {
   );
 }
 
-function ShareIcon({color}: {color: string}) {
+function ShareIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -79,7 +79,7 @@ function ShareIcon({color}: {color: string}) {
   );
 }
 
-function EyeIcon({color}: {color: string}) {
+function EyeIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -101,7 +101,7 @@ function EyeSlashIcon({color}: {color: string}) {
   );
 }
 
-function ChevronDownIcon({color, width, height}: {color: string, width: number, height: number}) {
+function ChevronDownIcon({color, width, height}: Readonly<{color: string, width: number, height: number}>) {
   return (
     <Svg width={width} height={height} viewBox="0 0 24 24">
       <Path
@@ -112,7 +112,7 @@ function ChevronDownIcon({color, width, height}: {color: string, width: number, 
   );
 }
 
-function ChevronRightIcon({color}: {color: string}) {
+function ChevronRightIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={28} height={26} viewBox="0 0 24 24">
       <Path fill={color} d="M11.7487 5.74915L7.4628 10.0351C7.29672 10.2038 7.07706 10.2869 6.85741 10.2869C6.63776 10.2869 6.41864 10.2031 6.25149 10.0357C5.91665 9.70089 5.91665 9.15845 6.25149 8.82361L9.07537 6.00094H0.857139C0.383814 6.00094 0 5.61789 0 5.14376C0 4.66963 0.383814 4.28658 0.857139 4.28658H9.07537L6.25203 1.46324C5.91719 1.1284 5.91719 0.585964 6.25203 0.251127C6.58686 -0.0837092 7.1293 -0.0837092 7.46414 0.251127L11.75 4.53704C12.0835 4.87321 12.0835 5.41431 11.7487 5.74915Z" />
@@ -120,7 +120,7 @@ function ChevronRightIcon({color}: {color: string}) {
   );
 }
 
-function TransferIcon({color}: {color: string}) {
+function TransferIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24">
       <Path
@@ -131,7 +131,7 @@ function TransferIcon({color}: {color: string}) {
   );
 }
 
-function LightbulbIcon({color}: {color: string}) {
+function LightbulbIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
@@ -142,7 +142,7 @@ function LightbulbIcon({color}: {color: string}) {
   );
 }
 
-function FileIcon({color}: {color: string}) {
+function FileIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
@@ -153,7 +153,7 @@ function FileIcon({color}: {color: string}) {
   );
 }
 
-function CreditCardIcon({color}: {color: string}) {
+function CreditCardIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
@@ -164,7 +164,7 @@ function CreditCardIcon({color}: {color: string}) {
   );
 }
 
-function SearchIcon({color}: {color: string}) {
+function SearchIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -182,75 +182,6 @@ interface ExpenseSegment {
   amount: number;
   percentage: number;
   color: string;
-}
-
-function DonutChart({segments}: {segments: ExpenseSegment[]}) {
-  const size = 186;
-  const cx = size / 2;
-  const cy = size / 2;
-  const outerR = 88;
-  const innerR = 54;
-  const strokeWidth = outerR - innerR;
-  const r = innerR + strokeWidth / 2;
-  const circumference = 2 * Math.PI * r;
-
-  let cumFraction = 0;
-  const arcs = segments.map(seg => {
-    const fraction = seg.percentage / 100;
-    const dashLength = fraction * circumference;
-    const gap = circumference - dashLength;
-    const dashOffset = -cumFraction * circumference;
-    const midFraction = cumFraction + fraction / 2;
-    const svgAngle = midFraction * 360 - 90;
-    const rad = (svgAngle * Math.PI) / 180;
-    const labelX = cx + r * Math.cos(rad);
-    const labelY = cy + r * Math.sin(rad);
-    cumFraction += fraction;
-    return {color: seg.color, percentage: seg.percentage, dashLength, gap, dashOffset, labelX, labelY};
-  });
-
-  return (
-    <Svg width={size} height={size}>
-      <Circle
-        cx={cx}
-        cy={cy}
-        r={r}
-        fill="none"
-        stroke="#E8E8E8"
-        strokeWidth={strokeWidth}
-      />
-      <G rotation="-90" origin={`${cx},${cy}`}>
-        {arcs.map((arc, i) => (
-          <Circle
-            key={i}
-            cx={cx}
-            cy={cy}
-            r={r}
-            fill="none"
-            stroke={arc.color}
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${arc.dashLength} ${arc.gap}`}
-            strokeDashoffset={arc.dashOffset}
-          />
-        ))}
-      </G>
-      {arcs.map((arc, i) =>
-        arc.percentage >= 8 ? (
-          <SvgText
-            key={i}
-            x={arc.labelX}
-            y={arc.labelY}
-            textAnchor="middle"
-            alignmentBaseline="middle"
-            fill="white"
-            fontSize={10}
-            fontWeight="600">
-            {`${arc.percentage}%`}
-          </SvgText>
-        ) : null,
-      )}
-    </Svg>
-  );
 }
 
 // ─── Main screen ─────────────────────────────────────────────────────────────

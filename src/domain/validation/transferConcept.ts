@@ -27,7 +27,7 @@ const NEWLINE_PATTERN = /\r|\n/;
 const DISALLOWED_CONCEPT_CHAR_PATTERN = /[^\p{L}\p{N} .-]/u;
 
 function replaceNewlinesWithSpace(value: string): string {
-  return value.replace(NEWLINE_PATTERN, ' ');
+  return value.replaceAll(NEWLINE_PATTERN, ' ');
 }
 
 function isDisallowedTransferConceptCharacter(character: string): boolean {
