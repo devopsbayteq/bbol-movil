@@ -41,7 +41,7 @@ export function LoginPasswordField({
   testID,
   errorTestID,
   ...textInputProps
-}: LoginPasswordFieldProps) {
+}: Readonly<LoginPasswordFieldProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const [visible, setVisible] = useState(false);

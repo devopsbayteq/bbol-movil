@@ -12,7 +12,7 @@ interface SessionExpiredModalProps {
 export function SessionExpiredModal({
   visible,
   onAccept,
-}: SessionExpiredModalProps) {
+}: Readonly<SessionExpiredModalProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

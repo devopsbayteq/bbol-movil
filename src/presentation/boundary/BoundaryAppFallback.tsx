@@ -5,7 +5,7 @@ import {FallbackProps} from 'react-error-boundary';
 export function BoundaryAppFallback({
   error,
   resetErrorBoundary,
-}: FallbackProps) {
+}: Readonly<FallbackProps>) {
   const errorMessage =
     error instanceof Error ? error.message : String(error);
 

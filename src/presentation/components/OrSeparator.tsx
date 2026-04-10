@@ -8,7 +8,7 @@ interface OrSeparatorProps {
   label?: string;
 }
 
-export function OrSeparator({label = 'o'}: OrSeparatorProps) {
+export function OrSeparator({label = 'o'}: Readonly<OrSeparatorProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

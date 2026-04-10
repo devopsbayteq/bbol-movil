@@ -61,7 +61,7 @@ function ButtonInner({
   iconSourceRight,
   iconRightTintColor,
   sheet,
-}: ButtonInnerProps) {
+}: Readonly<ButtonInnerProps>) {
   if (loading) {
     return (
       <ActivityIndicator
@@ -128,7 +128,7 @@ export function Button({
   disabledBackgroundColor,
   style,
   testID,
-}: ButtonProps) {
+}: Readonly<ButtonProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

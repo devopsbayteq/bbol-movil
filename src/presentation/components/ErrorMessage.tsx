@@ -8,7 +8,11 @@ interface ErrorMessageProps {
   testID?: string;
 }
 
-export function ErrorMessage({message, style, testID}: ErrorMessageProps) {
+export function ErrorMessage({
+  message,
+  style,
+  testID,
+}: Readonly<ErrorMessageProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

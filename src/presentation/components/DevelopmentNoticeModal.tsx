@@ -36,7 +36,7 @@ export function DevelopmentNoticeModal({
   title = DEFAULT_TITLE,
   message = DEFAULT_MESSAGE,
   icon,
-}: DevelopmentNoticeModalProps) {
+}: Readonly<DevelopmentNoticeModalProps>) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);

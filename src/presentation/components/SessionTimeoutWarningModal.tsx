@@ -14,7 +14,7 @@ export function SessionTimeoutWarningModal({
   visible,
   secondsRemaining,
   onContinue,
-}: SessionTimeoutWarningModalProps) {
+}: Readonly<SessionTimeoutWarningModalProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

@@ -23,6 +23,12 @@ interface SecondaryIconButtonProps {
   style?: StyleProp<ViewStyle>;
 }
 
+function optionalIconTint(
+  iconTintColor: string | undefined,
+): {tintColor: string} | null {
+  return iconTintColor === undefined ? null : {tintColor: iconTintColor};
+}
+
 function secondaryLeadingContent(
   loading: boolean,
   iconSource: ImageSourcePropType | undefined,
@@ -38,8 +44,7 @@ function secondaryLeadingContent(
   if (iconSource == null) {
     return null;
   }
-  const tintStyle =
-    iconTintColor !== undefined ? {tintColor: iconTintColor} : null;
+  const tintStyle = optionalIconTint(iconTintColor);
   return (
     <Image
       source={iconSource}
@@ -57,8 +62,7 @@ function secondaryTrailingIcon(
   if (iconSourceRight == null) {
     return null;
   }
-  const tintStyle =
-    iconTintColor !== undefined ? {tintColor: iconTintColor} : null;
+  const tintStyle = optionalIconTint(iconTintColor);
   return (
     <Image
       source={iconSourceRight}
@@ -77,7 +81,7 @@ export function SecondaryIconButton({
   disabled = false,
   loading = false,
   style,
-}: SecondaryIconButtonProps) {
+}: Readonly<SecondaryIconButtonProps>) {
   const {colors} = useTheme();
   const styles = useSecondaryIconStyles(colors);
 

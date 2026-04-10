@@ -21,7 +21,7 @@ export function LabeledInput({
   hasError = false,
   style,
   ...textInputProps
-}: LabeledInputProps) {
+}: Readonly<LabeledInputProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

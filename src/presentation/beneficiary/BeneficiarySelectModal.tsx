@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Platform,
   Modal,
+  type SectionListRenderItemInfo,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
@@ -50,19 +51,21 @@ type ContactsListEmptyStyles = {
   emptyHint: TextStyle;
 };
 
+interface ContactsListEmptyProps {
+  contactsLoading: boolean;
+  contactsError: string | null;
+  allContactsLength: number;
+  styles: ContactsListEmptyStyles;
+  colors: ThemeColors;
+}
+
 function ContactsListEmpty({
   contactsLoading,
   contactsError,
   allContactsLength,
   styles,
   colors,
-}: {
-  contactsLoading: boolean;
-  contactsError: string | null;
-  allContactsLength: number;
-  styles: ContactsListEmptyStyles;
-  colors: ThemeColors;
-}) {
+}: Readonly<ContactsListEmptyProps>) {
   if (contactsLoading) {
     return (
       <View style={styles.contactsListEmpty}>
@@ -99,7 +102,7 @@ export function BeneficiarySelectModal({
   visible,
   onRequestClose,
   onSelect,
-}: BeneficiarySelectModalProps) {
+}: Readonly<BeneficiarySelectModalProps>) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -265,11 +268,7 @@ export function BeneficiarySelectModal({
     item,
     index,
     section,
-  }: {
-    item: ContactTemplate;
-    index: number;
-    section: Section;
-  }) {
+  }: Readonly<SectionListRenderItemInfo<ContactTemplate, Section>>) {
     const isFirst = index === 0;
     const isLast = index === section.data.length - 1;
     return (

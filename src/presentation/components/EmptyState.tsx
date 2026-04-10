@@ -6,7 +6,7 @@ interface EmptyStateProps {
   message: string;
 }
 
-export function EmptyState({message}: EmptyStateProps) {
+export function EmptyState({message}: Readonly<EmptyStateProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

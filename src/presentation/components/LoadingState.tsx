@@ -6,7 +6,7 @@ interface LoadingStateProps {
   message?: string;
 }
 
-export function LoadingState({message}: LoadingStateProps) {
+export function LoadingState({message}: Readonly<LoadingStateProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

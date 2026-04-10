@@ -23,7 +23,7 @@ export function LoginHeroImageCarousel({
   sourceA,
   sourceB,
   height = 180,
-}: LoginHeroImageCarouselProps) {
+}: Readonly<LoginHeroImageCarouselProps>) {
   const {colors} = useTheme();
   const styles = useCarouselStyles(colors, height);
   const opacity0 = useRef(new Animated.Value(1)).current;
@@ -98,9 +98,11 @@ function useCarouselStyles(colors: ThemeColors, height: number) {
           backgroundColor: colors.background,
         },
         image: {
-          ...StyleSheet.absoluteFillObject,
-          width: '100%',
-          height: '100%',
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
         },
       }),
     [colors.background, height],

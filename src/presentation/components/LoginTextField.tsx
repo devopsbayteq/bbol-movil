@@ -30,7 +30,7 @@ export function LoginTextField({
   testID,
   errorTestID,
   ...textInputProps
-}: LoginTextFieldProps) {
+}: Readonly<LoginTextFieldProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
   const showLabel = label.trim().length > 0;
