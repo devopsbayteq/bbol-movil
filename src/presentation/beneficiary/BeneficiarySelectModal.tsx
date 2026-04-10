@@ -34,7 +34,7 @@ import {
   TransferIconSearch,
   TransferIconUserPlus,
   TransferIconWallet,
-} from '../transfer/components/transferIcons.tsx';
+} from '../../features/transfer/presentation/components/transferIcons.tsx';
 import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
 
 const HERO_BG = '#0B515C';

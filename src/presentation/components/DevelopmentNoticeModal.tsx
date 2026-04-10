@@ -13,7 +13,7 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import {
   TransferIconClose,
-} from '../transfer/components/transferIcons.tsx';
+} from '../../features/transfer/presentation/components/transferIcons.tsx';
 
 const ALERT_CONTAINER_BG = '#FFE5E2';
 const ICON_BOX = 56;

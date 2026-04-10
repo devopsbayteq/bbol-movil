@@ -16,7 +16,7 @@ import {Lexend} from '../../../theme/lexend';
 import {
   TransferIconClose,
   TransferIconCheck,
-} from '../../transfer/components/transferIcons.tsx';
+} from '../../../features/transfer/presentation/components/transferIcons.tsx';
 import {MOVEMENT_TRANSACTION_TYPE_OPTIONS} from '../transactionTypeFilterOptions';
 import type {MovementTransactionEnumType} from '../transactionTypeFilterOptions';
 

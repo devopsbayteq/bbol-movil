@@ -24,7 +24,7 @@ type PeriodMarkedDates = Record<
 >;
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {TransferIconClose, TransferIconCalendar} from '../../transfer/components/transferIcons.tsx';
+import {TransferIconClose, TransferIconCalendar} from '../../../features/transfer/presentation/components/transferIcons.tsx';
 import type {AppliedDateRange} from '../useAccountMovementsViewModel';
 import {
   localDateKey,
