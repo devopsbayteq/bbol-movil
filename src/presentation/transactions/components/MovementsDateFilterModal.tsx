@@ -130,7 +130,7 @@ export function MovementsDateFilterModal({
   onClose,
   initialRange,
   onApply,
-}: MovementsDateFilterModalProps) {
+}: Readonly<MovementsDateFilterModalProps>) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);

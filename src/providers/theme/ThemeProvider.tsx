@@ -6,7 +6,9 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export function ThemeProvider({children}: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+}: Readonly<ThemeProviderProps>) {
   const systemScheme = useColorScheme();
   const {mode, systemIsDark, setSystemIsDark} = useThemeStore();
 

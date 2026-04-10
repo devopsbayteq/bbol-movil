@@ -32,7 +32,7 @@ export function MovementsTypeFilterModal({
   onClose,
   initialEnumType,
   onApply,
-}: MovementsTypeFilterModalProps) {
+}: Readonly<MovementsTypeFilterModalProps>) {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
