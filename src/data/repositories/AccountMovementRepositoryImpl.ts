@@ -28,12 +28,12 @@ export class AccountMovementRepositoryImpl implements AccountMovementRepository 
       TextSearch: params.textSearch,
       PageNumber: params.pageNumber,
       PageSize: params.pageSize,
-      ...(params.minAmount !== undefined
-        ? {MinAmount: amountToQueryString(params.minAmount)}
-        : {}),
-      ...(params.maxAmount !== undefined
-        ? {MaxAmount: amountToQueryString(params.maxAmount)}
-        : {}),
+      ...(params.minAmount === undefined
+        ? {}
+        : {MinAmount: amountToQueryString(params.minAmount)}),
+      ...(params.maxAmount === undefined
+        ? {}
+        : {MaxAmount: amountToQueryString(params.maxAmount)}),
     });
 
     return {

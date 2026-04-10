@@ -1,4 +1,5 @@
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const {resolve: metroResolve} = require('metro-resolver');
 
 const defaultConfig = getDefaultConfig(__dirname);
 const {assetExts, sourceExts} = defaultConfig.resolver;
@@ -18,6 +19,19 @@ const config = {
   resolver: {
     assetExts: assetExts.filter(ext => ext !== 'svg'),
     sourceExts: [...sourceExts, 'svg'],
+    resolveRequest: (context, moduleName, platform) => {
+      if (moduleName === 'node:buffer') {
+        return {
+          type: 'sourceFile',
+          filePath: require.resolve('buffer/index.js'),
+        };
+      }
+      return metroResolve(
+        {...context, resolveRequest: metroResolve},
+        moduleName,
+        platform,
+      );
+    },
   },
 };
 

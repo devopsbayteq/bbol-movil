@@ -1,6 +1,10 @@
 {
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "node:buffer": ["./node_modules/buffer"]
+    },
     "types": ["jest"],
     "sourceMap": true
   },

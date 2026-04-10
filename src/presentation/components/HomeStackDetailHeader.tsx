@@ -13,7 +13,7 @@ interface HomeStackDetailHeaderProps {
 export function HomeStackDetailHeader({
   title,
   onPressBack,
-}: HomeStackDetailHeaderProps) {
+}: Readonly<HomeStackDetailHeaderProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
