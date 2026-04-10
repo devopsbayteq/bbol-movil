@@ -29,9 +29,7 @@ const SessionTimeoutContext = createContext<
 
 export function SessionTimeoutProvider({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Readonly<{children: React.ReactNode}>) {
   const {user, isAuthenticated, logout} = useAuth();
 
   const [showWarning, setShowWarning] = useState(false);
@@ -150,7 +148,7 @@ export function SessionTimeoutProvider({
       <View
         style={styles.fill}
         onStartShouldSetResponderCapture={() => {
-          // Capture phase: dispara en todo touch antes de que llegue a los hijos.
+          // Capture phase: dispara en tdo touch antes de que llegue a los hijos.
           // Retornar false es obligatorio para no bloquear eventos a los hijos.
           if (isAuthenticated) {
             resetInactivityTimer();

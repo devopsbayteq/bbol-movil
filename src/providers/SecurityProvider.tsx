@@ -21,7 +21,9 @@ const SecurityContext = createContext<SecurityContextValue | undefined>(
   undefined,
 );
 
-export function SecurityProvider({children}: {children: React.ReactNode}) {
+export function SecurityProvider({
+  children,
+}: Readonly<{children: React.ReactNode}>) {
   const {getPublicKeyUseCase} = useDI();
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

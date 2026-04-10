@@ -27,7 +27,7 @@ const arrowBack = require('../../../assets/images/arrow-left.png');
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'FrequentPayments'>;
 
-function CoinsIcon({color}: {color: string}) {
+function CoinsIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24">
       <Circle cx="9" cy="13" r="6" fill={color} />
@@ -36,7 +36,7 @@ function CoinsIcon({color}: {color: string}) {
   );
 }
 
-function SearchIcon({color}: {color: string}) {
+function SearchIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -47,7 +47,7 @@ function SearchIcon({color}: {color: string}) {
   );
 }
 
-function RepeatClockIcon({color}: {color: string}) {
+function RepeatClockIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path
@@ -66,7 +66,7 @@ type HistoryChartProps = {
   points: {monthLabel: string; amountLabel: string}[];
 };
 
-function HistoryLineChart({colors, points}: HistoryChartProps) {
+function HistoryLineChart({colors, points}: Readonly<HistoryChartProps>) {
   const p0 = points[0];
   const p1 = points[1];
   const p2 = points[2];

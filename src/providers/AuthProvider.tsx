@@ -55,7 +55,9 @@ function resolveDeviceBoundGreetingName(user: User): string {
   return email;
 }
 
-export function AuthProvider({children}: {children: React.ReactNode}) {
+export function AuthProvider({
+  children,
+}: Readonly<{children: React.ReactNode}>) {
   const [state, setState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
@@ -85,7 +87,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   async function restoreSession() {
     // Banca: no restaurar sesión tras reinicio en frío — siempre pantalla de login.
     // Si falla el remove de una clave puntual (intermitente en iOS), no debemos borrar
-    // todo el almacén porque perderíamos datos persistentes del login compacto/biometría.
+    // tdo el almacén porque perderíamos datos persistentes del login compacto/biometría.
     await Promise.allSettled([
       secureStorage.remove(SecureStorageKeys.USER_SESSION),
       secureStorage.remove(SecureStorageKeys.AUTH_TOKEN),

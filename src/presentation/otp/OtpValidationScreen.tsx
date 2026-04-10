@@ -28,20 +28,17 @@ const otpLockOpen = require('../../../assets/images/lock-keyhole-open.png');
 const otpShield = require('../../../assets/images/otp-lock.png');
 const otpClock = require('../../../assets/images/clock-rotate-left.png');
 
-type OTPScreenNavigationProp =
-  | NativeStackNavigationProp<RootStackParamList, 'OtpValidation'>
-  | NativeStackNavigationProp<TransferStackParamList, 'OtpValidationTransfer'>;
-
 type OTPScreenRouteProp =
   | RouteProp<RootStackParamList, 'OtpValidation'>
   | RouteProp<TransferStackParamList, 'OtpValidationTransfer'>;
 
 interface OTPScreenComponentProps {
-  navigation: OTPScreenNavigationProp;
   route: OTPScreenRouteProp;
 }
 
-export function OtpValidationScreen({route}: OTPScreenComponentProps) {
+export function OtpValidationScreen({
+  route,
+}: Readonly<OTPScreenComponentProps>) {
   const {colors} = useTheme();
   const params = route.params;
   const isLogin = params.mode === 'login';
@@ -281,7 +278,7 @@ export function OtpValidationScreen({route}: OTPScreenComponentProps) {
             style={styles.error}
           />
         ) : null}
-        {!isLogin ? (
+        {params.mode === 'transfer' ? (
           <TouchableOpacity
             onPress={handleForgotPin}
             activeOpacity={0.8}
@@ -403,7 +400,11 @@ function useStyles(colors: ThemeColors, layout: 'login' | 'transfer') {
           minHeight: 52,
         },
         hiddenOtpInput: {
-          ...StyleSheet.absoluteFillObject,
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
           opacity: 0.02,
           color: 'transparent',
         },

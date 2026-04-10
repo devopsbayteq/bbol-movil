@@ -50,7 +50,10 @@ function formatPercent(value: number): string {
   })}%`;
 }
 
-function EyeIcon({color, size = 16}: {color: string; size?: number}) {
+function EyeIcon({
+  color,
+  size = 16,
+}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -61,7 +64,10 @@ function EyeIcon({color, size = 16}: {color: string; size?: number}) {
   );
 }
 
-function EyeSlashIcon({color, size = 16}: {color: string; size?: number}) {
+function EyeSlashIcon({
+  color,
+  size = 16,
+}: Readonly<{color: string; size?: number}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -72,7 +78,7 @@ function EyeSlashIcon({color, size = 16}: {color: string; size?: number}) {
   );
 }
 
-function HistoryClockIcon({color}: {color: string}) {
+function HistoryClockIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path

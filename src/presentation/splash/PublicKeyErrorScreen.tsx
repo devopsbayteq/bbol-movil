@@ -19,7 +19,7 @@ export function PublicKeyErrorScreen({
   message: _message,
   onRetry,
   isRetrying = false,
-}: PublicKeyErrorScreenProps) {
+}: Readonly<PublicKeyErrorScreenProps>) {
   const {colors} = useTheme();
 
   return (

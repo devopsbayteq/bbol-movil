@@ -9,7 +9,7 @@ export type TabSectionPlaceholderScreenProps = {
 
 export function TabSectionPlaceholderScreen({
   sectionTitle,
-}: TabSectionPlaceholderScreenProps) {
+}: Readonly<TabSectionPlaceholderScreenProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
