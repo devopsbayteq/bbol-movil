@@ -11,7 +11,7 @@ import {BiometricRemoteDataSource} from '../../data/datasources/biometric/Biomet
 import {CryptoService} from './CryptoService';
 import {BiometricKeyStorageService} from './BiometricKeyStorageService';
 import {encryptUserIdentifierForBiometricApi} from './userEncryptHelper';
-import {BiometricRSAError} from './errors';
+import {BiometricRSAError, BiometricRSAErrorCode} from './errors';
 import type {BiometricEnrollmentBinding} from './BiometricEnrollmentBinding';
 import type {User} from '../../domain/entities/User';
 import {mapLoginResponseToUser} from '../../data/mappers/UserMapper';
@@ -63,20 +63,23 @@ export class BiometricRSAAuthOrchestrator {
     if (e instanceof BiometricRSAError) {
       return e;
     }
+    
     if (e instanceof BiometricAuthError) {
-      const code =
-        e.code === 'user_cancelled'
-          ? 'user_cancelled'
-          : e.code === 'not_available'
-            ? 'not_available'
-            : 'prompt_failed';
-      return new BiometricRSAError(e.message, code, e);
+      let code;
+      if (e.code === 'user_cancelled') {
+        code = 'user_cancelled';
+      } else if (e.code === 'not_available') {
+        code = 'not_available';
+      } else {
+        code = 'prompt_failed';
+      }
+      return new BiometricRSAError(e.message, code as BiometricRSAErrorCode, e);
     }
     if (axios.isAxiosError(e)) {
       return new BiometricRSAError(
-        e.response?.data?.message != null
-          ? String(e.response.data.message)
-          : 'Error de red',
+        e.response?.data?.message == null
+          ? 'Error de red'
+          : String(e.response.data.message),
         'network_error',
         e,
       );

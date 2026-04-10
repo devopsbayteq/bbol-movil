@@ -19,7 +19,7 @@ import {
 } from '@react-navigation/native';
 import type {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import Svg, {Path, Circle, G, Text as SvgText} from 'react-native-svg';
+import Svg, {Path, } from 'react-native-svg';
 import type {MainTabParamList} from '../../navigation/MainTabNavigator';
 import type {MovementsStackParamList} from '../../navigation/MovementsStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers/theme';
@@ -90,7 +90,7 @@ function EyeIcon({color}: Readonly<{color: string}>) {
   );
 }
 
-function EyeSlashIcon({color}: {color: string}) {
+function EyeSlashIcon({color}: Readonly<{color: string}>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -287,7 +287,7 @@ export function TransactionsScreen() {
   const totalItems = vm.items.length;
 
   const renderItem = useCallback(
-    ({item, index}: {item: AccountMovement; index: number}) => {
+    ({item, index}: Readonly<{item: AccountMovement; index: number}>) => {
       const d = new Date(item.transferDate);
       const day = d.getDate().toString();
       const month = monthAbbr(d);
@@ -592,6 +592,8 @@ export function TransactionsScreen() {
             colors={[colors.primary]}
           />
         }
+
+        
         ListEmptyComponent={
           vm.isLoadingMovements ? (
             <View style={styles.emptyPad}>

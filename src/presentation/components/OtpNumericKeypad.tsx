@@ -46,14 +46,14 @@ export function OtpNumericKeypad({
   onKeyPress,
   disabled = false,
   deleteIconSource,
-}: OtpNumericKeypadProps) {
+}: Readonly<OtpNumericKeypadProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 
   return (
     <View style={styles.wrap} accessibilityLabel="Teclado numérico">
       {GRID.map((row, rowIndex) => (
-        <View key={`row-${rowIndex}`} style={styles.row}>
+        <View key={`row-${rowIndex}-${row.join('')}`} style={styles.row}>
           {row.map((cell, colIndex) => {
             if (cell === 'empty') {
               return (
