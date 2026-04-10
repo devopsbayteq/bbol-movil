@@ -17,7 +17,7 @@ import {Lexend} from '../../../theme/lexend';
 import {
   TransferIconClose,
   TransferIconBanknote,
-} from '../../transfer/components/transferIcons.tsx';
+} from '../../../features/transfer/presentation/components/transferIcons.tsx';
 import type {AppliedAmountRange} from '../useAccountMovementsViewModel';
 import {isValidMovementsAmountRange} from '../useAccountMovementsViewModel';
 

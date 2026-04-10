@@ -15,6 +15,92 @@ import {Lexend} from '../../theme/lexend';
 
 type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
 
+function buttonTouchableStyles(
+  variant: ButtonVariant,
+  isDisabled: boolean,
+  useDisabledBackground: boolean,
+  disabledBackgroundColor: string | undefined,
+  sheet: ReturnType<typeof useStyles>,
+  style: StyleProp<ViewStyle> | undefined,
+): StyleProp<ViewStyle>[] {
+  return [
+    sheet.base,
+    variant === 'primary' && sheet.primary,
+    variant === 'outline' && sheet.outline,
+    variant === 'loginPrimary' && sheet.loginPrimary,
+    useDisabledBackground && {backgroundColor: disabledBackgroundColor},
+    isDisabled && !useDisabledBackground && sheet.disabled,
+    style,
+  ];
+}
+
+function buttonActivityIndicatorColor(
+  variant: ButtonVariant,
+  colors: ThemeColors,
+): string {
+  return variant === 'outline' ? colors.primary : colors.white;
+}
+
+interface ButtonInnerProps {
+  loading: boolean;
+  variant: ButtonVariant;
+  colors: ThemeColors;
+  title: string;
+  iconSource?: ImageSourcePropType;
+  iconSourceRight?: ImageSourcePropType;
+  iconRightTintColor?: string;
+  sheet: ReturnType<typeof useStyles>;
+}
+
+function ButtonInner({
+  loading,
+  variant,
+  colors,
+  title,
+  iconSource,
+  iconSourceRight,
+  iconRightTintColor,
+  sheet,
+}: ButtonInnerProps) {
+  if (loading) {
+    return (
+      <ActivityIndicator
+        color={buttonActivityIndicatorColor(variant, colors)}
+        size="small"
+      />
+    );
+  }
+  return (
+    <View style={sheet.contentRow}>
+      {iconSource ? (
+        <Image
+          source={iconSource}
+          style={sheet.iconLeading}
+          resizeMode="contain"
+        />
+      ) : null}
+      <Text
+        style={[
+          sheet.text,
+          variant === 'outline' && sheet.outlineText,
+          variant === 'loginPrimary' && sheet.loginPrimaryText,
+        ]}>
+        {title}
+      </Text>
+      {iconSourceRight ? (
+        <Image
+          source={iconSourceRight}
+          style={[
+            sheet.iconTrailing,
+            iconRightTintColor ? {tintColor: iconRightTintColor} : null,
+          ]}
+          resizeMode="contain"
+        />
+      ) : null}
+    </View>
+  );
+}
+
 interface ButtonProps {
   title: string;
   onPress: () => void;
@@ -53,50 +139,27 @@ export function Button({
   return (
     <TouchableOpacity
       testID={testID}
-      style={[
-        styles.base,
-        variant === 'primary' && styles.primary,
-        variant === 'outline' && styles.outline,
-        variant === 'loginPrimary' && styles.loginPrimary,
-        useDisabledBackground && {backgroundColor: disabledBackgroundColor},
-        isDisabled && !useDisabledBackground && styles.disabled,
+      style={buttonTouchableStyles(
+        variant,
+        isDisabled,
+        useDisabledBackground,
+        disabledBackgroundColor,
+        styles,
         style,
-      ]}
+      )}
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.8}>
-      {loading ? (
-        <ActivityIndicator
-          color={
-            variant === 'outline' ? colors.primary : colors.white
-          }
-          size="small"
-        />
-      ) : (
-        <View style={styles.contentRow}>
-          {iconSource ? (
-            <Image source={iconSource} style={styles.iconLeading} resizeMode="contain" />
-          ) : null}
-          <Text
-            style={[
-              styles.text,
-              variant === 'outline' && styles.outlineText,
-              variant === 'loginPrimary' && styles.loginPrimaryText,
-            ]}>
-            {title}
-          </Text>
-          {iconSourceRight ? (
-            <Image
-              source={iconSourceRight}
-              style={[
-                styles.iconTrailing,
-                iconRightTintColor ? {tintColor: iconRightTintColor} : null,
-              ]}
-              resizeMode="contain"
-            />
-          ) : null}
-        </View>
-      )}
+      <ButtonInner
+        loading={loading}
+        variant={variant}
+        colors={colors}
+        title={title}
+        iconSource={iconSource}
+        iconSourceRight={iconSourceRight}
+        iconRightTintColor={iconRightTintColor}
+        sheet={styles}
+      />
     </TouchableOpacity>
   );
 }

@@ -69,7 +69,7 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 // TransferIconClose used by DevelopmentNoticeModal
-jest.mock('../../transfer/components/transferIcons.tsx', () => ({
+jest.mock('../../../features/transfer/presentation/components/transferIcons.tsx', () => ({
   TransferIconClose: () => null,
 }));
 

@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   Platform,
   Modal,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme, type ThemeColors} from '../../providers/theme';
@@ -32,7 +34,7 @@ import {
   TransferIconSearch,
   TransferIconUserPlus,
   TransferIconWallet,
-} from '../transfer/components/transferIcons.tsx';
+} from '../../features/transfer/presentation/components/transferIcons.tsx';
 import {DevelopmentNoticeModal} from '../components/DevelopmentNoticeModal';
 
 const HERO_BG = '#0B515C';
@@ -42,6 +44,50 @@ type Section = {
   title: string;
   data: ContactTemplate[];
 };
+
+type ContactsListEmptyStyles = {
+  contactsListEmpty: ViewStyle;
+  emptyHint: TextStyle;
+};
+
+function ContactsListEmpty({
+  contactsLoading,
+  contactsError,
+  allContactsLength,
+  styles,
+  colors,
+}: {
+  contactsLoading: boolean;
+  contactsError: string | null;
+  allContactsLength: number;
+  styles: ContactsListEmptyStyles;
+  colors: ThemeColors;
+}) {
+  if (contactsLoading) {
+    return (
+      <View style={styles.contactsListEmpty}>
+        <ActivityIndicator size="small" color={colors.primary} />
+      </View>
+    );
+  }
+  if (contactsError) {
+    return (
+      <Text style={styles.emptyHint}>
+        No se pudieron cargar los contactos.
+      </Text>
+    );
+  }
+  if (allContactsLength === 0) {
+    return (
+      <Text style={styles.emptyHint}>No tienes contactos guardados.</Text>
+    );
+  }
+  return (
+    <Text style={styles.emptyHint}>
+      No hay contactos que coincidan con la búsqueda.
+    </Text>
+  );
+}
 
 export type BeneficiarySelectModalProps = {
   visible: boolean;
@@ -259,8 +305,9 @@ export function BeneficiarySelectModal({
     );
   }
 
-  const body =
-    error ? (
+  let body: React.ReactElement;
+  if (error) {
+    body = (
       <View style={styles.root}>
         {headerTop}
         <View style={styles.errorBanner}>
@@ -270,14 +317,18 @@ export function BeneficiarySelectModal({
           </TouchableOpacity>
         </View>
       </View>
-    ) : isLoading && !data ? (
+    );
+  } else if (isLoading && !data) {
+    body = (
       <View style={styles.root}>
         {headerTop}
         <View style={styles.loadingWrap}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </View>
-    ) : (
+    );
+  } else {
+    body = (
       <View style={styles.root}>
         {headerTop}
         <SectionList
@@ -295,21 +346,13 @@ export function BeneficiarySelectModal({
           ListHeaderComponent={listHeader}
           stickySectionHeadersEnabled={false}
           ListEmptyComponent={
-            contactsLoading ? (
-              <View style={styles.contactsListEmpty}>
-                <ActivityIndicator size="small" color={colors.primary} />
-              </View>
-            ) : contactsError ? (
-              <Text style={styles.emptyHint}>
-                No se pudieron cargar los contactos.
-              </Text>
-            ) : allContacts.length === 0 ? (
-              <Text style={styles.emptyHint}>No tienes contactos guardados.</Text>
-            ) : (
-              <Text style={styles.emptyHint}>
-                No hay contactos que coincidan con la búsqueda.
-              </Text>
-            )
+            <ContactsListEmpty
+              contactsLoading={contactsLoading}
+              contactsError={contactsError}
+              allContactsLength={allContacts.length}
+              styles={styles}
+              colors={colors}
+            />
           }
           showsVerticalScrollIndicator={false}
         />
@@ -338,6 +381,7 @@ export function BeneficiarySelectModal({
         />
       </View>
     );
+  }
 
   return (
     <Modal

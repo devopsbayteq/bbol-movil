@@ -28,7 +28,15 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAuth} from '../../providers';
 import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
-import type {AccountKind, FrequentPayment} from '../../domain/entities/ContractBalance';
+import type {
+  AccountBalance,
+  AccountKind,
+  ContractBalance,
+  CreditCardBalance,
+  FrequentPayment,
+  InvestmentBalance,
+  LoanBalance,
+} from '../../domain/entities/ContractBalance';
 import {HomeHeader} from './components/HomeHeader';
 import {ProductFilterTabs} from './components/ProductFilterTabs';
 import {
@@ -76,6 +84,220 @@ const MAIN_COLUMN_PADDING = 24;
 /** Altura base de la imagen de cabecera (sin el extra iOS por safe area / solapamiento con cards). */
 const HERO_IMAGE_SECTION_HEIGHT = 150;
 
+type HomeProductItem = {key: string; node: React.ReactNode};
+
+type HomeMainNavigation = NativeStackNavigationProp<
+  HomeStackParamList,
+  'HomeMain'
+>;
+
+type HomeProductCarouselStyles = {
+  productCard: object;
+  cardFill: object;
+};
+
+function pushAccountProductItems(
+  items: HomeProductItem[],
+  accounts: AccountBalance[],
+  navigation: HomeMainNavigation,
+  styles: HomeProductCarouselStyles,
+): void {
+  for (const acc of accounts) {
+    const k = `acc-${acc.accountGuid}`;
+    const isFirst = items.length === 0;
+    if (acc.accountKind === 'checking') {
+      items.push({
+        key: k,
+        node: (
+          <TouchableOpacity
+            key={k}
+            activeOpacity={0.92}
+            style={styles.productCard}
+            onPress={() =>
+              navigation.navigate('MovementsList', {
+                accountGuid: acc.accountGuid,
+                resetFilters: Date.now(),
+              })
+            }
+            accessibilityRole="button"
+            accessibilityLabel="Ver movimientos de cuenta corriente">
+            <CheckingAccountCard
+              style={styles.cardFill}
+              maskedAccountNumber={acc.maskedAccountNumber}
+              balance={acc.balance}
+              isFirst={isFirst}
+            />
+          </TouchableOpacity>
+        ),
+      });
+      continue;
+    }
+    items.push({
+      key: k,
+      node: (
+        <TouchableOpacity
+          key={k}
+          activeOpacity={0.92}
+          style={styles.productCard}
+          onPress={() =>
+            navigation.navigate('MovementsList', {
+              accountGuid: acc.accountGuid,
+              resetFilters: Date.now(),
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel={`Ver movimientos de ${acc.maskedAccountNumber}`}>
+          <SavingsAccountCard
+            style={styles.cardFill}
+            title={acc.accountTypeLabel}
+            maskedAccountNumber={acc.maskedAccountNumber}
+            balance={acc.balance}
+            isFirst={isFirst}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }
+}
+
+function pushCreditCardProductItems(
+  items: HomeProductItem[],
+  cards: CreditCardBalance[],
+  navigation: HomeMainNavigation,
+  styles: HomeProductCarouselStyles,
+): void {
+  for (const card of cards) {
+    const k = `cc-${card.maskedCardNumber}-${card.maxPaymentDate}`;
+    items.push({
+      key: k,
+      node: (
+        <TouchableOpacity
+          key={k}
+          activeOpacity={0.92}
+          style={styles.productCard}
+          onPress={() =>
+            navigation.navigate('CardDetail', {
+              maskedCardNumber: card.maskedCardNumber,
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel="Ver detalle de tarjeta">
+          <CreditCardPreview
+            style={styles.cardFill}
+            maskedCardNumber={card.maskedCardNumber}
+            totalDue={card.totalDue}
+            maxPaymentDate={card.maxPaymentDate}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }
+}
+
+function pushInvestmentProductItems(
+  items: HomeProductItem[],
+  investments: InvestmentBalance[],
+  navigation: HomeMainNavigation,
+  styles: HomeProductCarouselStyles,
+): void {
+  for (const inv of investments) {
+    const k = `inv-${inv.investmentGuid}`;
+    items.push({
+      key: k,
+      node: (
+        <TouchableOpacity
+          key={k}
+          activeOpacity={0.92}
+          style={styles.productCard}
+          onPress={() =>
+            navigation.navigate('InvestmentDetail', {
+              investmentGuid: inv.investmentGuid,
+              investmentBalance: inv,
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel="Ver detalle de inversión">
+          <InvestmentCard
+            style={styles.cardFill}
+            investmentGuid={inv.investmentGuid}
+            productName={inv.productName}
+            currentValue={inv.currentValue}
+            currency={inv.currency}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }
+}
+
+function pushLoanProductItems(
+  items: HomeProductItem[],
+  loans: LoanBalance[],
+  navigation: HomeMainNavigation,
+  styles: HomeProductCarouselStyles,
+): void {
+  for (const loan of loans) {
+    const k = `loan-${loan.loanGuid}`;
+    items.push({
+      key: k,
+      node: (
+        <TouchableOpacity
+          key={k}
+          activeOpacity={0.92}
+          style={styles.productCard}
+          onPress={() =>
+            navigation.navigate('LoanDetail', {
+              loanGuid: loan.loanGuid,
+              loanBalance: loan,
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel="Ver detalle de préstamo">
+          <LoanCard
+            style={styles.cardFill}
+            loanGuid={loan.loanGuid}
+            nextInstallmentAmount={loan.nextInstallmentAmount}
+            nextInstallmentDate={loan.nextInstallmentDate}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }
+}
+
+function buildHomeProductItems(
+  data: ContractBalance,
+  filter: string,
+  navigation: HomeMainNavigation,
+  styles: HomeProductCarouselStyles,
+): HomeProductItem[] {
+  const all = filter === 'Todos';
+  const showAccounts = all || filter === 'Cuentas';
+  const showCards = all || filter === 'Tarjetas';
+  const showInvestments = all || filter === 'Inversiones';
+  const showLoans = all || filter === 'Préstamos';
+
+  const items: HomeProductItem[] = [];
+  if (showAccounts) {
+    pushAccountProductItems(items, data.accounts, navigation, styles);
+  }
+  if (showCards) {
+    pushCreditCardProductItems(items, data.creditCards, navigation, styles);
+  }
+  if (showInvestments) {
+    pushInvestmentProductItems(
+      items,
+      data.investments,
+      navigation,
+      styles,
+    );
+  }
+  if (showLoans) {
+    pushLoanProductItems(items, data.loans, navigation, styles);
+  }
+  return items;
+}
+
 export function HomeScreen() {
   const {user, logout} = useAuth();
   const {colors} = useTheme();
@@ -94,10 +316,7 @@ export function HomeScreen() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
   const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
-  const navigation =
-    useNavigation<
-      NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>
-    >();
+  const navigation = useNavigation<HomeMainNavigation>();
 
   const {
     data,
@@ -147,170 +366,14 @@ export function HomeScreen() {
     [scaleAnims],
   );
 
-  type ProductItem = {key: string; node: React.ReactNode};
-
-  const productItems = useMemo((): ProductItem[] => {
+  const productItems = useMemo((): HomeProductItem[] => {
     if (!data) {
       return [];
     }
-
-    const all = filter === 'Todos';
-    const showAccounts = all || filter === 'Cuentas';
-    const showCards = all || filter === 'Tarjetas';
-    const showInvestments = all || filter === 'Inversiones';
-    const showLoans = all || filter === 'Préstamos';
-
-    const items: ProductItem[] = [];
-
-    if (showAccounts) {
-      for (const acc of data.accounts) {
-        const k = `acc-${acc.accountGuid}`;
-        if (acc.accountKind === 'checking') {
-          items.push({
-            key: k,
-            node: (
-              <TouchableOpacity
-                key={k}
-                activeOpacity={0.92}
-                style={styles.productCard}
-                onPress={() =>
-                  navigation.navigate('MovementsList', {
-                    accountGuid: acc.accountGuid,
-                    resetFilters: Date.now(),
-                  })
-                }
-                accessibilityRole="button"
-                accessibilityLabel="Ver movimientos de cuenta corriente">
-                <CheckingAccountCard
-                  style={styles.cardFill}
-                  maskedAccountNumber={acc.maskedAccountNumber}
-                  balance={acc.balance}
-                  isFirst={items.length === 0}
-                />
-              </TouchableOpacity>
-            ),
-          });
-        } else {
-          items.push({
-            key: k,
-            node: (
-              <TouchableOpacity
-                key={k}
-                activeOpacity={0.92}
-                style={styles.productCard}
-                onPress={() =>
-                  navigation.navigate('MovementsList', {
-                    accountGuid: acc.accountGuid,
-                    resetFilters: Date.now(),
-                  })
-                }
-                accessibilityRole="button"
-                accessibilityLabel={`Ver movimientos de ${acc.maskedAccountNumber}`}>
-                <SavingsAccountCard
-                  style={styles.cardFill}
-                  title={acc.accountTypeLabel}
-                  maskedAccountNumber={ acc.maskedAccountNumber}
-                  balance={acc.balance}
-                  isFirst={items.length === 0}
-                />
-              </TouchableOpacity>
-            ),
-          });
-        }
-      }
-    }
-
-    if (showCards) {
-      for (const card of data.creditCards) {
-        const k = `cc-${card.maskedCardNumber}-${card.maxPaymentDate}`;
-        items.push({
-          key: k,
-          node: (
-            <TouchableOpacity
-              key={k}
-              activeOpacity={0.92}
-              style={styles.productCard}
-              onPress={() =>
-                navigation.navigate('CardDetail', {
-                  maskedCardNumber: card.maskedCardNumber,
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel="Ver detalle de tarjeta">
-              <CreditCardPreview
-                style={styles.cardFill}
-                maskedCardNumber={card.maskedCardNumber}
-                totalDue={card.totalDue}
-                maxPaymentDate={card.maxPaymentDate}
-              />
-            </TouchableOpacity>
-          ),
-        });
-      }
-    }
-
-    if (showInvestments) {
-      for (const inv of data.investments) {
-        const k = `inv-${inv.investmentGuid}`;
-        items.push({
-          key: k,
-          node: (
-            <TouchableOpacity
-              key={k}
-              activeOpacity={0.92}
-              style={styles.productCard}
-              onPress={() =>
-                navigation.navigate('InvestmentDetail', {
-                  investmentGuid: inv.investmentGuid,
-                  investmentBalance: inv,
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel="Ver detalle de inversión">
-              <InvestmentCard
-                style={styles.cardFill}
-                investmentGuid={inv.investmentGuid}
-                productName={inv.productName}
-                currentValue={inv.currentValue}
-                currency={inv.currency}
-              />
-            </TouchableOpacity>
-          ),
-        });
-      }
-    }
-
-    if (showLoans) {
-      for (const loan of data.loans) {
-        const k = `loan-${loan.loanGuid}`;
-        items.push({
-          key: k,
-          node: (
-            <TouchableOpacity
-              key={k}
-              activeOpacity={0.92}
-              style={styles.productCard}
-              onPress={() =>
-                navigation.navigate('LoanDetail', {
-                  loanGuid: loan.loanGuid,
-                  loanBalance: loan,
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel="Ver detalle de préstamo">
-              <LoanCard
-                style={styles.cardFill}
-                loanGuid={loan.loanGuid}
-                nextInstallmentAmount={loan.nextInstallmentAmount}
-                nextInstallmentDate={loan.nextInstallmentDate}
-              />
-            </TouchableOpacity>
-          ),
-        });
-      }
-    }
-
-    return items;
+    return buildHomeProductItems(data, filter, navigation, {
+      cardFill: styles.cardFill,
+      productCard: styles.productCard,
+    });
   }, [data, filter, navigation, styles.cardFill, styles.productCard]);
 
   if (scaleAnims.length !== productItems.length) {
