@@ -159,9 +159,11 @@ export function attachApiHeadersInterceptor(
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         devLog(LOG, 'request interceptor failed', {message});
-        return Promise.reject(e instanceof Error ? e : new Error(message));
+        throw e instanceof Error ? e : new Error(message);
       }
     },
-    error => Promise.reject(error),
+    error => {
+      throw error;
+    },
   );
 }

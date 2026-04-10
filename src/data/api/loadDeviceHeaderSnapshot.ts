@@ -19,11 +19,11 @@ export function alphanumericDeviceField(value: string): string {
 export async function loadDeviceHeaderSnapshot(): Promise<DeviceHeaderSnapshot> {
   const [marketingVersion, buildNumber, model, brand, systemVersion] =
     await Promise.all([
-      DeviceInfo.getVersion(),
-      DeviceInfo.getBuildNumber(),
-      DeviceInfo.getModel(),
-      DeviceInfo.getBrand(),
-      DeviceInfo.getSystemVersion(),
+      Promise.resolve(DeviceInfo.getVersion()),
+      Promise.resolve(DeviceInfo.getBuildNumber()),
+      Promise.resolve(DeviceInfo.getModel()),
+      Promise.resolve(DeviceInfo.getBrand()),
+      Promise.resolve(DeviceInfo.getSystemVersion()),
     ]);
 
   const version = formatAppVersionHeader(marketingVersion, buildNumber);

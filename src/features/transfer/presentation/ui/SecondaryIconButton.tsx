@@ -14,6 +14,64 @@ import {Lexend} from '../../theme/lexend';
 
 type SecondaryVariant = 'muted' | 'outline';
 
+function secondaryIconTintStyle(
+  iconTintColor: string | undefined,
+): {tintColor: string} | null {
+  return iconTintColor !== undefined ? {tintColor: iconTintColor} : null;
+}
+
+function SecondaryIconButtonContent({
+  loading,
+  variant,
+  colors,
+  title,
+  iconSource,
+  iconSourceRight,
+  iconTintColor,
+  styles,
+}: {
+  loading: boolean;
+  variant: SecondaryVariant;
+  colors: ThemeColors;
+  title: string;
+  iconSource: ImageSourcePropType | undefined;
+  iconSourceRight: ImageSourcePropType | undefined;
+  iconTintColor: string | undefined;
+  styles: ReturnType<typeof useStyles>;
+}) {
+  const tint = secondaryIconTintStyle(iconTintColor);
+  if (loading) {
+    return (
+      <ActivityIndicator
+        color={variant === 'outline' ? colors.primary : colors.iconPrimary}
+        size="small"
+      />
+    );
+  }
+  return (
+    <>
+      {iconSource != null ? (
+        <Image
+          source={iconSource}
+          style={[styles.icon, tint]}
+          resizeMode="contain"
+        />
+      ) : null}
+      <Text
+        style={[styles.label, variant === 'outline' && styles.labelOutline]}>
+        {title}
+      </Text>
+      {iconSourceRight != null ? (
+        <Image
+          source={iconSourceRight}
+          style={[styles.icon, tint]}
+          resizeMode="contain"
+        />
+      ) : null}
+    </>
+  );
+}
+
 interface SecondaryIconButtonProps {
   title: string;
   iconSource?: ImageSourcePropType;
@@ -53,39 +111,16 @@ export function SecondaryIconButton({
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.85}>
-      {loading ? (
-        <ActivityIndicator
-          color={variant === 'outline' ? colors.primary : colors.iconPrimary}
-          size="small"
-        />
-      ) : (
-        <>
-          {iconSource != null ? (
-            <Image
-              source={iconSource}
-              style={[
-                styles.icon,
-                iconTintColor !== undefined ? {tintColor: iconTintColor} : null,
-              ]}
-              resizeMode="contain"
-            />
-          ) : null}
-          <Text
-            style={[styles.label, variant === 'outline' && styles.labelOutline]}>
-            {title}
-          </Text>
-          {iconSourceRight != null ? (
-            <Image
-              source={iconSourceRight}
-              style={[
-                styles.icon,
-                iconTintColor !== undefined ? {tintColor: iconTintColor} : null,
-              ]}
-              resizeMode="contain"
-            />
-          ) : null}
-        </>
-      )}
+      <SecondaryIconButtonContent
+        loading={loading}
+        variant={variant}
+        colors={colors}
+        title={title}
+        iconSource={iconSource}
+        iconSourceRight={iconSourceRight}
+        iconTintColor={iconTintColor}
+        styles={styles}
+      />
     </TouchableOpacity>
   );
 }

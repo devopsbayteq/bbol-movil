@@ -16,6 +16,118 @@ import {Lexend} from '../../theme/lexend';
 
 type ButtonVariant = 'primary' | 'outline' | 'loginPrimary';
 
+function featureButtonTouchableStyles(
+  variant: ButtonVariant,
+  isPressDisabled: boolean,
+  disabledBackgroundColor: string | undefined,
+  sheet: ReturnType<typeof useStyles>,
+  style: StyleProp<ViewStyle> | undefined,
+): StyleProp<ViewStyle>[] {
+  return [
+    sheet.base,
+    variant === 'primary' && sheet.primary,
+    variant === 'outline' && sheet.outline,
+    variant === 'loginPrimary' && sheet.loginPrimary,
+    isPressDisabled &&
+      (disabledBackgroundColor
+        ? {backgroundColor: disabledBackgroundColor}
+        : sheet.disabled),
+    style,
+  ];
+}
+
+function featureButtonLoaderColor(
+  variant: ButtonVariant,
+  colors: ThemeColors,
+): string {
+  return variant === 'outline' ? colors.primary : colors.white;
+}
+
+function FeatureButtonTrailingEnd({
+  iconSourceRight,
+  iconRightTintColor,
+  styles,
+}: {
+  iconSourceRight: ImageSourcePropType | ReactNode | undefined;
+  iconRightTintColor?: string;
+  styles: ReturnType<typeof useStyles>;
+}): React.ReactNode {
+  if (!iconSourceRight) {
+    return null;
+  }
+  if (React.isValidElement(iconSourceRight)) {
+    return (
+      <View style={styles.iconTrailingContainer}>{iconSourceRight}</View>
+    );
+  }
+  return (
+    <Image
+      source={iconSourceRight as ImageSourcePropType}
+      style={[
+        styles.iconTrailing,
+        iconRightTintColor ? {tintColor: iconRightTintColor} : null,
+      ]}
+      resizeMode="contain"
+    />
+  );
+}
+
+function FeatureButtonInner({
+  loading,
+  variant,
+  colors,
+  title,
+  iconSource,
+  iconSourceRight,
+  iconRightTintColor,
+  labelStyle,
+  styles,
+}: {
+  loading: boolean;
+  variant: ButtonVariant;
+  colors: ThemeColors;
+  title: string;
+  iconSource: ImageSourcePropType | undefined;
+  iconSourceRight: ImageSourcePropType | ReactNode | undefined;
+  iconRightTintColor?: string;
+  labelStyle: StyleProp<TextStyle> | undefined;
+  styles: ReturnType<typeof useStyles>;
+}): React.ReactNode {
+  if (loading) {
+    return (
+      <ActivityIndicator
+        color={featureButtonLoaderColor(variant, colors)}
+        size="small"
+      />
+    );
+  }
+  return (
+    <View style={styles.contentRow}>
+      {iconSource ? (
+        <Image
+          source={iconSource}
+          style={styles.iconLeading}
+          resizeMode="contain"
+        />
+      ) : null}
+      <Text
+        style={[
+          styles.text,
+          variant === 'outline' && styles.outlineText,
+          variant === 'loginPrimary' && styles.loginPrimaryText,
+          labelStyle,
+        ]}>
+        {title}
+      </Text>
+      <FeatureButtonTrailingEnd
+        iconSourceRight={iconSourceRight}
+        iconRightTintColor={iconRightTintColor}
+        styles={styles}
+      />
+    </View>
+  );
+}
+
 interface ButtonProps {
   title: string;
   onPress: () => void;
@@ -55,57 +167,27 @@ export function Button({
   return (
     <TouchableOpacity
       testID={testID}
-      style={[
-        styles.base,
-        variant === 'primary' && styles.primary,
-        variant === 'outline' && styles.outline,
-        variant === 'loginPrimary' && styles.loginPrimary,
-        isPressDisabled &&
-          (disabledBackgroundColor
-            ? {backgroundColor: disabledBackgroundColor}
-            : styles.disabled),
+      style={featureButtonTouchableStyles(
+        variant,
+        isPressDisabled,
+        disabledBackgroundColor,
+        styles,
         style,
-      ]}
+      )}
       onPress={onPress}
       disabled={isPressDisabled}
       activeOpacity={0.8}>
-      {loading ? (
-        <ActivityIndicator
-          color={
-            variant === 'outline' ? colors.primary : colors.white
-          }
-          size="small"
-        />
-      ) : (
-        <View style={styles.contentRow}>
-          {iconSource ? (
-            <Image source={iconSource} style={styles.iconLeading} resizeMode="contain" />
-          ) : null}
-          <Text
-            style={[
-              styles.text,
-              variant === 'outline' && styles.outlineText,
-              variant === 'loginPrimary' && styles.loginPrimaryText,
-              labelStyle,
-            ]}>
-            {title}
-          </Text>
-          {iconSourceRight ? (
-            React.isValidElement(iconSourceRight) ? (
-              <View style={styles.iconTrailingContainer}>{iconSourceRight}</View>
-            ) : (
-              <Image
-                source={iconSourceRight as ImageSourcePropType}
-                style={[
-                  styles.iconTrailing,
-                  iconRightTintColor ? {tintColor: iconRightTintColor} : null,
-                ]}
-                resizeMode="contain"
-              />
-            )
-          ) : null}
-        </View>
-      )}
+      <FeatureButtonInner
+        loading={loading}
+        variant={variant}
+        colors={colors}
+        title={title}
+        iconSource={iconSource}
+        iconSourceRight={iconSourceRight}
+        iconRightTintColor={iconRightTintColor}
+        labelStyle={labelStyle}
+        styles={styles}
+      />
     </TouchableOpacity>
   );
 }
