@@ -48,14 +48,13 @@ describe('mock data sources', () => {
 
     const result = await transactionsPromise;
 
-    expect(result).toHaveLength(8);
+    expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
-      description: 'Depósito de nómina',
-      type: 'income',
-    });
-    expect(result[7]).toMatchObject({
-      description: 'Consulta médica',
-      status: 'cancelled',
+      id: '2',
+      description: 'Supermercado La Comer',
+      type: 'expense',
+      status: 'completed',
+      amount: 1250.5,
     });
   });
 });

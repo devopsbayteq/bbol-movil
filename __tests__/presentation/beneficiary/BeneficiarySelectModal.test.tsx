@@ -1,3 +1,21 @@
+jest.mock('react-native-view-shot', () => {
+  const React = require('react');
+  const {View} = require('react-native');
+  return {
+    __esModule: true,
+    default: React.forwardRef((props: object, ref: unknown) =>
+      React.createElement(View, {...props, ref}),
+    ),
+  };
+});
+
+jest.mock('react-native-share', () => ({
+  __esModule: true,
+  default: {
+    open: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
 const mockUseHomeViewModel = jest.fn();
 const mockUseBeneficiaryContactsViewModel = jest.fn();
 
