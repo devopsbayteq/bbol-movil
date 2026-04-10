@@ -1,24 +1,35 @@
-import React, {useCallback, useMemo, useState} from 'react';
-import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
-import {getVersion, getBuildNumber} from 'react-native-device-info';
+import React, {useMemo} from 'react';
+import {View, Text, Image, StyleSheet, Pressable, type TextStyle, type ViewStyle} from 'react-native';
 
-import {formatAppVersionDisplay} from '../../utils/appVersion';
 import {useTheme, type ThemeColors} from '../../providers';
 import {
   Button,
   ErrorMessage,
   LoginTextField,
   LoginPasswordField,
-  TertiaryLinkButton,
   DevelopmentNoticeModal,
 } from '../components';
 import {Lexend} from '../../theme/lexend';
+import {LoginFooterBlock} from './LoginFooterBlock';
+import {useDevelopmentNoticeModalState} from './useDevelopmentNoticeModalState';
+import {useLoginVersionLabel} from './useLoginVersionLabel';
 
-const institutionIcon = require('../../../assets/images/institution.png');
-const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 const loginSubmitArrowIcon = require('../../../assets/images/arrow-right-from-bracket.png');
 
 const bankMark = require('../../../assets/images/BBIcon.png');
+
+const FORGOT_LINK_ROWS = [
+  {
+    key: 'username',
+    label: '¿Olvidaste tu usuario?',
+    accessibilityLabel: '¿Olvidaste tu usuario?',
+  },
+  {
+    key: 'password',
+    label: '¿Olvidaste tu contraseña?',
+    accessibilityLabel: '¿Olvidaste tu contraseña?',
+  },
+] as const;
 
 export interface FirstLoginContentProps {
   email: string;
@@ -50,22 +61,8 @@ export function FirstLoginContent({
 }: Readonly<FirstLoginContentProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
-  const [devNoticeVisible, setDevNoticeVisible] = useState(false);
-
-  const showDevelopmentNotice = useCallback(() => {
-    setDevNoticeVisible(true);
-  }, []);
-
-  const closeDevelopmentNotice = useCallback(() => {
-    setDevNoticeVisible(false);
-  }, []);
-
-  const versionLabel = useMemo(() => {
-    return `Versión ${formatAppVersionDisplay(
-      getVersion(),
-      getBuildNumber(),
-    )}`;
-  }, []);
+  const {visible, show, close} = useDevelopmentNoticeModalState();
+  const versionLabel = useLoginVersionLabel();
 
   const submitDisabled = isBusy || !isCredentialLoginEnabled;
 
@@ -79,11 +76,10 @@ export function FirstLoginContent({
           accessibilityIgnoresInvertColors
         />
 
-        
         <Text style={styles.heroTitleContainer} accessibilityRole="text">
-        <Text style={styles.heroTitle}>Bienvenido a</Text>
-        {'\n'}
-        <Text style={styles.heroTitle}>tu banca móvil</Text>
+          <Text style={styles.heroTitle}>Bienvenido a</Text>
+          {'\n'}
+          <Text style={styles.heroTitle}>tu banca móvil</Text>
         </Text>
         <Text style={styles.heroSubtitle}>
           Ingresa con usuario y contraseña
@@ -104,13 +100,12 @@ export function FirstLoginContent({
           editable={!isBusy}
           autoComplete="username"
         />
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.forgotRow}
-          accessibilityRole="button"
-          accessibilityLabel="¿Olvidaste tu usuario?">
-          <Text style={styles.forgotText}>¿Olvidaste tu usuario?</Text>
-        </Pressable>
+        <LoginForgotRow
+          label={FORGOT_LINK_ROWS[0].label}
+          accessibilityLabel={FORGOT_LINK_ROWS[0].accessibilityLabel}
+          onPress={show}
+          styles={styles}
+        />
 
         <LoginPasswordField
           testID="login-password-input"
@@ -124,13 +119,12 @@ export function FirstLoginContent({
           autoComplete="password"
           variant="elevated"
         />
-        <Pressable
-          onPress={showDevelopmentNotice}
-          style={styles.forgotRow}
-          accessibilityRole="button"
-          accessibilityLabel="¿Olvidaste tu contraseña?">
-          <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-        </Pressable>
+        <LoginForgotRow
+          label={FORGOT_LINK_ROWS[1].label}
+          accessibilityLabel={FORGOT_LINK_ROWS[1].accessibilityLabel}
+          onPress={show}
+          styles={styles}
+        />
       </View>
 
       {error ? (
@@ -150,7 +144,7 @@ export function FirstLoginContent({
           iconSourceRight={loginSubmitArrowIcon}
           loading={isLoadingLogin}
           disabled={submitDisabled}
-          disabledBackgroundColor={"#c8c8c8"}
+          disabledBackgroundColor={colors.textTertiary}
           variant="loginPrimary"
         />
       </View>
@@ -158,7 +152,7 @@ export function FirstLoginContent({
       <View style={styles.actionsSecondary}>
         <Pressable
           testID="login-create-user"
-          onPress={showDevelopmentNotice}
+          onPress={show}
           style={({pressed}) => [
             styles.createUserLinkHit,
             pressed && styles.createUserLinkHitPressed,
@@ -169,51 +163,41 @@ export function FirstLoginContent({
         </Pressable>
       </View>
 
-      <Pressable
-        testID="login-request-product"
-        onPress={showDevelopmentNotice}
-        style={({pressed}) => [
-          styles.productCard,
-          pressed && styles.productCardPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel="Solicitar productos">
-        <View style={styles.productIconCircle}>
-          <Image
-            source={institutionIcon}
-            style={styles.productIconImage}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-        </View>
-        <Text style={styles.productCardTitle}>Solicitar productos</Text>
-        <View style={styles.arrowRightIconWrap}>
-          <Image
-            source={arrowRightIcon}
-            style={styles.arrowRightIcon}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-        </View>
-      </Pressable>
-
-      <TertiaryLinkButton
-        testID="login-contact-us"
-        title="¿Necesitas ayuda?"
-        onPress={showDevelopmentNotice}
-        style={styles.contactLink}
-        labelStyle={styles.contactLinkLabel}
+      <LoginFooterBlock
+        versionLabel={versionLabel}
+        onShowDevelopmentNotice={show}
+        contactVariant="first"
       />
 
-      <Text style={styles.versionText} numberOfLines={1}>
-        {versionLabel}
-      </Text>
-
-      <DevelopmentNoticeModal
-        visible={devNoticeVisible}
-        onClose={closeDevelopmentNotice}
-      />
+      <DevelopmentNoticeModal visible={visible} onClose={close} />
     </View>
+  );
+}
+
+interface LoginForgotRowStyles {
+  forgotRow: ViewStyle;
+  forgotText: TextStyle;
+}
+
+function LoginForgotRow({
+  label,
+  accessibilityLabel,
+  onPress,
+  styles,
+}: Readonly<{
+  label: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+  styles: LoginForgotRowStyles;
+}>) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={styles.forgotRow}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}>
+      <Text style={styles.forgotText}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -291,7 +275,7 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 24,
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 24
+          marginBottom: 24,
         },
         createUserLinkHitPressed: {
           opacity: 0.85,
@@ -304,97 +288,6 @@ function useStyles(colors: ThemeColors) {
         },
         actionsSecondary: {
           marginBottom: 16,
-        },
-        footerQuickRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          alignItems: 'flex-start',
-          marginTop: 8,
-          marginBottom: 12,
-          paddingHorizontal: 8,
-        },
-        footerQuickItem: {
-          alignItems: 'center',
-          gap: 8,
-          maxWidth: '45%',
-        },
-        footerQuickIconWrap: {
-          width: 48,
-          height: 48,
-          borderRadius: 60,
-          backgroundColor: colors.surface,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        footerQuickLabel: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.textSecondary,
-          textAlign: 'center',
-        },
-        contactLink: {
-          alignSelf: 'center',
-          marginTop: 24,
-          marginBottom: 8,
-        },
-        contactLinkLabel: {
-          fontSize: 12,
-          lineHeight: 18,
-          textDecorationLine: 'underline',
-        },
-        versionText: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.textTertiary,
-          textAlign: 'center',
-          marginBottom: 8,
-        },
-        productCard: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          alignSelf: 'center',
-          width: '100%',
-          maxWidth: 280,
-          gap: 12,
-          paddingVertical: 12,
-          paddingHorizontal: 14,
-          borderRadius: 12,
-          backgroundColor: colors.surface,
-          marginTop: 40,
-          marginBottom: 8,
-          height: 48,
-        },
-        productCardPressed: {
-          opacity: 0.92,
-        },
-        productIconCircle: {
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        },
-        productIconImage: {
-          width: 40,
-          height: 40,
-        },
-        productCardTitle: {
-          flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 16,
-          lineHeight: 24,
-          color: colors.textPrimary,
-        },
-        arrowRightIconWrap: {
-          width: 15,
-          height: 15,
-        },
-        arrowRightIcon: {
-          width: 15,
-          height: 15,
         },
       }),
     [colors],

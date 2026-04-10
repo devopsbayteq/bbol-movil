@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,7 @@ import {
   Platform,
   useWindowDimensions,
 } from 'react-native';
-import {getVersion, getBuildNumber} from 'react-native-device-info';
 
-import {formatAppVersionDisplay} from '../../utils/appVersion';
 import {useTheme, type ThemeColors} from '../../providers';
 import {
   ErrorMessage,
@@ -20,6 +18,9 @@ import {
   DevelopmentNoticeModal,
   LoginHeroImageCarousel,
 } from '../components';
+import {LoginFooterBlock} from './LoginFooterBlock';
+import {useDevelopmentNoticeModalState} from './useDevelopmentNoticeModalState';
+import {useLoginVersionLabel} from './useLoginVersionLabel';
 import {Lexend} from '../../theme/lexend';
 
 import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
@@ -28,8 +29,6 @@ import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
 const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
-const institutionIcon = require('../../../assets/images/institution.png');
-const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 
 const LOGIN_SUBMIT_ICON_SIZE = 24;
@@ -96,7 +95,8 @@ export function CompactLoginContent({
     Math.min(230, Math.round(heroCarouselWidth * 0.55)),
   );
   const styles = useStyles(colors);
-  const [devNoticeVisible, setDevNoticeVisible] = useState(false);
+  const {visible, show, close} = useDevelopmentNoticeModalState();
+  const versionLabel = useLoginVersionLabel();
   const autoBiometricTriggeredRef = useRef(false);
 
   // Solicita biometría automáticamente al entrar al login compacto cuando hay
@@ -120,21 +120,6 @@ export function CompactLoginContent({
     suppressAutoBiometricPromptOnce,
     onBiometricLogin,
   ]);
-
-  const showDevelopmentNotice = useCallback(() => {
-    setDevNoticeVisible(true);
-  }, []);
-
-  const closeDevelopmentNotice = useCallback(() => {
-    setDevNoticeVisible(false);
-  }, []);
-
-  const versionLabel = useMemo(() => {
-    return `Versión ${formatAppVersionDisplay(
-      getVersion(),
-      getBuildNumber(),
-    )}`;
-  }, []);
 
   const notYouTitle = useMemo(
     () => {
@@ -279,50 +264,13 @@ export function CompactLoginContent({
         style={styles.changeUserLink}
       />
 
-      <Pressable
-        testID="login-request-product"
-        onPress={showDevelopmentNotice}
-        style={({pressed}) => [
-          styles.productCard,
-          pressed && styles.productCardPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel="Solicitar productos">
-        <View style={styles.productIconCircle}>
-          <Image
-            source={institutionIcon}
-            style={styles.productIconImage}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-        </View>
-        <Text style={styles.productCardTitle}>Solicitar productos</Text>
-        <View style={styles.arrowRightIconWrap}>
-          <Image
-            source={arrowRightIcon}
-            style={styles.arrowRightIcon}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
-        </View>
-      </Pressable>
-
-      <TertiaryLinkButton
-        testID="login-contact-us"
-        title="¿Necesitas ayuda?"
-        onPress={showDevelopmentNotice}
-        style={styles.contactLink}
-        labelStyle={styles.contactLinkLabel}
+      <LoginFooterBlock
+        versionLabel={versionLabel}
+        onShowDevelopmentNotice={show}
+        contactVariant="compact"
       />
 
-      <Text style={styles.versionText} numberOfLines={1}>
-        {versionLabel}
-      </Text>
-
-      <DevelopmentNoticeModal
-        visible={devNoticeVisible}
-        onClose={closeDevelopmentNotice}
-      />
+      <DevelopmentNoticeModal visible={visible} onClose={close} />
     </View>
   );
 }
@@ -345,14 +293,6 @@ function useStyles(colors: ThemeColors) {
         bankLogo: {
           width: 147,
           height: 41,
-        },
-        versionText: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 18,
-          color: colors.textTertiary,
-          textAlign: 'center',
-          marginBottom: 8,
         },
         heroCarousel: {
           alignSelf: 'stretch',
@@ -443,61 +383,6 @@ function useStyles(colors: ThemeColors) {
         biometricFaceImage: {
           width: BIOMETRIC_ICON_SIZE,
           height: BIOMETRIC_ICON_SIZE,
-        },
-        productCard: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          alignSelf: 'center',
-          width: '100%',
-          maxWidth: 280,
-          gap: 12,
-          paddingVertical: 12,
-          paddingHorizontal: 14,
-          borderRadius: 12,
-          backgroundColor: colors.surface,
-          marginTop: 40,
-          marginBottom: 8,
-          height: 48,
-        },
-        productCardPressed: {
-          opacity: 0.92,
-        },
-        productIconCircle: {
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        },
-        productIconImage: {
-          width: 40,
-          height: 40,
-        },
-        productCardTitle: {
-          flex: 1,
-          fontFamily: Lexend.regular,
-          fontSize: 16,
-          lineHeight: 24,
-          color: colors.textPrimary,
-        },
-        arrowRightIconWrap: {
-          width: 15,
-          height: 15,
-        },
-        arrowRightIcon: {
-          width: 15,
-          height: 15,
-        },
-        contactLink: {
-          alignSelf: 'center',
-          marginTop: 12,
-          marginBottom: 8,
-        },
-        contactLinkLabel: {
-          fontSize: 14,
-          lineHeight: 22,
-          textDecorationLine: 'underline',
         },
       }),
     [colors],
