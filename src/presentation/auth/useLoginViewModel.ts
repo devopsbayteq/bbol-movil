@@ -36,43 +36,54 @@ interface LoginState {
   biometricEnrollmentRevoked: boolean;
 }
 
+function mapBiometricRSAError(err: BiometricRSAError): string | null {
+  if (err.code === 'user_cancelled') {
+    return null;
+  }
+  if (err.code === 'biometric_enrollment_changed') {
+    return BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE;
+  }
+  if (err.code === 'not_available') {
+    return 'La autenticación biométrica no está disponible en este dispositivo.';
+  }
+  const isCryptoRelated =
+    err.code === 'prompt_failed' ||
+    err.code === 'keychain_error' ||
+    err.code === 'crypto_error';
+  if (isCryptoRelated) {
+    return err.message || 'No se pudo completar la operación biométrica.';
+  }
+  if (err.code === 'no_private_key' || err.code === 'no_stored_username') {
+    return err.message;
+  }
+  if (err.code === 'network_error') {
+    return (
+      err.message ||
+      'Error de conexión. Verifica tu red e inténtalo de nuevo.'
+    );
+  }
+  return err.message || 'No se pudo completar la autenticación biométrica.';
+}
+
+function mapBiometricAuthErrorToMessage(err: BiometricAuthError): string | null {
+  if (err.code === 'user_cancelled') {
+    return null;
+  }
+  if (err.code === 'not_available') {
+    return 'La autenticación biométrica no está disponible en este dispositivo.';
+  }
+  if (err.code === 'prompt_failed') {
+    return 'No se pudo verificar tu identidad. Inténtalo de nuevo.';
+  }
+  return err.message || 'No se pudo completar la autenticación biométrica.';
+}
+
 export function mapBiometricError(err: unknown): string | null {
   if (err instanceof BiometricRSAError) {
-    if (err.code === 'user_cancelled') {
-      return null;
-    }
-    if (err.code === 'biometric_enrollment_changed') {
-      return BIOMETRIC_ENROLLMENT_CHANGED_MESSAGE;
-    }
-    if (err.code === 'not_available') {
-      return 'La autenticación biométrica no está disponible en este dispositivo.';
-    }
-    if (
-      err.code === 'prompt_failed' ||
-      err.code === 'keychain_error' ||
-      err.code === 'crypto_error'
-    ) {
-      return err.message || 'No se pudo completar la operación biométrica.';
-    }
-    if (err.code === 'no_private_key' || err.code === 'no_stored_username') {
-      return err.message;
-    }
-    if (err.code === 'network_error') {
-      return err.message || 'Error de conexión. Verifica tu red e inténtalo de nuevo.';
-    }
-    return err.message || 'No se pudo completar la autenticación biométrica.';
+    return mapBiometricRSAError(err);
   }
   if (err instanceof BiometricAuthError) {
-    if (err.code === 'user_cancelled') {
-      return null;
-    }
-    if (err.code === 'not_available') {
-      return 'La autenticación biométrica no está disponible en este dispositivo.';
-    }
-    if (err.code === 'prompt_failed') {
-      return 'No se pudo verificar tu identidad. Inténtalo de nuevo.';
-    }
-    return err.message || 'No se pudo completar la autenticación biométrica.';
+    return mapBiometricAuthErrorToMessage(err);
   }
   if (err instanceof Error) {
     return err.message;
