@@ -1,16 +1,15 @@
+import {BeneficiaryRemoteDataSource} from '../../../data/datasources/beneficiary';
+import {ContractBalanceRemoteDataSource} from '../../../data/datasources/contractBalance';
+import {TransferRemoteDataSource} from '../../../data/datasources/transaction';
 import type {HttpClient} from '../../../data/api/HttpClient';
-import {ExecuteTransferUseCase} from '../domain/usecases/ExecuteTransferUseCase';
-import {GetBeneficiaryContactsUseCase} from '../domain/usecases/GetBeneficiaryContactsUseCase';
-import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
-import {ValidateTransactionAmountUseCase} from '../domain/usecases/ValidateTransactionAmountUseCase';
-import {BeneficiaryRemoteDataSource} from '../data/datasources/beneficiary/BeneficiaryRemoteDataSource';
-import {ContractBalanceRemoteDataSource} from '../data/datasources/contractBalance/ContractBalanceRemoteDataSource';
-import {TransferAmountValidationRemoteDataSource} from '../data/datasources/transaction/TransferAmountValidationRemoteDataSource';
-import {TransferRemoteDataSource} from '../data/datasources/transaction/TransferRemoteDataSource';
-import {BeneficiaryRepositoryImpl} from '../data/repositories/BeneficiaryRepositoryImpl';
-import {ContractBalanceRepositoryImpl} from '../data/repositories/ContractBalanceRepositoryImpl';
-import {TransactionAmountValidationRepositoryImpl} from '../data/repositories/TransactionAmountValidationRepositoryImpl';
-import {TransferRepositoryImpl} from '../data/repositories/TransferRepositoryImpl';
+import {BeneficiaryRepositoryImpl} from '../../../data/repositories/BeneficiaryRepositoryImpl';
+import {ContractBalanceRepositoryImpl} from '../../../data/repositories/ContractBalanceRepositoryImpl';
+import {TransferRepositoryImpl} from '../../../data/repositories/TransferRepositoryImpl';
+import type {SecurityRepository} from '../../../domain/repositories/SecurityRepository';
+import {ExecuteTransferUseCase} from '../../../domain/usecases/ExecuteTransferUseCase';
+import {GetBeneficiaryContactsUseCase} from '../../../domain/usecases/GetBeneficiaryContactsUseCase';
+import {GetHomeContractBalanceUseCase} from '../../../domain/usecases/GetHomeContractBalanceUseCase';
+import {ValidateTransactionAmountUseCase} from '../../../domain/usecases/ValidateTransactionAmountUseCase';
 
 export interface TransferFeatureModule {
   getHomeContractBalanceUseCase: GetHomeContractBalanceUseCase;
@@ -21,6 +20,7 @@ export interface TransferFeatureModule {
 
 export function createTransferFeatureModule(
   httpClient: HttpClient,
+  securityRepository: SecurityRepository,
 ): TransferFeatureModule {
   const contractBalanceRemoteDataSource = new ContractBalanceRemoteDataSource(
     httpClient,
@@ -29,8 +29,6 @@ export function createTransferFeatureModule(
     httpClient,
   );
   const transferRemoteDataSource = new TransferRemoteDataSource(httpClient);
-  const transferAmountValidationRemoteDataSource =
-    new TransferAmountValidationRemoteDataSource(httpClient);
 
   const contractBalanceRepository = new ContractBalanceRepositoryImpl(
     contractBalanceRemoteDataSource,
@@ -39,10 +37,6 @@ export function createTransferFeatureModule(
     beneficiaryRemoteDataSource,
   );
   const transferRepository = new TransferRepositoryImpl(transferRemoteDataSource);
-  const transactionAmountValidationRepository =
-    new TransactionAmountValidationRepositoryImpl(
-      transferAmountValidationRemoteDataSource,
-    );
 
   const getHomeContractBalanceUseCase = new GetHomeContractBalanceUseCase(
     contractBalanceRepository,
@@ -51,7 +45,7 @@ export function createTransferFeatureModule(
     beneficiaryRepository,
   );
   const validateTransactionAmountUseCase = new ValidateTransactionAmountUseCase(
-    transactionAmountValidationRepository,
+    securityRepository,
   );
   const executeTransferUseCase = new ExecuteTransferUseCase(transferRepository);
 

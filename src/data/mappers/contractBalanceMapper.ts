@@ -1,3 +1,4 @@
+import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
 import {
   AccountKind,
   AccountBalance,
@@ -21,12 +22,13 @@ import {
   InvestmentBalanceModel,
   LoanBalanceModel,
 } from '../models/ContractBalanceContentModel';
+import {mapDtoToEntity} from './beneficiaryMapper';
 
 /** Valores provisionales hasta documentación del API */
 export const ACCOUNT_TYPE_SAVINGS = 1;
 export const ACCOUNT_TYPE_CHECKING = 2;
 
-function mapAccountKind(accountType: number): AccountKind {
+function mapAccountKindFromNumeric(accountType: number): AccountKind {
   if (accountType === ACCOUNT_TYPE_SAVINGS) {
     return 'savings';
   }
@@ -36,14 +38,57 @@ function mapAccountKind(accountType: number): AccountKind {
   return 'other';
 }
 
+function mapAccountKindFromString(accountType: string): AccountKind {
+  const normalized = accountType.toLowerCase();
+  if (normalized === 'savings' || normalized === 'checking') {
+    return normalized;
+  }
+  return 'other';
+}
+
+function resolveAccountKind(accountType: number | string): AccountKind {
+  if (typeof accountType === 'number') {
+    return mapAccountKindFromNumeric(accountType);
+  }
+  return mapAccountKindFromString(accountType);
+}
+
+function lastFourFromMasked(maskedAccountNumber: string): string {
+  const digits = maskedAccountNumber.replace(/\D/g, '');
+  if (digits.length >= 4) {
+    return digits.slice(-4);
+  }
+  return digits.length > 0 ? digits.padStart(4, '0').slice(-4) : '0000';
+}
+
+function syntheticBeneficiaryForAccount(
+  model: AccountBalanceModel,
+): BeneficiaryContact {
+  const label = model.accountTypeLabel?.trim() || 'Cuenta propia';
+  return {
+    beneficiaryGuid: `own-${model.accountGuid}`,
+    contactName: label,
+    bankName: '',
+    accountType: model.accountType,
+    lastFourDigits: lastFourFromMasked(model.maskedAccountNumber),
+    accountTypeLabel: model.accountTypeLabel,
+  };
+}
+
 function mapAccount(model: AccountBalanceModel): AccountBalance {
+  const beneficiary = model.beneficiary
+    ? mapDtoToEntity(model.beneficiary)
+    : syntheticBeneficiaryForAccount(model);
+
   return {
     accountGuid: model.accountGuid,
     maskedAccountNumber: model.maskedAccountNumber,
-    accountKind: mapAccountKind(model.accountType),
+    accountKind: resolveAccountKind(model.accountType),
     balance: model.balance,
-    maskedAccountHome: model.maskedAccountHome,
-    accountTypeLabel: model.accountTypeLabel,
+    beneficiary,
+    maskedAccountHome:
+      model.maskedAccountHome ?? model.maskedAccountNumber ?? '',
+    accountTypeLabel: model.accountTypeLabel ?? '',
     accountAlias: model.accountAlias,
   };
 }

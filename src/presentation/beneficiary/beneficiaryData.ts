@@ -10,7 +10,7 @@ export type ContactTemplate = {
   accountHint: string;
 };
 
-function accountTypeLabel(accountType: number): string {
+function accountTypeLabelFromNumeric(accountType: number): string {
   switch (accountType) {
     case 1:
       return 'ahorros';
@@ -21,6 +21,24 @@ function accountTypeLabel(accountType: number): string {
   }
 }
 
+function accountTypeHintForContact(b: BeneficiaryContact): string {
+  const fromLabel = b.accountTypeLabel?.trim();
+  if (fromLabel) {
+    return fromLabel.toLowerCase();
+  }
+  if (typeof b.accountType === 'string') {
+    const n = b.accountType.toLowerCase();
+    if (n === 'savings') {
+      return 'ahorros';
+    }
+    if (n === 'checking') {
+      return 'corriente';
+    }
+    return n || 'cuenta';
+  }
+  return accountTypeLabelFromNumeric(b.accountType);
+}
+
 export function beneficiaryContactToTemplate(
   b: BeneficiaryContact,
 ): ContactTemplate {
@@ -28,7 +46,7 @@ export function beneficiaryContactToTemplate(
     id: b.beneficiaryGuid,
     name: b.contactName,
     bankName: b.bankName,
-    accountHint: `Cta. ${accountTypeLabel(b.accountType)} • **** ${b.lastFourDigits}`,
+    accountHint: `Cta. ${accountTypeHintForContact(b)} • **** ${b.lastFourDigits}`,
   };
 }
 

@@ -1,6 +1,6 @@
-import {mapContractBalanceContentToEntity} from '../../../../../src/features/transfer/data/mappers/contractBalanceMapper';
-import type {ContractBalanceContentModel} from '../../../../../src/features/transfer/data/models/ContractBalanceContentModel';
-import type {BeneficiaryContactDto} from '../../../../../src/features/transfer/data/models/BeneficiaryContactsContentModel';
+import {mapContractBalanceContentToEntity} from '../../../../../src/data/mappers/contractBalanceMapper';
+import type {ContractBalanceContentModel} from '../../../../../src/data/models/ContractBalanceContentModel';
+import type {BeneficiaryContactDto} from '../../../../../src/data/models/BeneficiaryContactsContentModel';
 
 function bene(overrides: Partial<BeneficiaryContactDto> = {}): BeneficiaryContactDto {
   return {
@@ -28,7 +28,7 @@ function minimalContent(
   };
 }
 
-describe('mapContractBalanceContentToEntity (features/transfer)', () => {
+describe('mapContractBalanceContentToEntity', () => {
   test('mapea accountKind savings y checking (case insensitive)', () => {
     const entity = mapContractBalanceContentToEntity(
       minimalContent({

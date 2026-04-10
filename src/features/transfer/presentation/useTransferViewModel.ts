@@ -9,7 +9,7 @@ import {
     sanitizeTransferConceptInput,
     validateTransferAmountForSubmit,
     validateTransferConcept,
-} from '../domain/validation';
+} from '../../../domain/validation';
 import {useAuth} from '../../../providers';
 import {formatAccountKindLine} from '../utils/accountDisplay';
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';

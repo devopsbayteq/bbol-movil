@@ -13,7 +13,7 @@ import {AuthRepositoryImpl} from '../data/repositories/AuthRepositoryImpl';
 import {AccountMovementRepositoryImpl} from '../data/repositories/AccountMovementRepositoryImpl';
 import {SecurityRepositoryImpl} from '../data/repositories/SecurityRepositoryImpl';
 import {AuthRemoteDataSource} from '../data/datasources/auth';
-import {SecurityRemoteDataSource} from '../data/datasources/security/SecurityRemoteDataSource';
+import {SecurityRemoteDataSource} from '../data/datasources/security';
 import {TransactionListRemoteDataSource} from '../data/datasources/transaction/TransactionListRemoteDataSource';
 import {SecureStorageKeys} from '../data/datasources/storage';
 import {SecureStorageServiceImpl} from '../data/services/SecureStorageServiceImpl';
@@ -21,16 +21,16 @@ import {ServerPublicKeySessionStoreImpl} from '../data/services/ServerPublicKeyS
 import {CertificateHandshakePersistenceServiceImpl} from '../data/services/CertificateHandshakePersistenceServiceImpl';
 import {BiometricAuthServiceImpl} from '../data/services/BiometricAuthServiceImpl';
 import {DeviceSecurityServiceImpl} from '../data/services/DeviceSecurityServiceImpl';
-import {createApiSecretKey} from '../security/http/apiSecretKey';
-import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../security/certificate/keys.constants';
+import {createApiSecretKey} from '../security/http';
+import {SERVER_PUBLIC_KEY_PEM_BASE64} from '../security/certificate';
 import {GetUserLoggedUseCase} from '../domain/usecases/GetUserLoggedUseCase';
 import {ValidateOtpUseCase} from '../domain/usecases/ValidateOtpUseCase';
 import {RegisterAliasUseCase} from '../domain/usecases/RegisterAliasUseCase';
-import {GetHomeContractBalanceUseCase} from '../features/transfer/domain/usecases/GetHomeContractBalanceUseCase';
-import {GetBeneficiaryContactsUseCase} from '../features/transfer/domain/usecases/GetBeneficiaryContactsUseCase';
-import {ValidateTransactionAmountUseCase} from '../features/transfer/domain/usecases/ValidateTransactionAmountUseCase';
-import {ExecuteTransferUseCase} from '../features/transfer/domain/usecases/ExecuteTransferUseCase';
-import {createTransferFeatureModule} from '../features/transfer/di/createTransferFeatureModule';
+import {GetHomeContractBalanceUseCase} from '../domain/usecases/GetHomeContractBalanceUseCase';
+import {GetBeneficiaryContactsUseCase} from '../domain/usecases/GetBeneficiaryContactsUseCase';
+import {ValidateTransactionAmountUseCase} from '../domain/usecases/ValidateTransactionAmountUseCase';
+import {ExecuteTransferUseCase} from '../domain/usecases/ExecuteTransferUseCase';
+import {createTransferFeatureModule} from '../features/transfer';
 import {BiometricRemoteDataSource} from '../data/datasources/biometric';
 import {
   BiometricRSAAuthOrchestrator,
@@ -88,7 +88,10 @@ export function createContainer(): AppContainer {
   const accountMovementRepository = new AccountMovementRepositoryImpl(
     transactionListRemoteDataSource,
   );
-  const transferFeature = createTransferFeatureModule(httpClient);
+  const transferFeature = createTransferFeatureModule(
+    httpClient,
+    securityRepository,
+  );
 
   const getPublicKeyUseCase = new GetPublicKeyUseCase(
     securityRepository,
@@ -149,21 +152,12 @@ export function createContainer(): AppContainer {
     getPublicKeyUseCase,
   );
 
-  /*const validateTransactionAmountUseCase = new ValidateTransactionAmountUseCase(
-    securityRepository,
-  );*/
-
-  //const executeTransferUseCase = new ExecuteTransferUseCase(transferRepository);
   const {
     getHomeContractBalanceUseCase,
     getBeneficiaryContactsUseCase,
     validateTransactionAmountUseCase,
     executeTransferUseCase,
   } = transferFeature;
-
-  /*const runCertificateHandshakeUseCase = new RunCertificateHandshakeUseCase(
-    securityRemoteDataSource,
-  );*/
 
   return {
     loginUseCase,

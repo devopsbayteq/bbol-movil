@@ -1,8 +1,11 @@
+import type {BeneficiaryContactDto} from './BeneficiaryContactsContentModel';
+
 export interface AccountBalanceModel {
   accountGuid: string;
   maskedAccountNumber: string;
-  accountType: number;
+  accountType: number | string;
   balance: number;
+  beneficiary?: BeneficiaryContactDto;
   maskedAccountHome?: string;
   accountTypeLabel?: string;
   accountAlias?: string;

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {Platform} from 'react-native';
 import type {AccountBalance} from '../../../../domain/entities/ContractBalance';
-import type {BeneficiaryContact} from '../../domain/entities/BeneficiaryContact';
+import type {BeneficiaryContact} from '../../../../domain/entities/BeneficiaryContact';
 import {useTransferViewModel} from '../../presentation/useTransferViewModel';
 import {formatMoneyUsdDisplay} from '../../../../utils/formatMoneyUsdDisplay';
 

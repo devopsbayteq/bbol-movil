@@ -18,7 +18,7 @@ import {Lexend} from '../../../theme/lexend';
 import type {TransferStackParamList} from '../navigation/TransferStackNavigator';
 import type {MainTabParamList} from '../../../navigation/MainTabNavigator';
 import {TransferIconArrowRightWhite} from './components/transferIcons.tsx';
-import {TRANSFER_CONCEPT_MAX_LENGTH} from '../domain/validation';
+import {TRANSFER_CONCEPT_MAX_LENGTH} from '../../../domain/validation';
 import {useTransferViewModel} from './useTransferViewModel';
 import {formatMoneyUsdDisplay} from '../../../utils/formatMoneyUsdDisplay';
 import {ToolbarApp} from './components/ToolbarApp.tsx';
