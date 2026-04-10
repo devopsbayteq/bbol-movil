@@ -2,9 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {
   View,
   Text,
-  Image,
   StyleSheet,
-  Platform,
   Pressable,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
@@ -20,8 +18,6 @@ import {RootStackParamList} from '../../navigation/AppNavigator';
 import {mapBiometricError} from './useLoginViewModel';
 import {DeviceRegistrationSuccessModal} from './DeviceRegistrationSuccessModal';
 import FingerPrintEnable from '../../../assets/images/svg/fingerPrintEnable.svg';
-const fingerprintIcon = require('../../../assets/images/fingerprint.png');
-const faceViewfinderIcon = require('../../../assets/images/face-viewfinder.png');
 const shieldKeyholeIcon = require('../../../assets/images/shield_key_hole.png');
 
 export function BiometricOfferScreen() {
@@ -39,13 +35,6 @@ export function BiometricOfferScreen() {
 
   const trimmedEmail = email.trim();
 
-  const biometricHeroIcon =
-    Platform.OS === 'ios' ? faceViewfinderIcon : fingerprintIcon;
-
-  const heroAccessibilityLabel =
-    Platform.OS === 'ios'
-      ? 'Reconocimiento facial'
-      : 'Huella digital';
 
   const handleSkip = useCallback(async () => {
     setError(null);

@@ -21,7 +21,7 @@ export const transferConceptMessages = {
   tooLong: `El concepto no puede superar ${TRANSFER_CONCEPT_MAX_LENGTH} caracteres`,
 } as const;
 
-const NEWLINE_PATTERN = /\r|\n/;
+const NEWLINE_PATTERN = /[\r\n]/;
 
 /** Letras, números, espacio (U+0020), punto y guión. */
 const DISALLOWED_CONCEPT_CHAR_PATTERN = /[^\p{L}\p{N} .-]/u;

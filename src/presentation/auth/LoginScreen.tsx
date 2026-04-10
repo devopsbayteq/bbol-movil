@@ -115,7 +115,8 @@ export function LoginScreen() {
 
   const isDeviceBoundCredentialsFlow =
     deviceBoundLoginId !== null && deviceBoundLoginId.length > 0;
-
+    const deviceBoundParam =
+    deviceBoundLoginId ? { deviceBoundLoginId } : undefined;
   const {
     email,
     password,
@@ -135,6 +136,7 @@ export function LoginScreen() {
     handleLogin,
     handleBiometricLogin,
   } = useLoginViewModel(
+    
     user => {
       navigation.navigate('OtpValidation', {
         mode: 'login',
@@ -148,11 +150,7 @@ export function LoginScreen() {
     user => {
       login(user).catch();
     },
-    deviceBoundLoginId === null
-      ? undefined
-      : deviceBoundLoginId
-        ? {deviceBoundLoginId}
-        : undefined,
+    deviceBoundParam,
   );
 
   useEffect(() => {
@@ -197,7 +195,53 @@ export function LoginScreen() {
     deviceBoundLoginId !== null &&
     deviceBoundLoginId.length > 0 &&
     isDeviceBoundCompact;
+    let content;
 
+    if (deviceBoundLoginId === null) {
+      content = (
+        <ActivityIndicator
+          accessibilityLabel="Cargando"
+          color={colors.primary}
+          style={styles.inputsLoading}
+        />
+      );
+    } else if (showCompactLayout) {
+      content = (
+        <CompactLoginContent
+          greetingFirstName={deviceBoundGreetingFirstName}
+          greetingName={compactGreetingName}
+          password={password}
+          passwordError={passwordError}
+          onPasswordChange={setPassword}
+          isBusy={isBusy}
+          isLoadingLogin={isLoadingLogin}
+          isLoadingBiometric={isLoadingBiometric}
+          isCredentialLoginEnabled={isCredentialLoginEnabled}
+          error={error}
+          showBiometricLogin={showBiometricLogin}
+          suppressAutoBiometricPromptOnce={suppressAutoBiometricPromptOnce}
+          onLogin={handleLogin}
+          onBiometricLogin={handleBiometricLogin}
+          onChangeUser={handleChangeUser}
+        />
+      );
+    } else {
+      content = (
+        <FirstLoginContent
+          email={email}
+          password={password}
+          emailError={emailError}
+          passwordError={passwordError}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          isBusy={isBusy}
+          isLoadingLogin={isLoadingLogin}
+          isCredentialLoginEnabled={isCredentialLoginEnabled}
+          error={error}
+          onLogin={handleLogin}
+        />
+      );
+    }
   return (
     <View style={[styles.shell, {backgroundColor: colors.background}]}>
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -207,46 +251,8 @@ export function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           <View style={styles.contentColumn}>
-            {deviceBoundLoginId === null ? (
-              <ActivityIndicator
-                accessibilityLabel="Cargando"
-                color={colors.primary}
-                style={styles.inputsLoading}
-              />
-            ) : showCompactLayout ? (
-              <CompactLoginContent
-                greetingFirstName={deviceBoundGreetingFirstName}
-                greetingName={compactGreetingName}
-                password={password}
-                passwordError={passwordError}
-                onPasswordChange={setPassword}
-                isBusy={isBusy}
-                isLoadingLogin={isLoadingLogin}
-                isLoadingBiometric={isLoadingBiometric}
-                isCredentialLoginEnabled={isCredentialLoginEnabled}
-                error={error}
-                showBiometricLogin={showBiometricLogin}
-                suppressAutoBiometricPromptOnce={suppressAutoBiometricPromptOnce}
-                onLogin={handleLogin}
-                onBiometricLogin={handleBiometricLogin}
-                onChangeUser={handleChangeUser}
-              />
-            ) : (
-              <FirstLoginContent
-                email={email}
-                password={password}
-                emailError={emailError}
-                passwordError={passwordError}
-                onEmailChange={setEmail}
-                onPasswordChange={setPassword}
-                isBusy={isBusy}
-                isLoadingLogin={isLoadingLogin}
-                isCredentialLoginEnabled={isCredentialLoginEnabled}
-                error={error}
-                onLogin={handleLogin}
-              />
-            )}
-          </View>
+          {content}
+        </View>
         </KeyboardAwareScrollView>
       </SafeAreaView>
     </View>

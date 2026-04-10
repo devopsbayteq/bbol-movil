@@ -12,7 +12,7 @@ import {
 import {
   INVISIBLE_CHAR_PATTERN,
   isControlCharacter,
-  sanitizeUnsafeTextInput,
+  
 } from './textSafety';
 
 /** Letras (Unicode), números, punto, guion y guion bajo. */
@@ -38,9 +38,9 @@ export const loginValidationMessages = {
   passwordTooLong: `La contraseña no puede superar ${LOGIN_PASSWORD_MAX_LENGTH} caracteres`,
 } as const;
 
-export const sanitizeLoginUsernameInput = sanitizeUnsafeTextInput;
 
-export const sanitizeLoginPasswordInput = sanitizeUnsafeTextInput;
+
+
 
 export const validateLoginUsername = composeValidators(
   requireTrimmedValue(loginValidationMessages.usernameRequired),
@@ -86,12 +86,6 @@ export const validateLoginPassword = composeValidators(
   ),
 );
 
-export function hasDisallowedLoginUsernameCharacters(value: string): boolean {
-  return (
-    containsMatchingCharacters(isControlCharacter, value) ||
-    containsCharacters(INVISIBLE_CHAR_PATTERN, value)
-  );
-}
 
 export function hasDisallowedLoginPasswordCharacters(value: string): boolean {
   return (
@@ -99,3 +93,5 @@ export function hasDisallowedLoginPasswordCharacters(value: string): boolean {
     containsCharacters(INVISIBLE_CHAR_PATTERN, value)
   );
 }
+
+export {sanitizeUnsafeTextInput as sanitizeLoginUsernameInput} from './textSafety';

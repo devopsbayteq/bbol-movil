@@ -25,7 +25,6 @@ import {Lexend} from '../../theme/lexend';
 import LoginSubmitArrowSvg from '../../../assets/images/svg/arrow-right-from-bracket.svg';
 import FingerprintSvg from '../../../assets/images/svg/fingerprint.svg';
 
-// const bankBanner = require('../../../assets/images/BBBanner.png');
 const bankBannerTwoLines = require('../../../assets/images/BBBannerTwoLines.png');
 const heroLoginA = require('../../../assets/images/imagenfondo_login1.png');
 const heroLoginB = require('../../../assets/images/imagenfondo_login2.png');
@@ -85,7 +84,7 @@ export function CompactLoginContent({
   onLogin,
   onBiometricLogin,
   onChangeUser,
-}: CompactLoginContentProps) {
+}: Readonly<CompactLoginContentProps>) {
   const {colors} = useTheme();
   const {width: windowWidth} = useWindowDimensions();
   const heroCarouselWidth = Math.min(
