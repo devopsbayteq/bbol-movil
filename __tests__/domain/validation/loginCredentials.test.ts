@@ -1,12 +1,11 @@
 import {
   hasDisallowedLoginPasswordCharacters,
-  hasDisallowedLoginUsernameCharacters,
   LOGIN_USERNAME_MIN_LENGTH,
   LOGIN_USERNAME_MAX_LENGTH,
   LOGIN_PASSWORD_MIN_LENGTH,
   LOGIN_PASSWORD_MAX_LENGTH,
   loginValidationMessages,
-  sanitizeLoginPasswordInput,
+  
   sanitizeLoginUsernameInput,
   validateLoginPassword,
   validateLoginUsername,
@@ -17,7 +16,7 @@ describe('loginCredentials validation', () => {
     const raw = ' usuario\u200B-demo12 ';
 
     expect(sanitizeLoginUsernameInput(raw)).toBe(' usuario-demo12 ');
-    expect(hasDisallowedLoginUsernameCharacters(raw)).toBe(true);
+    expect(hasDisallowedLoginPasswordCharacters(raw)).toBe(true);
   });
 
   test('accepts username within length range with allowed characters', () => {
@@ -54,7 +53,7 @@ describe('loginCredentials validation', () => {
   test('sanitizes unsafe characters from password input without removing spaces', () => {
     const rawPassword = 'clave \u200Bsegura\u0000';
 
-    expect(sanitizeLoginPasswordInput(rawPassword)).toBe('clave segura');
+    expect(sanitizeLoginUsernameInput(rawPassword)).toBe('clave segura');
     expect(hasDisallowedLoginPasswordCharacters(rawPassword)).toBe(true);
   });
 

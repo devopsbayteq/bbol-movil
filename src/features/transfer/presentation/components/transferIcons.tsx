@@ -6,7 +6,7 @@ type IconProps = {
   size?: number;
 };
 
-export function TransferIconClose({color, size = 20}: IconProps) {
+export function TransferIconClose({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -20,7 +20,7 @@ export function TransferIconClose({color, size = 20}: IconProps) {
   );
 }
 
-export function TransferIconCodeBrackets({color, size = 32}: IconProps) {
+export function TransferIconCodeBrackets({color, size = 32}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -34,7 +34,7 @@ export function TransferIconCodeBrackets({color, size = 32}: IconProps) {
   );
 }
 
-export function TransferIconArrowLeft({color, size = 20}: IconProps) {
+export function TransferIconArrowLeft({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -48,7 +48,7 @@ export function TransferIconArrowLeft({color, size = 20}: IconProps) {
   );
 }
 
-export function TransferIconArrowRight({color, size = 16}: IconProps) {
+export function TransferIconArrowRight({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -62,7 +62,7 @@ export function TransferIconArrowRight({color, size = 16}: IconProps) {
   );
 }
 
-export function TransferIconArrowUp({color, size = 16}: IconProps) {
+export function TransferIconArrowUp({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -75,7 +75,7 @@ export function TransferIconArrowUp({color, size = 16}: IconProps) {
     </Svg>
   );
 }
-export function TransferIconAnglesDown({color, size = 24}: IconProps) {
+export function TransferIconAnglesDown({color, size = 24}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -89,7 +89,7 @@ export function TransferIconAnglesDown({color, size = 24}: IconProps) {
   );
 }
 
-export function TransferIconUser({color, size = 16}: IconProps) {
+export function TransferIconUser({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -103,7 +103,7 @@ export function TransferIconUser({color, size = 16}: IconProps) {
   );
 }
 
-export function TransferIconWallet({color, size = 16}: IconProps) {
+export function TransferIconWallet({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -117,7 +117,7 @@ export function TransferIconWallet({color, size = 16}: IconProps) {
   );
 }
 
-export function TransferIconSearch({color, size = 16}: IconProps) {
+export function TransferIconSearch({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -131,7 +131,7 @@ export function TransferIconSearch({color, size = 16}: IconProps) {
   );
 }
 
-export function TransferIconEllipsisVertical({color, size = 16}: IconProps) {
+export function TransferIconEllipsisVertical({color, size = 16}: Readonly<IconProps>) {
   const r = 2;
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
@@ -142,7 +142,7 @@ export function TransferIconEllipsisVertical({color, size = 16}: IconProps) {
   );
 }
 
-export function TransferIconUserPlus({color, size = 20}: IconProps) {
+export function TransferIconUserPlus({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -159,10 +159,10 @@ export function TransferIconUserPlus({color, size = 20}: IconProps) {
 export function TransferIconArrowRightWhite({
   color = '#FFFFFF',
   size = 20,
-}: {
+}: Readonly<{
   color?: string;
   size?: number;
-}) {
+}>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -176,7 +176,7 @@ export function TransferIconArrowRightWhite({
   );
 }
 
-export function TransferIconCalendar({color, size = 20}: IconProps) {
+export function TransferIconCalendar({color, size = 20}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -190,7 +190,7 @@ export function TransferIconCalendar({color, size = 20}: IconProps) {
   );
 }
 
-export function TransferIconBanknote({color, size = 22}: IconProps) {
+export function TransferIconBanknote({color, size = 22}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -204,7 +204,7 @@ export function TransferIconBanknote({color, size = 22}: IconProps) {
   );
 }
 
-export function TransferIconCheck({color, size = 22}: IconProps) {
+export function TransferIconCheck({color, size = 22}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -218,20 +218,7 @@ export function TransferIconCheck({color, size = 22}: IconProps) {
   );
 }
 
-export function TransferIconArrowsRetweet({color, size = 24}: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-        stroke={color}
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
-export function TransferAccountsIcon({color, size = 24}: IconProps) {
+export function TransferIconArrowsRetweet({color, size = 24}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -246,7 +233,8 @@ export function TransferAccountsIcon({color, size = 24}: IconProps) {
 }
 
 
-export function TransferIconUsersGroup({color, size = 24}: IconProps) {
+
+export function TransferIconUsersGroup({color, size = 24}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
