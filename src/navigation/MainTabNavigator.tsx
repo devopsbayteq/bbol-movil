@@ -145,7 +145,7 @@ export function MainTabNavigator() {
             focused === 'InvestmentDetail' ||
             focused === 'LoanDetail' ||
             focused === 'MovementsList' ||
-            focused === 'MovementDetail';
+            focused === 'MovementDetail' ||
             focused === 'FrequentPayments';
           return {
             title: 'Inicio',
