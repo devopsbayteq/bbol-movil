@@ -13,7 +13,7 @@ interface QuickActionsRowProps {
   onPress: () => void;
 }
 
-export function QuickActionsRow({onPress}: QuickActionsRowProps) {
+export function QuickActionsRow({onPress}: Readonly<QuickActionsRowProps>) {
   const {colors} = useTheme();
   const iconColor = colors.homeHeaderIconButtonBg;
 

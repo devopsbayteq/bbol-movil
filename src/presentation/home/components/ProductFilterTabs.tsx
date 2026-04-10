@@ -13,7 +13,7 @@ export function ProductFilterTabs({
   filters,
   selectedFilter,
   onFilterChange,
-}: Props) {
+}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

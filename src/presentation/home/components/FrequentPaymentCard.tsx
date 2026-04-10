@@ -9,7 +9,7 @@ type Props = {
   onPress?: () => void;
 };
 
-export function FrequentPaymentCard({label, icon, onPress}: Props) {
+export function FrequentPaymentCard({label, icon, onPress}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

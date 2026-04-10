@@ -375,7 +375,7 @@ function useCreditStyles(colors: ThemeColors) {
           }),
         },
         cardGradientFill: {
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
         },
         cardInner: {
           flex: 1,
@@ -571,7 +571,7 @@ function useLoanStyles(colors: ThemeColors) {
           }),
         },
         cardGradientFill: {
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
         },
         cardInner: {
           flex: 1,
@@ -730,7 +730,7 @@ function useInvestmentStyles(colors: ThemeColors) {
           }),
         },
         cardGradientFill: {
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
         },
         cardInner: {
           flex: 1,

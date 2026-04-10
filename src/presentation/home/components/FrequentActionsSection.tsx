@@ -17,7 +17,7 @@ type Props = {
   onItemPress?: (item: FrequentPayment, index: number) => void;
 };
 
-export function FrequentActionsSection({items, onItemPress}: Props) {
+export function FrequentActionsSection({items, onItemPress}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
 

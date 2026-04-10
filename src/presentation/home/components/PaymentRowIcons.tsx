@@ -3,7 +3,7 @@ import Svg, {Path} from 'react-native-svg';
 
 type IconProps = {color: string; size?: number};
 
-export function PaymentPersonIcon({color, size = 16}: IconProps) {
+export function PaymentPersonIcon({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -14,7 +14,7 @@ export function PaymentPersonIcon({color, size = 16}: IconProps) {
   );
 }
 
-export function PaymentLightbulbIcon({color, size = 16}: IconProps) {
+export function PaymentLightbulbIcon({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -25,7 +25,7 @@ export function PaymentLightbulbIcon({color, size = 16}: IconProps) {
   );
 }
 
-export function PaymentSchoolIcon({color, size = 16}: IconProps) {
+export function PaymentSchoolIcon({color, size = 16}: Readonly<IconProps>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path

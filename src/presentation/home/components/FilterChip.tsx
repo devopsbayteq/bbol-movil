@@ -15,7 +15,7 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-export function FilterChip({label, selected, onPress, style}: Props) {
+export function FilterChip({label, selected, onPress, style}: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors, selected);
 
