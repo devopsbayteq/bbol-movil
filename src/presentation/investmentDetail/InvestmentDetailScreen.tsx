@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -8,6 +8,9 @@ import {
     ActivityIndicator,
     Platform,
     Pressable,
+    useWindowDimensions,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -33,29 +36,30 @@ import {
     EyeSlashIcon,
     HomeStackDetailHeader,
 } from '../components';
+import {
+    buildInvestmentDetailSlides,
+    type InvestmentDetailSlide,
+} from './investmentDetailSlideMocks';
 import {useInvestmentDetailViewModel} from './useInvestmentDetailViewModel';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'InvestmentDetail'>;
-
-const PAGE_INDICATOR_DOTS = 4;
-const PAGE_INDICATOR_ACTIVE_INDEX = 3;
 
 function formatMoneyMasked(masked: boolean, amount: number): string {
     return masked ? '$**.**' : formatCurrency(amount);
 }
 
-function getMonthlyInterest(d: InvestmentDetail): number {
-    if (d.installmentsTotal <= 0) {
+function getMonthlyInterest(s: InvestmentDetailSlide): number {
+    if (s.installmentsTotal <= 0) {
         return 0;
     }
-    return Math.round((d.interestAtMaturity / d.installmentsTotal) * 100) / 100;
+    return Math.round((s.interestAtMaturity / s.installmentsTotal) * 100) / 100;
 }
 
-function getAdvanceBarPercent(d: InvestmentDetail): number {
-    if (d.installmentsTotal <= 0) {
+function getAdvanceBarPercent(s: InvestmentDetailSlide): number {
+    if (s.installmentsTotal <= 0) {
         return 0;
     }
-    return Math.min(100, (d.installmentsPaid / d.installmentsTotal) * 100);
+    return Math.min(100, (s.installmentsPaid / s.installmentsTotal) * 100);
 }
 
 export function InvestmentDetailScreen() {
@@ -178,8 +182,50 @@ function InvestmentDetailLoadedContent({
     devModalVisible: boolean;
     onCloseDevModal: () => void;
 }>) {
-    const advancePct = getAdvanceBarPercent(d);
-    const monthlyInterest = getMonthlyInterest(d);
+    const {width: windowWidth} = useWindowDimensions();
+    const detailSlides = useMemo(
+        () => buildInvestmentDetailSlides(d),
+        [d],
+    );
+    const [heroPageIndex, setHeroPageIndex] = useState(0);
+    const activeSlide = useMemo(() => {
+        if (detailSlides.length === 0) {
+            return null;
+        }
+        const i = Math.min(
+            Math.max(heroPageIndex, 0),
+            detailSlides.length - 1,
+        );
+        return detailSlides[i];
+    }, [detailSlides, heroPageIndex]);
+    const heroCarouselRef = useRef<ScrollView>(null);
+
+    useEffect(() => {
+        setHeroPageIndex(0);
+        heroCarouselRef.current?.scrollTo({x: 0, animated: false});
+    }, [d.investmentGuid]);
+
+    const onHeroMomentumScrollEnd = useCallback(
+        (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+            if (detailSlides.length === 0 || windowWidth <= 0) {
+                return;
+            }
+            const x = e.nativeEvent.contentOffset.x;
+            const i = Math.round(x / windowWidth);
+            const last = detailSlides.length - 1;
+            if (i >= 0 && i <= last) {
+                setHeroPageIndex(i);
+            }
+        },
+        [detailSlides.length, windowWidth],
+    );
+
+    if (!activeSlide) {
+        return null;
+    }
+
+    const advancePct = getAdvanceBarPercent(activeSlide);
+    const monthlyInterest = getMonthlyInterest(activeSlide);
 
     return (
         <>
@@ -197,52 +243,80 @@ function InvestmentDetailLoadedContent({
                     end={{x: 0.95, y: 0}}
                     style={styles.heroGradient}
                 >
-                    <View style={styles.heroInner}>
-                        <View style={styles.heroTopRow}>
-                            <View style={styles.heroTitleBlock}>
-                                <Text style={styles.heroProductMuted} numberOfLines={2}>
-                                    {d.productName}
-                                </Text>
-                                <Text style={styles.heroLoanLine} numberOfLines={2}>
-                                    Nº {d.maskedAccountNumber}
-                                </Text>
-                            </View>
-                            <TouchableOpacity
-                                style={styles.eyeBtn}
-                                onPress={onToggleAmountMasked}
-                                accessibilityRole="button"
-                                accessibilityLabel={
-                                    amountMasked ? 'Mostrar montos' : 'Ocultar montos'
-                                }
+                    <ScrollView
+                        ref={heroCarouselRef}
+                        horizontal
+                        pagingEnabled
+                        nestedScrollEnabled
+                        showsHorizontalScrollIndicator={false}
+                        decelerationRate="fast"
+                        onMomentumScrollEnd={onHeroMomentumScrollEnd}
+                        accessibilityRole="adjustable"
+                    >
+                        {detailSlides.map(slide => (
+                            <View
+                                key={slide.key}
+                                style={[styles.heroSlidePage, {width: windowWidth}]}
                             >
-                                {amountMasked ? (
-                                    <EyeSlashIcon color={colors.primary} size={16}/>
-                                ) : (
-                                    <EyeIcon color={colors.primary} size={16}/>
-                                )}
-                            </TouchableOpacity>
-                        </View>
+                                <View style={styles.heroInner}>
+                                    <View style={styles.heroTopRow}>
+                                        <View style={styles.heroTitleBlock}>
+                                            <Text
+                                                style={styles.heroProductMuted}
+                                                numberOfLines={2}
+                                            >
+                                                {slide.productName}
+                                            </Text>
+                                            <Text style={styles.heroLoanLine} numberOfLines={2}>
+                                                Nº {slide.maskedAccountNumber}
+                                            </Text>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={styles.eyeBtn}
+                                            onPress={onToggleAmountMasked}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={
+                                                amountMasked
+                                                    ? 'Mostrar montos'
+                                                    : 'Ocultar montos'
+                                            }
+                                        >
+                                            {amountMasked ? (
+                                                <EyeSlashIcon color={colors.primary} size={16}/>
+                                            ) : (
+                                                <EyeIcon color={colors.primary} size={16}/>
+                                            )}
+                                        </TouchableOpacity>
+                                    </View>
 
-                        <View style={styles.heroCapitalBlock}>
-                            <Text style={styles.heroAmount} numberOfLines={1}>
-                                {formatMoneyMasked(amountMasked, d.initialAmount)}
-                            </Text>
-                            <Text style={styles.heroCapitalLabel}>Capital invertido</Text>
-                        </View>
+                                    <View style={styles.heroCapitalBlock}>
+                                        <Text style={styles.heroAmount} numberOfLines={1}>
+                                            {formatMoneyMasked(amountMasked, slide.initialAmount)}
+                                        </Text>
+                                        <Text style={styles.heroCapitalLabel}>
+                                            Capital invertido
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
+                    </ScrollView>
 
-                        <View style={styles.pageDots} accessibilityElementsHidden>
-                            {Array.from({length: PAGE_INDICATOR_DOTS}, (_, i) => (
-                                <View
-                                    key={i}
-                                    style={[
-                                        styles.pageDot,
-                                        i === PAGE_INDICATOR_ACTIVE_INDEX
-                                            ? styles.pageDotActive
-                                            : styles.pageDotInactive,
-                                    ]}
-                                />
-                            ))}
-                        </View>
+                    <View
+                        style={styles.pageDots}
+                        accessibilityLabel={`Página ${heroPageIndex + 1} de ${detailSlides.length}`}
+                    >
+                        {detailSlides.map((slide, i) => (
+                            <View
+                                key={slide.key}
+                                style={[
+                                    styles.pageDot,
+                                    i === heroPageIndex
+                                        ? styles.pageDotActive
+                                        : styles.pageDotInactive,
+                                ]}
+                            />
+                        ))}
                     </View>
                 </LinearGradient>
 
@@ -251,7 +325,7 @@ function InvestmentDetailLoadedContent({
                         <View style={styles.summaryTopRow}>
                             <Text style={styles.summaryLabelMuted}>Total a recibir</Text>
                             <Text style={styles.summaryValueStrong}>
-                                {formatMoneyMasked(amountMasked, d.totalToReceive)}
+                                {formatMoneyMasked(amountMasked, activeSlide.totalToReceive)}
                             </Text>
                         </View>
 
@@ -263,22 +337,22 @@ function InvestmentDetailLoadedContent({
                                     <Text style={styles.bodyTextTertiary}>Avance</Text>
                                     <Text style={styles.bodyTextTertiary}>
                                         <Text style={styles.avancePaid}>
-                                            {d.installmentsPaid}
+                                            {activeSlide.installmentsPaid}
                                         </Text>
-                                        {` / ${d.installmentsTotal} meses`}
+                                        {` / ${activeSlide.installmentsTotal} meses`}
                                     </Text>
                                 </View>
                                 <View style={styles.avanceColRight}>
                                     <Text style={styles.dateLineSmall}>
                                         <Text style={styles.bodyTextTertiary}>Apertura </Text>
                                         <Text style={styles.dateLineStrong}>
-                                            {formatIsoDateMediumEsEc(d.openingDateIso)}
+                                            {formatIsoDateMediumEsEc(activeSlide.openingDateIso)}
                                         </Text>
                                     </Text>
                                     <Text style={styles.dateLineSmall}>
                                         <Text style={styles.bodyTextTertiary}>Vencimiento </Text>
                                         <Text style={styles.dateLineStrong}>
-                                            {formatIsoDateMediumEsEc(d.maturityDateIso)}
+                                            {formatIsoDateMediumEsEc(activeSlide.maturityDateIso)}
                                         </Text>
                                     </Text>
                                 </View>
@@ -301,13 +375,16 @@ function InvestmentDetailLoadedContent({
                         <View style={styles.yieldRow}>
                             <View style={styles.yieldCol}>
                                 <Text style={styles.summaryValueStrong}>
-                                    {formatMoneyMasked(amountMasked, d.interestAtMaturity)}
+                                    {formatMoneyMasked(
+                                        amountMasked,
+                                        activeSlide.interestAtMaturity,
+                                    )}
                                 </Text>
                                 <Text style={styles.summaryCaptionDark}>Rendimiento</Text>
                             </View>
                             <View style={[styles.yieldCol, styles.yieldColEnd]}>
                                 <Text style={styles.summaryValueStrong}>
-                                    {formatPercentEsMx(d.interestRatePercent, 1)}
+                                    {formatPercentEsMx(activeSlide.interestRatePercent, 1)}
                                 </Text>
                                 <Text style={styles.summaryCaptionDark}>Tasa anual</Text>
                             </View>
@@ -317,13 +394,13 @@ function InvestmentDetailLoadedContent({
                     <View style={styles.statRow}>
                         <View style={styles.statCard}>
                             <Text style={styles.statValue}>
-                                {formatMoneyMasked(amountMasked, d.totalToReceive)}
+                                {formatMoneyMasked(amountMasked, activeSlide.totalToReceive)}
                             </Text>
                             <Text style={styles.statLabel}>Total a recibir</Text>
                         </View>
                         <View style={styles.statCard}>
                             <Text style={styles.statValue}>
-                                {formatIsoDateShortEsEc(d.nextPaymentDateIso)}
+                                {formatIsoDateShortEsEc(activeSlide.nextPaymentDateIso)}
                             </Text>
                             <Text style={styles.statLabel}>Próxima cuota</Text>
                         </View>
@@ -339,17 +416,17 @@ function InvestmentDetailLoadedContent({
                         <View style={styles.detailRowBorder}>
                             <Text style={styles.detailLabelLeft}>Pago de intereses</Text>
                             <Text style={styles.detailValueRight}>
-                                {d.paymentFrequencyLabel}
+                                {activeSlide.paymentFrequencyLabel}
                             </Text>
                         </View>
                         <View style={styles.detailRowLast}>
                             <Text style={styles.detailLabelLeft}>Cuenta a acreditar</Text>
                             <View style={styles.detailRightCol}>
                                 <Text style={styles.detailValueRight}>
-                                    {d.debitPurposeLabel}
+                                    {activeSlide.debitPurposeLabel}
                                 </Text>
                                 <Text style={styles.detailAccountMuted}>
-                                    {d.maskedDebitAccount}
+                                    {activeSlide.maskedDebitAccount}
                                 </Text>
                             </View>
                         </View>
@@ -413,10 +490,13 @@ function useStyles(colors: ThemeColors) {
                 heroGradient: {
                     width: '100%',
                 },
+                heroSlidePage: {
+                    flexShrink: 0,
+                },
                 heroInner: {
                     paddingHorizontal: 24,
                     paddingTop: 100,
-                    paddingBottom: 24,
+                    paddingBottom: 0,
                     gap: 16,
                 },
                 heroTopRow: {
@@ -469,7 +549,8 @@ function useStyles(colors: ThemeColors) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    marginTop: 4,
+                    marginTop: 16,
+                    paddingBottom: 24,
                 },
                 pageDot: {
                     width: 6,
