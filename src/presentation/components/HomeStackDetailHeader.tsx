@@ -5,16 +5,19 @@ import {Lexend} from '../../theme/lexend';
 import {BackNavigationArrow} from './BackNavigationArrow';
 
 interface HomeStackDetailHeaderProps {
-    title: string;
+    title?: string;
+    useDefaultColor?: boolean;
     onPressBack: () => void;
 }
 
 export function HomeStackDetailHeader({
+                                          useDefaultColor = false,
                                           title,
                                           onPressBack,
                                       }: Readonly<HomeStackDetailHeaderProps>) {
     const {colors} = useTheme();
     const styles = useStyles(colors);
+    const showTitle = Boolean(title?.trim());
 
     return (
         <View style={styles.headerContainer}>
@@ -23,14 +26,14 @@ export function HomeStackDetailHeader({
                     onPress={onPressBack}
                     accessibilityRole="button"
                     accessibilityLabel="Volver">
-                    <BackNavigationArrow color={colors.white} />
+                    <BackNavigationArrow color={useDefaultColor ? colors.backNavigationArrow : colors.white}/>
                 </TouchableOpacity>
                 <View style={styles.headerSpacer}/>
             </View>
-
-            <Text style={styles.headerTitle} >
-                {title}
-            </Text>
+            {showTitle &&
+                <Text style={styles.headerTitle}>
+                    {title}
+                </Text>}
         </View>
     );
 }
@@ -39,10 +42,10 @@ function useStyles(colors: ThemeColors) {
     return useMemo(
         () =>
             StyleSheet.create({
-                headerContainer:{
-                    height:75,
-                    position:'absolute',
-                    top:10
+                headerContainer: {
+                    height: 75,
+                    position: 'absolute',
+                    top: 10
                 },
                 headerBar: {
                     flexDirection: 'row',
@@ -52,7 +55,7 @@ function useStyles(colors: ThemeColors) {
                     paddingVertical: 12,
                 },
                 backIcon: {
-                    color:colors.white,
+                    color: colors.white,
                     width: 20,
                     height: 22,
                 },
@@ -61,9 +64,9 @@ function useStyles(colors: ThemeColors) {
                     fontFamily: Lexend.regular,
                     fontSize: 18,
                     textAlign: 'left',
-                    fontWeight:'400',
+                    fontWeight: '400',
                     textTransform: 'uppercase',
-                    color:colors.white
+                    color: colors.white
                 },
                 headerSpacer: {
                     width: 22,

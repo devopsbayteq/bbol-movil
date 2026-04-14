@@ -90,7 +90,7 @@ export function RecentActivityCalendarScreen() {
       style={styles.safe}
       edges={['top']}
       testID="recent-activity-calendar-screen">
-      <HomeStackDetailHeader onPressBack={goBack} />
+
 
       <ScrollView
         style={styles.scroll}
@@ -198,6 +198,7 @@ export function RecentActivityCalendarScreen() {
         onClose={closeDaySheet}
         date={selectedDate}
       />
+        <HomeStackDetailHeader useDefaultColor onPressBack={goBack} />
     </SafeAreaView>
   );
 }
@@ -285,7 +286,7 @@ function useStyles(colors: ThemeColors) {
         },
         scrollContent: {
           paddingHorizontal: 24,
-          paddingTop: 6,
+          paddingTop: 60,
           paddingBottom: 32,
           gap: 12,
         },
@@ -334,7 +335,7 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          
+
         },
         segmentLabel: {
           fontSize: 12,
