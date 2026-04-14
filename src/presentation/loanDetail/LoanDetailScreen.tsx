@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -7,6 +7,9 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Platform,
+    useWindowDimensions,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -28,14 +31,12 @@ import {
     EyeSlashIcon,
     HomeStackDetailHeader,
 } from '../components';
+import {buildLoanDetailSlides} from './loanDetailSlideMocks';
 import {useLoanDetailViewModel} from './useLoanDetailViewModel';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'LoanDetail'>;
 
 type DevModalKind = 'payments' | 'amortization' | null;
-
-const PAGE_INDICATOR_DOTS = 4;
-const PAGE_INDICATOR_ACTIVE_INDEX = 3;
 
 function HistoryClockIcon({color}: Readonly<{ color: string }>) {
     return (
@@ -79,6 +80,44 @@ export function LoanDetailScreen() {
 
     const d = resolvedDetail;
 
+    const {width: windowWidth} = useWindowDimensions();
+    const detailSlides = useMemo(
+        () => (d ? buildLoanDetailSlides(d) : []),
+        [d],
+    );
+    const [heroPageIndex, setHeroPageIndex] = useState(0);
+    const activeSlide = useMemo(() => {
+        if (detailSlides.length === 0) {
+            return null;
+        }
+        const i = Math.min(
+            Math.max(heroPageIndex, 0),
+            detailSlides.length - 1,
+        );
+        return detailSlides[i];
+    }, [detailSlides, heroPageIndex]);
+    const heroCarouselRef = useRef<ScrollView>(null);
+
+    useEffect(() => {
+        setHeroPageIndex(0);
+        heroCarouselRef.current?.scrollTo({x: 0, animated: false});
+    }, [d?.loanGuid]);
+
+    const onHeroMomentumScrollEnd = useCallback(
+        (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+            if (detailSlides.length === 0 || windowWidth <= 0) {
+                return;
+            }
+            const x = e.nativeEvent.contentOffset.x;
+            const i = Math.round(x / windowWidth);
+            const last = detailSlides.length - 1;
+            if (i >= 0 && i <= last) {
+                setHeroPageIndex(i);
+            }
+        },
+        [detailSlides.length, windowWidth],
+    );
+
     return (
         <SafeAreaView
             style={styles.safe}
@@ -105,7 +144,7 @@ export function LoanDetailScreen() {
                 </View>
             ) : null}
 
-            {d ? (
+            {d && activeSlide ? (
                 <>
                     <ScrollView
                         style={styles.scroll}
@@ -117,56 +156,85 @@ export function LoanDetailScreen() {
                             end={{x: 0.95, y: 0}}
                             style={styles.heroGradient}>
 
-                            <View style={styles.heroInner}>
-                                <View style={styles.heroTopRow}>
-                                    <View style={styles.heroTitleBlock}>
-                                        <Text style={styles.heroProductMuted} numberOfLines={2}>
-                                            {d.productLabel}
-                                        </Text>
-                                        <Text style={styles.heroLoanLine} numberOfLines={2}>
-                                            Préstamo Nº {d.maskedAccountNumber}
-                                        </Text>
+                            <ScrollView
+                                ref={heroCarouselRef}
+                                horizontal
+                                pagingEnabled
+                                nestedScrollEnabled
+                                showsHorizontalScrollIndicator={false}
+                                decelerationRate="fast"
+                                onMomentumScrollEnd={onHeroMomentumScrollEnd}
+                                accessibilityRole="adjustable">
+                                {detailSlides.map(slide => (
+                                    <View
+                                        key={slide.key}
+                                        style={[styles.heroSlidePage, {width: windowWidth}]}>
+                                        <View style={styles.heroInner}>
+                                            <View style={styles.heroTopRow}>
+                                                <View style={styles.heroTitleBlock}>
+                                                    <Text
+                                                        style={styles.heroProductMuted}
+                                                        numberOfLines={2}>
+                                                        {slide.productLabel}
+                                                    </Text>
+                                                    <Text
+                                                        style={styles.heroLoanLine}
+                                                        numberOfLines={2}>
+                                                        Préstamo Nº {slide.maskedAccountNumber}
+                                                    </Text>
+                                                </View>
+                                                <TouchableOpacity
+                                                    style={styles.eyeBtn}
+                                                    onPress={() => setAmountMasked(m => !m)}
+                                                    accessibilityRole="button"
+                                                    accessibilityLabel={
+                                                        amountMasked
+                                                            ? 'Mostrar monto'
+                                                            : 'Ocultar monto'
+                                                    }>
+                                                    {amountMasked ? (
+                                                        <EyeSlashIcon
+                                                            color={colors.primary}
+                                                            size={16}
+                                                        />
+                                                    ) : (
+                                                        <EyeIcon color={colors.primary} size={16}/>
+                                                    )}
+                                                </TouchableOpacity>
+                                            </View>
+
+                                            <View style={styles.heroCapitalBlock}>
+                                                <Text style={styles.heroAmount} numberOfLines={1}>
+                                                    {amountMasked
+                                                        ? '$**.**'
+                                                        : formatCurrency(slide.outstandingBalance)}
+                                                </Text>
+                                                <Text style={styles.heroNextPay}>
+                                                    Próximo pago:{' '}
+                                                    {formatIsoDateShortEsEc(
+                                                        slide.nextInstallmentDate,
+                                                    )}
+                                                </Text>
+                                            </View>
+                                        </View>
                                     </View>
-                                    <TouchableOpacity
-                                        style={styles.eyeBtn}
-                                        onPress={() => setAmountMasked(m => !m)}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={
-                                            amountMasked ? 'Mostrar monto' : 'Ocultar monto'
-                                        }>
-                                        {amountMasked ? (
-                                            <EyeSlashIcon color={colors.primary} size={16}/>
-                                        ) : (
-                                            <EyeIcon color={colors.primary} size={16}/>
-                                        )}
-                                    </TouchableOpacity>
-                                </View>
+                                ))}
+                            </ScrollView>
 
-                                <View style={styles.heroCapitalBlock}>
-                                    <Text style={styles.heroAmount} numberOfLines={1}>
-                                        {amountMasked
-                                            ? '$**.**'
-                                            : formatCurrency(d.outstandingBalance)}
-                                    </Text>
-                                    <Text style={styles.heroNextPay}>
-                                        Próximo pago:{' '}
-                                        {formatIsoDateShortEsEc(d.nextInstallmentDate)}
-                                    </Text>
-                                </View>
-
-                                <View style={styles.pageDots} accessibilityElementsHidden>
-                                    {Array.from({length: PAGE_INDICATOR_DOTS}, (_, i) => (
-                                        <View
-                                            key={i}
-                                            style={[
-                                                styles.pageDot,
-                                                i === PAGE_INDICATOR_ACTIVE_INDEX
-                                                    ? styles.pageDotActive
-                                                    : styles.pageDotInactive,
-                                            ]}
-                                        />
-                                    ))}
-                                </View>
+                            <View
+                                style={styles.pageDots}
+                                accessibilityLabel={`Página ${heroPageIndex + 1} de ${detailSlides.length}`}>
+                                {detailSlides.map((slide, i) => (
+                                    <View
+                                        key={slide.key}
+                                        style={[
+                                            styles.pageDot,
+                                            i === heroPageIndex
+                                                ? styles.pageDotActive
+                                                : styles.pageDotInactive,
+                                        ]}
+                                    />
+                                ))}
                             </View>
                         </LinearGradient>
 
@@ -177,22 +245,22 @@ export function LoanDetailScreen() {
                                         <Text style={styles.bodyTextTertiary}>Avance</Text>
                                         <Text style={styles.monthsLine}>
                                             <Text style={styles.avanceIndex}>
-                                                {d.installmentIndex}
+                                                {activeSlide.installmentIndex}
                                             </Text>
-                                            {` / ${d.installmentTotal} meses`}
+                                            {` / ${activeSlide.installmentTotal} meses`}
                                         </Text>
                                     </View>
                                     <View style={styles.avanceColRight}>
                                         <Text style={styles.paidDueLine}>
                                             <Text style={styles.paidDueLabel}>Pagado </Text>
                                             <Text style={styles.paidDueAmount}>
-                                                {formatCurrency(d.capitalPaid)}
+                                                {formatCurrency(activeSlide.capitalPaid)}
                                             </Text>
                                         </Text>
                                         <Text style={styles.paidDueLine}>
                                             <Text style={styles.paidDueLabel}>Por pagar </Text>
                                             <Text style={styles.paidDueAmount}>
-                                                {formatCurrency(d.outstandingBalance)}
+                                                {formatCurrency(activeSlide.outstandingBalance)}
                                             </Text>
                                         </Text>
                                     </View>
@@ -205,7 +273,7 @@ export function LoanDetailScreen() {
                                             {
                                                 width: `${Math.min(
                                                     100,
-                                                    Math.max(0, d.paidProgress * 100),
+                                                    Math.max(0, activeSlide.paidProgress * 100),
                                                 )}%`,
                                             },
                                         ]}
@@ -217,7 +285,7 @@ export function LoanDetailScreen() {
                                 <View style={styles.debtSummaryRow}>
                                     <View style={styles.debtSummaryCol}>
                                         <Text style={styles.debtSummaryValue}>
-                                            {formatCurrency(d.amountGranted)}
+                                            {formatCurrency(activeSlide.amountGranted)}
                                         </Text>
                                         <Text style={styles.debtSummaryCaption}>
                                             Deuda inicial
@@ -225,7 +293,7 @@ export function LoanDetailScreen() {
                                     </View>
                                     <View style={[styles.debtSummaryCol, styles.debtSummaryColEnd]}>
                                         <Text style={[styles.debtSummaryValue, styles.debtSummaryValueEnd]}>
-                                            {formatCurrency(d.totalToReceiveAmount)}
+                                            {formatCurrency(activeSlide.totalToReceiveAmount)}
                                         </Text>
                                         <Text style={[styles.debtSummaryCaption, styles.debtSummaryCaptionEnd]}>
                                             Deuda total
@@ -237,19 +305,19 @@ export function LoanDetailScreen() {
                             <View style={styles.statRow}>
                                 <View style={styles.statCard}>
                                     <Text style={styles.statValue}>
-                                        {formatIsoDateShortEsEc(d.openingDateIso)}
+                                        {formatIsoDateShortEsEc(activeSlide.openingDateIso)}
                                     </Text>
                                     <Text style={styles.statLabel}>Fecha solicitada</Text>
                                 </View>
                                 <View style={styles.statCard}>
                                     <Text style={styles.statValueStrong}>
-                                        {formatPercentEsMx(d.interestRatePercent, 2)}
+                                        {formatPercentEsMx(activeSlide.interestRatePercent, 2)}
                                     </Text>
                                     <Text style={styles.statLabel}>Tasa vigente</Text>
                                 </View>
                                 <View style={styles.statCard}>
                                     <Text style={styles.statValue}>
-                                        {formatIsoDateShortEsEc(d.maturityDateIso)}
+                                        {formatIsoDateShortEsEc(activeSlide.maturityDateIso)}
                                     </Text>
                                     <Text style={styles.statLabel}>Fecha vencimiento</Text>
                                 </View>
@@ -260,10 +328,10 @@ export function LoanDetailScreen() {
                                     <Text style={styles.detailLabelLeft}>Cuenta a debitar</Text>
                                     <View style={styles.detailRightCol}>
                                         <Text style={styles.detailPurpose}>
-                                            {d.creditPurposeLabel}
+                                            {activeSlide.creditPurposeLabel}
                                         </Text>
                                         <Text style={styles.detailAccountMuted}>
-                                            {d.maskedCreditAccount}
+                                            {activeSlide.maskedCreditAccount}
                                         </Text>
                                     </View>
                                 </View>
@@ -348,10 +416,13 @@ function useStyles(colors: ThemeColors) {
                 heroGradient: {
                     width: '100%',
                 },
+                heroSlidePage: {
+                    flexShrink: 0,
+                },
                 heroInner: {
                     paddingHorizontal: 24,
                     paddingTop: 100,
-                    paddingBottom: 24,
+                    paddingBottom: 0,
                     gap: 16,
                 },
                 heroTopRow: {
@@ -404,7 +475,8 @@ function useStyles(colors: ThemeColors) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    marginTop: 4,
+                    marginTop: 16,
+                    paddingBottom: 24,
                 },
                 pageDot: {
                     width: 6,
