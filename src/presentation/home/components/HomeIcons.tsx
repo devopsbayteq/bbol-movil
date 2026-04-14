@@ -86,12 +86,11 @@ export function CalendarIcon({color, size = 20}: Readonly<IconProps>) {
   );
 }
 
-export function ChevronRightIcon({color, size = 16}: Readonly<IconProps>) {
+export function ChevronRightIcon({color: _color, size = 16}: Readonly<IconProps>) {
   return (
     <Image
       source={ARROW_RIGHT_BLACK}
-
-    
+      style={{width: size, height: size}}
       accessibilityIgnoresInvertColors
     />
   );
@@ -139,6 +138,15 @@ export function CreditCardOutlineIcon({color, size = 22}: Readonly<IconProps>) {
         fill={color}
         d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"
       />
+    </Svg>
+  );
+}
+
+/** Plus — botón Productos en cabecera home. */
+export function PlusIcon({color, size = 12}: Readonly<IconProps>) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path fill={color} d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
     </Svg>
   );
 }

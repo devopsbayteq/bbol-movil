@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
-import {Platform, Text, TouchableOpacity} from 'react-native';
+import {Platform, Text} from 'react-native';
 import {
   CheckingAccountCard,
   InvestmentCard,
@@ -37,7 +37,11 @@ describe('ProductCarouselCards — CheckingAccountCard', () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     act(() => {
       root = ReactTestRenderer.create(
-        <CheckingAccountCard maskedAccountNumber="****1111" balance={50} />,
+        <CheckingAccountCard
+          maskedAccountNumber="****1111"
+          balance={50}
+          balanceMasked={false}
+        />,
       );
     });
     const json = JSON.stringify(root!.toJSON());
@@ -45,25 +49,31 @@ describe('ProductCarouselCards — CheckingAccountCard', () => {
     act(() => root!.unmount());
   });
 
-  test('toggle saldo en tarjeta corriente', () => {
-    let root: ReactTestRenderer.ReactTestRenderer;
+  test('balanceMasked controla saldo (no hay ojo en tarjeta)', () => {
+    let rootMasked: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      root = ReactTestRenderer.create(
-        <CheckingAccountCard maskedAccountNumber="****2222" balance={75} />,
+      rootMasked = ReactTestRenderer.create(
+        <CheckingAccountCard
+          maskedAccountNumber="****2222"
+          balance={75}
+          balanceMasked
+        />,
       );
     });
-    expect(JSON.stringify(root!.toJSON())).toContain('$**.**');
-    const eye = root!.root
-      .findAllByType(TouchableOpacity as never)
-      .find(
-        (n: {props: {accessibilityLabel?: string}}) =>
-          n.props.accessibilityLabel === 'Mostrar saldo',
-      );
+    expect(JSON.stringify(rootMasked!.toJSON())).toContain('$**.**');
+
+    let rootVisible: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      eye?.props.onPress?.();
+      rootVisible = ReactTestRenderer.create(
+        <CheckingAccountCard
+          maskedAccountNumber="****2222"
+          balance={75}
+          balanceMasked={false}
+        />,
+      );
     });
-    expect(JSON.stringify(root!.toJSON())).not.toContain('$**.**');
-    act(() => root!.unmount());
+    expect(JSON.stringify(rootVisible!.toJSON())).not.toContain('$**.**');
+    act(() => rootVisible!.unmount());
   });
 
   test('Platform.select ios/android en flujo checking', () => {
@@ -72,7 +82,11 @@ describe('ProductCarouselCards — CheckingAccountCard', () => {
       .mockImplementation(spec => (spec as {ios?: unknown}).ios as never);
     act(() => {
       ReactTestRenderer.create(
-        <CheckingAccountCard maskedAccountNumber="*" balance={1} />,
+        <CheckingAccountCard
+          maskedAccountNumber="*"
+          balance={1}
+          balanceMasked={false}
+        />,
       );
     });
     spy.mockRestore();
@@ -83,7 +97,11 @@ describe('ProductCarouselCards — CheckingAccountCard', () => {
       );
     act(() => {
       ReactTestRenderer.create(
-        <CheckingAccountCard maskedAccountNumber="*" balance={1} />,
+        <CheckingAccountCard
+          maskedAccountNumber="*"
+          balance={1}
+          balanceMasked={false}
+        />,
       );
     });
     spy2.mockRestore();
@@ -99,6 +117,7 @@ describe('ProductCarouselCards — LoanCard', () => {
           loanGuid="loan-guid-1"
           nextInstallmentAmount={120}
           nextInstallmentDate="no-fecha"
+          balanceMasked={false}
         />,
       );
     });
@@ -109,58 +128,67 @@ describe('ProductCarouselCards — LoanCard', () => {
     act(() => root!.unmount());
   });
 
-  test('toggle cuota masked / visible', () => {
-    let root: ReactTestRenderer.ReactTestRenderer;
+  test('balanceMasked controla cuota (no hay ojo en tarjeta)', () => {
+    let rootMasked: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      root = ReactTestRenderer.create(
+      rootMasked = ReactTestRenderer.create(
         <LoanCard
           loanGuid="abc"
           nextInstallmentAmount={200}
           nextInstallmentDate="2026-06-15"
+          balanceMasked
         />,
       );
     });
-    expect(JSON.stringify(root!.toJSON())).toContain('$**.**');
-    const eye = root!.root
-      .findAllByType(TouchableOpacity as never)
-      .find(
-        (n: {props: {accessibilityLabel?: string}}) =>
-          n.props.accessibilityLabel === 'Mostrar cuota',
-      );
+    expect(JSON.stringify(rootMasked!.toJSON())).toContain('$**.**');
+
+    let rootVisible: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      eye?.props.onPress?.();
+      rootVisible = ReactTestRenderer.create(
+        <LoanCard
+          loanGuid="abc"
+          nextInstallmentAmount={200}
+          nextInstallmentDate="2026-06-15"
+          balanceMasked={false}
+        />,
+      );
     });
-    expect(JSON.stringify(root!.toJSON())).not.toContain('$**.**');
-    act(() => root!.unmount());
+    expect(JSON.stringify(rootVisible!.toJSON())).not.toContain('$**.**');
+    act(() => rootVisible!.unmount());
   });
 });
 
 describe('ProductCarouselCards — InvestmentCard', () => {
-  test('toggle valor masked muestra moneda y monto', () => {
-    let root: ReactTestRenderer.ReactTestRenderer;
+  test('balanceMasked controla valor (no hay ojo en tarjeta)', () => {
+    let rootMasked: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      root = ReactTestRenderer.create(
+      rootMasked = ReactTestRenderer.create(
         <InvestmentCard
           investmentGuid="inv-1"
           productName="Fondo mixto"
           currentValue={1500.5}
           currency="USD"
+          balanceMasked
         />,
       );
     });
-    expect(JSON.stringify(root!.toJSON())).toContain('$**.**');
-    const eye = root!.root
-      .findAllByType(TouchableOpacity as never)
-      .find(
-        (n: {props: {accessibilityLabel?: string}}) =>
-          n.props.accessibilityLabel === 'Mostrar valor',
-      );
+    expect(JSON.stringify(rootMasked!.toJSON())).toContain('$**.**');
+
+    let rootVisible: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      eye?.props.onPress?.();
+      rootVisible = ReactTestRenderer.create(
+        <InvestmentCard
+          investmentGuid="inv-1"
+          productName="Fondo mixto"
+          currentValue={1500.5}
+          currency="USD"
+          balanceMasked={false}
+        />,
+      );
     });
-    const flat = JSON.stringify(root!.toJSON());
+    const flat = JSON.stringify(rootVisible!.toJSON());
     expect(flat).toContain('USD');
     expect(flat).not.toContain('$**.**');
-    act(() => root!.unmount());
+    act(() => rootVisible!.unmount());
   });
 });
