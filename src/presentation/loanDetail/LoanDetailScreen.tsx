@@ -34,6 +34,9 @@ type Nav = NativeStackNavigationProp<HomeStackParamList, 'LoanDetail'>;
 
 type DevModalKind = 'payments' | 'amortization' | null;
 
+const PAGE_INDICATOR_DOTS = 4;
+const PAGE_INDICATOR_ACTIVE_INDEX = 3;
+
 function HistoryClockIcon({color}: Readonly<{ color: string }>) {
     return (
         <Svg width={20} height={20} viewBox="0 0 24 24">
@@ -73,16 +76,6 @@ export function LoanDetailScreen() {
     const showLoading = isLoading && !detail;
     const showError = !showLoading && (Boolean(errorMessage) || !detail);
     const resolvedDetail = !showLoading && !showError ? detail : null;
-
-    const paidPct = resolvedDetail
-        ? Math.min(100, Math.max(0, resolvedDetail.primaryProgressRatio * 100))
-        : 0;
-    const secondaryPct = resolvedDetail
-        ? Math.min(
-            paidPct,
-            Math.max(0, resolvedDetail.secondaryProgressRatio * 100),
-        )
-        : 0;
 
     const d = resolvedDetail;
 
@@ -125,109 +118,122 @@ export function LoanDetailScreen() {
                             style={styles.heroGradient}>
 
                             <View style={styles.heroInner}>
-                                <View style={styles.heroTitleBlock}>
-                                    <Text style={styles.heroProductMuted} numberOfLines={2}>
-                                        {d.productLabel}
+                                <View style={styles.heroTopRow}>
+                                    <View style={styles.heroTitleBlock}>
+                                        <Text style={styles.heroProductMuted} numberOfLines={2}>
+                                            {d.productLabel}
+                                        </Text>
+                                        <Text style={styles.heroLoanLine} numberOfLines={2}>
+                                            Préstamo Nº {d.maskedAccountNumber}
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={styles.eyeBtn}
+                                        onPress={() => setAmountMasked(m => !m)}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={
+                                            amountMasked ? 'Mostrar monto' : 'Ocultar monto'
+                                        }>
+                                        {amountMasked ? (
+                                            <EyeSlashIcon color={colors.primary} size={16}/>
+                                        ) : (
+                                            <EyeIcon color={colors.primary} size={16}/>
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View style={styles.heroCapitalBlock}>
+                                    <Text style={styles.heroAmount} numberOfLines={1}>
+                                        {amountMasked
+                                            ? '$**.**'
+                                            : formatCurrency(d.outstandingBalance)}
                                     </Text>
-                                    <Text style={styles.heroLoanLine} numberOfLines={2}>
-                                        Préstamo Nº {d.maskedAccountNumber}
+                                    <Text style={styles.heroNextPay}>
+                                        Próximo pago:{' '}
+                                        {formatIsoDateShortEsEc(d.nextInstallmentDate)}
                                     </Text>
                                 </View>
 
-                                <View style={styles.heroBalanceRow}>
-                                    <View style={styles.heroBalanceSide}/>
-                                    <View style={styles.heroAmountCol}>
-                                        <Text style={styles.heroAmount} numberOfLines={1}>
-                                            {amountMasked
-                                                ? '$**.**'
-                                                : formatCurrency(d.outstandingBalance)}
-                                        </Text>
-                                        <Text style={styles.heroNextPay}>
-                                            Próximo pago:{' '}
-                                            {formatIsoDateShortEsEc(d.nextInstallmentDate)}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.heroBalanceSideEnd}>
-                                        <TouchableOpacity
-                                            style={styles.eyeBtn}
-                                            onPress={() => setAmountMasked(m => !m)}
-                                            accessibilityRole="button"
-                                            accessibilityLabel={
-                                                amountMasked ? 'Mostrar monto' : 'Ocultar monto'
-                                            }>
-                                            {amountMasked ? (
-                                                <EyeSlashIcon color={colors.primary} size={16}/>
-                                            ) : (
-                                                <EyeIcon color={colors.primary} size={16}/>
-                                            )}
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-
-                                <View style={styles.progressTrack}>
-                                    <View
-                                        style={[
-                                            styles.progressFill,
-                                            styles.progressFillWide,
-                                            {
-                                                width: `${paidPct}%`,
-                                                backgroundColor: colors.homeAvatarCircle,
-                                            },
-                                        ]}
-                                    />
-                                    <View
-                                        style={[
-                                            styles.progressFill,
-                                            styles.progressFillTop,
-                                            {
-                                                width: `${secondaryPct}%`,
-                                                backgroundColor: colors.homePrimaryHover,
-                                            },
-                                        ]}
-                                    />
-                                </View>
-
-                                <View style={styles.breakdownRow}>
-                                    <View style={styles.breakdownCol}>
-                                        <Text style={styles.breakdownAmount}>
-                                            {formatCurrency(d.capitalPaid)}
-                                        </Text>
-                                        <Text style={styles.breakdownLabel}>Pagado</Text>
-                                    </View>
-                                    <View style={styles.breakdownColCenter}>
-                                        <Text style={styles.breakdownCuotasMain}>
-                                            {d.installmentIndex}/{d.installmentTotal}
-                                        </Text>
-                                        <Text style={styles.breakdownCuotasSub}>cuotas</Text>
-                                    </View>
-                                    <View style={[styles.breakdownCol, styles.breakdownColEnd]}>
-                                        <Text style={styles.breakdownAmount}>
-                                            {formatCurrency(d.outstandingBalance)}
-                                        </Text>
-                                        <Text style={styles.breakdownLabel}>Por pagar</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.heroDivider}/>
-
-                                <View style={styles.debtRow}>
-                                    <View>
-                                        <Text style={styles.breakdownAmount}>
-                                            {formatCurrency(d.amountGranted)}
-                                        </Text>
-                                        <Text style={styles.breakdownLabel}>Deuda inicial</Text>
-                                    </View>
-                                    <View style={styles.breakdownColEnd}>
-                                        <Text style={styles.breakdownAmount}>
-                                            {formatCurrency(d.totalToReceiveAmount)}
-                                        </Text>
-                                        <Text style={styles.breakdownLabel}>Deuda total</Text>
-                                    </View>
+                                <View style={styles.pageDots} accessibilityElementsHidden>
+                                    {Array.from({length: PAGE_INDICATOR_DOTS}, (_, i) => (
+                                        <View
+                                            key={i}
+                                            style={[
+                                                styles.pageDot,
+                                                i === PAGE_INDICATOR_ACTIVE_INDEX
+                                                    ? styles.pageDotActive
+                                                    : styles.pageDotInactive,
+                                            ]}
+                                        />
+                                    ))}
                                 </View>
                             </View>
                         </LinearGradient>
 
                         <View style={styles.lowerSection}>
+                            <View style={styles.summaryCard}>
+                                <View style={styles.avanceRow}>
+                                    <View style={styles.avanceColLeft}>
+                                        <Text style={styles.bodyTextTertiary}>Avance</Text>
+                                        <Text style={styles.monthsLine}>
+                                            <Text style={styles.avanceIndex}>
+                                                {d.installmentIndex}
+                                            </Text>
+                                            {` / ${d.installmentTotal} meses`}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.avanceColRight}>
+                                        <Text style={styles.paidDueLine}>
+                                            <Text style={styles.paidDueLabel}>Pagado </Text>
+                                            <Text style={styles.paidDueAmount}>
+                                                {formatCurrency(d.capitalPaid)}
+                                            </Text>
+                                        </Text>
+                                        <Text style={styles.paidDueLine}>
+                                            <Text style={styles.paidDueLabel}>Por pagar </Text>
+                                            <Text style={styles.paidDueAmount}>
+                                                {formatCurrency(d.outstandingBalance)}
+                                            </Text>
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.summaryProgressTrack}>
+                                    <View
+                                        style={[
+                                            styles.summaryProgressFill,
+                                            {
+                                                width: `${Math.min(
+                                                    100,
+                                                    Math.max(0, d.paidProgress * 100),
+                                                )}%`,
+                                            },
+                                        ]}
+                                    />
+                                </View>
+
+                                <View style={styles.cardHairline}/>
+
+                                <View style={styles.debtSummaryRow}>
+                                    <View style={styles.debtSummaryCol}>
+                                        <Text style={styles.debtSummaryValue}>
+                                            {formatCurrency(d.amountGranted)}
+                                        </Text>
+                                        <Text style={styles.debtSummaryCaption}>
+                                            Deuda inicial
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.debtSummaryCol, styles.debtSummaryColEnd]}>
+                                        <Text style={[styles.debtSummaryValue, styles.debtSummaryValueEnd]}>
+                                            {formatCurrency(d.totalToReceiveAmount)}
+                                        </Text>
+                                        <Text style={[styles.debtSummaryCaption, styles.debtSummaryCaptionEnd]}>
+                                            Deuda total
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+
                             <View style={styles.statRow}>
                                 <View style={styles.statCard}>
                                     <Text style={styles.statValue}>
@@ -249,10 +255,18 @@ export function LoanDetailScreen() {
                                 </View>
                             </View>
 
-                            <View style={styles.debitCard}>
-                                <Text style={styles.debitPurpose}>{d.creditPurposeLabel}</Text>
-                                <Text style={styles.debitAccount}>{d.maskedCreditAccount}</Text>
-                                <Text style={styles.debitCaption}>Cuenta a debitar</Text>
+                            <View style={styles.detailCard}>
+                                <View style={styles.detailRowLast}>
+                                    <Text style={styles.detailLabelLeft}>Cuenta a debitar</Text>
+                                    <View style={styles.detailRightCol}>
+                                        <Text style={styles.detailPurpose}>
+                                            {d.creditPurposeLabel}
+                                        </Text>
+                                        <Text style={styles.detailAccountMuted}>
+                                            {d.maskedCreditAccount}
+                                        </Text>
+                                    </View>
+                                </View>
                             </View>
 
                             <TouchableOpacity
@@ -337,12 +351,18 @@ function useStyles(colors: ThemeColors) {
                 heroInner: {
                     paddingHorizontal: 24,
                     paddingTop: 100,
-                    paddingBottom: 28,
-                    gap: 18,
+                    paddingBottom: 24,
+                    gap: 16,
+                },
+                heroTopRow: {
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 12,
                 },
                 heroTitleBlock: {
+                    flex: 1,
                     gap: 4,
-                    alignSelf: 'stretch',
                 },
                 heroProductMuted: {
                     fontFamily: Lexend.regular,
@@ -357,29 +377,15 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 20,
                     color: colors.white,
                 },
-                heroBalanceRow: {
-                    flexDirection: 'row',
-                    alignItems: 'flex-end',
-                },
-                heroBalanceSide: {
-                    flex: 1,
-                },
-                heroAmountCol: {
-                    alignItems: 'center',
+                heroCapitalBlock: {
+                    alignSelf: 'flex-start',
                     gap: 4,
-                },
-                heroBalanceSideEnd: {
-                    flex: 1,
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
-                    alignItems: 'flex-end',
                 },
                 heroAmount: {
                     fontFamily: Lexend.bold,
                     fontSize: 30,
                     lineHeight: 40,
                     color: colors.white,
-                    textAlign: 'center',
                 },
                 heroNextPay: {
                     fontFamily: Lexend.regular,
@@ -387,127 +393,152 @@ function useStyles(colors: ThemeColors) {
                     lineHeight: 20,
                     color: colors.homeAvatarCircle,
                     opacity: 0.85,
-                    textAlign: 'center',
                 },
                 eyeBtn: {
                     backgroundColor: colors.homeBalanceToggleBg,
                     borderRadius: 4,
                     padding: 4,
                 },
-                periodInterestBlock: {
+                pageDots: {
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    alignSelf: 'stretch',
-                },
-                periodInterestCaption: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.buttonSecondaryBg,
-                    textAlign: 'center',
-                },
-                periodInterestAmount: {
-                    fontFamily: Lexend.bold,
-                    fontSize: 22,
-                    lineHeight: 32,
-                    color: colors.homeAvatarCircle,
-                    textAlign: 'center',
-                },
-                progressWrap: {
-                    marginTop: 4,
-                    position: 'relative',
-                    height: 12,
                     justifyContent: 'center',
+                    gap: 6,
+                    marginTop: 4,
                 },
-                progressTrack: {
-                    height: 12,
-                    borderRadius: 6,
-                    backgroundColor: colors.homeBorderSoft,
-                    overflow: 'hidden',
-                    position: 'relative',
+                pageDot: {
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
                 },
-                progressFill: {
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    borderRadius: 6,
+                pageDotActive: {
+                    backgroundColor: colors.white,
                 },
-                progressFillWide: {
-                    zIndex: 1,
-                },
-                progressFillTop: {
-                    zIndex: 2,
-                },
-                progressThumb: {
-                    position: 'absolute',
-                    width: 16,
-                    height: 16,
-                    borderRadius: 8,
-                    borderWidth: 2,
-                    top: -2,
-                    zIndex: 3,
-                },
-                breakdownRow: {
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                },
-                breakdownCol: {
-                    flex: 1,
-                },
-                breakdownColEnd: {
-                    alignItems: 'flex-end',
-                },
-                breakdownColCenter: {
-                    flex: 1,
-                    alignItems: 'center',
-                    paddingHorizontal: 4,
-                },
-                breakdownAmount: {
-                    fontFamily: Lexend.semiBold,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.homeAvatarCircle,
-                },
-                breakdownLabel: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 20,
-                    color: colors.buttonSecondaryBg,
-                },
-                breakdownCuotasMain: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 13,
-                    color: colors.homeAvatarCircle,
-                    opacity: 0.85,
-                    textAlign: 'center',
-                },
-                breakdownCuotasSub: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 12,
-                    lineHeight: 13,
-                    color: colors.homeAvatarCircle,
-                    opacity: 0.85,
-                    textAlign: 'center',
-                },
-                heroDivider: {
-                    height: 1,
-                    backgroundColor: colors.balanceDivider,
-                    alignSelf: 'stretch',
-                },
-                debtRow: {
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                },
-                interestPeriodCol: {
-                    alignItems: 'flex-end',
+                pageDotInactive: {
+                    backgroundColor: colors.white,
+                    opacity: 0.35,
                 },
                 lowerSection: {
                     paddingHorizontal: 24,
                     paddingTop: 16,
                     gap: 16,
+                },
+                summaryCard: {
+                    backgroundColor: colors.white,
+                    borderRadius: 12,
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    gap: 10,
+                    ...Platform.select({
+                        ios: {
+                            shadowColor: colors.shadowSoft,
+                            shadowOffset: {width: 0, height: 1},
+                            shadowOpacity: 0.1,
+                            shadowRadius: 2,
+                        },
+                        android: {
+                            elevation: 2,
+                        },
+                    }),
+                },
+                avanceRow: {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                },
+                avanceColLeft: {
+                    flex: 1,
+                    gap: 4,
+                },
+                avanceColRight: {
+                    alignItems: 'flex-end',
+                    gap: 0,
+                },
+                bodyTextTertiary: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textTertiary,
+                },
+                monthsLine: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                },
+                avanceIndex: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    color: colors.primary,
+                },
+                paidDueLine: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    textAlign: 'right',
+                },
+                paidDueLabel: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    color: colors.textTertiary,
+                },
+                paidDueAmount: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                },
+                summaryProgressTrack: {
+                    position: 'relative',
+                    height: 6,
+                    borderRadius: 4,
+                    backgroundColor: colors.homeBorderSoft,
+                    overflow: 'hidden',
+                },
+                summaryProgressFill: {
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    borderRadius: 4,
+                    backgroundColor: colors.primary,
+                },
+                cardHairline: {
+                    height: StyleSheet.hairlineWidth,
+                    backgroundColor: colors.borderLight,
+                    alignSelf: 'stretch',
+                },
+                debtSummaryRow: {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                },
+                debtSummaryCol: {
+                    alignItems: 'flex-start',
+                    maxWidth: '48%',
+                },
+                debtSummaryColEnd: {
+                    alignItems: 'flex-end',
+                },
+                debtSummaryValue: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                },
+                debtSummaryValueEnd: {
+                    textAlign: 'right',
+                },
+                debtSummaryCaption: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 9,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                },
+                debtSummaryCaptionEnd: {
+                    textAlign: 'right',
                 },
                 statRow: {
                     flexDirection: 'row',
@@ -552,18 +583,16 @@ function useStyles(colors: ThemeColors) {
                 },
                 statLabel: {
                     fontFamily: Lexend.regular,
-                    fontSize: 8,
+                    fontSize: 9,
                     lineHeight: 20,
                     color: colors.textPrimary,
                     textAlign: 'center',
                 },
-                debitCard: {
+                detailCard: {
                     backgroundColor: colors.white,
                     borderRadius: 12,
                     paddingHorizontal: 12,
-                    paddingVertical: 12,
-                    alignItems: 'center',
-                    gap: 4,
+                    overflow: 'hidden',
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
@@ -576,23 +605,40 @@ function useStyles(colors: ThemeColors) {
                         },
                     }),
                 },
-                debitPurpose: {
+                detailRowLast: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingHorizontal: 4,
+                    paddingTop: 12,
+                    paddingBottom: 13,
+                    minHeight: 55,
+                },
+                detailLabelLeft: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textSecondary,
+                    flexShrink: 1,
+                    paddingRight: 8,
+                },
+                detailRightCol: {
+                    alignItems: 'flex-end',
+                    maxWidth: '52%',
+                },
+                detailPurpose: {
                     fontFamily: Lexend.semiBold,
                     fontSize: 12,
                     lineHeight: 20,
                     color: colors.primary,
+                    textAlign: 'right',
                 },
-                debitAccount: {
+                detailAccountMuted: {
                     fontFamily: Lexend.regular,
                     fontSize: 12,
                     lineHeight: 20,
                     color: colors.textTertiary,
-                },
-                debitCaption: {
-                    fontFamily: Lexend.regular,
-                    fontSize: 8,
-                    lineHeight: 20,
-                    color: colors.textPrimary,
+                    textAlign: 'right',
                 },
                 primaryBtn: {
                     flexDirection: 'row',

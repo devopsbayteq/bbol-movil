@@ -1,5 +1,12 @@
-/** Ratio aproximado inversión inicial / total a recibir (referencia diseño). */
-const INITIAL_TO_TOTAL_RATIO = 0.529;
+/** Ratio inversión inicial / total a recibir (referencia diseño Figma: 10 000 / 10 750). */
+const INITIAL_TO_TOTAL_RATIO = 10_000 / 10_750;
+
+/** Total demo alineado con detalle Figma (nodo 2060:2140). */
+const FIGMA_DEMO_TOTAL_TO_RECEIVE = 10_750;
+
+function isFigmaDemoTotal(currentValue: number): boolean {
+  return Math.abs(currentValue - FIGMA_DEMO_TOTAL_TO_RECEIVE) < 0.01;
+}
 
 const JOINT_HOLDERS = [
   'Cuenca Armijos Edwin',
@@ -66,10 +73,50 @@ function offsetMonthIso(baseY: number, baseM: number, baseD: number, addMonths: 
   return `${y}-${pad2(m)}-${pad2(d)}`;
 }
 
+function getFigmaDemoSupplement(): InvestmentDetailMockSupplement {
+  const installmentsTotal = 12;
+  const installmentsPaid = 5;
+  const totalDebtAmount = FIGMA_DEMO_TOTAL_TO_RECEIVE;
+  const paidAmount =
+    Math.round(totalDebtAmount * (installmentsPaid / installmentsTotal) * 100) / 100;
+  const remainingToPayAmount =
+    Math.round(Math.max(totalDebtAmount - paidAmount, 0) * 100) / 100;
+  const paidProgressRatio =
+    totalDebtAmount > 0 ? Math.min(1, paidAmount / totalDebtAmount) : 0;
+
+  return {
+    maskedAccountNumber: '324 2343 2678',
+    interestRatePercent: 7.5,
+    termDays: 365,
+    openingDateIso: '2026-01-01',
+    maturityDateIso: '2027-01-01',
+    irfRetentionAmount: 0,
+    paymentFrequencyLabel: 'Mensual',
+    jointHolderName: JOINT_HOLDERS[0],
+    nextPaymentDateIso: '2026-05-01',
+    paidAmount,
+    remainingToPayAmount,
+    initialDebtAmount:
+      Math.round(totalDebtAmount * 0.93 * 100) / 100,
+    totalDebtAmount,
+    installmentsPaid,
+    installmentsTotal,
+    paidProgressRatio,
+    secondaryProgressRatio: paidProgressRatio,
+    debitPurposeLabel: 'Gastos',
+    maskedDebitAccount: 'Cta. Ahorros ****829',
+  };
+}
+
 export function getMockInvestmentDetailSupplement(
   investmentGuid: string,
   currentValue: number,
 ): InvestmentDetailMockSupplement {
+  const safeValue = Number.isFinite(currentValue) ? Math.max(currentValue, 0) : 0;
+  if (isFigmaDemoTotal(safeValue)) {
+    return getFigmaDemoSupplement();
+  }
+
   const h = hashGuid(investmentGuid);
   let acc = h;
   let digits = '';
@@ -94,7 +141,6 @@ export function getMockInvestmentDetailSupplement(
     ),
   );
 
-  const safeValue = Number.isFinite(currentValue) ? Math.max(currentValue, 0) : 0;
   const scale = 3.5 + ((h % 50) / 10);
   const totalDebtAmount =
     Math.round(Math.max(safeValue * scale, safeValue + 100) * 100) / 100;

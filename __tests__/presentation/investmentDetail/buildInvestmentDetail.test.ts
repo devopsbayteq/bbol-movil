@@ -32,4 +32,24 @@ describe('buildInvestmentDetail', () => {
     expect(a.totalDebtAmount).toBe(b.totalDebtAmount);
     expect(a.maskedDebitAccount).toBe(b.maskedDebitAccount);
   });
+
+  it('con total 10 750 aplica el suplemento demo alineado al diseño Figma', () => {
+    const figmaLike: InvestmentBalance = {
+      investmentGuid: 'any-guid',
+      productName: 'Plazo fijo',
+      currentValue: 10_750,
+      currency: 'USD',
+    };
+    const d = buildInvestmentDetail(figmaLike);
+    expect(d.totalToReceive).toBe(10_750);
+    expect(d.initialAmount).toBe(10_000);
+    expect(d.interestAtMaturity).toBe(750);
+    expect(d.maskedAccountNumber).toBe('324 2343 2678');
+    expect(d.installmentsPaid).toBe(5);
+    expect(d.installmentsTotal).toBe(12);
+    expect(d.interestRatePercent).toBe(7.5);
+    expect(d.paymentFrequencyLabel).toBe('Mensual');
+    expect(d.debitPurposeLabel).toBe('Gastos');
+    expect(d.maskedDebitAccount).toBe('Cta. Ahorros ****829');
+  });
 });

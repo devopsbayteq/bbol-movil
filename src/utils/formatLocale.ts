@@ -14,6 +14,22 @@ export function formatIsoDateShortEsEc(iso: string): string {
   });
 }
 
+/**
+ * Fecha corta es-EC con día en dos dígitos (p. ej. alineado a diseño Figma).
+ */
+export function formatIsoDateMediumEsEc(iso: string): string {
+  const normalized = iso.includes('T') ? iso : `${iso}T12:00:00`;
+  const d = new Date(normalized);
+  if (Number.isNaN(d.getTime())) {
+    return '—';
+  }
+  return d.toLocaleDateString('es-EC', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export function formatPercentEsMx(
   value: number,
   maximumFractionDigits: 1 | 2,
