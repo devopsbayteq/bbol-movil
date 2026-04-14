@@ -30,7 +30,6 @@ import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {
   AccountBalance,
-  AccountKind,
   ContractBalance,
   CreditCardBalance,
   FrequentPayment,
@@ -46,7 +45,6 @@ import {
   LoanCard,
   InvestmentCard,
 } from './components/ProductCarouselCards';
-import {RequestProductRow} from './components/RequestProductRow';
 import {HomeBannersCarousel} from './components/HomeBannersCarousel';
 import {FrequentActionsSection} from './components/FrequentActionsSection';
 import {UpcomingPaymentsRow} from './components/UpcomingPaymentsRow';
@@ -63,16 +61,6 @@ const PRODUCT_FILTERS = [
   'Inversiones',
   'Préstamos',
 ] as const;
-
-function accountTitle(kind: AccountKind): string {
-  if (kind === 'savings') {
-    return 'Cta. ahorros';
-  }
-  if (kind === 'checking') {
-    return 'Cta. corriente';
-  }
-  return 'Cuenta';
-}
 
 /** Ancho de cada card del carousel como fracción del ancho de pantalla. */
 const CARD_WIDTH_SCREEN_FRACTION = 0.6;
@@ -96,11 +84,20 @@ type HomeProductCarouselStyles = {
   cardFill: object;
 };
 
+function accountDisplayTitle(acc: AccountBalance, fallbackChecking: string): string {
+  const alias = acc.accountAlias?.trim();
+  if (alias) {
+    return alias;
+  }
+  return acc.accountTypeLabel?.trim() || fallbackChecking;
+}
+
 function pushAccountProductItems(
   items: HomeProductItem[],
   accounts: AccountBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const acc of accounts) {
     const k = `acc-${acc.accountGuid}`;
@@ -123,9 +120,11 @@ function pushAccountProductItems(
             accessibilityLabel="Ver movimientos de cuenta corriente">
             <CheckingAccountCard
               style={styles.cardFill}
+              title={accountDisplayTitle(acc, 'Cta. corriente')}
               maskedAccountNumber={acc.maskedAccountNumber}
               balance={acc.balance}
               isFirst={isFirst}
+              balanceMasked={balanceMasked}
             />
           </TouchableOpacity>
         ),
@@ -149,10 +148,11 @@ function pushAccountProductItems(
           accessibilityLabel={`Ver movimientos de ${acc.maskedAccountNumber}`}>
           <SavingsAccountCard
             style={styles.cardFill}
-            title={acc.accountTypeLabel}
+            title={accountDisplayTitle(acc, 'Cta. ahorros')}
             maskedAccountNumber={acc.maskedAccountNumber}
             balance={acc.balance}
             isFirst={isFirst}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -165,6 +165,7 @@ function pushCreditCardProductItems(
   cards: CreditCardBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const card of cards) {
     const k = `cc-${card.maskedCardNumber}-${card.maxPaymentDate}`;
@@ -187,6 +188,7 @@ function pushCreditCardProductItems(
             maskedCardNumber={card.maskedCardNumber}
             totalDue={card.totalDue}
             maxPaymentDate={card.maxPaymentDate}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -199,6 +201,7 @@ function pushInvestmentProductItems(
   investments: InvestmentBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const inv of investments) {
     const k = `inv-${inv.investmentGuid}`;
@@ -223,6 +226,7 @@ function pushInvestmentProductItems(
             productName={inv.productName}
             currentValue={inv.currentValue}
             currency={inv.currency}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -235,6 +239,7 @@ function pushLoanProductItems(
   loans: LoanBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const loan of loans) {
     const k = `loan-${loan.loanGuid}`;
@@ -258,6 +263,7 @@ function pushLoanProductItems(
             loanGuid={loan.loanGuid}
             nextInstallmentAmount={loan.nextInstallmentAmount}
             nextInstallmentDate={loan.nextInstallmentDate}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -270,6 +276,7 @@ function buildHomeProductItems(
   filter: string,
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): HomeProductItem[] {
   const all = filter === 'Todos';
   const showAccounts = all || filter === 'Cuentas';
@@ -279,10 +286,16 @@ function buildHomeProductItems(
 
   const items: HomeProductItem[] = [];
   if (showAccounts) {
-    pushAccountProductItems(items, data.accounts, navigation, styles);
+    pushAccountProductItems(items, data.accounts, navigation, styles, balanceMasked);
   }
   if (showCards) {
-    pushCreditCardProductItems(items, data.creditCards, navigation, styles);
+    pushCreditCardProductItems(
+      items,
+      data.creditCards,
+      navigation,
+      styles,
+      balanceMasked,
+    );
   }
   if (showInvestments) {
     pushInvestmentProductItems(
@@ -290,10 +303,11 @@ function buildHomeProductItems(
       data.investments,
       navigation,
       styles,
+      balanceMasked,
     );
   }
   if (showLoans) {
-    pushLoanProductItems(items, data.loans, navigation, styles);
+    pushLoanProductItems(items, data.loans, navigation, styles, balanceMasked);
   }
   return items;
 }
@@ -315,6 +329,7 @@ export function HomeScreen() {
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
+  const [productBalancesMasked, setProductBalancesMasked] = useState(true);
   const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
   const navigation = useNavigation<HomeMainNavigation>();
 
@@ -370,11 +385,28 @@ export function HomeScreen() {
     if (!data) {
       return [];
     }
-    return buildHomeProductItems(data, filter, navigation, {
-      cardFill: styles.cardFill,
-      productCard: styles.productCard,
-    });
-  }, [data, filter, navigation, styles.cardFill, styles.productCard]);
+    return buildHomeProductItems(
+      data,
+      filter,
+      navigation,
+      {
+        cardFill: styles.cardFill,
+        productCard: styles.productCard,
+      },
+      productBalancesMasked,
+    );
+  }, [
+    data,
+    filter,
+    navigation,
+    productBalancesMasked,
+    styles.cardFill,
+    styles.productCard,
+  ]);
+
+  const toggleProductBalances = useCallback(() => {
+    setProductBalancesMasked(v => !v);
+  }, []);
 
   if (scaleAnims.length !== productItems.length) {
     scaleAnims.length = 0;
@@ -425,6 +457,10 @@ export function HomeScreen() {
     [navigation, frequentPaymentsForHome],
   );
 
+  const openRecentActivityCalendar = useCallback(() => {
+    navigation.navigate('RecentActivityCalendar');
+  }, [navigation]);
+
   return (
     <View testID="home-screen" style={styles.root}>
       <ScrollView
@@ -464,19 +500,22 @@ export function HomeScreen() {
           {/* Capa superior: interacción desde chips hasta pagos frecuentes */}
           <View style={styles.contentLayer}>
             <SafeAreaView edges={['top']} />
-            <HomeHeader
-              userName={user?.firstName?.trim() || user?.name}
-              onLogout={handleLogout}
-              onNotifications={openDevelopmentModal}
-            />
-
-            <View style={styles.mainColumn}>
+            <View style={styles.heroTopSection}>
+              <HomeHeader
+                userName={user?.firstName?.trim() || user?.name}
+                balancesMasked={productBalancesMasked}
+                onToggleBalances={toggleProductBalances}
+                onRequestProducts={openDevelopmentModal}
+                onLogout={handleLogout}
+              />
               <ProductFilterTabs
-                
                 filters={PRODUCT_FILTERS}
                 selectedFilter={filter}
                 onFilterChange={handleFilterChange}
               />
+            </View>
+
+            <View style={styles.mainColumn}>
               {!isLoading && productItems.length > 0 ? (
               <View style={styles.carouselLayer} pointerEvents="box-none">
                 <ScrollView
@@ -530,7 +569,6 @@ export function HomeScreen() {
             {data ? (
               <View style={[styles.mainColumn, styles.contentArea]}>
                 <View style={styles.dashboardColumn}>
-                  <RequestProductRow onPress={openDevelopmentModal} />
                   <HomeBannersCarousel banners={bannersForHome} />
                   <FrequentActionsSection
                     items={frequentPaymentsForHome}
@@ -543,7 +581,7 @@ export function HomeScreen() {
                   <RecentActivitySection
                     items={recentActivityItems}
                     onPressListIcon={openDevelopmentModal}
-                    onPressCalendarIcon={openDevelopmentModal}
+                    onPressCalendarIcon={openRecentActivityCalendar}
                   />
                 </View>
               </View>
@@ -604,6 +642,10 @@ function useStyles(
         contentLayer: {
           position: 'relative',
           zIndex: 1,
+          width: '100%',
+        },
+        heroTopSection: {
+          gap: 24,
           width: '100%',
         },
         mainColumn: {

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  
   Linking,
   useWindowDimensions,
+  LayoutAnimation,
+  Platform,
+  UIManager,
   type TextStyle,
   type ImageStyle,
   type ViewStyle,
@@ -16,9 +18,10 @@ import {
   type NativeScrollEvent,
 } from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
+import {useHomeSessionUiStore} from '../../../providers/homeSessionUiStore';
 import {Lexend} from '../../../theme/lexend';
 import type {HomeBanner} from '../../../domain/entities/ContractBalance';
-import {ChevronRightIcon} from './HomeIcons';
+import {BannerCloseIcon} from './HomeIcons';
 import {resolveBannerLandscape} from './homeBannerLandscapeMap';
 
 type Props = {
@@ -29,6 +32,33 @@ type Props = {
 const SCREEN_PADDING_X = 24;
 
 const DEFAULT_AUTO_ADVANCE_MS = 15000;
+
+/** Colapso al cerrar banners: más largo y suave que el preset por defecto (~300ms). */
+const BANNER_DISMISS_LAYOUT_DURATION_MS = 720;
+
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+function configureBannerDismissLayoutAnimation(): void {
+  LayoutAnimation.configureNext({
+    duration: BANNER_DISMISS_LAYOUT_DURATION_MS,
+    update: {
+      type: LayoutAnimation.Types.easeInEaseOut,
+    },
+    delete: {
+      type: LayoutAnimation.Types.easeInEaseOut,
+      property: LayoutAnimation.Properties.opacity,
+    },
+    create: {
+      type: LayoutAnimation.Types.easeInEaseOut,
+      property: LayoutAnimation.Properties.opacity,
+    },
+  });
+}
 
 function BannerLine({
   line,
@@ -76,41 +106,49 @@ function BannerLandscapeVisual({
   const resolved = resolveBannerLandscape(landscape);
   let content;
 
-if (resolved.kind === 'remote') {
-  content = (
-    <Image
-      source={{ uri: resolved.uri }}
-      style={styles.landscapeImage}
-      resizeMode="contain"
-      accessibilityIgnoresInvertColors
-    />
-  );
-} else if (resolved.kind === 'local') {
-  content = (
-    <Image
-      source={resolved.source}
-      style={styles.landscapeImage}
-      resizeMode="contain"
-      accessibilityIgnoresInvertColors
-    />
-  );
-} else {
-  content = <View style={styles.landscapePlaceholder} />;
-}
-  return (
-    <View style={styles.visual}>
-      {content}
-    </View>
-  );
+  if (resolved.kind === 'remote') {
+    content = (
+      <Image
+        source={{uri: resolved.uri}}
+        style={styles.landscapeImage}
+        resizeMode="contain"
+        accessibilityIgnoresInvertColors
+      />
+    );
+  } else if (resolved.kind === 'local') {
+    content = (
+      <Image
+        source={resolved.source}
+        style={styles.landscapeImage}
+        resizeMode="contain"
+        accessibilityIgnoresInvertColors
+      />
+    );
+  } else {
+    content = <View style={styles.landscapePlaceholder} />;
+  }
+  return <View style={styles.visual}>{content}</View>;
 }
 
 export function HomeBannersCarousel({banners}: Readonly<Props>) {
   const {colors} = useTheme();
+  const bannersDismissed = useHomeSessionUiStore(
+    s => s.homeBannersDismissedForSession,
+  );
+  const dismissHomeBannersForSession = useHomeSessionUiStore(
+    s => s.dismissHomeBannersForSession,
+  );
+
   const {width: windowWidth} = useWindowDimensions();
   const slideWidth = windowWidth - SCREEN_PADDING_X * 2;
   const styles = useStyles(colors);
   const scrollRef = useRef<ScrollView>(null);
   const indexRef = useRef(0);
+
+  const onDismissPress = useCallback(() => {
+    configureBannerDismissLayoutAnimation();
+    dismissHomeBannersForSession();
+  }, [dismissHomeBannersForSession]);
 
   useEffect(() => {
     indexRef.current = 0;
@@ -144,7 +182,7 @@ export function HomeBannersCarousel({banners}: Readonly<Props>) {
     }
   };
 
-  if (banners.length === 0) {
+  if (bannersDismissed || banners.length === 0) {
     return null;
   }
 
@@ -159,32 +197,42 @@ export function HomeBannersCarousel({banners}: Readonly<Props>) {
       onMomentumScrollEnd={onMomentumScrollEnd}
       contentContainerStyle={styles.scrollContent}>
       {banners.map((banner, index) => (
-        <TouchableOpacity
+        <View
           key={`${banner.buttonLink}-${index}`}
-          style={[styles.card, {width: slideWidth}]}
-          activeOpacity={0.85}
-          onPress={() => {
-            const link = banner.buttonLink?.trim() ?? '';
-            if (link && /^https?:\/\//i.test(link)) {
-              Linking.openURL(link).catch(() => {});
-            }
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={banner.text}>
-          <BannerLandscapeVisual landscape={banner.landscape} styles={styles} />
-          <View style={styles.textBlock}>
-            {banner.text.split('\n').map((line, lineIdx) => (
-              <BannerLine
-                key={`line-${lineIdx}-${line}`}
-                line={line}
-                baseStyle={styles.bodyText}
-                boldStyle={styles.boldText}
-              />
-            ))}
-          
-          </View>
-          <ChevronRightIcon color={colors.textTertiary} size={16} />
-        </TouchableOpacity>
+          style={[styles.slide, {width: slideWidth}]}>
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.85}
+            onPress={() => {
+              const link = banner.buttonLink?.trim() ?? '';
+              if (link && /^https?:\/\//i.test(link)) {
+                Linking.openURL(link).catch(() => {});
+              }
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={banner.text}>
+            <BannerLandscapeVisual landscape={banner.landscape} styles={styles} />
+            <View style={styles.textBlock}>
+              {banner.text.split('\n').map((line, lineIdx) => (
+                <BannerLine
+                  key={`line-${lineIdx}-${line}`}
+                  line={line}
+                  baseStyle={styles.bodyText}
+                  boldStyle={styles.boldText}
+                />
+              ))}
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.dismissButton}
+            onPress={onDismissPress}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar avisos"
+            testID="home-banners-dismiss"
+            hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+            <BannerCloseIcon color={colors.iconPrimary} size={16} />
+          </TouchableOpacity>
+        </View>
       ))}
     </ScrollView>
   );
@@ -197,19 +245,33 @@ function useStyles(colors: ThemeColors) {
         scrollContent: {
           paddingVertical: 2,
         },
+        slide: {
+          position: 'relative',
+        },
         card: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 10,
+          gap: 12,
           backgroundColor: colors.surface,
-          borderRadius: 16,
-          paddingHorizontal: 16,
-          paddingVertical: 20,
-          minHeight: 72,        
+          borderRadius: 12,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.borderLight,
+          paddingHorizontal: 13,
+          paddingVertical: 9,
+          paddingRight: 40,
+          minHeight: 58,
+        },
+        dismissButton: {
+          position: 'absolute',
+          top: 12,
+          right: 12,
+          zIndex: 2,
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         visual: {
-          width: 56,
-          height: 48,
+          width: 51,
+          height: 40,
           borderRadius: 8,
           overflow: 'hidden',
         },
@@ -224,26 +286,19 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
           gap: 2,
           justifyContent: 'center',
-          marginRight: 42,
-          marginLeft: 6,
+          minWidth: 0,
         },
         bodyText: {
           fontFamily: Lexend.regular,
-          fontSize: 14,
+          fontSize: 12,
           lineHeight: 20,
-          color: colors.textPrimary,
+          color: colors.textSecondary,
         },
         boldText: {
-          fontFamily: Lexend.bold,
-          fontSize: 14,
+          fontFamily: Lexend.semiBold,
+          fontSize: 12,
           lineHeight: 20,
           color: colors.textPrimary,
-        },
-        buttonHint: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 16,
-          color: colors.textTertiary,
         },
       }),
     [colors],

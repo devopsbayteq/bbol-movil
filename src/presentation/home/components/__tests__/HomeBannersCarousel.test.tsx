@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {Linking, ScrollView, TouchableOpacity} from 'react-native';
 import type {HomeBanner} from '../../../../domain/entities/ContractBalance';
+import {useHomeSessionUiStore} from '../../../../providers/homeSessionUiStore';
 import {HomeBannersCarousel} from '../HomeBannersCarousel';
 
 jest.mock('../../../../providers/theme', () => ({
@@ -11,7 +12,7 @@ jest.mock('../../../../providers/theme', () => ({
 }));
 
 jest.mock('../HomeIcons', () => ({
-  ChevronRightIcon: () => null,
+  BannerCloseIcon: () => null,
 }));
 
 function banner(overrides: Partial<HomeBanner> = {}): HomeBanner {
@@ -37,6 +38,10 @@ function mount(element: React.ReactElement) {
 
 describe('HomeBannersCarousel', () => {
   const openURLSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined as never);
+
+  beforeEach(() => {
+    useHomeSessionUiStore.getState().resetHomeSessionUi();
+  });
 
   afterEach(() => {
     act(() => {
@@ -107,9 +112,9 @@ describe('HomeBannersCarousel', () => {
         banners={[banner({buttonLink: 'https://example.com/path'})]}
       />,
     );
-    const touch = root.root.findByType(TouchableOpacity as never);
+    const cardTouch = root.root.findAllByType(TouchableOpacity as never)[0];
     act(() => {
-      touch.props.onPress?.();
+      cardTouch.props.onPress?.();
     });
     expect(openURLSpy).toHaveBeenCalledWith('https://example.com/path');
   });
@@ -120,9 +125,9 @@ describe('HomeBannersCarousel', () => {
         banners={[banner({buttonLink: 'solo-texto'})]}
       />,
     );
-    const touch = root.root.findByType(TouchableOpacity as never);
+    const cardTouch = root.root.findAllByType(TouchableOpacity as never)[0];
     act(() => {
-      touch.props.onPress?.();
+      cardTouch.props.onPress?.();
     });
     expect(openURLSpy).not.toHaveBeenCalled();
   });
@@ -132,5 +137,17 @@ describe('HomeBannersCarousel', () => {
       <HomeBannersCarousel banners={[banner({landscape: '   '})]} />,
     );
     expect(root.toJSON()).not.toBeNull();
+  });
+
+  test('cerrar oculta banners hasta el próximo login (estado de sesión)', () => {
+    const root = mount(<HomeBannersCarousel banners={[banner()]} />);
+    const closeBtn = root.root.findByProps({testID: 'home-banners-dismiss'});
+    act(() => {
+      closeBtn.props.onPress();
+    });
+    expect(useHomeSessionUiStore.getState().homeBannersDismissedForSession).toBe(
+      true,
+    );
+    expect(root.toJSON()).toBeNull();
   });
 });

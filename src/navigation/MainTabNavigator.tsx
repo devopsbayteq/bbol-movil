@@ -146,7 +146,8 @@ export function MainTabNavigator() {
             focused === 'LoanDetail' ||
             focused === 'MovementsList' ||
             focused === 'MovementDetail' ||
-            focused === 'FrequentPayments';
+            focused === 'FrequentPayments' ||
+            focused === 'RecentActivityCalendar';
           return {
             title: 'Inicio',
             tabBarIcon: tabBarIconHome,

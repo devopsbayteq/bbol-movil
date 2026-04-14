@@ -75,6 +75,11 @@ export interface ThemeColors {
 
   primaryIconContainerBg: string;
 
+  /** Leyenda calendario actividades — créditos (Figma #0a7111). */
+  calendarCreditIndicator: string;
+  /** Leyenda calendario actividades — débitos (Figma #be1125). */
+  calendarDebitIndicator: string;
+
 }
 
 /** Tokens con el mismo valor en light y dark (marca / superficies fijas). */
@@ -169,6 +174,8 @@ const lightPalette: ThemeColorsVariant = {
   homeBalanceToggleBg: '#d0f0f6',
   lineSeparator: '#d6d6d6',
   chartAccent: '#962DFF',
+  calendarCreditIndicator: '#0a7111',
+  calendarDebitIndicator: '#be1125',
 };
 
 const darkPalette: ThemeColorsVariant = {
@@ -201,6 +208,8 @@ const darkPalette: ThemeColorsVariant = {
   homeBalanceToggleBg: '#94E0ED',
   lineSeparator: '#374151',
   chartAccent: '#B76EFF',
+  calendarCreditIndicator: '#34D399',
+  calendarDebitIndicator: '#F87171',
 };
 
 export const LightColors: ThemeColors = {
