@@ -16,6 +16,8 @@ export interface ThemeColors {
   placeholder: string;
   buttonSecondaryBg: string;
   iconPrimary: string;
+  /** Flecha “atrás” (SVG): default histórico #1A1A1A; mismo valor en light/dark. */
+  backNavigationArrow: string;
   linkPrimary: string;
   error: string;
   errorBg: string;
@@ -103,6 +105,7 @@ type ThemeColorsShared = Pick<
   | 'white'
   | 'primaryIconContainerBg'
   | 'homeStarIcon'
+  | 'backNavigationArrow'
 >;
 
 type ThemeColorsVariant = Omit<ThemeColors, keyof ThemeColorsShared>;
@@ -133,6 +136,7 @@ const themeColorsShared: ThemeColorsShared = {
   white: '#FFFFFF',
   primaryIconContainerBg: '#D0F0F6',
   homeStarIcon: '#FFD416',
+  backNavigationArrow: '#1A1A1A',
 };
 
 const lightPalette: ThemeColorsVariant = {
