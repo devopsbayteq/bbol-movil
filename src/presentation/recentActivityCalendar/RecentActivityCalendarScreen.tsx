@@ -78,8 +78,6 @@ export function RecentActivityCalendarScreen() {
     setDaySheetVisible(false);
   }, []);
 
-  const headerTitle = useMemo(() => 'ACTIVIDADES RECIENTES', []);
-
   const onSegment = useCallback(
     (next: CalendarMode) => {
       setMode(next);
@@ -92,52 +90,59 @@ export function RecentActivityCalendarScreen() {
       style={styles.safe}
       edges={['top']}
       testID="recent-activity-calendar-screen">
-      <HomeStackDetailHeader title={headerTitle} onPressBack={goBack} />
+      <HomeStackDetailHeader onPressBack={goBack} />
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
+        <Text style={styles.screenTitle} accessibilityRole="header">
+          ACTIVIDADES RECIENTES
+        </Text>
+
         <View style={styles.segmentWrap}>
           <View style={styles.segmentTrack}>
-            <TouchableOpacity
+            <View
               style={[
-                styles.segmentHalf,
-                mode === 'month' && styles.segmentHalfActive,
+                styles.segmentThumb,
+                mode === 'week' && styles.segmentThumbRight,
               ]}
-              onPress={() => onSegment('month')}
-              accessibilityRole="button"
-              accessibilityState={{selected: mode === 'month'}}
-              accessibilityLabel="Vista por mes">
-              <Text
-                style={[
-                  styles.segmentLabel,
-                  mode === 'month'
-                    ? styles.segmentLabelActive
-                    : styles.segmentLabelIdle,
-                ]}>
-                Mes
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.segmentHalf,
-                mode === 'week' && styles.segmentHalfActive,
-              ]}
-              onPress={() => onSegment('week')}
-              accessibilityRole="button"
-              accessibilityState={{selected: mode === 'week'}}
-              accessibilityLabel="Vista por semana">
-              <Text
-                style={[
-                  styles.segmentLabel,
-                  mode === 'week'
-                    ? styles.segmentLabelActive
-                    : styles.segmentLabelIdle,
-                ]}>
-                Semana
-              </Text>
-            </TouchableOpacity>
+              pointerEvents="none"
+            />
+            <View style={styles.segmentTouchRow}>
+              <TouchableOpacity
+                style={styles.segmentHalf}
+                onPress={() => onSegment('month')}
+                accessibilityRole="button"
+                accessibilityState={{selected: mode === 'month'}}
+                accessibilityLabel="Vista por mes">
+                <Text
+                  style={[
+                    styles.segmentLabel,
+                    mode === 'month'
+                      ? styles.segmentLabelActive
+                      : styles.segmentLabelIdle,
+                  ]}>
+                  Mes
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.segmentHalf}
+                onPress={() => onSegment('week')}
+                accessibilityRole="button"
+                accessibilityState={{selected: mode === 'week'}}
+                accessibilityLabel="Vista por semana">
+                <Text
+                  style={[
+                    styles.segmentLabel,
+                    mode === 'week'
+                      ? styles.segmentLabelActive
+                      : styles.segmentLabelIdle,
+                  ]}>
+                  Semana
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -279,32 +284,57 @@ function useStyles(colors: ThemeColors) {
           flex: 1,
         },
         scrollContent: {
-          paddingHorizontal: 16,
+          paddingHorizontal: 24,
+          paddingTop: 6,
           paddingBottom: 32,
           gap: 12,
         },
+        screenTitle: {
+          fontFamily: Lexend.regular,
+          fontSize: 18,
+          lineHeight: 28,
+          color: colors.textPrimary,
+          textTransform: 'uppercase',
+        },
         segmentWrap: {
-          alignItems: 'center',
+          alignItems: 'stretch',
         },
         segmentTrack: {
-          flexDirection: 'row',
+          position: 'relative',
           width: '100%',
           maxWidth: 360,
+          alignSelf: 'center',
+          height: 24,
           backgroundColor: colors.primaryIconContainerBg,
           borderRadius: 12,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.homeChipSelectedBorder,
+          borderWidth: 1,
+          borderColor: colors.white,
           overflow: 'hidden',
+        },
+        /** Píldora primaria que se superpone al track (bordes redondos en el centro). */
+        segmentThumb: {
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: '50%',
+          height: 24,
+          borderRadius: 12,
+          backgroundColor: colors.primary,
+          zIndex: 1,
+        },
+        segmentThumbRight: {
+          left: '50%',
+        },
+        segmentTouchRow: {
+          flexDirection: 'row',
+          height: 24,
+          zIndex: 2,
         },
         segmentHalf: {
           flex: 1,
-          paddingVertical: 10,
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: 40,
-        },
-        segmentHalfActive: {
-          backgroundColor: colors.primary,
+          
         },
         segmentLabel: {
           fontSize: 12,

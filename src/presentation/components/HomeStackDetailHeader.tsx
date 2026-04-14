@@ -6,7 +6,8 @@ import {Lexend} from '../../theme/lexend';
 const arrowBack = require('../../../assets/images/arrow-left.png');
 
 interface HomeStackDetailHeaderProps {
-  title: string;
+  /** Si se omite, solo se muestra el botón atrás (p. ej. calendario de actividades). */
+  title?: string;
   onPressBack: () => void;
 }
 
@@ -16,9 +17,10 @@ export function HomeStackDetailHeader({
 }: Readonly<HomeStackDetailHeaderProps>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
+  const showTitle = Boolean(title?.trim());
 
   return (
-    <View style={styles.headerBar}>
+    <View style={[styles.headerBar, !showTitle && styles.headerBarBackOnly]}>
       <TouchableOpacity
         onPress={onPressBack}
         accessibilityRole="button"
@@ -29,10 +31,14 @@ export function HomeStackDetailHeader({
           resizeMode="contain"
         />
       </TouchableOpacity>
-      <Text style={styles.headerTitle} numberOfLines={1}>
-        {title}
-      </Text>
-      <View style={styles.headerSpacer} />
+      {showTitle ? (
+        <>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {title}
+          </Text>
+          <View style={styles.headerSpacer} />
+        </>
+      ) : null}
     </View>
   );
 }
@@ -48,6 +54,12 @@ function useStyles(colors: ThemeColors) {
           paddingHorizontal: 24,
           paddingVertical: 12,
           backgroundColor: colors.white,
+        },
+        headerBarBackOnly: {
+          justifyContent: 'flex-start',
+          minHeight: 48,
+          paddingTop: 13,
+          paddingBottom: 13,
         },
         backIcon: {
           width: 20,
