@@ -14,6 +14,7 @@ import {TransactionsScreen} from '../presentation/transactions/TransactionsScree
 import {MovementDetailScreen} from '../presentation/transactions/MovementDetailScreen';
 import type {MovementsListRouteParams} from './MovementsStackNavigator';
 import {FrequentPaymentsScreen} from '../presentation/frequentPayments/FrequentPaymentsScreen';
+import {RecentActivityCalendarScreen} from '../presentation/recentActivityCalendar/RecentActivityCalendarScreen';
 
 export type HomeStackParamList = {
   HomeMain: {refreshHome?: number} | undefined;
@@ -33,6 +34,7 @@ export type HomeStackParamList = {
     items: FrequentPayment[];
     initialIndex: number;
   };
+  RecentActivityCalendar: undefined;
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -56,6 +58,10 @@ export function HomeStackNavigator() {
       <Stack.Screen
         name="FrequentPayments"
         component={FrequentPaymentsScreen}
+      />
+      <Stack.Screen
+        name="RecentActivityCalendar"
+        component={RecentActivityCalendarScreen}
       />
     </Stack.Navigator>
   );

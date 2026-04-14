@@ -30,7 +30,6 @@ import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
 import {useTheme, type ThemeColors} from '../../providers';
 import type {
   AccountBalance,
-  AccountKind,
   ContractBalance,
   CreditCardBalance,
   FrequentPayment,
@@ -63,16 +62,6 @@ const PRODUCT_FILTERS = [
   'Inversiones',
   'Préstamos',
 ] as const;
-
-function accountTitle(kind: AccountKind): string {
-  if (kind === 'savings') {
-    return 'Cta. ahorros';
-  }
-  if (kind === 'checking') {
-    return 'Cta. corriente';
-  }
-  return 'Cuenta';
-}
 
 /** Ancho de cada card del carousel como fracción del ancho de pantalla. */
 const CARD_WIDTH_SCREEN_FRACTION = 0.6;
@@ -425,6 +414,10 @@ export function HomeScreen() {
     [navigation, frequentPaymentsForHome],
   );
 
+  const openRecentActivityCalendar = useCallback(() => {
+    navigation.navigate('RecentActivityCalendar');
+  }, [navigation]);
+
   return (
     <View testID="home-screen" style={styles.root}>
       <ScrollView
@@ -543,7 +536,7 @@ export function HomeScreen() {
                   <RecentActivitySection
                     items={recentActivityItems}
                     onPressListIcon={openDevelopmentModal}
-                    onPressCalendarIcon={openDevelopmentModal}
+                    onPressCalendarIcon={openRecentActivityCalendar}
                   />
                 </View>
               </View>
