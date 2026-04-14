@@ -151,6 +151,21 @@ export function PlusIcon({color, size = 12}: Readonly<IconProps>) {
   );
 }
 
+/** Cerrar banner promocional (Figma: xmark 16px, icono primario). */
+export function BannerCloseIcon({color, size = 16}: Readonly<IconProps>) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 16 16">
+      <Path
+        d="M4 4L12 12M12 4L4 12"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        fill="none"
+      />
+    </Svg>
+  );
+}
+
 /** Lista con viñetas — cabecera actividad reciente. */
 export function ListBulletsIcon({color, size = 20}: Readonly<IconProps>) {
   return (
