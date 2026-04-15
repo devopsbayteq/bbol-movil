@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -7,20 +7,20 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
-import {Lexend} from '../../theme/lexend';
-import {HomeStackDetailHeader} from '../components';
-import {CalendarActivityGlyph} from './CalendarCellIcons';
-import type {CalendarCell, CalendarMode} from './recentActivityCalendarTypes';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
+import { useTheme, type ThemeColors } from '../../providers/theme';
+import { Lexend } from '../../theme/lexend';
+import { HomeStackDetailHeader } from '../components';
+import { CalendarActivityGlyph } from './CalendarCellIcons';
+import type { CalendarCell, CalendarMode } from './recentActivityCalendarTypes';
 import {
   dateKeyLocal,
   useRecentActivityCalendarViewModel,
 } from './useRecentActivityCalendarViewModel';
-import {RecentActivityDaySheetModal} from './RecentActivityDaySheetModal';
+import { RecentActivityDaySheetModal } from './RecentActivityDaySheetModal';
 
 type Nav = NativeStackNavigationProp<
   HomeStackParamList,
@@ -28,7 +28,7 @@ type Nav = NativeStackNavigationProp<
 >;
 
 function calendarRowKey(row: CalendarCell[], rowIndex: number): string {
-  const firstDay = row.find((c): c is Extract<CalendarCell, {kind: 'day'}> => c.kind === 'day');
+  const firstDay = row.find((c): c is Extract<CalendarCell, { kind: 'day' }> => c.kind === 'day');
   return firstDay ? `row-${dateKeyLocal(firstDay.date)}` : `row-fallback-${rowIndex}`;
 }
 
@@ -48,7 +48,7 @@ const ICON_BOX = 16;
 const BADGE_SIZE = 21;
 
 export function RecentActivityCalendarScreen() {
-  const {colors} = useTheme();
+  const { colors } = useTheme();
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const {
@@ -88,7 +88,7 @@ export function RecentActivityCalendarScreen() {
   return (
     <SafeAreaView
       style={styles.safe}
-      edges={['top']}
+      edges={['top', 'bottom']}
       testID="recent-activity-calendar-screen">
 
 
@@ -114,7 +114,7 @@ export function RecentActivityCalendarScreen() {
                 style={styles.segmentHalf}
                 onPress={() => onSegment('month')}
                 accessibilityRole="button"
-                accessibilityState={{selected: mode === 'month'}}
+                accessibilityState={{ selected: mode === 'month' }}
                 accessibilityLabel="Vista por mes">
                 <Text
                   style={[
@@ -130,7 +130,7 @@ export function RecentActivityCalendarScreen() {
                 style={styles.segmentHalf}
                 onPress={() => onSegment('week')}
                 accessibilityRole="button"
-                accessibilityState={{selected: mode === 'week'}}
+                accessibilityState={{ selected: mode === 'week' }}
                 accessibilityLabel="Vista por semana">
                 <Text
                   style={[
@@ -176,7 +176,7 @@ export function RecentActivityCalendarScreen() {
             <View
               style={[
                 styles.legendDot,
-                {backgroundColor: colors.calendarCreditIndicator},
+                { backgroundColor: colors.calendarCreditIndicator },
               ]}
             />
             <Text style={styles.legendText}>Créditos</Text>
@@ -185,7 +185,7 @@ export function RecentActivityCalendarScreen() {
             <View
               style={[
                 styles.legendDot,
-                {backgroundColor: colors.calendarDebitIndicator},
+                { backgroundColor: colors.calendarDebitIndicator },
               ]}
             />
             <Text style={styles.legendText}>Débitos</Text>
@@ -198,7 +198,7 @@ export function RecentActivityCalendarScreen() {
         onClose={closeDaySheet}
         date={selectedDate}
       />
-        <HomeStackDetailHeader useDefaultColor onPressBack={goBack} />
+      <HomeStackDetailHeader useDefaultColor onPressBack={goBack} />
     </SafeAreaView>
   );
 }
@@ -218,14 +218,14 @@ function CalendarCellView({
     return <View style={[styles.cell, styles.cellEmpty]} />;
   }
 
-  const {activity, isSelected, date, dayOfMonth} = cell;
+  const { activity, isSelected, date, dayOfMonth } = cell;
   const primaryColor = isSelected ? colors.primary : colors.textPrimary;
   const iconColor = primaryColor;
 
   let middleContent: React.ReactNode = null;
   if (activity.extraCount !== null && activity.extraCount > 0) {
     middleContent = (
-      <View style={[styles.badge, {backgroundColor: colors.primary}]}>
+      <View style={[styles.badge, { backgroundColor: colors.primary }]}>
         <Text style={styles.badgeText}>+{activity.extraCount}</Text>
       </View>
     );
@@ -246,7 +246,7 @@ function CalendarCellView({
       onPress={() => onSelectDay(date)}
       accessibilityRole="button"
       accessibilityLabel={`Día ${dayOfMonth}`}>
-      <Text style={[styles.dayNum, {color: primaryColor}]}>{dayOfMonth}</Text>
+      <Text style={[styles.dayNum, { color: primaryColor }]}>{dayOfMonth}</Text>
 
       <View style={styles.cellMiddle}>{middleContent}</View>
 
@@ -255,7 +255,7 @@ function CalendarCellView({
           <View
             style={[
               styles.barSegment,
-              {backgroundColor: colors.calendarCreditIndicator},
+              { backgroundColor: colors.calendarCreditIndicator },
             ]}
           />
         ) : null}
@@ -263,7 +263,7 @@ function CalendarCellView({
           <View
             style={[
               styles.barSegment,
-              {backgroundColor: colors.calendarDebitIndicator},
+              { backgroundColor: colors.calendarDebitIndicator },
             ]}
           />
         ) : null}
@@ -447,7 +447,7 @@ function useStyles(colors: ThemeColors) {
           ...Platform.select({
             ios: {
               shadowColor: colors.shadowSoft,
-              shadowOffset: {width: 0, height: 1},
+              shadowOffset: { width: 0, height: 1 },
               shadowOpacity: 0.12,
               shadowRadius: 2.5,
             },
