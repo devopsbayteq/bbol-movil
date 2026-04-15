@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme, type ThemeColors} from '../../providers';
 import {Lexend} from '../../theme/lexend';
 import {BackNavigationArrow} from './BackNavigationArrow';
@@ -16,11 +17,12 @@ export function HomeStackDetailHeader({
                                           onPressBack,
                                       }: Readonly<HomeStackDetailHeaderProps>) {
     const {colors} = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
     const showTitle = Boolean(title?.trim());
 
     return (
-        <View style={styles.headerContainer}>
+        <View style={[styles.headerContainer, {top: insets.top + 10}]}>
             <View style={styles.headerBar}>
                 <TouchableOpacity
                     onPress={onPressBack}
@@ -45,7 +47,6 @@ function useStyles(colors: ThemeColors) {
                 headerContainer: {
                     height: 75,
                     position: 'absolute',
-                    top: 10
                 },
                 headerBar: {
                     flexDirection: 'row',

@@ -376,7 +376,8 @@ export function CardDetailScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        nestedScrollEnabled>
+        nestedScrollEnabled
+        contentInsetAdjustmentBehavior="never">
         <ImageBackground
           source={CARD_BANNER_BG}
           style={styles.bannerSection}
@@ -598,6 +599,7 @@ function useStyles(colors: ThemeColors) {
           width: '100%',
           alignSelf: 'stretch',
           paddingBottom: 12,
+          backgroundColor: colors.homeCreditCardSurface,
         },
         heroHeaderFixed: {
           paddingHorizontal: 24,

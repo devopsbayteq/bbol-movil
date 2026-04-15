@@ -12,7 +12,7 @@ import {
     type NativeSyntheticEvent,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
 import {
     useNavigation,
@@ -29,7 +29,6 @@ import {
     DevelopmentNoticeModal,
     EyeIcon,
     EyeSlashIcon,
-    HomeStackDetailHeader,
 } from '../components';
 import {buildLoanDetailSlides} from './loanDetailSlideMocks';
 import {useLoanDetailViewModel} from './useLoanDetailViewModel';
@@ -49,8 +48,21 @@ function HistoryClockIcon({color}: Readonly<{ color: string }>) {
     );
 }
 
+/** Misma familia de iconos que `CardDetailScreen`. */
+function BackIcon({color}: Readonly<{color: string}>) {
+    return (
+        <Svg width={22} height={22} viewBox="0 0 24 24">
+            <Path
+                fill={color}
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+            />
+        </Svg>
+    );
+}
+
 export function LoanDetailScreen() {
     const {colors} = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
     const navigation = useNavigation<Nav>();
     const route = useRoute<RouteProp<HomeStackParamList, 'LoanDetail'>>();
@@ -118,30 +130,57 @@ export function LoanDetailScreen() {
         [detailSlides.length, windowWidth],
     );
 
-    return (
-        <SafeAreaView
-            style={styles.safe}
-            edges={['top']}
-            testID="loan-detail-screen">
+    const loanChromeBar = useMemo(
+        () => (
+            <View style={[styles.loanChromeBar, {paddingTop: insets.top}]}>
+                <TouchableOpacity
+                    onPress={goBack}
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel="Volver">
+                    <BackIcon color={colors.white}/>
+                </TouchableOpacity>
+                <Text style={styles.loanChromeTitle}>{headerTitle}</Text>
+                <View style={styles.chromeSpacer}/>
+            </View>
+        ),
+        [
+            colors.white,
+            goBack,
+            headerTitle,
+            insets.top,
+            styles.chromeSpacer,
+            styles.loanChromeBar,
+            styles.loanChromeTitle,
+        ],
+    );
 
+    return (
+        <View style={styles.root} testID="loan-detail-screen">
 
             {showLoading ? (
-                <View style={styles.centered}>
-                    <ActivityIndicator size="small" color={colors.primary}/>
-                </View>
+                <>
+                    {loanChromeBar}
+                    <View style={styles.centered}>
+                        <ActivityIndicator size="small" color={colors.primary}/>
+                    </View>
+                </>
             ) : null}
 
             {showError ? (
-                <View style={styles.centered}>
-                    <Text style={styles.errorInline}>
-                        {errorMessage || 'No se encontró la información de este préstamo.'}
-                    </Text>
-                    <TouchableOpacity
-                        onPress={goBack}
-                        accessibilityRole="button">
-                        <Text style={styles.retryLink}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
+                <>
+                    {loanChromeBar}
+                    <View style={styles.centered}>
+                        <Text style={styles.errorInline}>
+                            {errorMessage || 'No se encontró la información de este préstamo.'}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={goBack}
+                            accessibilityRole="button">
+                            <Text style={styles.retryLink}>Volver</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
             ) : null}
 
             {d && activeSlide ? (
@@ -155,6 +194,20 @@ export function LoanDetailScreen() {
                             start={{x: 0.08, y: 1}}
                             end={{x: 0.95, y: 0}}
                             style={styles.heroGradient}>
+                            <View
+                                style={[
+                                    styles.heroHeaderFixed,
+                                    {paddingTop: insets.top + 20},
+                                ]}>
+                                <TouchableOpacity
+                                    onPress={goBack}
+                                    hitSlop={12}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Volver">
+                                    <BackIcon color={colors.white}/>
+                                </TouchableOpacity>
+                                <Text style={styles.heroScreenTitle}>{headerTitle}</Text>
+                            </View>
 
                             <ScrollView
                                 ref={heroCarouselRef}
@@ -375,9 +428,7 @@ export function LoanDetailScreen() {
                 </>
             ) : null}
 
-
-            <HomeStackDetailHeader title={headerTitle} onPressBack={goBack}/>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -385,9 +436,37 @@ function useStyles(colors: ThemeColors) {
     return useMemo(
         () =>
             StyleSheet.create({
-                safe: {
+                root: {
                     flex: 1,
                     backgroundColor: colors.background,
+                },
+                loanChromeBar: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: colors.homeHeaderBackground,
+                    paddingHorizontal: 24,
+                    paddingBottom: 14,
+                },
+                loanChromeTitle: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 18,
+                    lineHeight: 28,
+                    color: colors.white,
+                },
+                chromeSpacer: {
+                    width: 22,
+                },
+                heroHeaderFixed: {
+                    paddingHorizontal: 24,
+                    paddingBottom: 4,
+                },
+                heroScreenTitle: {
+                    marginTop: 12,
+                    fontFamily: Lexend.regular,
+                    fontSize: 18,
+                    lineHeight: 28,
+                    color: colors.white,
                 },
                 scroll: {
                     flex: 1,
@@ -421,7 +500,7 @@ function useStyles(colors: ThemeColors) {
                 },
                 heroInner: {
                     paddingHorizontal: 24,
-                    paddingTop: 100,
+                    paddingTop: 20,
                     paddingBottom: 0,
                     gap: 16,
                 },

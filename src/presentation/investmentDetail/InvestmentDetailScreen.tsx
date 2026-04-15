@@ -13,7 +13,8 @@ import {
     type NativeSyntheticEvent,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Svg, {Path} from 'react-native-svg';
 import {
     useNavigation,
     useRoute,
@@ -34,7 +35,6 @@ import {
     DevelopmentNoticeModal,
     EyeIcon,
     EyeSlashIcon,
-    HomeStackDetailHeader,
 } from '../components';
 import {
     buildInvestmentDetailSlides,
@@ -62,8 +62,21 @@ function getAdvanceBarPercent(s: InvestmentDetailSlide): number {
     return Math.min(100, (s.installmentsPaid / s.installmentsTotal) * 100);
 }
 
+/** Misma familia de iconos que `CardDetailScreen`. */
+function BackIcon({color}: Readonly<{color: string}>) {
+    return (
+        <Svg width={22} height={22} viewBox="0 0 24 24">
+            <Path
+                fill={color}
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+            />
+        </Svg>
+    );
+}
+
 export function InvestmentDetailScreen() {
     const {colors} = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
     const navigation = useNavigation<Nav>();
     const route = useRoute<RouteProp<HomeStackParamList, 'InvestmentDetail'>>();
@@ -89,23 +102,50 @@ export function InvestmentDetailScreen() {
     const showError = !showLoading && (Boolean(errorMessage) || !detail);
     const resolvedDetail = !showLoading && !showError ? detail : null;
 
+    const investmentChromeBar = useMemo(
+        () => (
+            <View style={[styles.investmentChromeBar, {paddingTop: insets.top}]}>
+                <TouchableOpacity
+                    onPress={goBack}
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel="Volver">
+                    <BackIcon color={colors.white}/>
+                </TouchableOpacity>
+                <Text style={styles.investmentChromeTitle}>{headerTitle}</Text>
+                <View style={styles.chromeSpacer}/>
+            </View>
+        ),
+        [
+            colors.white,
+            goBack,
+            headerTitle,
+            insets.top,
+            styles.chromeSpacer,
+            styles.investmentChromeBar,
+            styles.investmentChromeTitle,
+        ],
+    );
+
     return (
-        <SafeAreaView
-            style={styles.safe}
-            edges={['top']}
-            testID="investment-detail-screen"
-        >
+        <View style={styles.root} testID="investment-detail-screen">
 
             {showLoading ? (
-                <InvestmentDetailLoading colors={colors} styles={styles}/>
+                <>
+                    {investmentChromeBar}
+                    <InvestmentDetailLoading colors={colors} styles={styles}/>
+                </>
             ) : null}
 
             {showError ? (
-                <InvestmentDetailError
-                    errorMessage={errorMessage}
-                    onBack={goBack}
-                    styles={styles}
-                />
+                <>
+                    {investmentChromeBar}
+                    <InvestmentDetailError
+                        errorMessage={errorMessage}
+                        onBack={goBack}
+                        styles={styles}
+                    />
+                </>
             ) : null}
 
             {resolvedDetail ? (
@@ -118,10 +158,12 @@ export function InvestmentDetailScreen() {
                     onOpenDetailsDev={openDetailsDev}
                     devModalVisible={devModalVisible}
                     onCloseDevModal={closeDevModal}
+                    topInset={insets.top}
+                    headerTitle={headerTitle}
+                    onBack={goBack}
                 />
             ) : null}
-            <HomeStackDetailHeader title={headerTitle} onPressBack={goBack}/>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -172,6 +214,9 @@ function InvestmentDetailLoadedContent({
                                            onOpenDetailsDev,
                                            devModalVisible,
                                            onCloseDevModal,
+                                           topInset,
+                                           headerTitle,
+                                           onBack,
                                        }: Readonly<{
     detail: InvestmentDetail;
     amountMasked: boolean;
@@ -181,6 +226,9 @@ function InvestmentDetailLoadedContent({
     onOpenDetailsDev: () => void;
     devModalVisible: boolean;
     onCloseDevModal: () => void;
+    topInset: number;
+    headerTitle: string;
+    onBack: () => void;
 }>) {
     const {width: windowWidth} = useWindowDimensions();
     const detailSlides = useMemo(
@@ -243,6 +291,22 @@ function InvestmentDetailLoadedContent({
                     end={{x: 0.95, y: 0}}
                     style={styles.heroGradient}
                 >
+                    <View
+                        style={[
+                            styles.heroHeaderFixed,
+                            {paddingTop: topInset + 20},
+                        ]}
+                    >
+                        <TouchableOpacity
+                            onPress={onBack}
+                            hitSlop={12}
+                            accessibilityRole="button"
+                            accessibilityLabel="Volver">
+                            <BackIcon color={colors.white}/>
+                        </TouchableOpacity>
+                        <Text style={styles.heroScreenTitle}>{headerTitle}</Text>
+                    </View>
+
                     <ScrollView
                         ref={heroCarouselRef}
                         horizontal
@@ -459,9 +523,37 @@ function useStyles(colors: ThemeColors) {
     return useMemo(
         () =>
             StyleSheet.create({
-                safe: {
+                root: {
                     flex: 1,
                     backgroundColor: colors.background,
+                },
+                investmentChromeBar: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: colors.homeInvestmentCardGradientEnd,
+                    paddingHorizontal: 24,
+                    paddingBottom: 14,
+                },
+                investmentChromeTitle: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 18,
+                    lineHeight: 28,
+                    color: colors.white,
+                },
+                chromeSpacer: {
+                    width: 22,
+                },
+                heroHeaderFixed: {
+                    paddingHorizontal: 24,
+                    paddingBottom: 4,
+                },
+                heroScreenTitle: {
+                    marginTop: 12,
+                    fontFamily: Lexend.regular,
+                    fontSize: 18,
+                    lineHeight: 28,
+                    color: colors.white,
                 },
                 scroll: {
                     flex: 1,
@@ -495,7 +587,7 @@ function useStyles(colors: ThemeColors) {
                 },
                 heroInner: {
                     paddingHorizontal: 24,
-                    paddingTop: 100,
+                    paddingTop: 20,
                     paddingBottom: 0,
                     gap: 16,
                 },
