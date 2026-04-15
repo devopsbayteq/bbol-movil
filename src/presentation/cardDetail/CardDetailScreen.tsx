@@ -37,7 +37,11 @@ import {
 /** Alto fijo del carrusel de datos por tarjeta (debajo del título fijo). */
 const HERO_CAROUSEL_SLIDE_HEIGHT = 188;
 
-const CARD_BANNER_BG = require('../../../assets/images/card_banner_background.png');
+/**
+ * Bitmap extraído del SVG de diseño `assets/images/svg/account-overview-background-mask.svg`
+ * (patrón + imagen embebida de Figma no es fiable como `<Svg>` en RN).
+ */
+const CARD_DETAIL_HERO_BG = require('../../../assets/images/card_detail_hero_background.png');
 
 /** Red de tarjeta (mock alineado con diseño Figma). */
 const CARD_NETWORK_LABEL = 'Bankard';
@@ -379,9 +383,10 @@ export function CardDetailScreen() {
         nestedScrollEnabled
         contentInsetAdjustmentBehavior="never">
         <ImageBackground
-          source={CARD_BANNER_BG}
-          style={styles.bannerSection}
-          resizeMode="cover">
+          source={CARD_DETAIL_HERO_BG}
+          style={styles.heroGradient}
+          resizeMode="cover"
+          imageStyle={styles.heroBackgroundImage}>
           <View style={[styles.heroHeaderFixed, {paddingTop: insets.top + 20}]}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
@@ -595,17 +600,23 @@ function useStyles(colors: ThemeColors) {
           fontSize: 14,
           color: colors.linkPrimary,
         },
-        bannerSection: {
+        heroGradient: {
           width: '100%',
           alignSelf: 'stretch',
           paddingBottom: 12,
+          overflow: 'hidden',
           backgroundColor: colors.homeCreditCardSurface,
+        },
+        heroBackgroundImage: {
+          alignSelf: 'stretch',
+          width: '100%',
         },
         heroHeaderFixed: {
           paddingHorizontal: 24,
           paddingBottom: 4,
         },
         heroCarousel: {
+          width: '100%',
           height: HERO_CAROUSEL_SLIDE_HEIGHT,
         },
         heroSlide: {
