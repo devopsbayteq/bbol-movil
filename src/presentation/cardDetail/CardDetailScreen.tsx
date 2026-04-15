@@ -689,7 +689,7 @@ function useStyles(colors: ThemeColors) {
           flexDirection: 'row',
           justifyContent: 'center',
           alignItems: 'center',
-          marginTop: 10,
+          marginTop: 0,
           marginBottom: 4,
           gap: 6,
         },
