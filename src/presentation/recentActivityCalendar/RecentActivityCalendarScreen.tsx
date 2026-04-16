@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
@@ -49,6 +49,7 @@ const BADGE_SIZE = 21;
 
 export function RecentActivityCalendarScreen() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const {
@@ -94,7 +95,10 @@ export function RecentActivityCalendarScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 32 + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}>
         <Text style={styles.screenTitle} accessibilityRole="header">
           ACTIVIDADES RECIENTES

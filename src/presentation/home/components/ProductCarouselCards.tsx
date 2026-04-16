@@ -346,8 +346,8 @@ function useCreditStyles(colors: ThemeColors) {
           flexDirection: 'row',
           alignItems: 'center',
           height: 18,
-          paddingLeft: 2,
-          paddingRight: 8,
+          paddingLeft: 4,
+          paddingRight: 4,
           paddingVertical: 2,
           borderRadius: 3,
           borderWidth: StyleSheet.hairlineWidth,
@@ -363,7 +363,7 @@ function useCreditStyles(colors: ThemeColors) {
           backgroundColor: 'rgba(255,255,255,0.2)',
         },
         mcDotFront: {
-          marginLeft: -5,
+          marginLeft: -6,
           backgroundColor: 'rgba(255,255,255,0.1)',
         },
         cardNumber: {
@@ -611,7 +611,7 @@ export function InvestmentCard({
                 ? '$**.**'
                 : `${formatCurrency(currentValue)} ${currency}`}
             </Text>
-            <Text style={styles.saldoLabel}>Saldo</Text>
+            <Text style={styles.saldoLabel}>Capital invertido</Text>
           </View>
         </View>
       </View>
