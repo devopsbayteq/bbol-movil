@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -10,34 +10,35 @@ import {
     useWindowDimensions,
     type NativeScrollEvent,
     type NativeSyntheticEvent,
+    StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Path} from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 import {
     useNavigation,
     useRoute,
     type RouteProp,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers';
-import {Lexend} from '../../theme/lexend';
-import {formatIsoDateShortEsEc, formatPercentEsMx} from '../../utils/formatLocale';
-import {formatCurrency} from '../transactions/TransactionItem';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
+import { useTheme, type ThemeColors } from '../../providers';
+import { Lexend } from '../../theme/lexend';
+import { formatIsoDateShortEsEc, formatPercentEsMx } from '../../utils/formatLocale';
+import { formatCurrency } from '../transactions/TransactionItem';
 import {
     DevelopmentNoticeModal,
     EyeIcon,
     EyeSlashIcon,
 } from '../components';
-import {buildLoanDetailSlides} from './loanDetailSlideMocks';
-import {useLoanDetailViewModel} from './useLoanDetailViewModel';
+import { buildLoanDetailSlides } from './loanDetailSlideMocks';
+import { useLoanDetailViewModel } from './useLoanDetailViewModel';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'LoanDetail'>;
 
 type DevModalKind = 'payments' | 'amortization' | null;
 
-function HistoryClockIcon({color}: Readonly<{ color: string }>) {
+function HistoryClockIcon({ color }: Readonly<{ color: string }>) {
     return (
         <Svg width={20} height={20} viewBox="0 0 24 24">
             <Path
@@ -49,7 +50,7 @@ function HistoryClockIcon({color}: Readonly<{ color: string }>) {
 }
 
 /** Misma familia de iconos que `CardDetailScreen`. */
-function BackIcon({color}: Readonly<{color: string}>) {
+function BackIcon({ color }: Readonly<{ color: string }>) {
     return (
         <Svg width={22} height={22} viewBox="0 0 24 24">
             <Path
@@ -61,14 +62,14 @@ function BackIcon({color}: Readonly<{color: string}>) {
 }
 
 export function LoanDetailScreen() {
-    const {colors} = useTheme();
+    const { colors } = useTheme();
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
     const navigation = useNavigation<Nav>();
     const route = useRoute<RouteProp<HomeStackParamList, 'LoanDetail'>>();
-    const {loanGuid, loanBalance} = route.params;
+    const { loanGuid, loanBalance } = route.params;
 
-    const {detail, isLoading, errorMessage} = useLoanDetailViewModel(
+    const { detail, isLoading, errorMessage } = useLoanDetailViewModel(
         loanGuid,
         loanBalance,
     );
@@ -92,7 +93,7 @@ export function LoanDetailScreen() {
 
     const d = resolvedDetail;
 
-    const {width: windowWidth} = useWindowDimensions();
+    const { width: windowWidth } = useWindowDimensions();
     const detailSlides = useMemo(
         () => (d ? buildLoanDetailSlides(d) : []),
         [d],
@@ -112,7 +113,7 @@ export function LoanDetailScreen() {
 
     useEffect(() => {
         setHeroPageIndex(0);
-        heroCarouselRef.current?.scrollTo({x: 0, animated: false});
+        heroCarouselRef.current?.scrollTo({ x: 0, animated: false });
     }, [d?.loanGuid]);
 
     const onHeroMomentumScrollEnd = useCallback(
@@ -132,16 +133,16 @@ export function LoanDetailScreen() {
 
     const loanChromeBar = useMemo(
         () => (
-            <View style={[styles.loanChromeBar, {paddingTop: insets.top}]}>
+            <View style={[styles.loanChromeBar, { paddingTop: insets.top }]}>
                 <TouchableOpacity
                     onPress={goBack}
                     hitSlop={12}
                     accessibilityRole="button"
                     accessibilityLabel="Volver">
-                    <BackIcon color={colors.white}/>
+                    <BackIcon color={colors.white} />
                 </TouchableOpacity>
                 <Text style={styles.loanChromeTitle}>{headerTitle}</Text>
-                <View style={styles.chromeSpacer}/>
+                <View style={styles.chromeSpacer} />
             </View>
         ),
         [
@@ -155,14 +156,16 @@ export function LoanDetailScreen() {
         ],
     );
 
-    return (
+    return (<>
+        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
         <View style={styles.root} testID="loan-detail-screen">
 
             {showLoading ? (
                 <>
                     {loanChromeBar}
                     <View style={styles.centered}>
-                        <ActivityIndicator size="small" color={colors.primary}/>
+                        <ActivityIndicator size="small" color={colors.primary} />
                     </View>
                 </>
             ) : null}
@@ -191,20 +194,20 @@ export function LoanDetailScreen() {
                         showsVerticalScrollIndicator={false}>
                         <LinearGradient
                             colors={[colors.homeHeaderIconButtonBg, colors.homeHeaderBackground]}
-                            start={{x: 0.08, y: 1}}
-                            end={{x: 0.95, y: 0}}
+                            start={{ x: 0.08, y: 1 }}
+                            end={{ x: 0.95, y: 0 }}
                             style={styles.heroGradient}>
                             <View
                                 style={[
                                     styles.heroHeaderFixed,
-                                    {paddingTop: insets.top + 20},
+                                    { paddingTop: insets.top + 20 },
                                 ]}>
                                 <TouchableOpacity
                                     onPress={goBack}
                                     hitSlop={12}
                                     accessibilityRole="button"
                                     accessibilityLabel="Volver">
-                                    <BackIcon color={colors.white}/>
+                                    <BackIcon color={colors.white} />
                                 </TouchableOpacity>
                                 <Text style={styles.heroScreenTitle}>{headerTitle}</Text>
                             </View>
@@ -221,7 +224,7 @@ export function LoanDetailScreen() {
                                 {detailSlides.map(slide => (
                                     <View
                                         key={slide.key}
-                                        style={[styles.heroSlidePage, {width: windowWidth}]}>
+                                        style={[styles.heroSlidePage, { width: windowWidth }]}>
                                         <View style={styles.heroInner}>
                                             <View style={styles.heroTopRow}>
                                                 <View style={styles.heroTitleBlock}>
@@ -251,7 +254,7 @@ export function LoanDetailScreen() {
                                                             size={16}
                                                         />
                                                     ) : (
-                                                        <EyeIcon color={colors.primary} size={16}/>
+                                                        <EyeIcon color={colors.primary} size={16} />
                                                     )}
                                                 </TouchableOpacity>
                                             </View>
@@ -333,7 +336,7 @@ export function LoanDetailScreen() {
                                     />
                                 </View>
 
-                                <View style={styles.cardHairline}/>
+                                <View style={styles.cardHairline} />
 
                                 <View style={styles.debtSummaryRow}>
                                     <View style={styles.debtSummaryCol}>
@@ -397,7 +400,7 @@ export function LoanDetailScreen() {
                                 accessibilityRole="button"
                                 accessibilityLabel="Historial de pagos">
                                 <Text style={styles.primaryBtnText}>Historial de pagos</Text>
-                                <HistoryClockIcon color={colors.white}/>
+                                <HistoryClockIcon color={colors.white} />
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -429,6 +432,7 @@ export function LoanDetailScreen() {
             ) : null}
 
         </View>
+    </>
     );
 }
 
@@ -583,7 +587,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 1},
+                            shadowOffset: { width: 0, height: 1 },
                             shadowOpacity: 0.1,
                             shadowRadius: 2,
                         },
@@ -709,7 +713,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 1},
+                            shadowOffset: { width: 0, height: 1 },
                             shadowOpacity: 0.12,
                             shadowRadius: 2,
                         },
@@ -747,7 +751,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 1},
+                            shadowOffset: { width: 0, height: 1 },
                             shadowOpacity: 0.1,
                             shadowRadius: 2,
                         },
@@ -822,7 +826,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 4},
+                            shadowOffset: { width: 0, height: 4 },
                             shadowOpacity: 0.15,
                             shadowRadius: 4,
                         },

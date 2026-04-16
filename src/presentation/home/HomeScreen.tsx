@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -13,6 +13,7 @@ import {
   Platform,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  StatusBar,
 } from 'react-native';
 import {
   SafeAreaView,
@@ -24,10 +25,10 @@ import {
   useRoute,
   type RouteProp,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useAuth} from '../../providers';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuth } from '../../providers';
+import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
+import { useTheme, type ThemeColors } from '../../providers';
 import type {
   AccountBalance,
   ContractBalance,
@@ -36,8 +37,8 @@ import type {
   InvestmentBalance,
   LoanBalance,
 } from '../../domain/entities/ContractBalance';
-import {HomeHeader} from './components/HomeHeader';
-import {ProductFilterTabs} from './components/ProductFilterTabs';
+import { HomeHeader } from './components/HomeHeader';
+import { ProductFilterTabs } from './components/ProductFilterTabs';
 import {
   SavingsAccountCard,
   CheckingAccountCard,
@@ -45,12 +46,12 @@ import {
   LoanCard,
   InvestmentCard,
 } from './components/ProductCarouselCards';
-import {HomeBannersCarousel} from './components/HomeBannersCarousel';
-import {FrequentActionsSection} from './components/FrequentActionsSection';
-import {UpcomingPaymentsRow} from './components/UpcomingPaymentsRow';
-import {RecentActivitySection} from './components/RecentActivitySection';
-import {useHomeViewModel} from './useHomeViewModel';
-import {DevelopmentNoticeModal} from '../components';
+import { HomeBannersCarousel } from './components/HomeBannersCarousel';
+import { FrequentActionsSection } from './components/FrequentActionsSection';
+import { UpcomingPaymentsRow } from './components/UpcomingPaymentsRow';
+import { RecentActivitySection } from './components/RecentActivitySection';
+import { useHomeViewModel } from './useHomeViewModel';
+import { DevelopmentNoticeModal } from '../components';
 
 const HEADER_BG = require('../../../assets/images/home/header-container.png');
 
@@ -72,7 +73,7 @@ const MAIN_COLUMN_PADDING = 24;
 /** Altura base de la imagen de cabecera (sin el extra iOS por safe area / solapamiento con cards). */
 const HERO_IMAGE_SECTION_HEIGHT = 150;
 
-type HomeProductItem = {key: string; node: React.ReactNode};
+type HomeProductItem = { key: string; node: React.ReactNode };
 
 type HomeMainNavigation = NativeStackNavigationProp<
   HomeStackParamList,
@@ -313,10 +314,10 @@ function buildHomeProductItems(
 }
 
 export function HomeScreen() {
-  const {user, logout} = useAuth();
-  const {colors} = useTheme();
+  const { user, logout } = useAuth();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const {width: windowWidth} = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
   /** iOS: el contenido queda más abajo por el notch; sin esto el corte teal/gris cae en el borde superior de las cards. */
   const iosHeroExtra = useMemo(
     () =>
@@ -367,7 +368,7 @@ export function HomeScreen() {
         return;
       }
       refresh().catch();
-      navigation.setParams({refreshHome: undefined});
+      navigation.setParams({ refreshHome: undefined });
     }, [navigation, refresh, route.params?.refreshHome]),
   );
 
@@ -375,7 +376,7 @@ export function HomeScreen() {
     (newFilter: string) => {
       setFilter(newFilter);
       setSelectedIdx(0);
-      carouselRef.current?.scrollTo({x: 0, animated: false});
+      carouselRef.current?.scrollTo({ x: 0, animated: false });
       scaleAnims.length = 0;
     },
     [scaleAnims],
@@ -440,7 +441,7 @@ export function HomeScreen() {
   };
 
   const handleLogout = async () => {
-    await logout({suppressCompactLoginAutoBiometricOnce: true});
+    await logout({ suppressCompactLoginAutoBiometricOnce: true });
   };
 
   const openDevelopmentModal = () => {
@@ -463,6 +464,8 @@ export function HomeScreen() {
 
   return (
     <View testID="home-screen" style={styles.root}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -486,13 +489,13 @@ export function HomeScreen() {
             <View
               style={[
                 styles.heroTealBand,
-                {backgroundColor: colors.homeHeaderBackground},
+                { backgroundColor: colors.homeHeaderBackground },
               ]}
             />
             <View
               style={[
                 styles.heroBodyFill,
-                {backgroundColor: colors.background},
+                { backgroundColor: colors.background },
               ]}
             />
           </View>
@@ -517,33 +520,33 @@ export function HomeScreen() {
 
             <View style={styles.mainColumn}>
               {!isLoading && productItems.length > 0 ? (
-              <View style={styles.carouselLayer} pointerEvents="box-none">
-                <ScrollView
-                  ref={carouselRef}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  snapToInterval={cardSnapInterval}
-                  snapToAlignment="start"
-                  decelerationRate="fast"
-                  onMomentumScrollEnd={onCarouselScroll}
-                  contentContainerStyle={styles.carouselRow}>
-                  {productItems.map((item, i) => (
-                    <Animated.View
-                      key={item.key}
-                      style={[
-                        styles.carouselItem,
-                        {
-                          transform: [
-                            {scale: scaleAnims[i] ?? new Animated.Value(1)},
-                          ],
-                        },
-                      ]}>
-                      {item.node}
-                    </Animated.View>
-                  ))}
-                </ScrollView>
-              </View>
-            ) : null}
+                <View style={styles.carouselLayer} pointerEvents="box-none">
+                  <ScrollView
+                    ref={carouselRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    snapToInterval={cardSnapInterval}
+                    snapToAlignment="start"
+                    decelerationRate="fast"
+                    onMomentumScrollEnd={onCarouselScroll}
+                    contentContainerStyle={styles.carouselRow}>
+                    {productItems.map((item, i) => (
+                      <Animated.View
+                        key={item.key}
+                        style={[
+                          styles.carouselItem,
+                          {
+                            transform: [
+                              { scale: scaleAnims[i] ?? new Animated.Value(1) },
+                            ],
+                          },
+                        ]}>
+                        {item.node}
+                      </Animated.View>
+                    ))}
+                  </ScrollView>
+                </View>
+              ) : null}
             </View>
 
             {error ? (
@@ -564,7 +567,7 @@ export function HomeScreen() {
               <Text style={styles.emptyProductsInline}>
                 No hay productos en esta categoría.
               </Text>
-            )}            
+            )}
 
             {data ? (
               <View style={[styles.mainColumn, styles.contentArea]}>
@@ -599,7 +602,7 @@ export function HomeScreen() {
 
 function useStyles(
   colors: ThemeColors,
-  layout: {cardWidth: number; cardHeight: number},
+  layout: { cardWidth: number; cardHeight: number },
   iosHeroExtra: number,
 ) {
   return useMemo(
@@ -654,9 +657,9 @@ function useStyles(
           alignSelf: 'center',
           maxWidth: '100%',
         },
-        carouselLayer: {        
+        carouselLayer: {
           zIndex: 2,
-  
+
         },
         contentArea: {
           paddingTop: 16,

@@ -1,4 +1,4 @@
-import React, {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Pressable,
   ActivityIndicator,
   ImageBackground,
+  StatusBar,
   useWindowDimensions,
   type ListRenderItem,
   type NativeSyntheticEvent,
@@ -16,19 +17,19 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Path} from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 import {
   useNavigation,
   useRoute,
   type RouteProp,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
-import {Lexend} from '../../theme/lexend';
-import {formatCurrency} from '../transactions/TransactionItem';
-import {DevelopmentNoticeModal} from '../components';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
+import { useTheme, type ThemeColors } from '../../providers/theme';
+import { Lexend } from '../../theme/lexend';
+import { formatCurrency } from '../transactions/TransactionItem';
+import { DevelopmentNoticeModal } from '../components';
 import {
   useCardDetailViewModel,
   type CardDetailResolved,
@@ -49,7 +50,7 @@ const CARD_NETWORK_LABEL = 'Bankard';
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'CardDetail'>;
 
 /** Misma familia de iconos que `TransactionsScreen` (movimientos). */
-function BackIcon({color}: Readonly<{color: string}>) {
+function BackIcon({ color }: Readonly<{ color: string }>) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24">
       <Path
@@ -60,7 +61,7 @@ function BackIcon({color}: Readonly<{color: string}>) {
   );
 }
 
-function ChevronRightIcon({color}: Readonly<{color: string}>) {
+function ChevronRightIcon({ color }: Readonly<{ color: string }>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -110,7 +111,7 @@ function formatShortDueDate(iso: string): string {
 function CreditCardPayIcon({
   color,
   size = 20,
-}: Readonly<{color: string; size?: number}>) {
+}: Readonly<{ color: string; size?: number }>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -124,7 +125,7 @@ function CreditCardPayIcon({
 function CalendarDeferIcon({
   color,
   size = 20,
-}: Readonly<{color: string; size?: number}>) {
+}: Readonly<{ color: string; size?: number }>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -138,7 +139,7 @@ function CalendarDeferIcon({
 function StatementIcon({
   color,
   size = 20,
-}: Readonly<{color: string; size?: number}>) {
+}: Readonly<{ color: string; size?: number }>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -152,7 +153,7 @@ function StatementIcon({
 function CashAdvanceIcon({
   color,
   size = 20,
-}: Readonly<{color: string; size?: number}>) {
+}: Readonly<{ color: string; size?: number }>) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       <Path
@@ -163,7 +164,7 @@ function CashAdvanceIcon({
   );
 }
 
-function EyeIcon({color}: Readonly<{color: string}>) {
+function EyeIcon({ color }: Readonly<{ color: string }>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -174,7 +175,7 @@ function EyeIcon({color}: Readonly<{color: string}>) {
   );
 }
 
-function EyeSlashIcon({color}: Readonly<{color: string}>) {
+function EyeSlashIcon({ color }: Readonly<{ color: string }>) {
   return (
     <Svg width={16} height={16} viewBox="0 0 24 24">
       <Path
@@ -186,15 +187,15 @@ function EyeSlashIcon({color}: Readonly<{color: string}>) {
 }
 
 export function CardDetailScreen() {
-  const {colors} = useTheme();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const {width: windowWidth} = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
   const styles = useStyles(colors);
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<HomeStackParamList, 'CardDetail'>>();
-  const {maskedCardNumber} = route.params;
+  const { maskedCardNumber } = route.params;
 
-  const {cardsForCarousel, resolved, isLoading, errorMessage, consumptions} =
+  const { cardsForCarousel, resolved, isLoading, errorMessage, consumptions } =
     useCardDetailViewModel(maskedCardNumber);
 
   /** Un solo control para todas las tarjetas del carrusel (mostrar/ocultar saldo). */
@@ -244,10 +245,10 @@ export function CardDetailScreen() {
   );
 
   const renderHeroSlide: ListRenderItem<CardDetailResolved> = useCallback(
-    ({item}) => {
+    ({ item }) => {
       const masked = balanceMasked;
       return (
-        <View style={[styles.heroSlide, {width: windowWidth}]}>
+        <View style={[styles.heroSlide, { width: windowWidth }]}>
           <View style={styles.heroSlideInner}>
             <View style={styles.heroAccountRow}>
               <View style={styles.heroTitleBlock}>
@@ -307,7 +308,7 @@ export function CardDetailScreen() {
 
   const darkChromeBar = useMemo(
     () => (
-      <View style={[styles.darkChromeBar, {paddingTop: insets.top}]}>
+      <View style={[styles.darkChromeBar, { paddingTop: insets.top }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           hitSlop={12}
@@ -370,12 +371,14 @@ export function CardDetailScreen() {
     );
   }
 
-  const {approvedLimit, utilized, available, utilizationRatio} =
+  const { approvedLimit, utilized, available, utilizationRatio } =
     activeSlideForMetrics;
   const totalConsumptions = consumptions.length;
 
   return (
     <View style={styles.root} testID="card-detail-screen">
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <View style={[styles.statusBarBackdrop, { height: insets.top + 200 }]} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -387,7 +390,7 @@ export function CardDetailScreen() {
           style={styles.heroGradient}
           resizeMode="cover"
           imageStyle={styles.heroBackgroundImage}>
-          <View style={[styles.heroHeaderFixed, {paddingTop: insets.top + 20}]}>
+          <View style={[styles.heroHeaderFixed, { paddingTop: insets.top + 20 }]}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               hitSlop={12}
@@ -418,9 +421,9 @@ export function CardDetailScreen() {
               Math.max(4, initialCarouselIndex + 1),
             )}
             onMomentumScrollEnd={onHeroScrollEnd}
-            onScrollToIndexFailed={({index}) => {
+            onScrollToIndexFailed={({ index }) => {
               setTimeout(() => {
-                heroListRef.current?.scrollToIndex({index, animated: false});
+                heroListRef.current?.scrollToIndex({ index, animated: false });
               }, 100);
             }}
             style={styles.heroCarousel}
@@ -458,7 +461,7 @@ export function CardDetailScreen() {
           </View>
           <View style={styles.progressTrack}>
             <View
-              style={[styles.progressFill, {width: `${utilizationRatio * 100}%`}]}
+              style={[styles.progressFill, { width: `${utilizationRatio * 100}%` }]}
             />
           </View>
         </View>
@@ -515,7 +518,7 @@ export function CardDetailScreen() {
           return (
             <Pressable
               key={`${row.merchant}-${row.day}-${index}`}
-              style={({pressed}) => [
+              style={({ pressed }) => [
                 styles.movRow,
                 isFirst && styles.movRowFirst,
                 isLast && styles.movRowLast,
@@ -535,7 +538,7 @@ export function CardDetailScreen() {
                 </Text>
               </View>
               <View style={styles.movAmountWrap}>
-                <Text style={[styles.movAmount, {color: amountColor}]}>{amountText}</Text>
+                <Text style={[styles.movAmount, { color: amountColor }]}>{amountText}</Text>
                 <ChevronRightIcon color={colors.iconPrimary} />
               </View>
             </Pressable>
@@ -558,6 +561,14 @@ function useStyles(colors: ThemeColors) {
         root: {
           flex: 1,
           backgroundColor: colors.background,
+        },
+        statusBarBackdrop: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: colors.homeCreditCardSurface,
+          zIndex: 0,
         },
         scroll: {
           flex: 1,

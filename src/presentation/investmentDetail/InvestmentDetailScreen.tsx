@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -11,26 +11,27 @@ import {
     useWindowDimensions,
     type NativeScrollEvent,
     type NativeSyntheticEvent,
+    StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Path} from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 import {
     useNavigation,
     useRoute,
     type RouteProp,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {InvestmentDetail} from '../../domain/entities/InvestmentDetail';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers/theme';
-import {Lexend} from '../../theme/lexend';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { InvestmentDetail } from '../../domain/entities/InvestmentDetail';
+import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
+import { useTheme, type ThemeColors } from '../../providers/theme';
+import { Lexend } from '../../theme/lexend';
 import {
     formatIsoDateMediumEsEc,
     formatIsoDateShortEsEc,
     formatPercentEsMx,
 } from '../../utils/formatLocale';
-import {formatCurrency} from '../transactions/TransactionItem';
+import { formatCurrency } from '../transactions/TransactionItem';
 import {
     DevelopmentNoticeModal,
     EyeIcon,
@@ -40,7 +41,7 @@ import {
     buildInvestmentDetailSlides,
     type InvestmentDetailSlide,
 } from './investmentDetailSlideMocks';
-import {useInvestmentDetailViewModel} from './useInvestmentDetailViewModel';
+import { useInvestmentDetailViewModel } from './useInvestmentDetailViewModel';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'InvestmentDetail'>;
 
@@ -63,7 +64,7 @@ function getAdvanceBarPercent(s: InvestmentDetailSlide): number {
 }
 
 /** Misma familia de iconos que `CardDetailScreen`. */
-function BackIcon({color}: Readonly<{color: string}>) {
+function BackIcon({ color }: Readonly<{ color: string }>) {
     return (
         <Svg width={22} height={22} viewBox="0 0 24 24">
             <Path
@@ -75,14 +76,14 @@ function BackIcon({color}: Readonly<{color: string}>) {
 }
 
 export function InvestmentDetailScreen() {
-    const {colors} = useTheme();
+    const { colors } = useTheme();
     const insets = useSafeAreaInsets();
     const styles = useStyles(colors);
     const navigation = useNavigation<Nav>();
     const route = useRoute<RouteProp<HomeStackParamList, 'InvestmentDetail'>>();
-    const {investmentGuid, investmentBalance} = route.params;
+    const { investmentGuid, investmentBalance } = route.params;
 
-    const {detail, isLoading, errorMessage} = useInvestmentDetailViewModel(
+    const { detail, isLoading, errorMessage } = useInvestmentDetailViewModel(
         investmentGuid,
         investmentBalance,
     );
@@ -104,16 +105,16 @@ export function InvestmentDetailScreen() {
 
     const investmentChromeBar = useMemo(
         () => (
-            <View style={[styles.investmentChromeBar, {paddingTop: insets.top}]}>
+            <View style={[styles.investmentChromeBar, { paddingTop: insets.top }]}>
                 <TouchableOpacity
                     onPress={goBack}
                     hitSlop={12}
                     accessibilityRole="button"
                     accessibilityLabel="Volver">
-                    <BackIcon color={colors.white}/>
+                    <BackIcon color={colors.white} />
                 </TouchableOpacity>
                 <Text style={styles.investmentChromeTitle}>{headerTitle}</Text>
-                <View style={styles.chromeSpacer}/>
+                <View style={styles.chromeSpacer} />
             </View>
         ),
         [
@@ -133,7 +134,7 @@ export function InvestmentDetailScreen() {
             {showLoading ? (
                 <>
                     {investmentChromeBar}
-                    <InvestmentDetailLoading colors={colors} styles={styles}/>
+                    <InvestmentDetailLoading colors={colors} styles={styles} />
                 </>
             ) : null}
 
@@ -168,24 +169,24 @@ export function InvestmentDetailScreen() {
 }
 
 function InvestmentDetailLoading({
-                                     colors,
-                                     styles,
-                                 }: Readonly<{
+    colors,
+    styles,
+}: Readonly<{
     colors: ThemeColors;
     styles: Pick<ReturnType<typeof useStyles>, 'centered'>;
 }>) {
     return (
         <View style={styles.centered}>
-            <ActivityIndicator size="small" color={colors.primary}/>
+            <ActivityIndicator size="small" color={colors.primary} />
         </View>
     );
 }
 
 function InvestmentDetailError({
-                                   errorMessage,
-                                   onBack,
-                                   styles,
-                               }: Readonly<{
+    errorMessage,
+    onBack,
+    styles,
+}: Readonly<{
     errorMessage: string;
     onBack: () => void;
     styles: Pick<
@@ -206,18 +207,18 @@ function InvestmentDetailError({
 }
 
 function InvestmentDetailLoadedContent({
-                                           detail: d,
-                                           amountMasked,
-                                           onToggleAmountMasked,
-                                           colors,
-                                           styles,
-                                           onOpenDetailsDev,
-                                           devModalVisible,
-                                           onCloseDevModal,
-                                           topInset,
-                                           headerTitle,
-                                           onBack,
-                                       }: Readonly<{
+    detail: d,
+    amountMasked,
+    onToggleAmountMasked,
+    colors,
+    styles,
+    onOpenDetailsDev,
+    devModalVisible,
+    onCloseDevModal,
+    topInset,
+    headerTitle,
+    onBack,
+}: Readonly<{
     detail: InvestmentDetail;
     amountMasked: boolean;
     onToggleAmountMasked: () => void;
@@ -230,7 +231,7 @@ function InvestmentDetailLoadedContent({
     headerTitle: string;
     onBack: () => void;
 }>) {
-    const {width: windowWidth} = useWindowDimensions();
+    const { width: windowWidth } = useWindowDimensions();
     const detailSlides = useMemo(
         () => buildInvestmentDetailSlides(d),
         [d],
@@ -250,7 +251,7 @@ function InvestmentDetailLoadedContent({
 
     useEffect(() => {
         setHeroPageIndex(0);
-        heroCarouselRef.current?.scrollTo({x: 0, animated: false});
+        heroCarouselRef.current?.scrollTo({ x: 0, animated: false });
     }, [d.investmentGuid]);
 
     const onHeroMomentumScrollEnd = useCallback(
@@ -277,6 +278,8 @@ function InvestmentDetailLoadedContent({
 
     return (
         <>
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
             <ScrollView
                 style={styles.scroll}
                 contentContainerStyle={styles.scrollContent}
@@ -287,14 +290,14 @@ function InvestmentDetailLoadedContent({
                         colors.homeInvestmentCardGradientStart,
                         colors.homeInvestmentCardGradientEnd,
                     ]}
-                    start={{x: 0.08, y: 1}}
-                    end={{x: 0.95, y: 0}}
+                    start={{ x: 0.08, y: 1 }}
+                    end={{ x: 0.95, y: 0 }}
                     style={styles.heroGradient}
                 >
                     <View
                         style={[
                             styles.heroHeaderFixed,
-                            {paddingTop: topInset + 20},
+                            { paddingTop: topInset + 20 },
                         ]}
                     >
                         <TouchableOpacity
@@ -302,7 +305,7 @@ function InvestmentDetailLoadedContent({
                             hitSlop={12}
                             accessibilityRole="button"
                             accessibilityLabel="Volver">
-                            <BackIcon color={colors.white}/>
+                            <BackIcon color={colors.white} />
                         </TouchableOpacity>
                         <Text style={styles.heroScreenTitle}>{headerTitle}</Text>
                     </View>
@@ -320,7 +323,7 @@ function InvestmentDetailLoadedContent({
                         {detailSlides.map(slide => (
                             <View
                                 key={slide.key}
-                                style={[styles.heroSlidePage, {width: windowWidth}]}
+                                style={[styles.heroSlidePage, { width: windowWidth }]}
                             >
                                 <View style={styles.heroInner}>
                                     <View style={styles.heroTopRow}>
@@ -346,9 +349,9 @@ function InvestmentDetailLoadedContent({
                                             }
                                         >
                                             {amountMasked ? (
-                                                <EyeSlashIcon color={colors.primary} size={16}/>
+                                                <EyeSlashIcon color={colors.primary} size={16} />
                                             ) : (
-                                                <EyeIcon color={colors.primary} size={16}/>
+                                                <EyeIcon color={colors.primary} size={16} />
                                             )}
                                         </TouchableOpacity>
                                     </View>
@@ -393,7 +396,7 @@ function InvestmentDetailLoadedContent({
                             </Text>
                         </View>
 
-                        <View style={styles.cardHairline}/>
+                        <View style={styles.cardHairline} />
 
                         <View style={styles.avanceBlock}>
                             <View style={styles.avanceRow}>
@@ -434,7 +437,7 @@ function InvestmentDetailLoadedContent({
                             </View>
                         </View>
 
-                        <View style={styles.cardHairline}/>
+                        <View style={styles.cardHairline} />
 
                         <View style={styles.yieldRow}>
                             <View style={styles.yieldCol}>
@@ -670,7 +673,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 1},
+                            shadowOffset: { width: 0, height: 1 },
                             shadowOpacity: 0.1,
                             shadowRadius: 2,
                         },
@@ -793,7 +796,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 1},
+                            shadowOffset: { width: 0, height: 1 },
                             shadowOpacity: 0.12,
                             shadowRadius: 2,
                         },
@@ -824,7 +827,7 @@ function useStyles(colors: ThemeColors) {
                     ...Platform.select({
                         ios: {
                             shadowColor: colors.shadowSoft,
-                            shadowOffset: {width: 0, height: 1},
+                            shadowOffset: { width: 0, height: 1 },
                             shadowOpacity: 0.1,
                             shadowRadius: 2,
                         },
