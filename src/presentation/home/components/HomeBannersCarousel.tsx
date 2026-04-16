@@ -9,8 +9,6 @@ import {
   Linking,
   useWindowDimensions,
   LayoutAnimation,
-  Platform,
-  UIManager,
   type TextStyle,
   type ImageStyle,
   type ViewStyle,
@@ -35,13 +33,6 @@ const DEFAULT_AUTO_ADVANCE_MS = 15000;
 
 /** Colapso al cerrar banners: más largo y suave que el preset por defecto (~300ms). */
 const BANNER_DISMISS_LAYOUT_DURATION_MS = 720;
-
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 function configureBannerDismissLayoutAnimation(): void {
   LayoutAnimation.configureNext({
