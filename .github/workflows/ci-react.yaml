@@ -54,3 +54,15 @@ jobs:
           name: coverage
           path: coverage/**
           if-no-files-found: ignore
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
+      - uses: github/codeql-action/analyze@v4
+    
