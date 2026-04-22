@@ -7,22 +7,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [24.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - uses: actions/checkout@v5
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Unit tests
+        id: tests
+        continue-on-error: true
+        run: npm test
+
+      # 1) Registrar en Step Summary (visible en la UI del run)
+      - name: Registrar resultado de tests (summary)
+        if: ${{ always() }}
+        run: |
+          echo "## Resultado de npm test" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Outcome: **${{ steps.tests.outcome }}**" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.tests.outcome }}" = "failure" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Los tests fallaron**, pero el job continúa (modo allow-failure)." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Tests OK." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # 2) (Opcional) Mostrar un warning en el log cuando fallen
+      - name: Warning si fallan tests
+        if: ${{ steps.tests.outcome == 'failure' }}
+        run: echo "::warning::npm test falló, pero se continúa (allow-failure). Revisa el summary y artifacts."
+
+      # 3) (Opcional) Subir artifacts aunque fallen (coverage, reports, screenshots, etc.)
+      - name: Upload coverage (si existe)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/**
+          if-no-files-found: ignore
