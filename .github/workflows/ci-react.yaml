@@ -1,14 +1,15 @@
-# Workflow para configurar y analizar el proyecto react
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
 name: CI React
-# Incialmente se ejecutar manualmente, posteriormente al realizar un push o un pull request hacia la rama master
+
 on:
   workflow_dispatch:
 
-# Trabajos
 jobs:
   build:
 
-  runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
