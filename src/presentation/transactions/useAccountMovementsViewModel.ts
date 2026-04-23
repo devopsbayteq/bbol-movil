@@ -7,6 +7,10 @@ import {
   labelForMovementEnumType,
   type MovementTransactionEnumType,
 } from './transactionTypeFilterOptions';
+import {
+  getMockCarouselAccounts,
+  isCarouselMockAccount,
+} from './mockCarouselAccounts';
 
 export type {MovementTransactionEnumType} from './transactionTypeFilterOptions';
 
@@ -149,6 +153,11 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
   const [selectedAccount, setSelectedAccount] = useState<AccountBalance | null>(
     null,
   );
+  /** Cuenta resuelta por el API (slide 0 del carrusel). */
+  const [realAccount, setRealAccount] = useState<AccountBalance | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  /** Incrementa al resetear el carrusel al slide 0 (p. ej. refresh); la UI puede hacer scroll al inicio. */
+  const [carouselHeroResetKey, setCarouselHeroResetKey] = useState(0);
   const [accountError, setAccountError] = useState<string | null>(null);
   const [items, setItems] = useState<AccountMovement[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -219,6 +228,7 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
       try {
         const data = await getHomeContractBalanceUseCase.execute();
         if (!data.accounts.length) {
+          setRealAccount(null);
           setSelectedAccount(null);
           setAccountError('No hay cuentas disponibles');
           return null;
@@ -227,12 +237,16 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
           ? data.accounts.find(a => a.accountGuid === guidParam)
           : undefined;
         const acc = preferred ?? data.accounts[0];
+        setRealAccount(acc);
         setSelectedAccount(acc);
+        setCarouselIndex(0);
+        setCarouselHeroResetKey(k => k + 1);
         return acc;
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Error al cargar la cuenta';
         setAccountError(message);
+        setRealAccount(null);
         setSelectedAccount(null);
         return null;
       } finally {
@@ -245,6 +259,24 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
   useEffect(() => {
     resolveAccount(accountGuidFromRoute).catch(() => {});
   }, [accountGuidFromRoute, resolveAccount]);
+
+  const carouselAccounts = useMemo((): AccountBalance[] => {
+    if (!realAccount) {
+      return [];
+    }
+    return [realAccount, ...getMockCarouselAccounts()];
+  }, [realAccount]);
+
+  const selectCarouselAccount = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= carouselAccounts.length) {
+        return;
+      }
+      setCarouselIndex(index);
+      setSelectedAccount(carouselAccounts[index]);
+    },
+    [carouselAccounts],
+  );
 
   const fetchPage = useCallback(
     async (
@@ -260,6 +292,17 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
       },
       mode: 'replace' | 'append',
     ) => {
+      if (isCarouselMockAccount(account.accountGuid)) {
+        setMovementsError(null);
+        setIsLoadingMovements(false);
+        setIsLoadingMore(false);
+        if (page === 1 || mode === 'replace') {
+          setItems([]);
+          setTotalCount(0);
+          setPageNumber(1);
+        }
+        return;
+      }
       if (page === 1 && mode === 'replace') {
         setIsLoadingMovements(true);
       } else if (page > 1) {
@@ -371,7 +414,12 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
   ]);
 
   const loadMore = useCallback(async () => {
-    if (!selectedAccount || isLoadingMore || isLoadingMovements) {
+    if (
+      !selectedAccount ||
+      isCarouselMockAccount(selectedAccount.accountGuid) ||
+      isLoadingMore ||
+      isLoadingMovements
+    ) {
       return;
     }
     if (items.length >= totalCount) {
@@ -440,6 +488,11 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
 
   return {
     selectedAccount,
+    realAccount,
+    carouselAccounts,
+    carouselIndex,
+    carouselHeroResetKey,
+    selectCarouselAccount,
     accountError,
     isLoadingAccount,
     items,
@@ -467,6 +520,9 @@ export function useAccountMovementsViewModel(accountGuidFromRoute?: string) {
     hasActiveFilters,
     refresh,
     loadMore,
-    hasMore: selectedAccount !== null && items.length < totalCount,
+    hasMore:
+      selectedAccount !== null &&
+      !isCarouselMockAccount(selectedAccount.accountGuid) &&
+      items.length < totalCount,
   };
 }

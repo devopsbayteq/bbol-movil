@@ -1,0 +1,38 @@
+name: React CI Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-analize:
+    name: Preparar NodeJs y Analizar código
+    runs-on: macos-26
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Unit tests
+        id: tests
+        continue-on-error: true
+        run: npm test
+      
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: security-extended
+
+      - name: Ejecutar Análisis con CodeQL
+        uses: github/codeql-action/analyze@v3

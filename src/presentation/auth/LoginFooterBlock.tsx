@@ -5,7 +5,7 @@ import {useTheme, type ThemeColors} from '../../providers';
 import {TertiaryLinkButton} from '../components';
 import {Lexend} from '../../theme/lexend';
 
-const institutionIcon = require('../../../assets/images/institution.png');
+import InstitutionIconSvg from '../../../assets/images/svg/back_entity_icon.svg';
 const arrowRightIcon = require('../../../assets/images/arrow_rigth_black.png');
 
 export type LoginFooterContactVariant = 'first' | 'compact';
@@ -36,12 +36,7 @@ export function LoginFooterBlock({
         accessibilityRole="button"
         accessibilityLabel="Solicitar productos">
         <View style={styles.productIconCircle}>
-          <Image
-            source={institutionIcon}
-            style={styles.productIconImage}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-          />
+          <InstitutionIconSvg/>
         </View>
         <Text style={styles.productCardTitle}>Solicitar productos</Text>
         <View style={styles.arrowRightIconWrap}>

@@ -2,18 +2,24 @@ import React, {useMemo} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {UserAvatarIcon, BellIcon, LogoutIcon} from './HomeIcons';
+import {EyeIcon, EyeSlashIcon} from '../../components';
+import {UserAvatarIcon, LogoutIcon, PlusIcon} from './HomeIcons';
 
 type Props = {
   userName?: string | null;
+  /** Cuando es true, los importes del carousel se muestran enmascarados. */
+  balancesMasked: boolean;
+  onToggleBalances: () => void;
+  onRequestProducts?: () => void;
   onLogout?: () => void;
-  onNotifications?: () => void;
 };
 
 export function HomeHeader({
   userName,
+  balancesMasked,
+  onToggleBalances,
+  onRequestProducts,
   onLogout,
-  onNotifications,
 }: Readonly<Props>) {
   const {colors} = useTheme();
   const styles = useStyles(colors);
@@ -27,7 +33,8 @@ export function HomeHeader({
         </View>
         <View style={styles.greetingBlock}>
           <Text style={styles.greetingLine} accessibilityRole="header">
-            <Text style={styles.greetingHola}>Hola, </Text>
+            <Text style={styles.greetingHola}>Hola</Text>
+            <Text style={styles.greetingComma}>, </Text>
             <Text style={styles.greetingName}>{displayName}</Text>
           </Text>
         </View>
@@ -35,12 +42,31 @@ export function HomeHeader({
 
       <View style={styles.rightGroup}>
         <TouchableOpacity
-          onPress={onNotifications}
+          onPress={onToggleBalances}
           accessibilityRole="button"
-          accessibilityLabel="Notificaciones"
+          accessibilityLabel={
+            balancesMasked ? 'Mostrar montos de productos' : 'Ocultar montos'
+          }
+          hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}
           activeOpacity={0.7}>
-          <BellIcon color={colors.white} size={20} />
+          {balancesMasked ? (
+            <EyeSlashIcon color={colors.white} size={20} />
+          ) : (
+            <EyeIcon color={colors.white} size={20} />
+          )}
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.productosPill}
+          onPress={onRequestProducts}
+          disabled={!onRequestProducts}
+          accessibilityRole="button"
+          accessibilityLabel="Solicitar productos"
+          activeOpacity={0.75}>
+          <PlusIcon color={colors.white} size={12} />
+          <Text style={styles.productosPillText}>Productos</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           testID="logout-button"
           onPress={onLogout}
@@ -64,8 +90,8 @@ function useStyles(colors: ThemeColors) {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: 24,
-          paddingTop: 32,
-          paddingBottom: 16,
+          paddingTop: 24,
+          paddingBottom: 8,
         },
         leftGroup: {
           flexDirection: 'row',
@@ -91,20 +117,42 @@ function useStyles(colors: ThemeColors) {
         },
         greetingHola: {
           fontFamily: Lexend.regular,
-          fontSize: 18,
-          lineHeight: 28,
+          fontSize: 16,
+          lineHeight: 24,
+          color: colors.white,
+        },
+        greetingComma: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 24,
           color: colors.white,
         },
         greetingName: {
           fontFamily: Lexend.semiBold,
-          fontSize: 18,
-          lineHeight: 28,
+          fontSize: 16,
+          lineHeight: 24,
           color: colors.white,
         },
         rightGroup: {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 16,
+          gap: 12,
+          flexShrink: 0,
+        },
+        productosPill: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          borderRadius: 8,
+          backgroundColor: colors.homeHeaderIconButtonBg,
+        },
+        productosPillText: {
+          fontFamily: Lexend.regular,
+          fontSize: 12,
+          lineHeight: 20,
+          color: colors.white,
         },
         logoutBtn: {
           width: 32,

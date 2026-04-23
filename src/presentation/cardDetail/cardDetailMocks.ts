@@ -1,3 +1,5 @@
+import type {CreditCardBalance} from '../../domain/entities/ContractBalance';
+
 /** Línea de consumo en tarjeta (API no expone movimientos de tarjeta en este proyecto). */
 export interface CardConsumptionRow {
   day: string;
@@ -60,3 +62,19 @@ export function resolveApprovedCreditLimit(totalDue: number): number {
   const scaled = Math.ceil(Math.max(totalDue * 2.5, MOCK_APPROVED_CREDIT_FLOOR));
   return scaled;
 }
+
+/**
+ * Tarjetas demo solo para el carrusel en `CardDetailScreen` (no se muestran en Home).
+ */
+export const EXTRA_DEMO_CREDIT_CARDS_FOR_DETAIL: readonly CreditCardBalance[] = [
+  {
+    maskedCardNumber: '4454**** 8912',
+    totalDue: 890.12,
+    maxPaymentDate: '2026-06-10',
+  },
+  {
+    maskedCardNumber: '4454**** 7733',
+    totalDue: 2100,
+    maxPaymentDate: '2026-04-22',
+  },
+];

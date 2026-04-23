@@ -16,6 +16,8 @@ export interface ThemeColors {
   placeholder: string;
   buttonSecondaryBg: string;
   iconPrimary: string;
+  /** Flecha “atrás” (SVG): default histórico #1A1A1A; mismo valor en light/dark. */
+  backNavigationArrow: string;
   linkPrimary: string;
   error: string;
   errorBg: string;
@@ -73,6 +75,11 @@ export interface ThemeColors {
 
   primaryIconContainerBg: string;
 
+  /** Leyenda calendario actividades — créditos (Figma #0a7111). */
+  calendarCreditIndicator: string;
+  /** Leyenda calendario actividades — débitos (Figma #be1125). */
+  calendarDebitIndicator: string;
+
 }
 
 /** Tokens con el mismo valor en light y dark (marca / superficies fijas). */
@@ -103,6 +110,7 @@ type ThemeColorsShared = Pick<
   | 'white'
   | 'primaryIconContainerBg'
   | 'homeStarIcon'
+  | 'backNavigationArrow'
 >;
 
 type ThemeColorsVariant = Omit<ThemeColors, keyof ThemeColorsShared>;
@@ -133,6 +141,7 @@ const themeColorsShared: ThemeColorsShared = {
   white: '#FFFFFF',
   primaryIconContainerBg: '#D0F0F6',
   homeStarIcon: '#FFD416',
+  backNavigationArrow: '#1A1A1A',
 };
 
 const lightPalette: ThemeColorsVariant = {
@@ -165,6 +174,8 @@ const lightPalette: ThemeColorsVariant = {
   homeBalanceToggleBg: '#d0f0f6',
   lineSeparator: '#d6d6d6',
   chartAccent: '#962DFF',
+  calendarCreditIndicator: '#0a7111',
+  calendarDebitIndicator: '#be1125',
 };
 
 const darkPalette: ThemeColorsVariant = {
@@ -197,6 +208,8 @@ const darkPalette: ThemeColorsVariant = {
   homeBalanceToggleBg: '#94E0ED',
   lineSeparator: '#374151',
   chartAccent: '#B76EFF',
+  calendarCreditIndicator: '#34D399',
+  calendarDebitIndicator: '#F87171',
 };
 
 export const LightColors: ThemeColors = {

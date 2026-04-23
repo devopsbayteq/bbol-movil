@@ -17,3 +17,4 @@ export {DevelopmentNoticeModal} from './DevelopmentNoticeModal';
 export {LoginHeroImageCarousel} from './LoginHeroImageCarousel';
 export {EyeIcon, EyeSlashIcon} from './EyeIcons';
 export {HomeStackDetailHeader} from './HomeStackDetailHeader';
+export {BackNavigationArrow} from './BackNavigationArrow';

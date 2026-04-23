@@ -1,718 +1,900 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    ActivityIndicator,
+    Platform,
+    Pressable,
+    useWindowDimensions,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
+    StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import {
-  useNavigation,
-  useRoute,
-  type RouteProp,
+    useNavigation,
+    useRoute,
+    type RouteProp,
 } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { InvestmentDetail } from '../../domain/entities/InvestmentDetail';
 import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
 import { useTheme, type ThemeColors } from '../../providers/theme';
-import {Lexend} from '../../theme/lexend';
-import {formatIsoDateShortEsEc, formatPercentEsMx} from '../../utils/formatLocale';
-import {formatCurrency} from '../transactions/TransactionItem';
+import { Lexend } from '../../theme/lexend';
 import {
-  DevelopmentNoticeModal,
-  EyeIcon,
-  EyeSlashIcon,
-  HomeStackDetailHeader,
+    formatIsoDateMediumEsEc,
+    formatIsoDateShortEsEc,
+    formatPercentEsMx,
+} from '../../utils/formatLocale';
+import { formatCurrency } from '../transactions/TransactionItem';
+import {
+    DevelopmentNoticeModal,
+    EyeIcon,
+    EyeSlashIcon,
 } from '../components';
-import {useInvestmentDetailViewModel} from './useInvestmentDetailViewModel';
+import {
+    buildInvestmentDetailSlides,
+    type InvestmentDetailSlide,
+} from './investmentDetailSlideMocks';
+import { useInvestmentDetailViewModel } from './useInvestmentDetailViewModel';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'InvestmentDetail'>;
 
-const EMPTY_PROGRESS_METRICS = {
-  paidPct: 0,
-  secondaryPct: 0,
-  thumbLeftPct: 0,
-  termMonths: 0,
-} as const;
-
-function getInvestmentDetailProgressMetrics(detail: InvestmentDetail | null) {
-  if (!detail) {
-    return {...EMPTY_PROGRESS_METRICS};
-  }
-
-  const paidPct = Math.min(100, Math.max(0, detail.paidProgressRatio * 100));
-  const secondaryPct = Math.min(
-    paidPct,
-    Math.max(0, detail.secondaryProgressRatio * 100),
-  );
-  const thumbLeftPct = detail.paidProgressRatio * 100;
-  const termMonths = Math.max(1, Math.round(detail.termDays / 30));
-
-  return { paidPct, secondaryPct, thumbLeftPct, termMonths };
+function formatMoneyMasked(masked: boolean, amount: number): string {
+    return masked ? '$**.**' : formatCurrency(amount);
 }
 
-function ListUlIcon({color}: Readonly<{color: string}>) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 24 24">
-      <Path
-        fill={color}
-        d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
-      />
-    </Svg>
-  );
+function getMonthlyInterest(s: InvestmentDetailSlide): number {
+    if (s.installmentsTotal <= 0) {
+        return 0;
+    }
+    return Math.round((s.interestAtMaturity / s.installmentsTotal) * 100) / 100;
+}
+
+function getAdvanceBarPercent(s: InvestmentDetailSlide): number {
+    if (s.installmentsTotal <= 0) {
+        return 0;
+    }
+    return Math.min(100, (s.installmentsPaid / s.installmentsTotal) * 100);
+}
+
+/** Misma familia de iconos que `CardDetailScreen`. */
+function BackIcon({ color }: Readonly<{ color: string }>) {
+    return (
+        <Svg width={22} height={22} viewBox="0 0 24 24">
+            <Path
+                fill={color}
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+            />
+        </Svg>
+    );
 }
 
 export function InvestmentDetailScreen() {
-  const { colors } = useTheme();
-  const styles = useStyles(colors);
-  const navigation = useNavigation<Nav>();
-  const route = useRoute<RouteProp<HomeStackParamList, 'InvestmentDetail'>>();
-  const { investmentGuid, investmentBalance } = route.params;
+    const { colors } = useTheme();
+    const insets = useSafeAreaInsets();
+    const styles = useStyles(colors);
+    const navigation = useNavigation<Nav>();
+    const route = useRoute<RouteProp<HomeStackParamList, 'InvestmentDetail'>>();
+    const { investmentGuid, investmentBalance } = route.params;
 
-  const { detail, isLoading, errorMessage } = useInvestmentDetailViewModel(
-    investmentGuid,
-    investmentBalance,
-  );
+    const { detail, isLoading, errorMessage } = useInvestmentDetailViewModel(
+        investmentGuid,
+        investmentBalance,
+    );
 
-  const [amountMasked, setAmountMasked] = useState(true);
-  const [devModalVisible, setDevModalVisible] = useState(false);
-  const openDetailsDev = useCallback(() => setDevModalVisible(true), []);
-  const closeDevModal = useCallback(() => setDevModalVisible(false), []);
+    const [amountMasked, setAmountMasked] = useState(true);
+    const [devModalVisible, setDevModalVisible] = useState(false);
+    const openDetailsDev = useCallback(() => setDevModalVisible(true), []);
+    const closeDevModal = useCallback(() => setDevModalVisible(false), []);
 
-  const headerTitle = useMemo(() => 'INVERSIONES', []);
+    const headerTitle = useMemo(() => 'INVERSIONES', []);
 
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+    const goBack = useCallback(() => {
+        navigation.goBack();
+    }, [navigation]);
 
-  const showLoading = isLoading && !detail;
-  const showError = !showLoading && (Boolean(errorMessage) || !detail);
-  const resolvedDetail = !showLoading && !showError ? detail : null;
+    const showLoading = isLoading && !detail;
+    const showError = !showLoading && (Boolean(errorMessage) || !detail);
+    const resolvedDetail = !showLoading && !showError ? detail : null;
 
-  const progressMetrics = useMemo(
-    () => getInvestmentDetailProgressMetrics(resolvedDetail),
-    [resolvedDetail],
-  );
+    const investmentChromeBar = useMemo(
+        () => (
+            <View style={[styles.investmentChromeBar, { paddingTop: insets.top }]}>
+                <TouchableOpacity
+                    onPress={goBack}
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel="Volver">
+                    <BackIcon color={colors.white} />
+                </TouchableOpacity>
+                <Text style={styles.investmentChromeTitle}>{headerTitle}</Text>
+                <View style={styles.chromeSpacer} />
+            </View>
+        ),
+        [
+            colors.white,
+            goBack,
+            headerTitle,
+            insets.top,
+            styles.chromeSpacer,
+            styles.investmentChromeBar,
+            styles.investmentChromeTitle,
+        ],
+    );
 
-  return (
-    <SafeAreaView
-      style={styles.safe}
-      edges={['top']}
-      testID="investment-detail-screen"
-    >
-      <HomeStackDetailHeader title={headerTitle} onPressBack={goBack} />
+    return (
+        <View style={styles.root} testID="investment-detail-screen">
 
-      {showLoading ? (
-        <InvestmentDetailLoading colors={colors} styles={styles} />
-      ) : null}
+            {showLoading ? (
+                <>
+                    {investmentChromeBar}
+                    <InvestmentDetailLoading colors={colors} styles={styles} />
+                </>
+            ) : null}
 
-      {showError ? (
-        <InvestmentDetailError
-          errorMessage={errorMessage}
-          onBack={goBack}
-          styles={styles}
-        />
-      ) : null}
+            {showError ? (
+                <>
+                    {investmentChromeBar}
+                    <InvestmentDetailError
+                        errorMessage={errorMessage}
+                        onBack={goBack}
+                        styles={styles}
+                    />
+                </>
+            ) : null}
 
-      {resolvedDetail ? (
-        <InvestmentDetailLoadedContent
-          detail={resolvedDetail}
-          amountMasked={amountMasked}
-          onToggleAmountMasked={() => setAmountMasked(m => !m)}
-          paidPct={progressMetrics.paidPct}
-          secondaryPct={progressMetrics.secondaryPct}
-          thumbLeftPct={progressMetrics.thumbLeftPct}
-          termMonths={progressMetrics.termMonths}
-          colors={colors}
-          styles={styles}
-          onOpenDetailsDev={openDetailsDev}
-          devModalVisible={devModalVisible}
-          onCloseDevModal={closeDevModal}
-        />
-      ) : null}
-    </SafeAreaView>
-  );
+            {resolvedDetail ? (
+                <InvestmentDetailLoadedContent
+                    detail={resolvedDetail}
+                    amountMasked={amountMasked}
+                    onToggleAmountMasked={() => setAmountMasked(m => !m)}
+                    colors={colors}
+                    styles={styles}
+                    onOpenDetailsDev={openDetailsDev}
+                    devModalVisible={devModalVisible}
+                    onCloseDevModal={closeDevModal}
+                    topInset={insets.top}
+                    headerTitle={headerTitle}
+                    onBack={goBack}
+                />
+            ) : null}
+        </View>
+    );
 }
 
 function InvestmentDetailLoading({
-  colors,
-  styles,
+    colors,
+    styles,
 }: Readonly<{
-  colors: ThemeColors;
-  styles: Pick<ReturnType<typeof useStyles>, 'centered'>;
+    colors: ThemeColors;
+    styles: Pick<ReturnType<typeof useStyles>, 'centered'>;
 }>) {
-  return (
-    <View style={styles.centered}>
-      <ActivityIndicator size="small" color={colors.primary} />
-    </View>
-  );
+    return (
+        <View style={styles.centered}>
+            <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+    );
 }
 
 function InvestmentDetailError({
-  errorMessage,
-  onBack,
-  styles,
+    errorMessage,
+    onBack,
+    styles,
 }: Readonly<{
-  errorMessage: string;
-  onBack: () => void;
-  styles: Pick<
-    ReturnType<typeof useStyles>,
-    'centered' | 'errorInline' | 'retryLink'
-  >;
+    errorMessage: string;
+    onBack: () => void;
+    styles: Pick<
+        ReturnType<typeof useStyles>,
+        'centered' | 'errorInline' | 'retryLink'
+    >;
 }>) {
-  return (
-    <View style={styles.centered}>
-      <Text style={styles.errorInline}>
-        {errorMessage || 'No se encontró la información de esta inversión.'}
-      </Text>
-      <TouchableOpacity onPress={onBack} accessibilityRole="button">
-        <Text style={styles.retryLink}>Volver</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    return (
+        <View style={styles.centered}>
+            <Text style={styles.errorInline}>
+                {errorMessage || 'No se encontró la información de esta inversión.'}
+            </Text>
+            <TouchableOpacity onPress={onBack} accessibilityRole="button">
+                <Text style={styles.retryLink}>Volver</Text>
+            </TouchableOpacity>
+        </View>
+    );
 }
 
 function InvestmentDetailLoadedContent({
-  detail: d,
-  amountMasked,
-  onToggleAmountMasked,
-  paidPct,
-  secondaryPct,
-  thumbLeftPct,
-  termMonths,
-  colors,
-  styles,
-  onOpenDetailsDev,
-  devModalVisible,
-  onCloseDevModal,
+    detail: d,
+    amountMasked,
+    onToggleAmountMasked,
+    colors,
+    styles,
+    onOpenDetailsDev,
+    devModalVisible,
+    onCloseDevModal,
+    topInset,
+    headerTitle,
+    onBack,
 }: Readonly<{
-  detail: InvestmentDetail;
-  amountMasked: boolean;
-  onToggleAmountMasked: () => void;
-  paidPct: number;
-  secondaryPct: number;
-  thumbLeftPct: number;
-  termMonths: number;
-  colors: ThemeColors;
-  styles: ReturnType<typeof useStyles>;
-  onOpenDetailsDev: () => void;
-  devModalVisible: boolean;
-  onCloseDevModal: () => void;
+    detail: InvestmentDetail;
+    amountMasked: boolean;
+    onToggleAmountMasked: () => void;
+    colors: ThemeColors;
+    styles: ReturnType<typeof useStyles>;
+    onOpenDetailsDev: () => void;
+    devModalVisible: boolean;
+    onCloseDevModal: () => void;
+    topInset: number;
+    headerTitle: string;
+    onBack: () => void;
 }>) {
-  return (
-    <>
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <LinearGradient
-          colors={[
-            colors.homeInvestmentCardGradientStart,
-            colors.homeInvestmentCardGradientEnd,
-          ]}
-          start={{ x: 0.08, y: 1 }}
-          end={{ x: 0.95, y: 0 }}
-          style={styles.heroGradient}
-        >
-          <View style={styles.heroInner}>
-            <View style={styles.heroTitleBlock}>
-              <Text style={styles.heroProductMuted} numberOfLines={2}>
-                {d.productName}
-              </Text>
-              <Text style={styles.heroLoanLine} numberOfLines={2}>
-                Nº {d.maskedAccountNumber}
-              </Text>
-            </View>
+    const { width: windowWidth } = useWindowDimensions();
+    const detailSlides = useMemo(
+        () => buildInvestmentDetailSlides(d),
+        [d],
+    );
+    const [heroPageIndex, setHeroPageIndex] = useState(0);
+    const activeSlide = useMemo(() => {
+        if (detailSlides.length === 0) {
+            return null;
+        }
+        const i = Math.min(
+            Math.max(heroPageIndex, 0),
+            detailSlides.length - 1,
+        );
+        return detailSlides[i];
+    }, [detailSlides, heroPageIndex]);
+    const heroCarouselRef = useRef<ScrollView>(null);
 
-            <View style={styles.heroBalanceRow}>
-              <View style={styles.heroBalanceSide} />
-              <View style={styles.heroAmountCol}>
-                <Text style={styles.heroAmount} numberOfLines={1}>
-                  {amountMasked
-                    ? '$**.**'
-                    : formatCurrency(d.totalToReceive)}
-                </Text>
-                <Text style={styles.heroNextPay}>
-                  Vence: {formatIsoDateShortEsEc(d.maturityDateIso)}
-                </Text>
-              </View>
-              <View style={styles.heroBalanceSideEnd}>
-                <TouchableOpacity
-                  style={styles.eyeBtn}
-                  onPress={onToggleAmountMasked}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    amountMasked ? 'Mostrar monto' : 'Ocultar monto'
-                  }
+    useEffect(() => {
+        setHeroPageIndex(0);
+        heroCarouselRef.current?.scrollTo({ x: 0, animated: false });
+    }, [d.investmentGuid]);
+
+    const onHeroMomentumScrollEnd = useCallback(
+        (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+            if (detailSlides.length === 0 || windowWidth <= 0) {
+                return;
+            }
+            const x = e.nativeEvent.contentOffset.x;
+            const i = Math.round(x / windowWidth);
+            const last = detailSlides.length - 1;
+            if (i >= 0 && i <= last) {
+                setHeroPageIndex(i);
+            }
+        },
+        [detailSlides.length, windowWidth],
+    );
+
+    if (!activeSlide) {
+        return null;
+    }
+
+    const advancePct = getAdvanceBarPercent(activeSlide);
+    const monthlyInterest = getMonthlyInterest(activeSlide);
+
+    return (
+        <>
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
+            <ScrollView
+                style={styles.scroll}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <LinearGradient
+                    colors={[
+                        colors.homeInvestmentCardGradientStart,
+                        colors.homeInvestmentCardGradientEnd,
+                    ]}
+                    start={{ x: 0.08, y: 1 }}
+                    end={{ x: 0.95, y: 0 }}
+                    style={styles.heroGradient}
                 >
-                  {amountMasked ? (
-                    <EyeSlashIcon color={colors.primary} size={16} />
-                  ) : (
-                    <EyeIcon color={colors.primary} size={16} />
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
+                    <View
+                        style={[
+                            styles.heroHeaderFixed,
+                            { paddingTop: topInset + 20 },
+                        ]}
+                    >
+                        <TouchableOpacity
+                            onPress={onBack}
+                            hitSlop={12}
+                            accessibilityRole="button"
+                            accessibilityLabel="Volver">
+                            <BackIcon color={colors.white} />
+                        </TouchableOpacity>
+                        <Text style={styles.heroScreenTitle}>{headerTitle}</Text>
+                    </View>
 
-            <View style={styles.periodInterestBlock}>
-              <Text style={styles.periodInterestCaption}>
-                Interés del periodo{' '}
-                {formatIsoDateShortEsEc(d.nextPaymentDateIso)}:
-              </Text>
-              <Text style={styles.periodInterestAmount}>
-                {amountMasked
-                  ? '$**.**'
-                  : formatCurrency(d.interestAtMaturity)}
-              </Text>
-            </View>
+                    <ScrollView
+                        ref={heroCarouselRef}
+                        horizontal
+                        pagingEnabled
+                        nestedScrollEnabled
+                        showsHorizontalScrollIndicator={false}
+                        decelerationRate="fast"
+                        onMomentumScrollEnd={onHeroMomentumScrollEnd}
+                        accessibilityRole="adjustable"
+                    >
+                        {detailSlides.map(slide => (
+                            <View
+                                key={slide.key}
+                                style={[styles.heroSlidePage, { width: windowWidth }]}
+                            >
+                                <View style={styles.heroInner}>
+                                    <View style={styles.heroTopRow}>
+                                        <View style={styles.heroTitleBlock}>
+                                            <Text
+                                                style={styles.heroProductMuted}
+                                                numberOfLines={2}
+                                            >
+                                                {slide.productName}
+                                            </Text>
+                                            <Text style={styles.heroLoanLine} numberOfLines={2}>
+                                                Nº {slide.maskedAccountNumber}
+                                            </Text>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={styles.eyeBtn}
+                                            onPress={onToggleAmountMasked}
+                                            accessibilityRole="button"
+                                            accessibilityLabel={
+                                                amountMasked
+                                                    ? 'Mostrar montos'
+                                                    : 'Ocultar montos'
+                                            }
+                                        >
+                                            {amountMasked ? (
+                                                <EyeSlashIcon color={colors.primary} size={16} />
+                                            ) : (
+                                                <EyeIcon color={colors.primary} size={16} />
+                                            )}
+                                        </TouchableOpacity>
+                                    </View>
 
-            <View style={styles.progressWrap}>
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    styles.progressFillWide,
-                    {
-                      width: `${paidPct}%`,
-                      backgroundColor: colors.homeAvatarCircle,
-                    },
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.progressFill,
-                    styles.progressFillTop,
-                    {
-                      width: `${secondaryPct}%`,
-                      backgroundColor: colors.homePrimaryHover,
-                    },
-                  ]}
-                />
-              </View>
-              <View
-                style={[
-                  styles.progressThumb,
-                  {
-                    left: `${thumbLeftPct}%`,
-                    borderColor: colors.homePrimaryHover,
-                    backgroundColor: colors.homeAvatarCircle,
-                    transform: [{ translateX: -8 }],
-                  },
-                ]}
-              />
-            </View>
+                                    <View style={styles.heroCapitalBlock}>
+                                        <Text style={styles.heroAmount} numberOfLines={1}>
+                                            {formatMoneyMasked(amountMasked, slide.initialAmount)}
+                                        </Text>
+                                        <Text style={styles.heroCapitalLabel}>
+                                            Capital invertido
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
+                    </ScrollView>
 
-            <View style={styles.breakdownRow}>
-              <View style={styles.breakdownCol}>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.initialAmount)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Capital inicial</Text>
-              </View>
-              <View style={styles.breakdownColCenter}>
-                <Text style={styles.breakdownCuotasMain}>
-                  {d.installmentsPaid}/{d.installmentsTotal}
-                </Text>
-                <Text style={styles.breakdownCuotasSub}>cuotas</Text>
-              </View>
-              <View style={[styles.breakdownCol, styles.breakdownColEnd]}>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.totalToReceive)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Total a recibir</Text>
-              </View>
-            </View>
+                    <View
+                        style={styles.pageDots}
+                        accessibilityLabel={`Página ${heroPageIndex + 1} de ${detailSlides.length}`}
+                    >
+                        {detailSlides.map((slide, i) => (
+                            <View
+                                key={slide.key}
+                                style={[
+                                    styles.pageDot,
+                                    i === heroPageIndex
+                                        ? styles.pageDotActive
+                                        : styles.pageDotInactive,
+                                ]}
+                            />
+                        ))}
+                    </View>
+                </LinearGradient>
 
-            <View style={styles.heroDivider} />
+                <View style={styles.lowerSection}>
+                    <View style={styles.summaryCard}>
+                        <View style={styles.summaryTopRow}>
+                            <Text style={styles.summaryLabelMuted}>Total a recibir</Text>
+                            <Text style={styles.summaryValueStrong}>
+                                {formatMoneyMasked(amountMasked, activeSlide.totalToReceive)}
+                            </Text>
+                        </View>
 
-            <View style={styles.debtRow}>
-              <View>
-                <Text style={styles.breakdownAmount}>
-                  {termMonths} meses
-                </Text>
-                <Text style={styles.breakdownLabel}>Plazo</Text>
-              </View>
-              <View style={styles.interestPeriodCol}>
-                <Text style={styles.breakdownAmount}>
-                  {formatCurrency(d.interestAtMaturity)}
-                </Text>
-                <Text style={styles.breakdownLabel}>Interés ganado</Text>
-                <Text style={styles.breakdownLabel}>al vencimiento</Text>
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
+                        <View style={styles.cardHairline} />
 
-        <View style={styles.lowerSection}>
-          <View style={styles.statRow}>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>
-                {formatIsoDateShortEsEc(d.openingDateIso)}
-              </Text>
-              <Text style={styles.statLabel}>Fecha de apertura</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValueStrong}>
-                {formatPercentEsMx(d.interestRatePercent, 1)}
-              </Text>
-              <Text style={styles.statLabel}>Tasa</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>
-                {formatIsoDateShortEsEc(d.maturityDateIso)}
-              </Text>
-              <Text style={styles.statLabel}>Fecha de vencimiento</Text>
-            </View>
-          </View>
+                        <View style={styles.avanceBlock}>
+                            <View style={styles.avanceRow}>
+                                <View style={styles.avanceColLeft}>
+                                    <Text style={styles.bodyTextTertiary}>Avance</Text>
+                                    <Text style={styles.bodyTextTertiary}>
+                                        <Text style={styles.avancePaid}>
+                                            {activeSlide.installmentsPaid}
+                                        </Text>
+                                        {` / ${activeSlide.installmentsTotal} meses`}
+                                    </Text>
+                                </View>
+                                <View style={styles.avanceColRight}>
+                                    <Text style={styles.dateLineSmall}>
+                                        <Text style={styles.bodyTextTertiary}>Apertura </Text>
+                                        <Text style={styles.dateLineStrong}>
+                                            {formatIsoDateMediumEsEc(activeSlide.openingDateIso)}
+                                        </Text>
+                                    </Text>
+                                    <Text style={styles.dateLineSmall}>
+                                        <Text style={styles.bodyTextTertiary}>Vencimiento </Text>
+                                        <Text style={styles.dateLineStrong}>
+                                            {formatIsoDateMediumEsEc(activeSlide.maturityDateIso)}
+                                        </Text>
+                                    </Text>
+                                </View>
+                            </View>
 
-          <View style={styles.debitCard}>
-            <Text style={styles.debitPurpose}>{d.debitPurposeLabel}</Text>
-            <Text style={styles.debitAccount}>{d.maskedDebitAccount}</Text>
-            <Text style={styles.debitCaption}>Cuenta a acreditar</Text>
-          </View>
+                            <View style={styles.summaryProgressTrack}>
+                                <View
+                                    style={[
+                                        styles.summaryProgressFill,
+                                        {
+                                            width: `${advancePct}%`,
+                                        },
+                                    ]}
+                                />
+                            </View>
+                        </View>
 
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            onPress={onOpenDetailsDev}
-            activeOpacity={0.9}
-            accessibilityRole="button"
-            accessibilityLabel="Ver detalles"
-          >
-            <Text style={styles.primaryBtnText}>Ver detalles</Text>
-            <ListUlIcon color={colors.white} />
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+                        <View style={styles.cardHairline} />
 
-      <DevelopmentNoticeModal
-        visible={devModalVisible}
-        onClose={onCloseDevModal}
-        title="En desarrollo"
-        message="Esta sección estará disponible próximamente."
-      />
-    </>
-  );
+                        <View style={styles.yieldRow}>
+                            <View style={styles.yieldCol}>
+                                <Text style={styles.summaryValueStrong}>
+                                    {formatMoneyMasked(
+                                        amountMasked,
+                                        activeSlide.interestAtMaturity,
+                                    )}
+                                </Text>
+                                <Text style={styles.summaryCaptionDark}>Rendimiento</Text>
+                            </View>
+                            <View style={[styles.yieldCol, styles.yieldColEnd]}>
+                                <Text style={styles.summaryValueStrong}>
+                                    {formatPercentEsMx(activeSlide.interestRatePercent, 1)}
+                                </Text>
+                                <Text style={styles.summaryCaptionDark}>Tasa anual</Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={styles.statRow}>
+                        <View style={styles.statCard}>
+                            <Text style={styles.statValue}>
+                                {formatMoneyMasked(amountMasked, activeSlide.totalToReceive)}
+                            </Text>
+                            <Text style={styles.statLabel}>Total a recibir</Text>
+                        </View>
+                        <View style={styles.statCard}>
+                            <Text style={styles.statValue}>
+                                {formatIsoDateShortEsEc(activeSlide.nextPaymentDateIso)}
+                            </Text>
+                            <Text style={styles.statLabel}>Próxima cuota</Text>
+                        </View>
+                        <View style={styles.statCard}>
+                            <Text style={styles.statValue}>
+                                {formatMoneyMasked(amountMasked, monthlyInterest)}
+                            </Text>
+                            <Text style={styles.statLabel}>Interés mensual</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.detailCard}>
+                        <View style={styles.detailRowBorder}>
+                            <Text style={styles.detailLabelLeft}>Pago de intereses</Text>
+                            <Text style={styles.detailValueRight}>
+                                {activeSlide.paymentFrequencyLabel}
+                            </Text>
+                        </View>
+                        <View style={styles.detailRowLast}>
+                            <Text style={styles.detailLabelLeft}>Cuenta a acreditar</Text>
+                            <View style={styles.detailRightCol}>
+                                <Text style={styles.detailValueRight}>
+                                    {activeSlide.debitPurposeLabel}
+                                </Text>
+                                <Text style={styles.detailAccountMuted}>
+                                    {activeSlide.maskedDebitAccount}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <Pressable
+                        onPress={onOpenDetailsDev}
+                        accessibilityRole="button"
+                        accessibilityLabel="Cancelar antes del vencimiento"
+                        style={styles.cancelLinkWrap}
+                    >
+                        <Text style={styles.cancelLinkText}>
+                            Cancelar antes del vencimiento
+                        </Text>
+                    </Pressable>
+                </View>
+            </ScrollView>
+
+            <DevelopmentNoticeModal
+                visible={devModalVisible}
+                onClose={onCloseDevModal}
+                title="En desarrollo"
+                message="Esta sección estará disponible próximamente."
+            />
+        </>
+    );
 }
 
 function useStyles(colors: ThemeColors) {
-  return useMemo(
-    () =>
-      StyleSheet.create({
-        safe: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        scroll: {
-          flex: 1,
-        },
-        scrollContent: {
-          paddingBottom: 32,
-        },
-        centered: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingHorizontal: 24,
-        },
-        errorInline: {
-          fontFamily: Lexend.regular,
-          fontSize: 14,
-          color: colors.textTertiary,
-          textAlign: 'center',
-          marginBottom: 12,
-        },
-        retryLink: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          color: colors.primary,
-        },
-        heroGradient: {
-          width: '100%',
-        },
-        heroInner: {
-          paddingHorizontal: 24,
-          paddingTop: 24,
-          paddingBottom: 28,
-          gap: 18,
-        },
-        heroTitleBlock: {
-          gap: 4,
-          alignSelf: 'stretch',
-        },
-        heroProductMuted: {
-          fontFamily: Lexend.regular,
-          fontSize: 14,
-          lineHeight: 20,
-          color: colors.homeAvatarCircle,
-          opacity: 0.85,
-        },
-        heroLoanLine: {
-          fontFamily: Lexend.regular,
-          fontSize: 14,
-          lineHeight: 20,
-          color: colors.white,
-        },
-        heroBalanceRow: {
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-        },
-        heroBalanceSide: {
-          flex: 1,
-        },
-        heroAmountCol: {
-          alignItems: 'center',
-          gap: 4,
-        },
-        heroBalanceSideEnd: {
-          flex: 1,
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          alignItems: 'flex-end',
-        },
-        heroAmount: {
-          fontFamily: Lexend.bold,
-          fontSize: 30,
-          lineHeight: 40,
-          color: colors.white,
-          textAlign: 'center',
-        },
-        heroNextPay: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.homeAvatarCircle,
-          opacity: 0.85,
-          textAlign: 'center',
-        },
-        eyeBtn: {
-          backgroundColor: colors.homeBalanceToggleBg,
-          borderRadius: 4,
-          padding: 4,
-        },
-        periodInterestBlock: {
-          alignItems: 'center',
-          alignSelf: 'stretch',
-        },
-        periodInterestCaption: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.buttonSecondaryBg,
-          textAlign: 'center',
-        },
-        periodInterestAmount: {
-          fontFamily: Lexend.bold,
-          fontSize: 22,
-          lineHeight: 32,
-          color: colors.homeAvatarCircle,
-          textAlign: 'center',
-        },
-        progressWrap: {
-          marginTop: 4,
-          position: 'relative',
-          height: 12,
-          justifyContent: 'center',
-        },
-        progressTrack: {
-          height: 12,
-          borderRadius: 6,
-          backgroundColor: colors.homeBorderSoft,
-          overflow: 'hidden',
-          position: 'relative',
-        },
-        progressFill: {
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          borderRadius: 6,
-        },
-        progressFillWide: {
-          zIndex: 1,
-        },
-        progressFillTop: {
-          zIndex: 2,
-        },
-        progressThumb: {
-          position: 'absolute',
-          width: 16,
-          height: 16,
-          borderRadius: 8,
-          borderWidth: 2,
-          top: -2,
-          zIndex: 3,
-        },
-        breakdownRow: {
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-        },
-        breakdownCol: {
-          flex: 1,
-        },
-        breakdownColEnd: {
-          alignItems: 'flex-end',
-        },
-        breakdownColCenter: {
-          flex: 1,
-          alignItems: 'center',
-          paddingHorizontal: 4,
-        },
-        breakdownAmount: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.homeAvatarCircle,
-        },
-        breakdownLabel: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.buttonSecondaryBg,
-        },
-        breakdownCuotasMain: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 13,
-          color: colors.homeAvatarCircle,
-          opacity: 0.85,
-          textAlign: 'center',
-        },
-        breakdownCuotasSub: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 13,
-          color: colors.homeAvatarCircle,
-          opacity: 0.85,
-          textAlign: 'center',
-        },
-        heroDivider: {
-          height: 1,
-          backgroundColor: colors.balanceDivider,
-          alignSelf: 'stretch',
-        },
-        debtRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        },
-        interestPeriodCol: {
-          alignItems: 'flex-end',
-        },
-        lowerSection: {
-          paddingHorizontal: 24,
-          paddingTop: 16,
-          gap: 16,
-        },
-        statRow: {
-          flexDirection: 'row',
-          gap: 12,
-          alignItems: 'stretch',
-        },
-        statCard: {
-          flex: 1,
-          minHeight: 54,
-          backgroundColor: colors.white,
-          borderRadius: 8,
-          paddingHorizontal: 7,
-          paddingTop: 8,
-          paddingBottom: 4,
-          justifyContent: 'center',
-          alignItems: 'center',
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.12,
-              shadowRadius: 2,
-            },
-            android: {
-              elevation: 2,
-            },
-          }),
-        },
-        statValue: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.primary,
-          textAlign: 'center',
-        },
-        statValueStrong: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.primary,
-          textAlign: 'center',
-        },
-        statLabel: {
-          fontFamily: Lexend.regular,
-          fontSize: 8,
-          lineHeight: 20,
-          color: colors.textPrimary,
-          textAlign: 'center',
-        },
-        debitCard: {
-          backgroundColor: colors.white,
-          borderRadius: 12,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          alignItems: 'center',
-          gap: 4,
-          ...Platform.select({
-            ios: {
-              shadowColor: colors.shadowSoft,
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.1,
-              shadowRadius: 2,
-            },
-            android: {
-              elevation: 2,
-            },
-          }),
-        },
-        debitPurpose: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.primary,
-        },
-        debitAccount: {
-          fontFamily: Lexend.regular,
-          fontSize: 12,
-          lineHeight: 20,
-          color: colors.textTertiary,
-        },
-        debitCaption: {
-          fontFamily: Lexend.regular,
-          fontSize: 8,
-          lineHeight: 20,
-          color: colors.textPrimary,
-        },
-        primaryBtn: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 12,
-          backgroundColor: colors.primary,
-          borderRadius: 8,
-          paddingVertical: 14,
-          paddingHorizontal: 16,
-          minHeight: 48,
-        },
-        primaryBtnText: {
-          fontFamily: Lexend.semiBold,
-          fontSize: 14,
-          lineHeight: 22,
-          color: colors.white,
-        },
-      }),
-    [colors],
-  );
+    return useMemo(
+        () =>
+            StyleSheet.create({
+                root: {
+                    flex: 1,
+                    backgroundColor: colors.background,
+                },
+                investmentChromeBar: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: colors.homeInvestmentCardGradientEnd,
+                    paddingHorizontal: 24,
+                    paddingBottom: 14,
+                },
+                investmentChromeTitle: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 18,
+                    lineHeight: 28,
+                    color: colors.white,
+                },
+                chromeSpacer: {
+                    width: 22,
+                },
+                heroHeaderFixed: {
+                    paddingHorizontal: 24,
+                    paddingBottom: 4,
+                },
+                heroScreenTitle: {
+                    marginTop: 12,
+                    fontFamily: Lexend.regular,
+                    fontSize: 18,
+                    lineHeight: 28,
+                    color: colors.white,
+                },
+                scroll: {
+                    flex: 1,
+                },
+                scrollContent: {
+                    paddingBottom: 32,
+                },
+                centered: {
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingHorizontal: 24,
+                },
+                errorInline: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 14,
+                    color: colors.textTertiary,
+                    textAlign: 'center',
+                    marginBottom: 12,
+                },
+                retryLink: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 14,
+                    color: colors.primary,
+                },
+                heroGradient: {
+                    width: '100%',
+                },
+                heroSlidePage: {
+                    flexShrink: 0,
+                },
+                heroInner: {
+                    paddingHorizontal: 24,
+                    paddingTop: 20,
+                    paddingBottom: 0,
+                    gap: 16,
+                },
+                heroTopRow: {
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                },
+                heroTitleBlock: {
+                    flex: 1,
+                    gap: 4,
+                },
+                heroProductMuted: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 14,
+                    lineHeight: 20,
+                    color: colors.homeAvatarCircle,
+                    opacity: 0.85,
+                },
+                heroLoanLine: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 14,
+                    lineHeight: 20,
+                    color: colors.white,
+                },
+                heroCapitalBlock: {
+                    alignSelf: 'flex-start',
+                    gap: 4,
+                },
+                heroAmount: {
+                    fontFamily: Lexend.bold,
+                    fontSize: 30,
+                    lineHeight: 40,
+                    color: colors.white,
+                },
+                heroCapitalLabel: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.homeAvatarCircle,
+                    opacity: 0.85,
+                },
+                eyeBtn: {
+                    backgroundColor: colors.homeBalanceToggleBg,
+                    borderRadius: 4,
+                    padding: 4,
+                },
+                pageDots: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    marginTop: 16,
+                    paddingBottom: 24,
+                },
+                pageDot: {
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                },
+                pageDotActive: {
+                    backgroundColor: colors.white,
+                },
+                pageDotInactive: {
+                    backgroundColor: colors.homeInvestmentCardGradientStart,
+                    opacity: 0.5,
+                },
+                lowerSection: {
+                    paddingHorizontal: 24,
+                    paddingTop: 16,
+                    gap: 16,
+                },
+                summaryCard: {
+                    backgroundColor: colors.white,
+                    borderRadius: 12,
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    gap: 10,
+                    ...Platform.select({
+                        ios: {
+                            shadowColor: colors.shadowSoft,
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 2,
+                        },
+                        android: {
+                            elevation: 2,
+                        },
+                    }),
+                },
+                summaryTopRow: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                },
+                summaryLabelMuted: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 9,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                },
+                summaryValueStrong: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                },
+                cardHairline: {
+                    height: StyleSheet.hairlineWidth,
+                    backgroundColor: colors.borderLight,
+                    alignSelf: 'stretch',
+                },
+                avanceBlock: {
+                    gap: 8,
+                },
+                avanceRow: {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                },
+                avanceColLeft: {
+                    flex: 1,
+                    gap: 4,
+                },
+                avanceColRight: {
+                    alignItems: 'flex-end',
+                    gap: 0,
+                },
+                bodyTextTertiary: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textTertiary,
+                },
+                avancePaid: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                },
+                dateLineSmall: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    textAlign: 'right',
+                },
+                dateLineStrong: {
+                    fontFamily: Lexend.semiBold,
+                    fontSize: 10,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                },
+                summaryProgressTrack: {
+                    position: 'relative',
+                    height: 6,
+                    borderRadius: 4,
+                    backgroundColor: colors.homeBorderSoft,
+                    overflow: 'hidden',
+                },
+                summaryProgressFill: {
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    borderRadius: 4,
+                    backgroundColor: colors.primary,
+                },
+                yieldRow: {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                },
+                yieldCol: {
+                    width: 58,
+                    gap: 0,
+                },
+                yieldColEnd: {
+                    alignItems: 'flex-end',
+                    width: 72,
+                },
+                summaryCaptionDark: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 9,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                },
+                statRow: {
+                    flexDirection: 'row',
+                    gap: 12,
+                    alignItems: 'stretch',
+                },
+                statCard: {
+                    flex: 1,
+                    minHeight: 54,
+                    backgroundColor: colors.white,
+                    borderRadius: 8,
+                    paddingHorizontal: 7,
+                    paddingTop: 8,
+                    paddingBottom: 4,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    ...Platform.select({
+                        ios: {
+                            shadowColor: colors.shadowSoft,
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.12,
+                            shadowRadius: 2,
+                        },
+                        android: {
+                            elevation: 2,
+                        },
+                    }),
+                },
+                statValue: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                    textAlign: 'center',
+                },
+                statLabel: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 9,
+                    lineHeight: 20,
+                    color: colors.textPrimary,
+                    textAlign: 'center',
+                },
+                detailCard: {
+                    backgroundColor: colors.white,
+                    borderRadius: 12,
+                    paddingHorizontal: 12,
+                    overflow: 'hidden',
+                    ...Platform.select({
+                        ios: {
+                            shadowColor: colors.shadowSoft,
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 2,
+                        },
+                        android: {
+                            elevation: 2,
+                        },
+                    }),
+                },
+                detailRowBorder: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingHorizontal: 4,
+                    paddingTop: 12,
+                    paddingBottom: 13,
+                    borderBottomWidth: StyleSheet.hairlineWidth,
+                    borderBottomColor: colors.borderLight,
+                    minHeight: 55,
+                },
+                detailRowLast: {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingHorizontal: 4,
+                    paddingTop: 12,
+                    paddingBottom: 13,
+                    minHeight: 55,
+                },
+                detailLabelLeft: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textSecondary,
+                    flexShrink: 1,
+                    paddingRight: 8,
+                },
+                detailRightCol: {
+                    alignItems: 'flex-end',
+                    maxWidth: '52%',
+                },
+                detailValueRight: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.primary,
+                    textAlign: 'right',
+                },
+                detailAccountMuted: {
+                    fontFamily: Lexend.regular,
+                    fontSize: 12,
+                    lineHeight: 20,
+                    color: colors.textTertiary,
+                    textAlign: 'right',
+                },
+                cancelLinkWrap: {
+                    alignSelf: 'center',
+                    paddingVertical: 8,
+                },
+                cancelLinkText: {
+                    fontFamily: Lexend.bold,
+                    fontSize: 12,
+                    lineHeight: 16,
+                    color: colors.primary,
+                    textDecorationLine: 'underline',
+                    textAlign: 'center',
+                },
+            }),
+        [colors],
+    );
 }
