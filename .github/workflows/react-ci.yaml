@@ -1,4 +1,4 @@
-name: CI React
+name: React CI Workflow
 
 on:
   workflow_dispatch:
@@ -7,9 +7,9 @@ jobs:
   build-analize:
     name: Preparar NodeJs y Analizar código
     runs-on: macos-26
-      permissions:
-        contents: read
-        security-events: write
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - uses: actions/checkout@v5
