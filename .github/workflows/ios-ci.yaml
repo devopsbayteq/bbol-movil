@@ -37,6 +37,6 @@ jobs:
           podfile-path: ios/Podfile.lock
 
       - name: Instalar Pods
-      - run: |
+        run: |
           cd ios
           pod install --repo-update
