@@ -9,14 +9,34 @@ jobs:
     name: Construir IPA
     runs-on: macos-latest
 
+    env:
+      NODE_VERSION: "22.x"
+      IOS_WORKSPACE: "ios/BBApp.xcworkspace"
+      IOS_SCHEME: "BBApp"
+      IOS_CONFIGURATION: "Release"
+      EXPORT_OPTIONS_PLIST: "ios/BBApp/Info.plist"
+      DERIVED_DATA: "build/DerivedData"
+      ARCHIVE_PATH: "build/BBApp.xcarchive"
+      EXPORT_PATH: "build/export"
+
     steps:
       - uses: actions/checkout@v5
 
       - name: Configurar Nodejs 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Instalar dependencias
         run: npm ci
+
+      - name: Instalar Cocoa Pods (version from Podfile.lock)
+        uses: maxim-lobanov/setup-cocoapods@v1
+        with:
+          podfile-path: ios/Podfile.lock
+
+      - name: Instalar Pods
+      - run: |
+          cd ios
+          pod install --repo-update
