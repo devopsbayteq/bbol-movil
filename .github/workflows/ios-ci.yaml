@@ -1,0 +1,22 @@
+name: IOS Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  
+  build-ios:
+    name: Construir IPA
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configurar Nodejs 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
