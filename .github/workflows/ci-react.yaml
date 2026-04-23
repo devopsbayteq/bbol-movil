@@ -7,7 +7,10 @@ jobs:
   build-analize:
     name: Preparar NodeJs y Analizar código
     runs-on: macos-26
-    
+      permissions:
+        contents: read
+        security-events: write
+
     steps:
       - uses: actions/checkout@v5
 
@@ -24,3 +27,12 @@ jobs:
         id: tests
         continue-on-error: true
         run: npm test
+      
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: security-extended
+
+      - name: Ejecutar Análisis con CodeQL
+        uses: github/codeql-action/analyze@v3
