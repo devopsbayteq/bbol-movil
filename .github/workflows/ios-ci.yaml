@@ -42,7 +42,7 @@ jobs:
       - name: Instalar Pods
         run: |
           cd ios
-          rm -rf Podfile.lock
+          rm -rf Podfile.lock Pods
           pod install --repo-update
       # ===== Code signing (cert + provisioning profile) =====
       - name: Install signing certificate & provisioning profile
