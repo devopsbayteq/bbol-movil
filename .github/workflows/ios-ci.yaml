@@ -1,3 +1,4 @@
+# ios-ci.yaml
 name: IOS Pipeline
 
 on:
@@ -42,7 +43,7 @@ jobs:
       - name: Instalar Pods
         run: |
           cd ios
-          rm -rf Podfile.lock
+          rm -rf Podfile.lock Pods
           pod install --repo-update
       # ===== Code signing (cert + provisioning profile) =====
       - name: Install signing certificate & provisioning profile
@@ -53,8 +54,8 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
         run: |
           set -euo pipefail
-          CERT_PATH="$RUNNER_TEMP/cert.p12"
-          PP_PATH="$RUNNER_TEMP/profile.mobileprovision"
+          CERT_PATH="$RUNNER_TEMP/CertificateBBOLHackathon.p12"
+          PP_PATH="$RUNNER_TEMP/ProvisionalCertificateBBOLHackathon.mobileprovision"
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
 
           echo "$P12_BASE64" | base64 --decode > "$CERT_PATH"
@@ -81,6 +82,10 @@ jobs:
             -sdk iphoneos \
             -derivedDataPath "${DERIVED_DATA}" \
             -archivePath "${ARCHIVE_PATH}" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="ProvisionalCertificateBBOLHackathon" \
+            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
             clean archive
       # ===== Export IPA =====
       - name: Export IPA

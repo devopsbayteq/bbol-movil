@@ -1,0 +1,105 @@
+# react-ci.yaml
+name: React CI Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  build-analyze:
+    name: Build, Test, SCA (OWASP) y CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Unit tests
+        continue-on-error: true
+        run: npm test -- --watch=false
+
+      - name: OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "bolivariano-react"
+          path: "."
+          format: "HTML"
+          out: "reports"
+          args: >
+            --format SARIF
+            --format JSON
+            --enableRetired
+            --failOnCVSS 8
+            --disableYarnAudit
+
+      - name: Upload OWASP reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check-reports
+          path: reports
+
+      - name: Upload OWASP SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: reports/dependency-check-report.sarif
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
+          queries: security-extended
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v4
+
+  zap-baseline:
+    name: OWASP ZAP Baseline (DAST)
+    runs-on: ubuntu-latest
+    needs: build-analyze
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Serve app
+        run: |
+          npm run preview -- --host 0.0.0.0 --port 4173 &
+          sleep 20
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: "http://localhost:4173"
+          fail_action: true
