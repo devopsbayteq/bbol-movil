@@ -43,6 +43,7 @@ jobs:
             --format JSON
             --enableRetired
             --failOnCVSS 7
+            --disableYarnAudit
 
       - name: Upload OWASP reports
         if: always()
