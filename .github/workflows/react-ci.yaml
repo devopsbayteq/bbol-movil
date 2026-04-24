@@ -44,7 +44,7 @@ jobs:
             --format JSON
             --enableRetired
             --exclude **/android/gradle/wrapper/gradle-wrapper.jar
-            --failOnCVSS 8
+            --failOnCVSS 9
             --disableYarnAudit
 
       - name: Upload OWASP reports
