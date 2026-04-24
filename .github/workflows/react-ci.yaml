@@ -36,9 +36,11 @@ jobs:
         with:
           project: "bolivariano-react"
           path: "."
-          format: "ALL"
+          format: "HTML"
           out: "reports"
           args: >
+            --format SARIF
+            --format JSON
             --enableRetired
             --failOnCVSS 7
 
