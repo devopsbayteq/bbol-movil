@@ -36,7 +36,7 @@ jobs:
         with:
           project: "bolivariano-react"
           path: "."
-          format: "HTML,JSON,SARIF"
+          format: "ALL"
           out: "reports"
           args: >
             --enableRetired
