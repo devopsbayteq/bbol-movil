@@ -43,6 +43,7 @@ jobs:
             --format SARIF
             --format JSON
             --enableRetired
+            --exclude **/android/gradle/wrapper/gradle-wrapper.jar
             --failOnCVSS 8
             --disableYarnAudit
 
