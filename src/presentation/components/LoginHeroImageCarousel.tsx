@@ -103,6 +103,8 @@ function useCarouselStyles(colors: ThemeColors, height: number) {
           right: 0,
           top: 0,
           bottom: 0,
+          width: '100%',
+          height: '100%',
         },
       }),
     [colors.background, height],

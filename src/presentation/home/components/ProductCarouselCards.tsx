@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Path} from 'react-native-svg';
 import {useTheme, type ThemeColors} from '../../../providers/theme';
 import {Lexend} from '../../../theme/lexend';
-import {EyeIcon, EyeSlashIcon} from '../../components';
 import {formatCurrency} from '../../transactions/TransactionItem';
 
 function formatShortDueDate(iso: string): string {
@@ -76,6 +75,8 @@ type SavingsCardProps = {
   maskedAccountNumber: string;
   balance: number;
   isFirst?: boolean;
+  /** Controlado desde la cabecera home: enmascara saldo en todos los carouseles. */
+  balanceMasked: boolean;
 };
 
 export function SavingsAccountCard({
@@ -84,11 +85,10 @@ export function SavingsAccountCard({
   maskedAccountNumber,
   balance,
   isFirst = false,
+  balanceMasked,
 }: Readonly<SavingsCardProps>) {
   const {colors} = useTheme();
   const styles = useSavingsStyles(colors);
-  const [masked, setMasked] = useState(true);
-  const iconTint = colors.primary;
 
   return (
     <View style={[styles.card, style]}>
@@ -120,21 +120,10 @@ export function SavingsAccountCard({
       <View style={styles.bottomRow}>
         <View style={styles.balanceCol}>
           <Text style={styles.balanceValue} numberOfLines={1}>
-            {masked ? '$**.**' : formatCurrency(balance)}
+            {balanceMasked ? '$**.**' : formatCurrency(balance)}
           </Text>
           <Text style={styles.balanceLabel}>Saldo</Text>
         </View>
-        <TouchableOpacity
-          style={styles.eyeBtn}
-          onPress={() => setMasked(m => !m)}
-          accessibilityRole="button"
-          accessibilityLabel={masked ? 'Mostrar saldo' : 'Ocultar saldo'}>
-          {masked ? (
-            <EyeSlashIcon color={iconTint} size={18} />
-          ) : (
-            <EyeIcon color={iconTint} size={18} />
-          )}
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -216,11 +205,6 @@ function useSavingsStyles(colors: ThemeColors) {
           lineHeight: 28,
           color: colors.textPrimary,
         },
-        eyeBtn: {
-          backgroundColor: colors.homeBalanceToggleBg,
-          borderRadius: 4,
-          padding: 6,
-        },
       }),
     [colors],
   );
@@ -232,6 +216,7 @@ type CheckingCardProps = {
   maskedAccountNumber: string;
   balance: number;
   isFirst?: boolean;
+  balanceMasked: boolean;
 };
 
 export function CheckingAccountCard({
@@ -240,6 +225,7 @@ export function CheckingAccountCard({
   maskedAccountNumber,
   balance,
   isFirst = false,
+  balanceMasked,
 }: Readonly<CheckingCardProps>) {
   return (
     <SavingsAccountCard
@@ -248,6 +234,7 @@ export function CheckingAccountCard({
       maskedAccountNumber={maskedAccountNumber}
       balance={balance}
       isFirst={isFirst}
+      balanceMasked={balanceMasked}
     />
   );
 }
@@ -257,6 +244,7 @@ type CreditCardPreviewProps = {
   maskedCardNumber: string;
   totalDue: number;
   maxPaymentDate: string;
+  balanceMasked: boolean;
 };
 
 export function CreditCardPreview({
@@ -264,10 +252,10 @@ export function CreditCardPreview({
   maskedCardNumber,
   totalDue,
   maxPaymentDate,
+  balanceMasked,
 }: Readonly<CreditCardPreviewProps>) {
   const {colors} = useTheme();
   const styles = useCreditStyles(colors);
-  const [masked, setMasked] = useState(true);
 
   return (
     <View style={[styles.cardOuter, style]} accessibilityLabel="Tarjeta de crédito">
@@ -294,7 +282,7 @@ export function CreditCardPreview({
           <View style={styles.balanceTextCol}>
             <View style={styles.amountAndDateRow}>
               <Text style={styles.amountMain} numberOfLines={1}>
-                {masked ? '$**.**' : formatCurrency(totalDue)}
+                {balanceMasked ? '$**.**' : formatCurrency(totalDue)}
               </Text>
               <View style={styles.datePill}>
                 <Text style={styles.datePillText}>
@@ -304,17 +292,6 @@ export function CreditCardPreview({
             </View>
             <Text style={styles.totalLabel}>Total a pagar</Text>
           </View>
-          <TouchableOpacity
-            style={styles.eyeBtn}
-            onPress={() => setMasked(m => !m)}
-            accessibilityRole="button"
-            accessibilityLabel={masked ? 'Mostrar total' : 'Ocultar total'}>
-            {masked ? (
-              <EyeSlashIcon color={colors.white} size={16} />
-            ) : (
-              <EyeIcon color={colors.white} size={16} />
-            )}
-          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -369,8 +346,8 @@ function useCreditStyles(colors: ThemeColors) {
           flexDirection: 'row',
           alignItems: 'center',
           height: 18,
-          paddingLeft: 2,
-          paddingRight: 8,
+          paddingLeft: 4,
+          paddingRight: 4,
           paddingVertical: 2,
           borderRadius: 3,
           borderWidth: StyleSheet.hairlineWidth,
@@ -386,7 +363,7 @@ function useCreditStyles(colors: ThemeColors) {
           backgroundColor: 'rgba(255,255,255,0.2)',
         },
         mcDotFront: {
-          marginLeft: -5,
+          marginLeft: -6,
           backgroundColor: 'rgba(255,255,255,0.1)',
         },
         cardNumber: {
@@ -399,7 +376,6 @@ function useCreditStyles(colors: ThemeColors) {
         cardBottom: {
           flexDirection: 'row',
           alignItems: 'flex-end',
-          gap: 10,
         },
         balanceTextCol: {
           flex: 1,
@@ -437,11 +413,6 @@ function useCreditStyles(colors: ThemeColors) {
           lineHeight: 20,
           color: colors.white,
         },
-        eyeBtn: {
-          backgroundColor: colors.textTertiary,
-          borderRadius: 4,
-          padding: 4,
-        },
       }),
     [colors],
   );
@@ -452,6 +423,7 @@ type LoanCardProps = {
   loanGuid: string;
   nextInstallmentAmount: number;
   nextInstallmentDate: string;
+  balanceMasked: boolean;
 };
 
 export function LoanCard({
@@ -459,10 +431,10 @@ export function LoanCard({
   loanGuid,
   nextInstallmentAmount,
   nextInstallmentDate,
+  balanceMasked,
 }: Readonly<LoanCardProps>) {
   const {colors} = useTheme();
   const styles = useLoanStyles(colors);
-  const [masked, setMasked] = useState(true);
 
   const maskedLine = useMemo(
     () => formatLoanMaskedLine(loanGuid),
@@ -490,7 +462,7 @@ export function LoanCard({
           <View style={styles.balanceCol}>
             <View style={styles.amountRow}>
               <Text style={styles.amountValue} numberOfLines={1}>
-                {masked ? '$**.**' : formatCurrency(nextInstallmentAmount)}
+                {balanceMasked ? '$**.**' : formatCurrency(nextInstallmentAmount)}
               </Text>
               <View style={styles.datePill}>
                 <Text style={styles.datePillText}>
@@ -500,17 +472,6 @@ export function LoanCard({
             </View>
             <Text style={styles.cuotaLabel}>Cuota</Text>
           </View>
-          <TouchableOpacity
-            style={styles.eyeBtn}
-            onPress={() => setMasked(m => !m)}
-            accessibilityRole="button"
-            accessibilityLabel={masked ? 'Mostrar cuota' : 'Ocultar cuota'}>
-            {masked ? (
-              <EyeSlashIcon color={colors.primary} size={16} />
-            ) : (
-              <EyeIcon color={colors.primary} size={16} />
-            )}
-          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -563,7 +524,6 @@ function useLoanStyles(colors: ThemeColors) {
         bottomRow: {
           flexDirection: 'row',
           alignItems: 'flex-end',
-          gap: 10,
         },
         balanceCol: {
           flex: 1,
@@ -601,11 +561,6 @@ function useLoanStyles(colors: ThemeColors) {
           lineHeight: 20,
           color: colors.homeAvatarCircle,
         },
-        eyeBtn: {
-          backgroundColor: colors.homeAvatarCircle,
-          borderRadius: 4,
-          padding: 4,
-        },
       }),
     [colors],
   );
@@ -617,6 +572,7 @@ type InvestmentCardProps = {
   productName: string;
   currentValue: number;
   currency: string;
+  balanceMasked: boolean;
 };
 
 export function InvestmentCard({
@@ -625,12 +581,10 @@ export function InvestmentCard({
   productName,
   currentValue,
   currency,
+  balanceMasked,
 }: Readonly<InvestmentCardProps>) {
   const {colors} = useTheme();
   const styles = useInvestmentStyles(colors);
-  const [masked, setMasked] = useState(true);
-
- 
 
   return (
     <View style={[styles.cardOuter, style]} accessibilityLabel="Inversión">
@@ -653,23 +607,12 @@ export function InvestmentCard({
         <View style={styles.bottomRow}>
           <View style={styles.balanceCol}>
             <Text style={styles.amountValue} numberOfLines={1}>
-              {masked
+              {balanceMasked
                 ? '$**.**'
                 : `${formatCurrency(currentValue)} ${currency}`}
             </Text>
-            <Text style={styles.saldoLabel}>Saldo</Text>
+            <Text style={styles.saldoLabel}>Capital invertido</Text>
           </View>
-          <TouchableOpacity
-            style={styles.eyeBtn}
-            onPress={() => setMasked(m => !m)}
-            accessibilityRole="button"
-            accessibilityLabel={masked ? 'Mostrar valor' : 'Ocultar valor'}>
-            {masked ? (
-              <EyeSlashIcon color={colors.primary} size={16} />
-            ) : (
-              <EyeIcon color={colors.primary} size={16} />
-            )}
-          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -725,7 +668,6 @@ function useInvestmentStyles(colors: ThemeColors) {
         bottomRow: {
           flexDirection: 'row',
           alignItems: 'flex-end',
-          gap: 10,
         },
         balanceCol: {
           flex: 1,
@@ -743,11 +685,6 @@ function useInvestmentStyles(colors: ThemeColors) {
           fontSize: 12,
           lineHeight: 20,
           color: colors.homeAvatarCircle,
-        },
-        eyeBtn: {
-          backgroundColor: colors.nextPayCircleBg,
-          borderRadius: 4,
-          padding: 4,
         },
       }),
     [colors],

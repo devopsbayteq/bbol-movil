@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   Animated,
   Easing,
@@ -6,15 +6,14 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useTheme, type ThemeColors} from '../../providers';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme, type ThemeColors } from '../../providers';
 import SplashBackground from '../../../assets/images/svg/splasn_background.svg';
 
-const FIGMA_LOGO_URI =
-  'https://www.figma.com/api/mcp/asset/d202396e-2cbe-4dff-b7eb-77b2627080b8';
+import LogoBbo from '../../../assets/images/svg/logo-init.svg';
 
 export function SplashScreen() {
-  const {colors} = useTheme();
+  const { colors } = useTheme();
   const styles = useStyles(colors);
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.9)).current;
@@ -51,11 +50,11 @@ export function SplashScreen() {
             styles.centerWrapper,
             {
               opacity,
-              transform: [{scale}],
+              transform: [{ scale }],
             },
           ]}>
           <View style={styles.decorativeRing}>
-            <Image source={{uri: FIGMA_LOGO_URI}} style={styles.logo} />
+            <LogoBbo/>
           </View>
         </Animated.View>
       </SafeAreaView>
@@ -91,9 +90,7 @@ function useStyles(colors: ThemeColors) {
         decorativeRing: {
           width: 172.8,
           height: 172.8,
-          borderRadius: 86.4,
-          borderWidth: 1,
-          borderColor: colors.homeBorderSoft,
+        
           justifyContent: 'center',
           alignItems: 'center',
         },

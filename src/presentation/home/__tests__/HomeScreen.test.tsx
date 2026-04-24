@@ -92,7 +92,14 @@ jest.mock('react-native-svg', () => {
 });
 
 // Stub child components; ProductFilterTabs exposes both Tarjetas and Préstamos buttons
-jest.mock('../components/HomeHeader', () => ({HomeHeader: () => null}));
+jest.mock('../components/HomeHeader', () => ({
+  HomeHeader: ({onRequestProducts}: {onRequestProducts?: () => void}) =>
+    require('react').createElement(
+      require('react-native').TouchableOpacity,
+      {testID: 'quick-actions', onPress: onRequestProducts},
+      null,
+    ),
+}));
 jest.mock('../components/ProductFilterTabs', () => ({
   ProductFilterTabs: ({onFilterChange}: any) => {
     const React = require('react');
@@ -112,13 +119,11 @@ jest.mock('../components/HomeSectionTitle', () => ({
     require('react').createElement(require('react-native').Text, null, children),
 }));
 jest.mock('../components/ProductCarouselCards', () => ({
-  SavingsAccountCard: () => null, CheckingAccountCard: () => null,
-  CreditCardPreview: () => null, LoanCard: () => null,
-}));
-jest.mock('../components/RequestProductRow', () => ({
-  RequestProductRow: ({onPress}: any) =>
-    require('react').createElement(
-      require('react-native').TouchableOpacity, {testID: 'quick-actions', onPress}, null),
+  SavingsAccountCard: () => null,
+  CheckingAccountCard: () => null,
+  CreditCardPreview: () => null,
+  LoanCard: () => null,
+  InvestmentCard: () => null,
 }));
 jest.mock('../components/PromotionalBanner', () => ({PromotionalBanner: () => null}));
 jest.mock('../components/FrequentActionsSection', () => ({

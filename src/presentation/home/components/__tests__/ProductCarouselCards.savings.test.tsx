@@ -41,6 +41,7 @@ describe('ProductCarouselCards — SavingsAccountCard', () => {
           balance={100}
           title="Ahorros"
           isFirst
+          balanceMasked={false}
         />,
       );
     });
@@ -62,6 +63,7 @@ describe('ProductCarouselCards — SavingsAccountCard', () => {
           balance={200}
           title="Corriente"
           isFirst={false}
+          balanceMasked={false}
         />,
       );
     });
@@ -74,37 +76,32 @@ describe('ProductCarouselCards — SavingsAccountCard', () => {
     expect(starBtn).toBeTruthy();
   });
 
-  test('toggle ojo alterna saldo enmascarado y visible', () => {
-    let root: ReactTestRenderer.ReactTestRenderer;
+  test('balanceMasked controla saldo visible desde cabecera (no hay ojo en tarjeta)', () => {
+    let rootMasked: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      root = ReactTestRenderer.create(
+      rootMasked = ReactTestRenderer.create(
         <SavingsAccountCard
           maskedAccountNumber="****3333"
           balance={99.5}
           title="Ahorros"
+          balanceMasked
         />,
       );
     });
-    const flat0 = JSON.stringify(root!.toJSON());
-    expect(flat0).toContain('$**.**');
+    expect(JSON.stringify(rootMasked!.toJSON())).toContain('$**.**');
 
-    const eye = root!.root
-      .findAllByType(TouchableOpacity as never)
-      .find(
-        (n: {props: {accessibilityLabel?: string}}) =>
-          n.props.accessibilityLabel === 'Mostrar saldo',
+    let rootVisible: ReactTestRenderer.ReactTestRenderer;
+    act(() => {
+      rootVisible = ReactTestRenderer.create(
+        <SavingsAccountCard
+          maskedAccountNumber="****3333"
+          balance={99.5}
+          title="Ahorros"
+          balanceMasked={false}
+        />,
       );
-    act(() => {
-      eye?.props.onPress?.();
     });
-    const flat1 = JSON.stringify(root!.toJSON());
-    expect(flat1).not.toContain('$**.**');
-
-    act(() => {
-      eye?.props.onPress?.();
-    });
-    const flat2 = JSON.stringify(root!.toJSON());
-    expect(flat2).toContain('$**.**');
+    expect(JSON.stringify(rootVisible!.toJSON())).toContain('$99.50');
   });
 
   test('Platform.select en tarjeta ahorros (ios / android)', () => {
@@ -113,7 +110,12 @@ describe('ProductCarouselCards — SavingsAccountCard', () => {
       .mockImplementation(spec => (spec as {ios?: unknown}).ios as never);
     act(() => {
       ReactTestRenderer.create(
-        <SavingsAccountCard maskedAccountNumber="*" balance={1} title="T" />,
+        <SavingsAccountCard
+          maskedAccountNumber="*"
+          balance={1}
+          title="T"
+          balanceMasked={false}
+        />,
       );
     });
     spy.mockRestore();
@@ -122,7 +124,12 @@ describe('ProductCarouselCards — SavingsAccountCard', () => {
       .mockImplementation(spec => (spec as {android?: unknown}).android as never);
     act(() => {
       ReactTestRenderer.create(
-        <SavingsAccountCard maskedAccountNumber="*" balance={1} title="T" />,
+        <SavingsAccountCard
+          maskedAccountNumber="*"
+          balance={1}
+          title="T"
+          balanceMasked={false}
+        />,
       );
     });
     spy2.mockRestore();
@@ -138,6 +145,7 @@ describe('ProductCarouselCards — CreditCardPreview', () => {
           maskedCardNumber="****4242"
           totalDue={100}
           maxPaymentDate="no-es-fecha"
+          balanceMasked={false}
         />,
       );
     });
@@ -147,7 +155,7 @@ describe('ProductCarouselCards — CreditCardPreview', () => {
     expect(texts.some(t => t.includes('—'))).toBe(true);
   });
 
-  test('toggle total en tarjeta crédito', () => {
+  test('balanceMasked controla total a pagar (no hay ojo en tarjeta)', () => {
     let root: ReactTestRenderer.ReactTestRenderer;
     act(() => {
       root = ReactTestRenderer.create(
@@ -155,18 +163,23 @@ describe('ProductCarouselCards — CreditCardPreview', () => {
           maskedCardNumber="****9999"
           totalDue={250}
           maxPaymentDate="2026-12-31"
+          balanceMasked
         />,
       );
     });
-    const eye = root!.root
-      .findAllByType(TouchableOpacity as never)
-      .find(
-        (n: {props: {accessibilityLabel?: string}}) =>
-          n.props.accessibilityLabel === 'Mostrar total',
-      );
+    expect(JSON.stringify(root!.toJSON())).toContain('$**.**');
+
+    let rootVisible: ReactTestRenderer.ReactTestRenderer;
     act(() => {
-      eye?.props.onPress?.();
+      rootVisible = ReactTestRenderer.create(
+        <CreditCardPreview
+          maskedCardNumber="****9999"
+          totalDue={250}
+          maxPaymentDate="2026-12-31"
+          balanceMasked={false}
+        />,
+      );
     });
-    expect(JSON.stringify(root!.toJSON())).not.toContain('$**.**');
+    expect(JSON.stringify(rootVisible!.toJSON())).not.toContain('$**.**');
   });
 });

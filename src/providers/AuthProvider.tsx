@@ -10,6 +10,7 @@ import {AppState} from 'react-native';
 import {User} from '../domain/entities/User';
 import {SecureStorageKeys} from '../data/datasources/storage/SecureStorageKeys';
 import {useDI} from '../di';
+import {useHomeSessionUiStore} from './homeSessionUiStore';
 
 interface AuthState {
   user: User | null;
@@ -122,6 +123,7 @@ export function AuthProvider({
         );
       }
       setState({user, isAuthenticated: true, isLoading: false});
+      useHomeSessionUiStore.getState().resetHomeSessionUi();
     },
     [secureStorage],
   );

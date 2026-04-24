@@ -4,6 +4,7 @@ import {useDI} from '../../di';
 import type {CreditCardBalance} from '../../domain/entities/ContractBalance';
 import {HOME_CONTRACT_BALANCE_QUERY_KEY} from '../home/useHomeViewModel';
 import {
+  EXTRA_DEMO_CREDIT_CARDS_FOR_DETAIL,
   MOCK_CARD_CONSUMPTIONS,
   MOCK_SPENDING_CATEGORIES,
   resolveApprovedCreditLimit,
@@ -25,32 +26,46 @@ export function useCardDetailViewModel(maskedCardNumber: string | undefined) {
     queryFn: () => getHomeContractBalanceUseCase.execute(),
   });
 
-  const resolved: CardDetailResolved | null = useMemo(() => {
-    if (!query.data || !maskedCardNumber) {
-      return null;
+  const cardsForCarousel: CardDetailResolved[] = useMemo(() => {
+    if (!query.data) {
+      return [];
     }
-    const card = query.data.creditCards.find(
-      c => c.maskedCardNumber === maskedCardNumber,
-    );
-    if (!card) {
-      return null;
+    const apiCards = query.data.creditCards ?? [];
+    const allCards: CreditCardBalance[] = [
+      ...apiCards,
+      ...EXTRA_DEMO_CREDIT_CARDS_FOR_DETAIL,
+    ];
+    if (allCards.length === 0) {
+      return [];
     }
-    const approvedLimit = resolveApprovedCreditLimit(card.totalDue);
-    const utilized = Math.min(card.totalDue, approvedLimit);
-    const available = Math.max(0, approvedLimit - utilized);
-    const utilizationRatio =
-      approvedLimit > 0 ? Math.min(1, utilized / approvedLimit) : 0;
+    return allCards.map(card => {
+      const approvedLimit = resolveApprovedCreditLimit(card.totalDue);
+      const utilized = Math.min(card.totalDue, approvedLimit);
+      const available = Math.max(0, approvedLimit - utilized);
+      const utilizationRatio =
+        approvedLimit > 0 ? Math.min(1, utilized / approvedLimit) : 0;
+      return {
+        card,
+        approvedLimit,
+        utilized,
+        available,
+        utilizationRatio,
+      };
+    });
+  }, [query.data]);
 
-    return {
-      card,
-      approvedLimit,
-      utilized,
-      available,
-      utilizationRatio,
-    };
-  }, [maskedCardNumber, query.data]);
+  const resolved: CardDetailResolved | null = useMemo(() => {
+    if (!maskedCardNumber || cardsForCarousel.length === 0) {
+      return null;
+    }
+    return (
+      cardsForCarousel.find(c => c.card.maskedCardNumber === maskedCardNumber) ??
+      null
+    );
+  }, [cardsForCarousel, maskedCardNumber]);
 
   return {
+    cardsForCarousel,
     resolved,
     isLoading: query.isLoading,
     errorMessage: query.error?.message ?? '',

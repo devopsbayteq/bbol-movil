@@ -4,7 +4,7 @@ import {ThemeColors, useTheme} from '../../../../providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Lexend} from '../../../../theme/lexend';
 import {buildTransferSharedStyles} from './transferSharedStyles';
-import BackNavigationArrow from '../../../../../assets/images/svg/arrow-back-left.svg';
+import {BackNavigationArrow} from '../../../../presentation/components';
 
 interface ToolbarAppProps {
   title?: string;

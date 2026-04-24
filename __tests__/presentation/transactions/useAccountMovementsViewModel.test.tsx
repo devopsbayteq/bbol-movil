@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTestRenderer, {act} from 'react-test-renderer';
 import {useDI} from '../../../src/di';
 import {useAccountMovementsViewModel} from '../../../src/presentation/transactions/useAccountMovementsViewModel';
+import {isCarouselMockAccount} from '../../../src/presentation/transactions/mockCarouselAccounts';
 
 jest.mock('../../../src/di', () => ({
   useDI: jest.fn(),
@@ -431,6 +432,73 @@ describe('useAccountMovementsViewModel', () => {
     await mountHarness(<Harness guid="acc-b" />);
 
     expect(latest?.selectedAccount?.accountGuid).toBe('acc-b');
+    expect(latest?.carouselAccounts).toHaveLength(4);
+    expect(latest?.realAccount?.accountGuid).toBe('acc-b');
+  });
+
+  test('carrusel: slide mock no llama movimientos; volver al real vuelve a consultar', async () => {
+    const executeMovements = jest.fn().mockResolvedValue({
+      totalCount: 1,
+      pageNumber: 1,
+      pageSize: 20,
+      items: [],
+    });
+
+    mockedUseDI.mockReturnValue({
+      getHomeContractBalanceUseCase: {
+        execute: jest.fn().mockResolvedValue({
+          accounts: [
+            {
+              accountGuid: 'acc-1',
+              maskedAccountNumber: '****8829',
+              accountKind: 'savings',
+              balance: 314.78,
+            },
+          ],
+          creditCards: [],
+          loans: [],
+          investments: [],
+          frequentPayments: [],
+          banners: [],
+          homeDashboardIcons: [],
+          recentTransactions: [],
+        }),
+      },
+      getAccountMovementsUseCase: {
+        execute: executeMovements,
+      },
+    } as never);
+
+    await mountHarness(<Harness />);
+
+    expect(latest?.carouselAccounts).toHaveLength(4);
+    const callsAfterInitialLoad = executeMovements.mock.calls.length;
+    expect(callsAfterInitialLoad).toBeGreaterThan(0);
+
+    await actAndDrain(() => {
+      latest?.selectCarouselAccount(1);
+    });
+
+    expect(executeMovements.mock.calls.length).toBe(callsAfterInitialLoad);
+    expect(latest?.selectedAccount).toBeDefined();
+    expect(isCarouselMockAccount(latest!.selectedAccount!.accountGuid)).toBe(
+      true,
+    );
+    expect(latest?.items).toEqual([]);
+
+    await actAndDrain(() => {
+      latest?.selectCarouselAccount(0);
+    });
+
+    expect(latest?.selectedAccount?.accountGuid).toBe('acc-1');
+    expect(executeMovements.mock.calls.length).toBeGreaterThan(
+      callsAfterInitialLoad,
+    );
+    expect(
+      executeMovements.mock.calls.some(
+        args => args[0]?.accountGuid === 'acc-1',
+      ),
+    ).toBe(true);
   });
 
   test('sin cuentas deja accountError y no movimientos', async () => {

@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -13,6 +13,7 @@ import {
   Platform,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  StatusBar,
 } from 'react-native';
 import {
   SafeAreaView,
@@ -24,21 +25,20 @@ import {
   useRoute,
   type RouteProp,
 } from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useAuth} from '../../providers';
-import type {HomeStackParamList} from '../../navigation/HomeStackNavigator';
-import {useTheme, type ThemeColors} from '../../providers';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuth } from '../../providers';
+import type { HomeStackParamList } from '../../navigation/HomeStackNavigator';
+import { useTheme, type ThemeColors } from '../../providers';
 import type {
   AccountBalance,
-  AccountKind,
   ContractBalance,
   CreditCardBalance,
   FrequentPayment,
   InvestmentBalance,
   LoanBalance,
 } from '../../domain/entities/ContractBalance';
-import {HomeHeader} from './components/HomeHeader';
-import {ProductFilterTabs} from './components/ProductFilterTabs';
+import { HomeHeader } from './components/HomeHeader';
+import { ProductFilterTabs } from './components/ProductFilterTabs';
 import {
   SavingsAccountCard,
   CheckingAccountCard,
@@ -46,13 +46,12 @@ import {
   LoanCard,
   InvestmentCard,
 } from './components/ProductCarouselCards';
-import {RequestProductRow} from './components/RequestProductRow';
-import {HomeBannersCarousel} from './components/HomeBannersCarousel';
-import {FrequentActionsSection} from './components/FrequentActionsSection';
-import {UpcomingPaymentsRow} from './components/UpcomingPaymentsRow';
-import {RecentActivitySection} from './components/RecentActivitySection';
-import {useHomeViewModel} from './useHomeViewModel';
-import {DevelopmentNoticeModal} from '../components';
+import { HomeBannersCarousel } from './components/HomeBannersCarousel';
+import { FrequentActionsSection } from './components/FrequentActionsSection';
+import { UpcomingPaymentsRow } from './components/UpcomingPaymentsRow';
+import { RecentActivitySection } from './components/RecentActivitySection';
+import { useHomeViewModel } from './useHomeViewModel';
+import { DevelopmentNoticeModal } from '../components';
 
 const HEADER_BG = require('../../../assets/images/home/header-container.png');
 
@@ -64,16 +63,6 @@ const PRODUCT_FILTERS = [
   'Préstamos',
 ] as const;
 
-function accountTitle(kind: AccountKind): string {
-  if (kind === 'savings') {
-    return 'Cta. ahorros';
-  }
-  if (kind === 'checking') {
-    return 'Cta. corriente';
-  }
-  return 'Cuenta';
-}
-
 /** Ancho de cada card del carousel como fracción del ancho de pantalla. */
 const CARD_WIDTH_SCREEN_FRACTION = 0.6;
 const CARD_HEIGHT = 130;
@@ -84,7 +73,7 @@ const MAIN_COLUMN_PADDING = 24;
 /** Altura base de la imagen de cabecera (sin el extra iOS por safe area / solapamiento con cards). */
 const HERO_IMAGE_SECTION_HEIGHT = 150;
 
-type HomeProductItem = {key: string; node: React.ReactNode};
+type HomeProductItem = { key: string; node: React.ReactNode };
 
 type HomeMainNavigation = NativeStackNavigationProp<
   HomeStackParamList,
@@ -96,11 +85,20 @@ type HomeProductCarouselStyles = {
   cardFill: object;
 };
 
+function accountDisplayTitle(acc: AccountBalance, fallbackChecking: string): string {
+  const alias = acc.accountAlias?.trim();
+  if (alias) {
+    return alias;
+  }
+  return acc.accountTypeLabel?.trim() || fallbackChecking;
+}
+
 function pushAccountProductItems(
   items: HomeProductItem[],
   accounts: AccountBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const acc of accounts) {
     const k = `acc-${acc.accountGuid}`;
@@ -123,9 +121,11 @@ function pushAccountProductItems(
             accessibilityLabel="Ver movimientos de cuenta corriente">
             <CheckingAccountCard
               style={styles.cardFill}
+              title={accountDisplayTitle(acc, 'Cta. corriente')}
               maskedAccountNumber={acc.maskedAccountNumber}
               balance={acc.balance}
               isFirst={isFirst}
+              balanceMasked={balanceMasked}
             />
           </TouchableOpacity>
         ),
@@ -149,10 +149,11 @@ function pushAccountProductItems(
           accessibilityLabel={`Ver movimientos de ${acc.maskedAccountNumber}`}>
           <SavingsAccountCard
             style={styles.cardFill}
-            title={acc.accountTypeLabel}
+            title={accountDisplayTitle(acc, 'Cta. ahorros')}
             maskedAccountNumber={acc.maskedAccountNumber}
             balance={acc.balance}
             isFirst={isFirst}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -165,6 +166,7 @@ function pushCreditCardProductItems(
   cards: CreditCardBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const card of cards) {
     const k = `cc-${card.maskedCardNumber}-${card.maxPaymentDate}`;
@@ -187,6 +189,7 @@ function pushCreditCardProductItems(
             maskedCardNumber={card.maskedCardNumber}
             totalDue={card.totalDue}
             maxPaymentDate={card.maxPaymentDate}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -199,6 +202,7 @@ function pushInvestmentProductItems(
   investments: InvestmentBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const inv of investments) {
     const k = `inv-${inv.investmentGuid}`;
@@ -223,6 +227,7 @@ function pushInvestmentProductItems(
             productName={inv.productName}
             currentValue={inv.currentValue}
             currency={inv.currency}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -235,6 +240,7 @@ function pushLoanProductItems(
   loans: LoanBalance[],
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): void {
   for (const loan of loans) {
     const k = `loan-${loan.loanGuid}`;
@@ -258,6 +264,7 @@ function pushLoanProductItems(
             loanGuid={loan.loanGuid}
             nextInstallmentAmount={loan.nextInstallmentAmount}
             nextInstallmentDate={loan.nextInstallmentDate}
+            balanceMasked={balanceMasked}
           />
         </TouchableOpacity>
       ),
@@ -270,6 +277,7 @@ function buildHomeProductItems(
   filter: string,
   navigation: HomeMainNavigation,
   styles: HomeProductCarouselStyles,
+  balanceMasked: boolean,
 ): HomeProductItem[] {
   const all = filter === 'Todos';
   const showAccounts = all || filter === 'Cuentas';
@@ -279,10 +287,16 @@ function buildHomeProductItems(
 
   const items: HomeProductItem[] = [];
   if (showAccounts) {
-    pushAccountProductItems(items, data.accounts, navigation, styles);
+    pushAccountProductItems(items, data.accounts, navigation, styles, balanceMasked);
   }
   if (showCards) {
-    pushCreditCardProductItems(items, data.creditCards, navigation, styles);
+    pushCreditCardProductItems(
+      items,
+      data.creditCards,
+      navigation,
+      styles,
+      balanceMasked,
+    );
   }
   if (showInvestments) {
     pushInvestmentProductItems(
@@ -290,19 +304,20 @@ function buildHomeProductItems(
       data.investments,
       navigation,
       styles,
+      balanceMasked,
     );
   }
   if (showLoans) {
-    pushLoanProductItems(items, data.loans, navigation, styles);
+    pushLoanProductItems(items, data.loans, navigation, styles, balanceMasked);
   }
   return items;
 }
 
 export function HomeScreen() {
-  const {user, logout} = useAuth();
-  const {colors} = useTheme();
+  const { user, logout } = useAuth();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const {width: windowWidth} = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
   /** iOS: el contenido queda más abajo por el notch; sin esto el corte teal/gris cae en el borde superior de las cards. */
   const iosHeroExtra = useMemo(
     () =>
@@ -315,6 +330,7 @@ export function HomeScreen() {
   const [filter, setFilter] = useState<string>('Todos');
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [devModalVisible, setDevModalVisible] = useState(false);
+  const [productBalancesMasked, setProductBalancesMasked] = useState(true);
   const route = useRoute<RouteProp<HomeStackParamList, 'HomeMain'>>();
   const navigation = useNavigation<HomeMainNavigation>();
 
@@ -352,7 +368,7 @@ export function HomeScreen() {
         return;
       }
       refresh().catch();
-      navigation.setParams({refreshHome: undefined});
+      navigation.setParams({ refreshHome: undefined });
     }, [navigation, refresh, route.params?.refreshHome]),
   );
 
@@ -360,7 +376,7 @@ export function HomeScreen() {
     (newFilter: string) => {
       setFilter(newFilter);
       setSelectedIdx(0);
-      carouselRef.current?.scrollTo({x: 0, animated: false});
+      carouselRef.current?.scrollTo({ x: 0, animated: false });
       scaleAnims.length = 0;
     },
     [scaleAnims],
@@ -370,11 +386,28 @@ export function HomeScreen() {
     if (!data) {
       return [];
     }
-    return buildHomeProductItems(data, filter, navigation, {
-      cardFill: styles.cardFill,
-      productCard: styles.productCard,
-    });
-  }, [data, filter, navigation, styles.cardFill, styles.productCard]);
+    return buildHomeProductItems(
+      data,
+      filter,
+      navigation,
+      {
+        cardFill: styles.cardFill,
+        productCard: styles.productCard,
+      },
+      productBalancesMasked,
+    );
+  }, [
+    data,
+    filter,
+    navigation,
+    productBalancesMasked,
+    styles.cardFill,
+    styles.productCard,
+  ]);
+
+  const toggleProductBalances = useCallback(() => {
+    setProductBalancesMasked(v => !v);
+  }, []);
 
   if (scaleAnims.length !== productItems.length) {
     scaleAnims.length = 0;
@@ -408,7 +441,7 @@ export function HomeScreen() {
   };
 
   const handleLogout = async () => {
-    await logout({suppressCompactLoginAutoBiometricOnce: true});
+    await logout({ suppressCompactLoginAutoBiometricOnce: true });
   };
 
   const openDevelopmentModal = () => {
@@ -425,8 +458,14 @@ export function HomeScreen() {
     [navigation, frequentPaymentsForHome],
   );
 
+  const openRecentActivityCalendar = useCallback(() => {
+    navigation.navigate('RecentActivityCalendar');
+  }, [navigation]);
+
   return (
     <View testID="home-screen" style={styles.root}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -450,13 +489,13 @@ export function HomeScreen() {
             <View
               style={[
                 styles.heroTealBand,
-                {backgroundColor: colors.homeHeaderBackground},
+                { backgroundColor: colors.homeHeaderBackground },
               ]}
             />
             <View
               style={[
                 styles.heroBodyFill,
-                {backgroundColor: colors.background},
+                { backgroundColor: colors.background },
               ]}
             />
           </View>
@@ -464,47 +503,50 @@ export function HomeScreen() {
           {/* Capa superior: interacción desde chips hasta pagos frecuentes */}
           <View style={styles.contentLayer}>
             <SafeAreaView edges={['top']} />
-            <HomeHeader
-              userName={user?.firstName?.trim() || user?.name}
-              onLogout={handleLogout}
-              onNotifications={openDevelopmentModal}
-            />
-
-            <View style={styles.mainColumn}>
+            <View style={styles.heroTopSection}>
+              <HomeHeader
+                userName={user?.firstName?.trim() || user?.name}
+                balancesMasked={productBalancesMasked}
+                onToggleBalances={toggleProductBalances}
+                onRequestProducts={openDevelopmentModal}
+                onLogout={handleLogout}
+              />
               <ProductFilterTabs
-                
                 filters={PRODUCT_FILTERS}
                 selectedFilter={filter}
                 onFilterChange={handleFilterChange}
               />
+            </View>
+
+            <View style={styles.mainColumn}>
               {!isLoading && productItems.length > 0 ? (
-              <View style={styles.carouselLayer} pointerEvents="box-none">
-                <ScrollView
-                  ref={carouselRef}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  snapToInterval={cardSnapInterval}
-                  snapToAlignment="start"
-                  decelerationRate="fast"
-                  onMomentumScrollEnd={onCarouselScroll}
-                  contentContainerStyle={styles.carouselRow}>
-                  {productItems.map((item, i) => (
-                    <Animated.View
-                      key={item.key}
-                      style={[
-                        styles.carouselItem,
-                        {
-                          transform: [
-                            {scale: scaleAnims[i] ?? new Animated.Value(1)},
-                          ],
-                        },
-                      ]}>
-                      {item.node}
-                    </Animated.View>
-                  ))}
-                </ScrollView>
-              </View>
-            ) : null}
+                <View style={styles.carouselLayer} pointerEvents="box-none">
+                  <ScrollView
+                    ref={carouselRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    snapToInterval={cardSnapInterval}
+                    snapToAlignment="start"
+                    decelerationRate="fast"
+                    onMomentumScrollEnd={onCarouselScroll}
+                    contentContainerStyle={styles.carouselRow}>
+                    {productItems.map((item, i) => (
+                      <Animated.View
+                        key={item.key}
+                        style={[
+                          styles.carouselItem,
+                          {
+                            transform: [
+                              { scale: scaleAnims[i] ?? new Animated.Value(1) },
+                            ],
+                          },
+                        ]}>
+                        {item.node}
+                      </Animated.View>
+                    ))}
+                  </ScrollView>
+                </View>
+              ) : null}
             </View>
 
             {error ? (
@@ -525,12 +567,11 @@ export function HomeScreen() {
               <Text style={styles.emptyProductsInline}>
                 No hay productos en esta categoría.
               </Text>
-            )}            
+            )}
 
             {data ? (
               <View style={[styles.mainColumn, styles.contentArea]}>
                 <View style={styles.dashboardColumn}>
-                  <RequestProductRow onPress={openDevelopmentModal} />
                   <HomeBannersCarousel banners={bannersForHome} />
                   <FrequentActionsSection
                     items={frequentPaymentsForHome}
@@ -543,7 +584,7 @@ export function HomeScreen() {
                   <RecentActivitySection
                     items={recentActivityItems}
                     onPressListIcon={openDevelopmentModal}
-                    onPressCalendarIcon={openDevelopmentModal}
+                    onPressCalendarIcon={openRecentActivityCalendar}
                   />
                 </View>
               </View>
@@ -561,7 +602,7 @@ export function HomeScreen() {
 
 function useStyles(
   colors: ThemeColors,
-  layout: {cardWidth: number; cardHeight: number},
+  layout: { cardWidth: number; cardHeight: number },
   iosHeroExtra: number,
 ) {
   return useMemo(
@@ -606,15 +647,19 @@ function useStyles(
           zIndex: 1,
           width: '100%',
         },
+        heroTopSection: {
+          gap: 24,
+          width: '100%',
+        },
         mainColumn: {
           //paddingHorizontal: MAIN_COLUMN_PADDING,
           width: '100%',
           alignSelf: 'center',
           maxWidth: '100%',
         },
-        carouselLayer: {        
+        carouselLayer: {
           zIndex: 2,
-  
+
         },
         contentArea: {
           paddingTop: 16,
