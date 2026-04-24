@@ -67,3 +67,10 @@ jest.mock('react-native-keychain', () => ({
   SECURITY_LEVEL: {SECURE_SOFTWARE: 0, SECURE_HARDWARE: 1, ANY: 2},
 }));
 
+jest.mock('react-native-share', () => ({
+  __esModule: true,
+  default: {
+    open: jest.fn(() => Promise.resolve(undefined)),
+  },
+}));
+

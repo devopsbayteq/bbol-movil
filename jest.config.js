@@ -13,9 +13,10 @@ module.exports = {
   moduleNameMapper: {
     '^react-native-quick-crypto$': '<rootDir>/jest/crypto-shim.js',
     '^react-native-screenguard$': '<rootDir>/jest/screenguard-mock.js',
+    '^react-native-view-shot$': '<rootDir>/jest/view-shot-mock.js',
     '\\.svg$': '<rootDir>/jest/svg-mock.js',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation/.*|react-native-quick-crypto|react-native-nitro-modules|react-native-quick-base64|uuid|react-native-linear-gradient)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation/.*|react-native-quick-crypto|react-native-nitro-modules|react-native-quick-base64|uuid|react-native-linear-gradient|react-native-view-shot)/)',
   ],
 };
