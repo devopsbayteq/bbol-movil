@@ -67,22 +67,6 @@ jest.mock('react-native-keychain', () => ({
   SECURITY_LEVEL: {SECURE_SOFTWARE: 0, SECURE_HARDWARE: 1, ANY: 2},
 }));
 
-/** El paquete publica ESM con JSX; Jest no lo transforma por defecto. */
-jest.mock('react-native-view-shot', () => {
-  const React = require('react');
-  const {View} = require('react-native');
-  return {
-    __esModule: true,
-    default: React.forwardRef((props, ref) => {
-      const {children, options: _options, ...rest} = props;
-      React.useImperativeHandle(ref, () => ({
-        capture: jest.fn(() => Promise.resolve('file://mock-view-shot.png')),
-      }));
-      return React.createElement(View, rest, children);
-    }),
-  };
-});
-
 jest.mock('react-native-share', () => ({
   __esModule: true,
   default: {
